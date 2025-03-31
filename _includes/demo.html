@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert Number and Password into Link</title>
+    <title>Insert Code and PIN into Link</title>
     <script>
         function updateLink() {
             // Get the values from the input fields
-            var number = document.getElementById('numberInput').value;
-            var password = document.getElementById('passwordInput').value;
+            var code = document.getElementById('codeInput').value;
+            var pin = document.getElementById('pinInput').value;
 
             // Find the link and update the href attribute
             var link = document.getElementById('dynamicLink');
 
-            // Create a query string with the number and password
-            link.href = 'https://example.com/?number=' + encodeURIComponent(number) + '&password=' + encodeURIComponent(password);
+            // Create a query string with the code and pin
+            link.href = 'https://billpayment.getgiftme.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
 
             // Optionally, update link text to show the new URL
             link.textContent = 'Go to: ' + link.href;
@@ -22,15 +22,15 @@
     </script>
 </head>
 <body>
-    <h1>Enter Number and Password</h1>
+    <h1>Enter Code and PIN</h1>
     
-    <label for="numberInput">Enter Number:</label>
-    <input type="text" id="numberInput" oninput="updateLink()" placeholder="Type a number...">
+    <label for="codeInput">Enter Code:</label>
+    <input type="text" id="codeInput" oninput="updateLink()" placeholder="Type a code...">
     
     <br><br>
     
-    <label for="passwordInput">Enter Password:</label>
-    <input type="password" id="passwordInput" oninput="updateLink()" placeholder="Type a password...">
+    <label for="pinInput">Enter PIN:</label>
+    <input type="password" id="pinInput" oninput="updateLink()" placeholder="Type a PIN...">
     
     <br><br>
     
