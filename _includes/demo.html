@@ -3,45 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert Code and PIN into Link</title>
+    <title>Code & PIN Redirect</title>
 </head>
 <body>
-    <h1>Enter Code and PIN</h1>
-    
-    <label for="codeInput">Enter Code:</label>
-    <input type="text" id="codeInput" placeholder="Type a code...">
-    
-    <br><br>
-    
-    <label for="pinInput">Enter PIN:</label>
-    <input type="password" id="pinInput" placeholder="Type a PIN...">
-    
-    <br><br>
-    
-    <button type="button" onclick="redirectToLink()">Submit</button>
+    <form id="redirectForm">
+        <label for="code">Code:</label>
+        <input type="text" id="code" name="code" required>
+        <br>
+        <label for="pin">PIN:</label>
+        <input type="password" id="pin" name="pin" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
 
-    <!-- JavaScript Code -->
     <script>
-        function redirectToLink() {
-            alert("Button clicked!");  // Debugging Alert
-            console.log("Button clicked!");
-
-            var code = document.getElementById('codeInput').value.trim();
-            var pin = document.getElementById('pinInput').value.trim();
-
-            if (!code || !pin) {
-                alert("Please enter both the Code and PIN.");
-                return;
+        document.getElementById("redirectForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById("code").value;
+            const pin = document.getElementById("pin").value;
+            
+            if (code && pin) {
+                const url = `https://example.com/verify?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}`;
+                window.location.href = url;
             }
-
-            var url = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
-            
-            alert("Redirecting to: " + url);  // Debugging Alert
-            console.log("Redirecting to: ", url);
-            
-            window.location.href = url;
-        }
+        });
     </script>
-
 </body>
 </html>
