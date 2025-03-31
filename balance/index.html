@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Balance</title>
+  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+<link rel="manifest" href="https://www.allpree.com/balance/manifest.json" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="apple-touch-icon" sizes="180x180" href="https://www.allpree.com/img/Allpreelogo.png"/>
+        <link rel="icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/Allpreelogo.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/Allpreelogo.png"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/Allpreelogo.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/Allpreelogo.png"/>
+  </head>
+
+<body>
+
+<section id="features" class="features">
+    <div class="container">
+       <div class="row">      
+ <center>
+ <h3>Check Your eGift Card Balance</h3>
+ </center>
+
+ <div class="row text-center">
+                 
+                 <!--  <h3> ONLY MEMBERS CAN PURCHASE OUR VOUCHERS </h3>    -->	
+                  
+ just enter your card information below.
+                
+            <br> <br>
+  <center>  <img src="https://www.allpree.com/img/Card%20Scan%202%20M.png" width="120" height="" alt="105"> 
+
+<br><br>
+     
+    <form id="redirectForm">
+        <label for="code">Enter Card Number:</label>
+        <input type="text" id="code" name="code" required>
+        <br>
+        <label for="pin">Enter 4-Digit Code:</label>
+        <input type="password" id="pin" name="pin" required>
+        <br><br>
+        <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit"><i class="fa-solid fa-computer-mouse"></i> Check Your Balance </button>
+    </form>
+
+    <script>
+        document.getElementById("redirectForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById("code").value;
+            const pin = document.getElementById("pin").value;
+            
+            if (code && pin) {
+                const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
+                window.location.href = url;
+            }
+        });
+    </script>
+
+ <script>
+ if (!navigator.serviceWorker.controller) {
+     navigator.serviceWorker.register("https://www.allpree.com/balance/sw.js").then(function(reg) {
+         console.log("Service worker has been registered for scope: " + reg.scope);
+     });
+ }
+</script>
+      
+</div></div>
+           
+</section>
+</html>
