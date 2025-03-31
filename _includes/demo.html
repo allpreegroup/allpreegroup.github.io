@@ -18,16 +18,14 @@
     
     <br><br>
     
-    <button type="button" id="submitBtn">Submit</button>
+    <button type="button" onclick="redirectToLink()">Submit</button>
 
     <!-- JavaScript Code -->
     <script>
-        // Ensure the script runs only after the page loads
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("submitBtn").addEventListener("click", redirectToLink);
-        });
-
         function redirectToLink() {
+            alert("Button clicked!");  // Debugging Alert
+            console.log("Button clicked!");
+
             var code = document.getElementById('codeInput').value.trim();
             var pin = document.getElementById('pinInput').value.trim();
 
@@ -38,8 +36,8 @@
 
             var url = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
             
-            console.log("Redirecting to: ", url);
             alert("Redirecting to: " + url);  // Debugging Alert
+            console.log("Redirecting to: ", url);
             
             window.location.href = url;
         }
