@@ -1,0 +1,26 @@
+
+<body>
+    <form id="redirectForm">
+        <label for="code">Code:</label>
+        <input type="text" id="code" name="code" required>
+        <br>
+        <label for="pin">PIN:</label>
+        <input type="password" id="pin" name="pin" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById("redirectForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById("code").value;
+            const pin = document.getElementById("pin").value;
+            
+            if (code && pin) {
+                const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
+                window.location.href = url;
+            }
+        });
+    </script>
+</body>
