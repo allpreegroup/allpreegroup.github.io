@@ -9,38 +9,30 @@
     <h1>Enter Code and PIN</h1>
     
     <label for="codeInput">Enter Code:</label>
-    <input type="text" id="codeInput" placeholder="Type a code..." required>
+    <input type="text" id="codeInput" placeholder="Type a code...">
     
     <br><br>
     
     <label for="pinInput">Enter PIN:</label>
-    <input type="password" id="pinInput" placeholder="Type a PIN..." required>
+    <input type="password" id="pinInput" placeholder="Type a PIN...">
     
     <br><br>
     
     <button type="button" onclick="redirectToLink()">Submit</button>
 
-    <!-- JavaScript Code -->
     <script type="text/javascript">
         function redirectToLink() {
-            // Get the values from the input fields
-            var code = document.getElementById('codeInput').value;
-            var pin = document.getElementById('pinInput').value;
+            var code = document.getElementById('codeInput').value.trim();
+            var pin = document.getElementById('pinInput').value.trim();
 
-            // Check if inputs are filled
             if (!code || !pin) {
-                console.log("Code or PIN is missing.");
                 alert("Please enter both the Code and PIN.");
-                return;  // Prevent the redirect if inputs are missing
+                return;
             }
 
-            // Construct the URL with the code, pin, and add context=modal at the end
             var url = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
             
-            // Debugging: Log the URL to the console before redirect
-            console.log("Redirecting to: ", url);
-
-            // Redirect the browser to the constructed URL
+            alert("Redirecting to: " + url);  // Debugging Alert
             window.location.href = url;
         }
     </script>
