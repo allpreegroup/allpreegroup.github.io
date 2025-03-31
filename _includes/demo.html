@@ -5,25 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Insert Code and PIN into Link</title>
     <script>
-        function updateLink() {
+        function redirectToLink() {
             // Get the values from the input fields
             var code = document.getElementById('codeInput').value;
             var pin = document.getElementById('pinInput').value;
 
-            // Find the link and update the href attribute
-            var link = document.getElementById('dynamicLink');
+            // Construct the URL with the code, pin, and add context=modal at the end
+            var url = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
 
-            // Create a query string with the code, pin, and add context=modal at the end
-            link.href = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
-
-            // Optionally, update link text to show the new URL
-            link.textContent = 'Go to: ' + link.href;
-        }
-
-        // Ensure the link opens after the user updates the fields
-        function openLink() {
-            var link = document.getElementById('dynamicLink');
-            window.location.href = link.href;  // Open the link programmatically
+            // Redirect to the constructed URL
+            window.location.href = url;
         }
     </script>
 </head>
@@ -31,15 +22,15 @@
     <h1>Enter Code and PIN</h1>
     
     <label for="codeInput">Enter Code:</label>
-    <input type="text" id="codeInput" oninput="updateLink()" placeholder="Type a code...">
+    <input type="text" id="codeInput" placeholder="Type a code..." required>
     
     <br><br>
     
     <label for="pinInput">Enter PIN:</label>
-    <input type="password" id="pinInput" oninput="updateLink()" placeholder="Type a PIN...">
+    <input type="password" id="pinInput" placeholder="Type a PIN..." required>
     
     <br><br>
     
-    <a id="dynamicLink" href="https://example.com/" target="_blank" onclick="openLink(); return false;">Go to: https://example.com/</a>
+    <button onclick="redirectToLink()">Go to URL</button>
 </body>
 </html>
