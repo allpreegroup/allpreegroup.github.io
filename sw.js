@@ -6,7 +6,7 @@ var preLoad = function(){
   console.log("Installing web app");
   return caches.open("offline").then(function(cache) {
     console.log("caching index and important routes");
-    return cache.addAll(["/bal", "/"]);
+    return cache.addAll(["/"]);
   });
 };
 
@@ -42,7 +42,7 @@ var returnFromCache = function(request){
   return caches.open("offline").then(function (cache) {
     return cache.match(request).then(function (matching) {
      if(!matching || matching.status == 404) {
-       return cache.match("offline.html");
+       return cache.match("404.html");
      } else {
        return matching;
      }
