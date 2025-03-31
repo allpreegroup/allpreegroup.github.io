@@ -18,9 +18,15 @@
     
     <br><br>
     
-    <button type="button" onclick="redirectToLink()">Submit</button>
+    <button type="button" id="submitBtn">Submit</button>
 
-    <script type="text/javascript">
+    <!-- JavaScript Code -->
+    <script>
+        // Ensure the script runs only after the page loads
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("submitBtn").addEventListener("click", redirectToLink);
+        });
+
         function redirectToLink() {
             var code = document.getElementById('codeInput').value.trim();
             var pin = document.getElementById('pinInput').value.trim();
@@ -32,7 +38,9 @@
 
             var url = 'https://example.com/?code=' + encodeURIComponent(code) + '&pin=' + encodeURIComponent(pin) + '&context=modal';
             
+            console.log("Redirecting to: ", url);
             alert("Redirecting to: " + url);  // Debugging Alert
+            
             window.location.href = url;
         }
     </script>
