@@ -9,25 +9,20 @@ show-in-menu: no
 <html>
  
  {% include head.html %}
- <link rel="manifest" href="https://www.allpree.com/manifest.json" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
- <link rel="apple-touch-icon" sizes="180x180" href="https://www.allpree.com/img/Allpreelogo.png"/>
-        <link rel="icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/Allpreelogo.png"/>
-        <link rel="icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/Allpreelogo.png"/>
-        <link rel="icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/Allpreelogo.png"/>
-        <link rel="icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/Allpreelogo.png"/>
+ 
 <body>
   
  
   {% include balance.html %}
  
 <script>
- if (!navigator.serviceWorker.controller) {
-     navigator.serviceWorker.register("https://www.allpree.com/sw.js").then(function(reg) {
-         console.log("Service worker has been registered for scope: " + reg.scope);
-     });
- }
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("{{site.baseurl}}/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
+    }
 </script>
+
 </body>
  
 </html>
