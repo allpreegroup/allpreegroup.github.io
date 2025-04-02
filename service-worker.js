@@ -8,7 +8,7 @@ var preLoad = function () {
             "/",
             "/balance/",
             "/manifest.json",
-            "/img/Allpree.jpg",
+            "/img/AllPreepwa.png",
             "/404.html" // Ensure this file actually exists on your server
         ]).catch(err => console.error("Cache error:", err));
     });
