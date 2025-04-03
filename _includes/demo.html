@@ -1,38 +1,39 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream</title>
+</head>
+<body>
+
 <div id="player"></div>
 
 <script>
-    function loadYouTubeScript() {
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    function initYouTubePlayer() {
-        if (typeof YT === "undefined" || typeof YT.Player === "undefined") {
-            loadYouTubeScript();
-            setTimeout(initYouTubePlayer, 1000); // Wait for script to load
-            return;
-        }
-
+    function onYouTubeIframeAPIReady() {
         new YT.Player('player', {
-            videoId: 'AO6P7CWkE_g', // Manually update this with your live video ID
+            videoId: 'AO6P7CWkE_g', // Replace with your live stream video ID
             playerVars: {
                 autoplay: 1,
-                controls: 0,
+                controls: 1,
                 modestbranding: 1,
                 rel: 0,
                 showinfo: 0,
                 fs: 0
             },
             events: {
-                'onReady': function (event) {
+                'onReady': function(event) {
                     event.target.playVideo();
                 }
             }
         });
     }
-
-    window.addEventListener("load", initYouTubePlayer);
 </script>
+
+</body>
+</html>
