@@ -38,18 +38,19 @@
     </form>  </center>
 
     <script>
-        document.getElementById("redirectForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            
-            const code = document.getElementById("code").value;
-            const pin = document.getElementById("pin").value;
-            
-            if (code && pin) {
-                const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
-                window.location.assign(url);
-            }
-        });
-    </script>
+    document.getElementById("redirectForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const code = document.getElementById("code").value;
+        const pin = document.getElementById("pin").value;
+
+        if (code && pin) {
+            const url = `/redirect.html?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}`;
+            window.location.href = url;
+        }
+    });
+</script>
+
 
 <strong> <hr/> </strong>
 <center>  <img src="{{site.baseurl}}/img/IMG_20250401_195001_287.png" width="100" height="" alt="100"> 
