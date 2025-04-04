@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v4";
+var CACHE_NAME = "offline-v5";
 
 var preLoad = function () {
     console.log("Installing web app...");
@@ -8,7 +8,7 @@ var preLoad = function () {
             "/",
             "/balance/",
             "/manifest.json",
-            "/img/IMG_20210502_122429_193.png",
+            "/img/AllPreepwaapp.png",
             "/404.html" // Ensure this file actually exists on your server
         ]).catch(err => console.error("Cache error:", err));
     });
