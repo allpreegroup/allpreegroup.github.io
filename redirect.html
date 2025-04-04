@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        // Extract query parameters
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const pin = params.get('pin');
+
+        if (code && pin) {
+            const destination = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
+            window.location.replace(destination); // Replace to avoid back button loop
+        } else {
+            document.body.innerText = "Missing required information.";
+        }
+    </script>
+</head>
+<body>
+    Redirecting...
+</body>
+</html>
