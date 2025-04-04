@@ -2,22 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting...</title>
+    <title>Gift Card Balance</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="externalPage" src=""></iframe>
+
     <script>
-        // Extract query parameters
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const pin = params.get('pin');
 
         if (code && pin) {
-            const destination = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
-            window.location.replace(destination); // Replace to avoid back button loop
+            const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
+            document.getElementById("externalPage").src = url;
         } else {
-            document.body.innerText = "Missing required information.";
+            document.body.innerHTML = "<p>Missing code or pin</p>";
         }
     </script>
-</head>
-<body>
-    Redirecting...
 </body>
 </html>
