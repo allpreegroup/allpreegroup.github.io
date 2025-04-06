@@ -19,10 +19,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   });
 </script> -->
 
-<!-- Fullscreen Overlay -->
-<div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999;">
-  
-  <!-- Close Button -->
+<!-- Close Button -->
   <button onclick="closeOverlay()" style="
     position:absolute;
     top:15px;
@@ -36,8 +33,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     border-radius:8px;
   ">✕ Close</button>
 
-  <!-- Embedded Page -->
+  <!-- Iframe -->
   <iframe 
+    id="menuIframe"
     src="https://www.allpree.com/menu/" 
     style="width:100%; height:100%; border:none;"
   ></iframe>
@@ -51,9 +49,22 @@ function openOverlay() {
 function closeOverlay() {
   document.getElementById('fullscreenOverlay').style.display = 'none';
 }
+
+// Listen for message from iframe
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://www.allpree.com') return; // Ensure it's from your site
+  if (event.data === 'close-overlay') {
+    closeOverlay();
+  }
+});
 </script>
-
-
+<script>
+document.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', function() {
+    window.parent.postMessage('close-overlay', 'https://www.allpree.com/balance'); // Replace with your PWA's origin
+  });
+});
+</script>
 <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
