@@ -21,7 +21,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 <!-- Fullscreen Overlay -->
 <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
-  <button onclick="smartBack('/balance')" style="
+  <button onclick="goBackToLastUrl()" style="
     position:absolute;
     top:15px;
     right:15px;
@@ -39,6 +39,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 <script>
 function loadMenu() {
+  // Save current URL before showing overlay
+  sessionStorage.setItem('lastUrl', window.location.href);
+
   fetch('https://www.allpree.com/menu/')
     .then(response => response.text())
     .then(html => {
@@ -50,15 +53,15 @@ function loadMenu() {
       console.error(err);
     });
 }
-  
-function smartBack(fallbackUrl) {
-  if (document.referrer && document.referrer !== location.href) {
-    history.back();
+
+function goBackToLastUrl() {
+  const lastUrl = sessionStorage.getItem('lastUrl');
+  if (lastUrl && lastUrl !== window.location.href) {
+    window.location.href = lastUrl;
   } else {
-    window.location.href = fallbackUrl;
+    window.location.href = '/'; // fallback page
   }
 }
-
 </script>
 
 <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
