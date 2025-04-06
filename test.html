@@ -78,19 +78,19 @@
   <!-- Instructions for Android -->
   <div id="android-instructions" class="instructions" style="display: none;">
   <center>  <h2>Step One</h2></center> 
-    <p>Add our app to your home screen:</p>
+    <p>Add our web app to your home screen:</p>
     <ol>
-      <li>Tap the three dots (menu) in the top right corner of your browser.</li>
+      <li>Tap the (menu) in the right corner of your browser.</li>
       <li>Select "Add to Home Screen."</li>
       <li>Tap "Add" and you're done!</li>
     </ol>
    <center>  <h2>Step Two</h2> </center>
-  <p>You're all set up! To make things even easier:</p>
+  <p>Move our web app to your front screen:</p>
   <ol style="text-align: left;">
     <li>📱 Go to your phone’s Home Screen</li>
-    <li>🔍 Find the <strong>AllPree</strong> App icon</li>
+    <li>🔍 Find <strong>Allpree.com</strong> App icon</li>
     <li>📌 Tap & hold it, then move it to the front page</li>
-    <li>🔔 Open the app and allow notifications when prompted</li>
+    <li>🔔 Open app and allow notifications when prompted</li>
   </ol>
   <p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
@@ -116,6 +116,9 @@
   </ol>
   <p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
+
+ <button onclick="document.getElementById('final-instructions').style.display='none'" style="margin-top: 1rem;">Got It!</button>
+  
   </div>
 
   <!-- Desktop User Warning -->
@@ -123,6 +126,24 @@
     <p>It looks like you're visiting from a desktop! Please visit this site on your mobile phone to add it to your home screen.</p>
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
   </div>
+
+  <!-- Splash Page -->
+<div id="splash-page">
+  <!-- Splash content -->
+  <button onclick="closeSplashPage()">Continue</button>
+</div>
+
+<!-- Final Instructions -->
+<div id="final-instructions" style="display: none;">
+  <h2>🚀 Final Step</h2>
+  <ol>
+    <li>📱 Find the app on your Home Screen</li>
+    <li>📌 Move it to your front page</li>
+    <li>🔔 Open it and accept notifications</li>
+  </ol>
+  <button onclick="document.getElementById('final-instructions').style.display='none'">Got it</button>
+</div>
+  
 
   <script>
     // Function to close the splash page (redirect user to the main page after viewing instructions)
@@ -147,6 +168,27 @@
     // Run the device detection when the page loads
     window.onload = detectDevice;
   </script>
+ <script>
+    window.addEventListener("load", () => {
+      // Only show once after install
+      if (!localStorage.getItem("instructionsShown")) {
+        document.getElementById("final-instructions").style.display = "block";
+        localStorage.setItem("instructionsShown", "true");
+      }
+    });
+  </script>
+  <script>
+  function closeSplashPage() {
+    // Hide the splash
+    document.getElementById('splash-page').style.display = 'none';
+
+    // Show final instructions if not already shown
+    if (!localStorage.getItem("instructionsShown")) {
+      document.getElementById("final-instructions").style.display = "block";
+      localStorage.setItem("instructionsShown", "true");
+    }
+  }
+</script>
 
 </body>
 </html>
