@@ -21,6 +21,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 <!-- Fullscreen Overlay -->
 <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+  <!-- Close Button -->
   <button onclick="closeOverlay()" style="
     position:absolute;
     top:15px;
@@ -34,25 +35,34 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     border-radius:8px;
   ">✕ Close</button>
 
+  <!-- Menu Content (loaded via AJAX) -->
   <div id="menuContent" style="padding:20px;"></div>
 </div>
 
 <script>
+function openOverlay() {
+  // Prevent page layout shift when the overlay is shown
+  document.body.style.overflow = 'hidden'; // Disable scrolling on the body
+  document.getElementById('fullscreenOverlay').style.display = 'block'; // Show the overlay
+}
+
+function closeOverlay() {
+  // Restore the page layout when closing the overlay
+  document.body.style.overflow = 'auto'; // Enable scrolling on the body
+  document.getElementById('fullscreenOverlay').style.display = 'none'; // Hide the overlay
+}
+
 function loadMenu() {
   fetch('https://www.allpree.com/menu/')
     .then(response => response.text())
     .then(html => {
       document.getElementById('menuContent').innerHTML = html;
-      document.getElementById('fullscreenOverlay').style.display = 'block';
+      openOverlay(); // Open the overlay after loading the content
     })
     .catch(err => {
       alert("Failed to load menu.");
       console.error(err);
     });
-}
-
-function closeOverlay() {
-  document.getElementById('fullscreenOverlay').style.display = 'none';
 }
 </script>
 
