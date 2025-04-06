@@ -40,7 +40,7 @@
 
 			
 <br>
- <form id="redirectForm">
+<!--	 <form id="redirectForm">
      <center>   <label for="code">Referral Code:</label>
         <input type="text" id="code" name="code" required></center>
         <br> 
@@ -62,69 +62,70 @@
                 window.location.href = url;
             }
         });
-    </script>
+    </script>  -->
 
 
 
 
 <hr>
 
-		<!--	<form id="redirectForm">
-    <center>
-        <label for="code">Referral Code:</label>
-        <input type="text" id="code" name="code" required>
-        <br><br>
-        <button class="btn btn-outline btn-xla" type="submit">
-            <i class="fa-solid fa-computer-mouse"></i> Send WhatsApp Msg
-        </button>
-    </center>
+		<form id="redirectForm">
+  <center>
+    <label for="code">Referral Code:</label>
+    <input type="text" id="code" name="code" required>
+    <br><br>
+    <button type="submit" class="btn btn-outline btn-xla">
+      <i class="fa-solid fa-computer-mouse"></i> Send WhatsApp Msg
+    </button>
+  </center>
 </form>
 
-<div id="referralDisplay" style="text-align: center; margin-top: 10px;"></div>
+<div id="referralDisplay" style="text-align: center; margin-top: 15px;"></div>
 
 <script>
-    // Set referral code as cookie
-    function setReferralCookie(code) {
-        const days = 365;
-        const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `referralCode=${code};expires=${d.toUTCString()};path=/`;
+  // Set cookie for 1 year
+  function setReferralCookie(code) {
+    const d = new Date();
+    d.setTime(d.getTime() + (365*24*60*60*1000));
+    document.cookie = "referralCode=" + encodeURIComponent(code) + "; expires=" + d.toUTCString() + "; path=/";
+  }
+
+  // Read cookie
+  function getReferralCookie() {
+    const match = document.cookie.match(/(?:^|; )referralCode=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  // Show saved code
+  function showReferralCode() {
+    const saved = getReferralCookie();
+    if (saved) {
+      document.getElementById("referralDisplay").innerText = "Your referral code: " + saved;
     }
+  }
 
-    // Show referral code if stored
-    function showReferral() {
-        const match = document.cookie.match(/referralCode=([^;]+)/);
-        if (match) {
-            document.getElementById('referralDisplay').innerText = 
-                `Your referral code: ${match[1]}`;
-        }
+  // On form submit
+  document.getElementById("redirectForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const code = document.getElementById("code").value.trim();
+
+    if (code !== "") {
+      setReferralCookie(code);
+
+      const msg = `*Shop Now, Get Paid Later!*\n\nGet *up to 49% cashback* at 76 supermarkets and 300+ stores in Jamaica!\n\n✅ No extra effort\n✅ Real cashback\n\nVisit: www.allpree.com/info\n\nInvitation Code: *${code}*`;
+
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+      window.location.href = whatsappUrl;
     }
+  });
 
-    // Submit event
-    document.getElementById("redirectForm").addEventListener("submit", function(e) {
-        e.preventDefault(); // Stop normal form submission
-
-        const code = document.getElementById("code").value.trim();
-
-        if (code !== "") {
-            setReferralCookie(code);
-
-            const whatsappMessage = `*Shop Now, Get Paid Later!*\n\n` +
-                `Get *up to 49% cashback* at 76 supermarkets and 300+ stores across Jamaica!\n\n` +
-                `✅ No extra effort\n✅ Real cashback, real savings!\n\n` +
-                `📲 Start here: www.allpree.com/info\n\n` +
-                `Invitation Code: *${encodeURIComponent(code)}*`;
-
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
-
-            window.location.href = whatsappUrl;
-        }
-    });
-
-    // Show code on load
-    window.onload = showReferral;
+  // Show on page load
+  window.onload = showReferralCode;
 </script>
- -->
+
+
 
 
                  
