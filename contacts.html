@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Save Our Contact</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    button {
+      padding: 15px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1e90ff;
+      color: white;
+      cursor: pointer;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Save Our Contact</h1>
+  <div id="action"></div>
+
+  <script>
+    const contactDetails = {
+      fullName: "John Doe",
+      organization: "JD Enterprises",
+      email: "john@example.com",
+      website: "https://jdenterprises.com",
+      address: "123 Main St;City;State;ZIP;Country",
+      numbers: [
+        { type: "cell", number: "1234567890" },         // Main cell phone number
+        { type: "work", number: "8765551234" },         // Work number
+        { type: "home", number: "8762225678" },         // Home number
+        // { type: "support", number: "8763334444" },    // Support (commented out)
+        // { type: "sales", number: "8761112222" },      // Sales (commented out)
+        { type: "whatsapp", number: "+1234567890" },    // WhatsApp number 1
+        { type: "whatsapp2", number: "+0987654321" },   // WhatsApp number 2
+        { type: "whatsapp3", number: "+1122334455" }    // WhatsApp number 3
+      ],
+      socialHandles: {
+        twitter: "@JohnDoe",
+        facebook: "https://facebook.com/JohnDoe",
+        linkedin: "https://linkedin.com/in/johndoe",
+        instagram: "https://instagram.com/johndoe"
+      }
+    };
+
+    function generateVCF() {
+      let vcard = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${contactDetails.fullName}
+ORG:${contactDetails.organization}
+EMAIL:${contactDetails.email}
+URL:${contactDetails.website}
+ADR:;;${contactDetails.address}
+`.trim();
+
+      contactDetails.numbers.forEach(n => {
+        // Only add phone numbers that are not commented out
+        vcard += `\nTEL;TYPE=${n.type}:${n.number}`;
+      });
+
+      // Adding social handles to the vCard
+      if (contactDetails.socialHandles.twitter) {
+        vcard += `\nX-SOCIALPROFILE;TYPE=twitter:${contactDetails.socialHandles.twitter}`;
+      }
+      if (contactDetails.socialHandles.facebook) {
+        vcard += `\nX-SOCIALPROFILE;TYPE=facebook:${contactDetails.socialHandles.facebook}`;
+      }
+      if (contactDetails.socialHandles.linkedin) {
+        vcard += `\nX-SOCIALPROFILE;TYPE=linkedin:${contactDetails.socialHandles.linkedin}`;
+      }
+      if (contactDetails.socialHandles.instagram) {
+        vcard += `\nX-SOCIALPROFILE;TYPE=instagram:${contactDetails.socialHandles.instagram}`;
+      }
+
+      vcard += `\nEND:VCARD`;
+
+      const blob = new Blob([vcard], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "contact.vcf";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const actionDiv = document.getElementById("action");
+
+    if (isAndroid) {
+      const contactIntentURL =
+        "intent://createContact#Intent;" +
+        "scheme=content;" +
+        "action=android.intent.action.INSERT;" +
+        "type=vnd.android.cursor.dir/contact;" +
+        `S.name=${encodeURIComponent(contactDetails.fullName)};` +
+        `S.phone=${contactDetails.numbers[0].number};` +  // uses the first number
+        `S.email=${contactDetails.email};` +
+        `S.organization=${encodeURIComponent(contactDetails.organization)};` +
+        `S.postal=${encodeURIComponent(contactDetails.address)};` +
+        "end;";
+
+      actionDiv.innerHTML = `<a href="${contactIntentURL}">
+        <button>Add to Contacts (Android)</button>
+      </a>`;
+    } else if (isIOS) {
+      actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
+    } else {
+      actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
+    }
+  </script>
+
+</body>
+</html>
