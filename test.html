@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add to Home Screen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .instructions {
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      margin: 10px 0;
+    }
+    .instructions h2 {
+      margin-top: 0;
+    }
+    .instructions button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    .instructions button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Install Our App</h1>
+
+  <!-- Instructions for Android -->
+  <div id="android-instructions" class="instructions" style="display: none;">
+    <h2>For Android Users</h2>
+    <p>To add this app to your home screen:</p>
+    <ol>
+      <li>Tap the three dots (menu) in the top right corner of your browser.</li>
+      <li>Select "Add to Home Screen."</li>
+      <li>Tap "Add" and you're done!</li>
+    </ol>
+    <button onclick="closeSplashPage()">Got it!</button>
+  </div>
+
+  <!-- Instructions for iOS -->
+  <div id="ios-instructions" class="instructions" style="display: none;">
+    <h2>For iOS Users</h2>
+    <p>To add this app to your home screen:</p>
+    <ol>
+      <li>Tap the Share icon (the square with an arrow) at the bottom of your screen.</li>
+      <li>Scroll down and select "Add to Home Screen."</li>
+      <li>Tap "Add" in the top-right corner.</li>
+    </ol>
+    <button onclick="closeSplashPage()">Got it!</button>
+  </div>
+
+  <script>
+    // Function to close the splash page (redirect user to the main page after viewing instructions)
+    function closeSplashPage() {
+      window.location.href = "/"; // Redirect to your main page
+    }
+
+    // Detect device and show relevant instructions
+    function detectDevice() {
+      if (/android/i.test(navigator.userAgent)) {
+        // Show instructions for Android
+        document.getElementById('android-instructions').style.display = 'block';
+      } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // Show instructions for iOS
+        document.getElementById('ios-instructions').style.display = 'block';
+      }
+    }
+
+    // Run the device detection when the page loads
+    window.onload = detectDevice;
+  </script>
+
+</body>
+</html>
