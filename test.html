@@ -118,8 +118,8 @@
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
   </div>
 
- <!-- Final Instructions -->
-<div id="final-instructions" class="instructions" style="display: none;">
+ <!-- additional Instructions -->
+<div id="additional-instructions" class="instructions" style="display: none;">
   <center><h2>STEP TWO<br>Move To Front Screen</h2></center>
   <ol style="text-align: left;">
     <li>📱 Go to your phone’s Home Screen</li>
@@ -129,11 +129,23 @@
   </ol>
   <p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
   <center>
-    <button onclick="finishSetup()" style="margin-top: 1rem;">Done</button>
+    <button onclick="showAdditionalInstructions()()" style="margin-top: 1rem;">Done</button>
   </center>
 </div>
 
-  
+   <!-- Final Instructions -->
+  <div id="final-instructions" class="instructions" style="display: none;">
+  <center>  <h2>Step Three</h2> </center>
+  <p>Enable push notifications:</p>
+  <ol style="text-align: left;">
+    <li>🔔 Open the app</li>
+    <li>📲 Tap "Allow Notifications" when prompted</li>
+  </ol>
+<p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
+  <center>
+    <button onclick="finishSetup()" style="margin-top: 1rem;">Done</button>
+  </center>
+</div>
 
   <script>
   function closeSplashPage() {
@@ -144,6 +156,7 @@
 
     // Show final instructions if not already shown
     if (!localStorage.getItem("instructionsShown")) {
+      document.getElementById('additional-instructions').style.display = 'none';
       document.getElementById("final-instructions").style.display = "block";
       localStorage.setItem("instructionsShown", "true");
     } else {
