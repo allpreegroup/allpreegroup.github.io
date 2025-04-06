@@ -93,10 +93,8 @@
     <li>🔔 Open app and allow notifications when prompted</li>
   </ol>
   <p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
-
-
-     <button onclick="document.getElementById('final-instructions').style.display='none'" style="margin-top: 1rem;">Got It!</button>
-  
+ <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
+ 
   </div>
 
   <!-- Instructions for iOS -->
@@ -120,8 +118,6 @@
   <p style="margin-top: 1.5rem;">You're now ready to start earning cashback 🎉</p>
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
 
- <button onclick="document.getElementById('final-instructions').style.display='none'" style="margin-top: 1rem;">Got It!</button>
-  
   </div>
 
   <!-- Desktop User Warning -->
@@ -130,41 +126,56 @@
   <center>  <button onclick="closeSplashPage()">Got it!</button></center> 
   </div>
 
- 
+ <!-- Final Instructions -->
+<div id="final-instructions" style="display: none; background: #163A5C; color: white; padding: 20px; max-width: 500px; margin: 20px auto; border-radius: 12px;">
+  <center><h2>🚀 Final Step</h2></center>
+  <ol style="text-align: left;">
+    <li>📱 Go to your phone’s Home Screen</li>
+    <li>🔍 Find the <strong>AllPree</strong> App icon</li>
+    <li>📌 Tap & hold it, then move it to your front page</li>
+    <li>🔔 Open the app and allow notifications when prompted</li>
+  </ol>
+  <center>
+    <button onclick="finishSetup()" style="margin-top: 1rem;">Done</button>
+  </center>
+</div>
+
+  
 
   <script>
-    // Function to close the splash page (redirect user to the main page after viewing instructions)
-    function closeSplashPage() {
-      window.location.href = "/"; // Redirect to your main page
-    }
+  function closeSplashPage() {
+    // Hide current instructions
+    document.getElementById('android-instructions').style.display = 'none';
+    document.getElementById('ios-instructions').style.display = 'none';
+    document.getElementById('desktop-warning').style.display = 'none';
 
-    // Detect device and show relevant instructions
-    function detectDevice() {
-      if (/android/i.test(navigator.userAgent)) {
-        // Show instructions for Android
-        document.getElementById('android-instructions').style.display = 'block';
-      } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        // Show instructions for iOS
-        document.getElementById('ios-instructions').style.display = 'block';
-      } else {
-        // If it's not Android or iOS, show the desktop warning
-        document.getElementById('desktop-warning').style.display = 'block';
-      }
+    // Show final instructions if not already shown
+    if (!localStorage.getItem("instructionsShown")) {
+      document.getElementById("final-instructions").style.display = "block";
+      localStorage.setItem("instructionsShown", "true");
+    } else {
+      window.location.href = "/"; // Already seen before, just go home
     }
+  }
 
-    // Run the device detection when the page loads
-    window.onload = detectDevice;
-  </script>
- <script>
-    window.addEventListener("load", () => {
-      // Only show once after install
-      if (!localStorage.getItem("instructionsShown")) {
-        document.getElementById("final-instructions").style.display = "block";
-        localStorage.setItem("instructionsShown", "true");
-      }
-    });
-  </script>
+  function finishSetup() {
+    window.location.href = "/"; // Final step complete
+  }
+
+  // Detect device and show relevant instructions
+  function detectDevice() {
+    if (/android/i.test(navigator.userAgent)) {
+      document.getElementById('android-instructions').style.display = 'block';
+    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.getElementById('ios-instructions').style.display = 'block';
+    } else {
+      document.getElementById('desktop-warning').style.display = 'block';
+    }
+  }
+
+  window.onload = detectDevice;
+</script>
+
  
-
 </body>
 </html>
