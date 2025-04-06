@@ -74,57 +74,38 @@
     <label for="code">Referral Code:</label>
     <input type="text" id="code" name="code" required>
     <br><br>
-    <button type="submit" class="btn btn-outline btn-xla">
+    <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit">
       <i class="fa-solid fa-computer-mouse"></i> Send WhatsApp Msg
     </button>
   </center>
 </form>
 
-<div id="referralDisplay" style="text-align: center; margin-top: 15px;"></div>
-
 <script>
-  // Set cookie for 1 year
+  // Save cookie for 1 year
   function setReferralCookie(code) {
     const d = new Date();
-    d.setTime(d.getTime() + (365*24*60*60*1000));
-    document.cookie = "referralCode=" + encodeURIComponent(code) + "; expires=" + d.toUTCString() + "; path=/";
+    d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 year
+    document.cookie = `referralCode=${encodeURIComponent(code)}; expires=${d.toUTCString()}; path=/`;
   }
 
-  // Read cookie
-  function getReferralCookie() {
-    const match = document.cookie.match(/(?:^|; )referralCode=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : null;
-  }
-
-  // Show saved code
-  function showReferralCode() {
-    const saved = getReferralCookie();
-    if (saved) {
-      document.getElementById("referralDisplay").innerText = "Your referral code: " + saved;
-    }
-  }
-
-  // On form submit
-  document.getElementById("redirectForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+  document.getElementById("redirectForm").addEventListener("submit", function (event) {
+    event.preventDefault();
 
     const code = document.getElementById("code").value.trim();
 
-    if (code !== "") {
+    if (code) {
+      // Save referral code in a cookie
       setReferralCookie(code);
 
-      const msg = `*Shop Now, Get Paid Later!*\n\nGet *up to 49% cashback* at 76 supermarkets and 300+ stores in Jamaica!\n\n✅ No extra effort\n✅ Real cashback\n\nVisit: www.allpree.com/info\n\nInvitation Code: *${code}*`;
+      // Create WhatsApp message
+      const message = `*Shop Now, Get Paid Later!*\n\nGet *up to 49% cashback* at 76 supermarkets and 300+ stores in Jamaica!\n\n✅ No extra effort\n✅ Real cashback\n\nGo Here: www.allpree.com/info\n\nInvitation Code: *${code}*`;
 
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-
-      window.location.href = whatsappUrl;
+      // Redirect to WhatsApp
+      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.location.href = url;
     }
   });
-
-  // Show on page load
-  window.onload = showReferralCode;
 </script>
-
 
 
 
