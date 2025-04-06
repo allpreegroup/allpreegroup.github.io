@@ -38,8 +38,6 @@
         { type: "cell", number: "1234567890" },         // Main cell phone number
         { type: "work", number: "8765551234" },         // Work number
         { type: "home", number: "8762225678" },         // Home number
-        // { type: "support", number: "8763334444" },    // Support (commented out)
-        // { type: "sales", number: "8761112222" },      // Sales (commented out)
         { type: "whatsapp", number: "+1234567890" },    // WhatsApp number 1
         { type: "whatsapp2", number: "+0987654321" },   // WhatsApp number 2
         { type: "whatsapp3", number: "+1122334455" }    // WhatsApp number 3
@@ -98,24 +96,9 @@ ADR:;;${contactDetails.address}
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const actionDiv = document.getElementById("action");
 
-    if (isAndroid) {
-      const contactIntentURL =
-        "intent://createContact#Intent;" +
-        "scheme=content;" +
-        "action=android.intent.action.INSERT;" +
-        "type=vnd.android.cursor.dir/contact;" +
-        `S.name=${encodeURIComponent(contactDetails.fullName)};` +
-        `S.phone=${contactDetails.numbers[0].number};` +  // uses the first number
-        `S.email=${contactDetails.email};` +
-        `S.organization=${encodeURIComponent(contactDetails.organization)};` +
-        `S.postal=${encodeURIComponent(contactDetails.address)};` +
-        "end;";
-
-      actionDiv.innerHTML = `<a href="${contactIntentURL}">
-        <button>Add to Contacts (Android)</button>
-      </a>`;
-    } else if (isIOS) {
-      actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
+    // Unified behavior: offer vCard download for all devices
+    if (isAndroid || isIOS) {
+      actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card</button>`;
     } else {
       actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
     }
