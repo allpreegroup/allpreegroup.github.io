@@ -67,6 +67,77 @@
 
 
 
+<hr>
+
+			<form id="redirectForm">
+    <center>   
+        <label for="code">Referral Code:</label>
+        <input type="text" id="code" name="code" required>
+    </center>
+    <br> 
+    <center>    
+        <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit">
+            <i class="fa-solid fa-computer-mouse"></i> send Whatsapp Msg 
+        </button>
+    </center>
+</form> 
+
+<script>
+    // Function to set the referral code cookie
+    function setReferralCodeCookie(referralCode) {
+        const expirationDays = 365; // Cookie will expire in 1 year
+        const date = new Date();
+        date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000)); // Set expiration time
+        const expires = "expires=" + date.toUTCString();
+        document.cookie = "referralCode=" + referralCode + ";" + expires + ";path=/";
+    }
+
+    // Function to get the referral code from the cookie
+    function getReferralCodeFromCookie() {
+        const name = "referralCode=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+        for (let i = 0; i < cookieArray.length; i++) {
+            let c = cookieArray[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return ""; // Return empty string if no referral code is found
+    }
+
+    // Handle the form submission
+    document.getElementById("redirectForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        const code = document.getElementById("code").value;
+        
+        if (code) {
+            // Set the referral code as a cookie
+            setReferralCodeCookie(code);
+
+            // Prepare the WhatsApp URL
+            const url = `https://wa.me/?text=*Shop%20Now,%20Get%20Paid%20Later*%20%0A%0A%20%20%20%20%20%20%20%20Invitation%20Code:%20*${encodeURIComponent(code)}*`;
+            
+            // Redirect to WhatsApp
+            window.location.href = url;
+        }
+    });
+
+    // Display the referral code when the page loads
+    window.onload = function() {
+        const referralCode = getReferralCodeFromCookie();
+        if (referralCode) {
+            document.getElementById('referralDisplay').innerText = `Your referral code: ${referralCode}`;
+        }
+    };
+</script>
+
+<!-- Display referral code somewhere in your app -->
+<div id="referralDisplay"></div>
 
                  
                                     
