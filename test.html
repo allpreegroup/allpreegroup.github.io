@@ -145,18 +145,24 @@
     document.getElementById('ios-instructions').style.display = 'none';
     document.getElementById('desktop-warning').style.display = 'none';
 
-
-    // Show final instructions if not already shown
+    // Show additional instructions before final instructions if not already shown
     if (!localStorage.getItem("instructionsShown")) {
-      document.getElementById("final-instructions").style.display = "block";
+      document.getElementById("additional-instructions").style.display = "block";  // Show additional instructions
       localStorage.setItem("instructionsShown", "true");
     } else {
-      window.location.href = "/"; // Already seen before, just go home
+      // If the additional instructions have already been shown, show final instructions
+      window.location.href = "/"; // Redirect to home page if already seen
     }
   }
 
+  function showFinalInstructions() {
+    // Hide the additional instructions and show the final instructions
+    document.getElementById('additional-instructions').style.display = 'none';
+    document.getElementById('final-instructions').style.display = 'block';
+  }
+
   function finishSetup() {
-    window.location.href = "/"; // Final step complete
+    window.location.href = "/"; // Final step complete, go home
   }
 
   // Detect device and show relevant instructions
@@ -172,6 +178,7 @@
 
   window.onload = detectDevice;
 </script>
+
 
  
 </body>
