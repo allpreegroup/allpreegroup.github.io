@@ -121,9 +121,11 @@
 
             // Prepare the WhatsApp URL
             const url = `https://wa.me/?text=*Shop%20Now,%20Get%20Paid%20Later*%20%0A%0A%20%20%20%20%20%20%20%20Invitation%20Code:%20*${encodeURIComponent(code)}*`;
-            
-            // Redirect to WhatsApp
-            window.location.href = url;
+
+            // Redirect to WhatsApp (use setTimeout to give time for cookie to set)
+            setTimeout(function() {
+                window.location.href = url;
+            }, 500); // 500ms delay
         }
     });
 
@@ -138,6 +140,7 @@
 
 <!-- Display referral code somewhere in your app -->
 <div id="referralDisplay"></div>
+
 
                  
                                     
