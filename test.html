@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add to Home Screen</title>
+  <title>Install Our App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -30,6 +30,13 @@
     }
     .instructions button:hover {
       background-color: #45a049;
+    }
+    .desktop-warning {
+      background-color: #ff9800;
+      color: white;
+      padding: 20px;
+      margin: 20px 0;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -61,6 +68,12 @@
     <button onclick="closeSplashPage()">Got it!</button>
   </div>
 
+  <!-- Desktop User Warning -->
+  <div id="desktop-warning" class="desktop-warning" style="display: none;">
+    <p>It looks like you're visiting from a desktop! Please visit this site on your mobile phone to add it to your home screen.</p>
+    <button onclick="closeSplashPage()">Got it!</button>
+  </div>
+
   <script>
     // Function to close the splash page (redirect user to the main page after viewing instructions)
     function closeSplashPage() {
@@ -75,6 +88,9 @@
       } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         // Show instructions for iOS
         document.getElementById('ios-instructions').style.display = 'block';
+      } else {
+        // If it's not Android or iOS, show the desktop warning
+        document.getElementById('desktop-warning').style.display = 'block';
       }
     }
 
