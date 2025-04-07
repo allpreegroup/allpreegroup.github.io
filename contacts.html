@@ -80,7 +80,7 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>Save9Our9Contact</h1>
+  <h1>1st Step Add Contact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;">
     
@@ -195,22 +195,24 @@ ADR:;;${contactDetails.address}`;
     const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
 
     function tryIntentFallback() {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = contactIntentURL;
-      document.body.appendChild(iframe);
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = contactIntentURL;
+  document.body.appendChild(iframe);
 
-      setTimeout(() => {
-        actionDiv.innerHTML = `
-          <p>That didn’t work — scan this QR code instead:</p>
-          <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="250" height="250" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-          <button onclick="generateVCF()">Download vCard</button>
-        `;
-        setTimeout(() => {
-          document.getElementById("fallbackQR").style.opacity = 1;
-        }, 100);
-      }, 2000);
-    }
+  // Immediately show both download button and "fallback coming" message
+  actionDiv.innerHTML = `
+    <p>If that didn’t work — scan this QR code or download the contact:</p>
+    <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="250" height="250" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
+    <button onclick="generateVCF()">Download vCard</button>
+  `;
+
+  // Fade in the QR code after a short delay for smooth transition
+  setTimeout(() => {
+    document.getElementById("fallbackQR").style.opacity = 1;
+  }, 100);
+}
+
 
     actionDiv.innerHTML = `
       <button onclick="tryIntentFallback()">Add to Contacts (Android)</button>
