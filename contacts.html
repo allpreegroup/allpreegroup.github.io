@@ -80,7 +80,7 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>Save8Our9Contact</h1>
+  <h1>Save9Our9Contact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;">
     
@@ -118,7 +118,7 @@ input[type=text]:focus {
         exclude: ['welcome']
       })
     </script>
-
+	
 <script>
   const contactDetails = {
     fullName: "Allpree.com",
@@ -166,7 +166,6 @@ ADR:;;${contactDetails.address}`;
   function generateVCF() {
     const blob = new Blob([vCard], { type: "text/vcard" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "contact.vcf";
@@ -192,45 +191,40 @@ ADR:;;${contactDetails.address}`;
       `S.postal=${encodeURIComponent(contactDetails.address)};` +
       "end;";
 
-    
-  const vCardData = generateVCF();
-  const encodedVCardData = encodeURIComponent(vCardData);
-  const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
+    const encodedVCardData = encodeURIComponent(vCard);
+    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
 
-  // Fallback with animation
-  function tryIntentFallback() {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = contactIntentURL;
-    document.body.appendChild(iframe);
-
-    setTimeout(() => {
-      actionDiv.innerHTML = `
-        <p>That didn’t work — scan this QR code instead:</p>
-        <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="250" height="250" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-        <button onclick="generateVCF()">Download vCard</button>
-      `;
+    function tryIntentFallback() {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = contactIntentURL;
+      document.body.appendChild(iframe);
 
       setTimeout(() => {
-        document.getElementById("fallbackQR").style.opacity = 1;
-      }, 100); // slight delay to trigger transition
-    }, 2000);
-  }
+        actionDiv.innerHTML = `
+          <p>That didn’t work — scan this QR code instead:</p>
+          <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="250" height="250" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
+          <button onclick="generateVCF()">Download vCard</button>
+        `;
+        setTimeout(() => {
+          document.getElementById("fallbackQR").style.opacity = 1;
+        }, 100);
+      }, 2000);
+    }
 
-  actionDiv.innerHTML = `
-    <button onclick="tryIntentFallback()">Add to Contacts (Android)</button>
-    <button onclick="generateVCF()">Download vCard</button>
-  `;
+    actionDiv.innerHTML = `
+      <button onclick="tryIntentFallback()">Add to Contacts (Android)</button>
+      <button onclick="generateVCF()">Download vCard</button>
+    `;
 
-  // Preload QR in background (so it's instant when shown)
-  qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
-}
+    qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
   } else if (isIOS) {
     actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
   } else {
     actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
   }
 </script>
+
 
 
 
