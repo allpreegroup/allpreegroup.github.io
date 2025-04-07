@@ -80,18 +80,18 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>1st Add Our Contact</h1>
+  <h1>Add Our Contact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;">
     
 </div>
 
- <br> <br>
+  <br>
 	 <!-- Instructions for Android -->
   <div class="instructions android-instructions ios-instructions" style="display: none;">
    
 	<h1>Next</h1>
-  <br> <br> 
+  <br> 
 	
 	<center><h1>Invitation Code</h1></center>
 	<center><h5>Enter Your Invitation Code Below</h5></center>
@@ -202,7 +202,7 @@ ADR:;;${contactDetails.address}`;
 
   // Immediately show both download button and "fallback coming" message
   actionDiv.innerHTML = `
-    <p>If that didn’t work — scan this QR code or download the contact:</p>
+    <p>Oops 😬 didn’t work — scan QR code or manually download and Add:</p>
     <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
     <button onclick="generateVCF()">Download vCard</button>
   `;
@@ -215,13 +215,13 @@ ADR:;;${contactDetails.address}`;
 
 
     actionDiv.innerHTML = `
-      <button onclick="tryIntentFallback()">Add to Contacts (Android)</button>
+      <button onclick="tryIntentFallback()">Preview Then Add</button>
       
     `;
 
     qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
   } else if (isIOS) {
-    actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
+    actionDiv.innerHTML = `<button onclick="generateVCF()">Preview Then Add</button>`;
   } else {
     actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
   }
