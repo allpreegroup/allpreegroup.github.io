@@ -86,7 +86,7 @@ input[type=text]:focus {
     
 </div>
 
-  <br>
+  
 	 <!-- Instructions for Android -->
   <div class="instructions android-instructions ios-instructions" style="display: none;">
    
@@ -202,15 +202,15 @@ ADR:;;${contactDetails.address}`;
 
   // Immediately show both download button and "fallback coming" message
   actionDiv.innerHTML = `
-    <p>Oops 😬 didn’t work — scan QR code or manually download and Add:</p>
+    <p>Oops 😬 didn’t work <br> scan QR code <br>or manually download and add</p>
     <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-    <button onclick="generateVCF()">Download vCard</button>
+    <button onclick="generateVCF()">Download & Add</button>
   `;
 
   // Fade in the QR code after a short delay for smooth transition
   setTimeout(() => {
     document.getElementById("fallbackQR").style.opacity = 1;
-  }, 100);
+  }, 500);
 }
 
 
