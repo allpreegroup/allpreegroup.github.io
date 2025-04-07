@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v18";
+var CACHE_NAME = "offline-v19";
 
 var preLoad = function () {
     console.log("Installing web app...");
@@ -7,6 +7,7 @@ var preLoad = function () {
         return cache.addAll([
             "/",
             "/balance/",
+            "/contacts",
             "/manifest.json",
             "/img/AllPreepwaapp.png",
             "/404.html" // Ensure this file actually exists on your server
