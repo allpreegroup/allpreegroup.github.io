@@ -182,16 +182,17 @@ ADR:;;${contactDetails.address}
     const isAndroid = /android/i.test(navigator.userAgent);
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const actionDiv = document.getElementById("action");
+    const qrDiv = document.getElementById("qr");
 
-    // Unified behavior: offer vCard download for all devices
-    if (isAndroid) {
+	  
+  if (isAndroid) {
     const contactIntentURL =
       "intent://createContact#Intent;" +
       "scheme=content;" +
       "action=android.intent.action.INSERT;" +
       "type=vnd.android.cursor.dir/contact;" +
       `S.name=${encodeURIComponent(contactDetails.fullName)};` +
-      `S.phone=${contactDetails.numbers[0].number};` + // main phone number
+      `S.phone=${contactDetails.numbers[0].number};` +
       `S.email=${contactDetails.email};` +
       `S.organization=${encodeURIComponent(contactDetails.organization)};` +
       `S.postal=${encodeURIComponent(contactDetails.address)};` +
@@ -200,6 +201,12 @@ ADR:;;${contactDetails.address}
     actionDiv.innerHTML = `
       <button onclick="location.href='${contactIntentURL}'">Add to Contacts (Android)</button>
       <button onclick="generateVCF()">Download vCard</button>
+    `;
+
+    const qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" + encodeURIComponent(contactIntentURL);
+    qrDiv.innerHTML = `
+      <p>If the button doesn't work, scan this QR code:</p>
+      <img src="${qrUrl}" alt="QR Code for Android Contact" width="200" height="200" style="border:1px solid #ccc; padding:10px;">
     `;
   } else if (isIOS) {
     actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
