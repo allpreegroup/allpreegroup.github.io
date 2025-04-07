@@ -80,11 +80,10 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>Save7Our8Contact</h1>
+  <h1>Save7Our9Contact</h1>
   <div id="action"></div>
-<div id="" style="margin-top: 20px;">
-    <img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=BEGIN%3AVCARD%0AVERSION%3A3.0%0AN%3ADoe%3BJohn%3B%3B%3B%0AFN%3AJohn%20Doe%0AORG%3AExample%20Company%0ATEL%3ATYPE%3DWORK%3A555-123-4567%0AEMAIL%3ATYPE%3DINTERNET%2CWORK%3Ajohn.doe%40example.com%0AEND%3AVCARD" alt="vCard QR Code">
-	
+<div id="qr" style="margin-top: 20px;">
+    
 </div>
 
  <br> <br>
@@ -162,7 +161,6 @@ ADR:;;${contactDetails.address}`;
     return vcard;
   }
 
-  // Generate once and reuse
   const vCard = buildVCardString();
 
   function generateVCF() {
@@ -200,11 +198,11 @@ ADR:;;${contactDetails.address}`;
     `;
 
     const encodedVCardData = encodeURIComponent(vCard);
-    const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=${encodedVCardData}`;
+    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
 
     qrDiv.innerHTML = `
       <p>If the button doesn't work, scan this QR code to save the contact:</p>
-      <img src="    <img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=BEGIN%3AVCARD%0AVERSION%3A3.0%0AN%3ADoe%3BJohn%3B%3B%3B%0AFN%3AJohn%20Doe%0AORG%3AExample%20Company%0ATEL%3ATYPE%3DWORK%3A555-123-4567%0AEMAIL%3ATYPE%3DINTERNET%2CWORK%3Ajohn.doe%40example.com%0AEND%3AVCARD" alt="vCard QR Code">" alt="QR Code for Android Contact" width="250" height="250" style="border:1px solid #ccc; padding:10px;">
+      <img src="${qrUrl}" alt="QR Code for Android Contact" width="250" height="250" style="border:1px solid #ccc; padding:10px;">
     `;
   } else if (isIOS) {
     actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
@@ -212,6 +210,7 @@ ADR:;;${contactDetails.address}`;
     actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
   }
 </script>
+
 
 
 	
