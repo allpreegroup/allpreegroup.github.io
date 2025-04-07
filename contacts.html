@@ -79,13 +79,13 @@ input[type=text]:focus {
   </style>
 </head>
 <body>
-<div class="demo-container">
-<br><br>
-<div class="demo-wrapper">
+
   <h1>Save Our Contact</h1>
   <div id="action"></div>
-
-  <br> <br>  
+ <br> <br>
+	 <!-- Instructions for Android -->
+  <div id="android-instructions" class="instructions" style="display: none;">
+   
 	<h1>Next</h1>
   <br> <br> 
 	
@@ -95,7 +95,8 @@ input[type=text]:focus {
 <input type="text" id="search-input" placeholder="Enter Your Code Here...">
 	<ul id="results-container"></ul>
 </div>
-</div>
+
+  </div>
 
 	
 	
@@ -193,6 +194,46 @@ ADR:;;${contactDetails.address}
       actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
     }
   </script>
+<script>
+  function closeSplashPage() {
+    // Hide current instructions
+    document.getElementById('android-instructions').style.display = 'none';
+    document.getElementById('ios-instructions').style.display = 'none';
+    document.getElementById('desktop-warning').style.display = 'none';
+
+    // Show additional instructions before final instructions if not already shown
+    if (!localStorage.getItem("instructionsShown")) {
+      document.getElementById("additional-instructions").style.display = "block";  // Show additional instructions
+      localStorage.setItem("instructionsShown", "true");
+    } else {
+      // If the additional instructions have already been shown, show final instructions
+      window.location.href = "/"; // Redirect to home page if already seen
+    }
+  }
+
+  function showFinalInstructions() {
+    // Hide the additional instructions and show the final instructions
+    document.getElementById('additional-instructions').style.display = 'none';
+    document.getElementById('final-instructions').style.display = 'block';
+  }
+
+  function finishSetup() {
+    window.location.href = "/"; // Final step complete, go home
+  }
+
+  // Detect device and show relevant instructions
+  function detectDevice() {
+    if (/android/i.test(navigator.userAgent)) {
+      document.getElementById('android-instructions').style.display = 'block';
+    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.getElementById('ios-instructions').style.display = 'block';
+    } else {
+      document.getElementById('desktop-warning').style.display = 'block';
+    }
+  }
+
+  window.onload = detectDevice;
+</script>
 
 </body>
 </html>
