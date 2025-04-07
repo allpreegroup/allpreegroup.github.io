@@ -38,7 +38,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div>
 
 <script>
+// Save the current URL when menu is opened
 function loadMenu() {
+  sessionStorage.setItem('menuPreviousUrl', window.location.href);
+
   fetch('https://www.allpree.com/menu/')
     .then(response => response.text())
     .then(html => {
@@ -50,18 +53,19 @@ function loadMenu() {
       console.error(err);
     });
 }
-  
-function smartBack(fallbackUrl = '/balance') {
-  const previous = document.referrer;
 
-  if (previous && previous !== window.location.href) {
-    window.location.href = previous;
+// Go back to the saved URL
+function smartBack(fallbackUrl = '/balance') {
+  const previousUrl = sessionStorage.getItem('menuPreviousUrl');
+
+  if (previousUrl && previousUrl !== window.location.href) {
+    window.location.href = previousUrl;
   } else {
     window.location.href = fallbackUrl;
   }
 }
-
 </script>
+
 <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
