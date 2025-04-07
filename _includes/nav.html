@@ -20,55 +20,48 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </script> -->
 
 <!-- Fullscreen Overlay -->
-<div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
-  <button onclick="smartBack()" style="
-    position:absolute;
-    top:15px;
-    right:15px;
-    z-index:10000;
-    background:#000;
-    color:#fff;
-    border:none;
-    padding:10px 15px;
-    font-size:16px;
-    border-radius:8px;
-  ">✕ Close</button>
-
-  <div id="menuContent" style="padding:20px;"></div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  function loadMenu() {
-    sessionStorage.setItem('menuPreviousUrl', window.location.href);
-
-    fetch('https://www.allpree.com/menu/')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('menuContent').innerHTML = html;
-        document.getElementById('fullscreenOverlay').style.display = 'block';
-      })
-      .catch(err => {
-        alert("Failed to load menu.");
-        console.error(err);
-      });
-  }
-
-  function smartBack(fallbackUrl = '/') {
-    const previousUrl = sessionStorage.getItem('menuPreviousUrl');
-
-    if (previousUrl && previousUrl !== window.location.href) {
-      window.location.href = previousUrl;
-    } else {
-      window.location.href = fallbackUrl;
-    }
-  }
-
-  // Expose functions globally
-  window.loadMenu = loadMenu;
-  window.smartBack = smartBack;
-});
-</script>
+ <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+   <button onclick="smartBack()" style="
+     position:absolute;
+     top:15px;
+     right:15px;
+     z-index:10000;
+     background:#000;
+     color:#fff;
+     border:none;
+     padding:10px 15px;
+     font-size:16px;
+     border-radius:8px;
+   ">✕ Close</button>
+ 
+   <div id="menuContent" style="padding:20px;"></div>
+ </div>
+ 
+ <script>
+ function loadMenu() {
+   fetch('https://www.allpree.com/menu/')
+     .then(response => response.text())
+     .then(html => {
+       document.getElementById('menuContent').innerHTML = html;
+       document.getElementById('fullscreenOverlay').style.display = 'block';
+     })
+     .catch(err => {
+       alert("Failed to load menu.");
+       console.error(err);
+     });
+ }
+ 
+ function smartBack(fallbackUrl = '/balance') {
+   const previous = document.referrer;
+ 
+   if (previous && previous !== window.location.href) {
+     window.location.href = previous;
+   } else {
+     window.location.href = fallbackUrl;
+   }
+ }
+ 
+ </script>
 
 
 <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
