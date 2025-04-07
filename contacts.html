@@ -80,7 +80,7 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>Save.OurContact</h1>
+  <h1>SaveOurContact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;"></div>
 
@@ -218,6 +218,18 @@ ADR:;;${contactDetails.address}
   } else {
     actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
   }
+
+	// Download the vCard as a file
+    function downloadVCF() {
+      const vCardData = generateVCF();
+      const blob = new Blob([vCardData], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "contact.vcf";
+      a.click();
+      URL.revokeObjectURL(url);
+    }  
   </script>
 <script>
   function closeSplashPage() {
