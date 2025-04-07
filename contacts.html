@@ -80,7 +80,7 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>SaveOur Contact</h1>
+  <h1>SaveOur7Contact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;"></div>
 
@@ -207,8 +207,8 @@ ADR:;;${contactDetails.address}
 
     // Generate the vCard data for QR code download
     const vCardData = generateVCF();
-    const qrUrl = "https://goqr.me/api/qr?data=" + encodeURIComponent(vCardData) + "&size=500";
-    qrDiv.innerHTML = `
+    const qrUrl = `https://api.qr-code-generator.com/v1/create?data=${encodeURIComponent(vCardData)}&size=500x500&download=false`;
+      qrDiv.innerHTML = `
       <p>If the button doesn't work, scan this QR code to save the contact:</p>
       <img src="${qrUrl}" alt="QR Code for Android Contact" width="250" height="250" style="border:1px solid #ccc; padding:10px;">
     `;
