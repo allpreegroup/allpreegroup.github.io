@@ -80,7 +80,7 @@ input[type=text]:focus {
 </head>
 <body>
 
-  <h1>Save Our Contact1</h1>
+  <h1>Save Our Contact2</h1>
   <div id="action"></div>
  <br> <br>
 	 <!-- Instructions for Android -->
@@ -192,37 +192,29 @@ ADR:;;${contactDetails.address}
   </script>
 <script>
   function closeSplashPage() {
-    // Hide current instructions
-    document.getElementById('android-instructions').style.display = 'none';
-    document.getElementById('ios-instructions').style.display = 'none';
+    document.querySelector('.instructions').style.display = 'none';
     document.getElementById('desktop-warning').style.display = 'none';
 
-    // Show additional instructions before final instructions if not already shown
     if (!localStorage.getItem("instructionsShown")) {
-      document.getElementById("additional-instructions").style.display = "block";  // Show additional instructions
+      document.getElementById("additional-instructions").style.display = "block";
       localStorage.setItem("instructionsShown", "true");
     } else {
-      // If the additional instructions have already been shown, show final instructions
-      window.location.href = "/"; // Redirect to home page if already seen
+      window.location.href = "/";
     }
   }
 
   function showFinalInstructions() {
-    // Hide the additional instructions and show the final instructions
     document.getElementById('additional-instructions').style.display = 'none';
     document.getElementById('final-instructions').style.display = 'block';
   }
 
   function finishSetup() {
-    window.location.href = "/"; // Final step complete, go home
+    window.location.href = "/";
   }
 
-  // Detect device and show relevant instructions
   function detectDevice() {
-    if (/android/i.test(navigator.userAgent)) {
-      document.getElementById('android-instructions').style.display = 'block';
-    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      document.getElementById('ios-instructions').style.display = 'block';
+    if (/android/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.querySelector('.instructions').style.display = 'block';
     } else {
       document.getElementById('desktop-warning').style.display = 'block';
     }
@@ -230,6 +222,7 @@ ADR:;;${contactDetails.address}
 
   window.onload = detectDevice;
 </script>
+
 
 </body>
 </html>
