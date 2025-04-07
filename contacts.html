@@ -184,11 +184,28 @@ ADR:;;${contactDetails.address}
     const actionDiv = document.getElementById("action");
 
     // Unified behavior: offer vCard download for all devices
-    if (isAndroid || isIOS) {
-      actionDiv.innerHTML = `<button onclick="generateVCF()">Download & Add Save Our Contact Card</button>`;
-    } else {
-      actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
-    }
+    if (isAndroid) {
+    const contactIntentURL =
+      "intent://createContact#Intent;" +
+      "scheme=content;" +
+      "action=android.intent.action.INSERT;" +
+      "type=vnd.android.cursor.dir/contact;" +
+      `S.name=${encodeURIComponent(contactDetails.fullName)};` +
+      `S.phone=${contactDetails.numbers[0].number};` + // main phone number
+      `S.email=${contactDetails.email};` +
+      `S.organization=${encodeURIComponent(contactDetails.organization)};` +
+      `S.postal=${encodeURIComponent(contactDetails.address)};` +
+      "end;";
+
+    actionDiv.innerHTML = `
+      <button onclick="location.href='${contactIntentURL}'">Add to Contacts (Android)</button>
+      <button onclick="generateVCF()">Download vCard</button>
+    `;
+  } else if (isIOS) {
+    actionDiv.innerHTML = `<button onclick="generateVCF()">Download Contact Card (iOS)</button>`;
+  } else {
+    actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
+  }
   </script>
 <script>
   function closeSplashPage() {
