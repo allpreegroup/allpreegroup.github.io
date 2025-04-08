@@ -137,7 +137,45 @@
   </center>
 </div>
 
+
   <script>
+  function closeSplashPage() {
+    // Hide current instructions
+    document.getElementById('android-instructions').style.display = 'none';
+    document.getElementById('ios-instructions').style.display = 'none';
+    document.getElementById('desktop-warning').style.display = 'none';
+
+    // Always show additional instructions, allow repeat views
+    document.getElementById("additional-instructions").style.display = "block";
+  }
+
+  function showFinalInstructions() {
+    // Hide the additional instructions and show the final instructions
+    document.getElementById('additional-instructions').style.display = 'none';
+    document.getElementById('final-instructions').style.display = 'block';
+  }
+
+  function finishSetup() {
+    window.location.href = "/start"; // Final step complete, go home
+  }
+
+  // Detect device and show relevant instructions
+  function detectDevice() {
+    if (/android/i.test(navigator.userAgent)) {
+      document.getElementById('android-instructions').style.display = 'block';
+    } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.getElementById('ios-instructions').style.display = 'block';
+    } else {
+      document.getElementById('desktop-warning').style.display = 'block';
+    }
+  }
+
+  window.onload = detectDevice;
+</script>
+
+  
+
+<!--  <script>
   function closeSplashPage() {
     // Hide current instructions
     document.getElementById('android-instructions').style.display = 'none';
@@ -176,7 +214,7 @@
   }
 
   window.onload = detectDevice;
-</script>
+</script> -->
 
 
  
