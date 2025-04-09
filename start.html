@@ -64,6 +64,25 @@
       width: 100%; /* Allow it to take full width up to max-width */
     }
   </style>
+  <script>
+  window.onload = function () {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isAndroid = /android/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+    // Hide both initially
+    document.getElementById('android-os').style.display = 'none';
+    document.getElementById('ios-os').style.display = 'none';
+
+    if (isAndroid) {
+      document.getElementById('android-os').style.display = 'block';
+    } else if (isIOS) {
+      document.getElementById('ios-os').style.display = 'block';
+    }
+  };
+</script>
+
 </head>
 <body>
 <script>
@@ -171,7 +190,7 @@ Click The Button Below </h3> </center>
   <center>  <h2>First Step</h2> 
   <h3> Add Our Web App To Your Phone Screen</h3></center>
   
-  <ol id="android-instructions" style="text-align: left;">
+  <ol id="android-os" style="text-align: left;">
     <li >Tap the (menu) in the right corner of your browser.</li><br>
     <li>Scroll down and select "Add to Home Screen."</li><br>
     <li>Tap "Add" and you're done!</li>
@@ -181,7 +200,7 @@ Click The Button Below </h3> </center>
     <li>📲 Follow the instruction to enable push notifications</li>
   </ol>
     
-    <ol id="ios-instructions" style="text-align: left;">
+    <ol id="ios-os" style="text-align: left;">
     <li>Tap the Share icon (the square with an arrow) at the bottom of your screen.</li><br>
     <li>Scroll down and select "Add to Home Screen."</li><br>
     <li>Tap "Add" in the top-right corner.</li>
