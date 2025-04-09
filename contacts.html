@@ -236,7 +236,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <div id="qrLabel"></div>
 </div> 
 	
-<button class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
+<button style="display: none; class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
 	
 <form id="redirectForm">
     <label for="code">Card Number:</label><br>
@@ -268,8 +268,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
          // Show the QR container and hide the form
          qrBg.style.display = "block";
          form.style.display = "none";
-
-         document.getElementById("downloadBtn").style.display = "block";
 	    
         // Inject the QR code and label
               qrContainer.innerHTML = `
@@ -289,6 +287,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
          qrLabel.textContent = formattedCard;
  
          qrBg.classList.add('show');
+
+	// ✅ Show the download button
+         document.getElementById("downloadBtn").style.display = "block";
      }
  
      // Handle page load
