@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+    <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+ <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
+ <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
+<link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
+
+    <meta charset="UTF-8">
+    <title>Check Your Balance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            display: inline-block;
+            margin-top: 50px;
+        }
+	 #qrBackground {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 600px; /* Or use aspect-ratio: 1 / 1; */
+    margin: 40px auto;
+    background-image: url('https://www.allpree.com/img/qrcodebgmf.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 0px;
+    overflow: hidden;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+#qrContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: auto;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#qrContainer img {
+    width: 100%;
+     height: auto;
+     background: transparent;
+     border: none; /* or keep border if you want contrast */
+     border-radius: 12px;
+     box-shadow: none; /* or keep shadow if you want separation */
+}
+	    #qrBackground {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#qrBackground.show {
+    opacity: 1;
+}
+
+#qrLabel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 26%; /* ← Tweak this number to match your design */
+    
+    font-weight: bold;
+    font-size: 1.1em;
+    color: black;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    max-width: 90%;
+    white-space: nowrap;
+    text-align: center;
+}
+
+    </style>
+	
+</head>
+<body>
+	
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+		
+<!-- start webpushr tracking code --> 
+<script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
+fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
+webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
+<!-- end webpushr tracking code -->
+
+<!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d4d4a08e-e7f1-49b4-9d7b-0c4c57222df1",
+      safari_web_id: "web.onesignal.auto.2d1085e1-a560-4918-b950-42f254dd8495",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script> -->
+
+<!-- Fullscreen Overlay -->
+ <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+   <button onclick="smartBack()" style="
+     position:absolute;
+     top:15px;
+     right:15px;
+     z-index:10000;
+     background:#000;
+     color:#fff;
+     border:none;
+     padding:10px 15px;
+     font-size:16px;
+     border-radius:8px;
+   ">✕ Close</button>
+ 
+   <div id="menuContent" style="padding:20px;"></div>
+ </div>
+ 
+ <script>
+ function loadMenu() {
+   fetch('https://www.allpree.com/menu/')
+     .then(response => response.text())
+     .then(html => {
+       document.getElementById('menuContent').innerHTML = html;
+       document.getElementById('fullscreenOverlay').style.display = 'block';
+     })
+     .catch(err => {
+       alert("Failed to load menu.");
+       console.error(err);
+     });
+ }
+ 
+ function smartBack(fallbackUrl = '/balance') {
+   const previous = document.referrer;
+ 
+   if (previous && previous !== window.location.href) {
+     window.location.href = previous;
+   } else {
+     window.location.href = fallbackUrl;
+   }
+ }
+ 
+ </script>
+
+
+<nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <a href="#" onclick="loadMenu(); return false;">   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Toggle navigation</span> Menu <i class="fa-solid fa-bars"></i>
+                </button> 
+
+             </a>
+               
+
+           <!--  <a class="navbar-brand page-scroll" href="https://twitter.com/allpreedotcom"><i class="fa-brands fa-twitter"></i></a>
+             <a class="navbar-brand page-scroll" href="https://instagram.com/allpreedotcom"><i class="fa-brands fa-instagram"></i></a>
+             <a class="navbar-brand page-scroll" href="https://facebook.com/allpreedotcom"><i class="fa-brands fa-facebook"></i></a> -->
+             
+             <!--    <a class="navbar-brand page-scroll" onclick="history.back()"><i class="fa-solid fa-backward"></i></a>  
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
+
+             
+            <a class="navbar-brand page-scroll" href="https://www.allpree.com/contact"><strong><i class="fa-solid fa-user-plus fa-lg"></i></strong> Sign Up</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp" ><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
+              
+	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/invite" >Earn</a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance"><strong><i class="fa-solid fa-house"></i> HOME</strong></a>
+               
+            <!--   <a class="navbar-brand page-scroll" href="https://www.allpree.com/join" >Msg HR</a> -->
+
+              
+             
+            <!--   <a class="navbar-brand page-scroll" href="https://www.snapchat.com/add/allpreedotcom"><i class="fa-brands fa-snapchat"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll" href="https://tiktok.com/@joinwatsapp"><i class="fa-brands fa-tiktok"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll">&nbsp;<strong>EVERY Day Is Black Friday!</strong></a>  
+      <a class="navbar-brand page-scroll">&nbsp;<strong>Allpree Plus <i class="fa-solid fa-location-plus"></i></strong></a>
+             <a class="navbar-brand page-scroll" href=""><strong><i class="fa-brands fa-whatsapp"></i> eCom <i class="fa-brands fa-btc"></i></strong> - Semi Done For You </a> 
+             	  <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Investors</a>
+              <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Resellers</a>
+             <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Referrals</a> 
+               -->
+              
+             
+             
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling &nbsp; -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <!--  <ul class="nav navbar-nav navbar-right">
+                <li>
+                   <a class="page-scroll" href="https://www.allpree.com/referral-program" >Refer & Earn</a>
+                    </li>
+                    <li>
+                   <a class="page-scroll" href="https://www.allpree.com/list/">All Stores</a>
+                    </li>
+                    <li>
+                  <a class="page-scroll" href="https://www.allpree.com/balance/"><strong>Check Balance</strong></a> 
+                    </li> 
+                </ul> -->
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+	<div class="container">
+            <div class="row land">
+                <div class="home">     
+			<div class="center">
+                <div class="col-md-6 home-txt1"> <br><br>
+<center>
+   <div id="qrBackground">
+    <div id="qrContainer"></div>
+    <div id="qrLabel"></div>
+</div> 
+	
+<button style="display: none;" class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
+<br><br>	
+<form id="redirectForm">
+    <label for="code">Card Number:</label><br>
+    <input type="text" id="code" name="code" required><br>
+
+    <label for="pin">Enter&nbsp;Ur&nbsp;&nbsp;&nbsp;Pin:</label><br>
+    <input type="password" id="pin" name="pin" required><br><br>
+
+    <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit"><i class="fa-solid fa-computer-mouse"></i> Generate Your Gift Card</button>
+</form>
+
+<script>
+    const qrContainer = document.getElementById("qrContainer");
+    const qrLabel = document.getElementById("qrLabel");
+    const qrBg = document.getElementById("qrBackground");
+    const form = document.getElementById("redirectForm");
+
+    function formatCardNumber(cardNumber) {
+        return cardNumber.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, '');
+    }
+
+    function generateQRCode(qrData) {
+         const encodedData = encodeURIComponent(qrData);
+         const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H`;
+ 
+         // Save to localStorage
+         localStorage.setItem("savedQRData", qrData);
+ 
+         // Show the QR container and hide the form
+         qrBg.style.display = "block";
+         form.style.display = "none";
+	    
+        // Inject the QR code and label
+              qrContainer.innerHTML = `
+             
+	      <img 
+                  src="${qrUrl}" 
+                  alt="QR Code" 
+		  crossorigin="anonymous"
+                  style="width: auto; height: auto; background: transparent;"
+              />
+	     
+    `;
+     	    
+         // Extract card number and format
+         const cardOnly = qrData.split("@")[0];
+         const formattedCard = formatCardNumber(cardOnly);
+         qrLabel.textContent = formattedCard;
+ 
+         qrBg.classList.add('show');
+
+	// ✅ Show the download button
+         document.getElementById("downloadBtn").style.display = "block";
+     }
+ 
+     // Handle page load
+     window.addEventListener('DOMContentLoaded', () => {
+         const savedQR = localStorage.getItem("savedQRData");
+         if (savedQR) {
+             generateQRCode(savedQR);
+         } else {
+             // Show form if there's no QR saved
+             form.style.display = "block";
+             qrBg.style.display = "none";
+         }
+     });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+    const target = document.getElementById("qrBackground");
+
+    html2canvas(target, {
+        scale: 4,
+        useCORS: true
+	
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "card-qr.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+});
+
+
+	
+     // Handle form submission
+     form.addEventListener("submit", function(event) {
+         event.preventDefault();
+ 
+         const code = document.getElementById("code").value.replace(/\s+/g, '');
+         const pin = document.getElementById("pin").value.replace(/\s+/g, '');
+ 
+         if (code && pin) {
+             const qrData = `${code}@${pin}`;
+             generateQRCode(qrData);
+         }
+     });
+ </script>
+
+
+</body>
+</html>
