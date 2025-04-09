@@ -36,6 +36,10 @@
         
 
 }
+		#inviteDiv {
+  z-index: 9999; /* Ensure it doesn't block clicks on other elements */
+  pointer-events: auto; /* Ensure it can be interacted with, if visible */
+}
 
 input[type=text] {
 
@@ -127,14 +131,16 @@ input[type=text]:focus {
 
     const storedCode = localStorage.getItem("invitationCode");
 
+    // If the code is already stored, remove the div and skip everything else
     if (storedCode) {
       inviteDiv?.remove();
       return;
     }
 
+    // Show the div only if no code is found
     inviteDiv.style.display = "block";
 
-    // Save code on input change
+    // Save code to localStorage when user types into the input
     input?.addEventListener("change", () => {
       const code = input.value.trim();
       if (code) {
@@ -142,17 +148,23 @@ input[type=text]:focus {
       }
     });
 
-    // 🔑 Detect click BEFORE redirect using mousedown
-    results?.addEventListener("mousedown", (e) => {
+    // Save the code and hide the div when user clicks a result link
+    results?.addEventListener("click", (e) => {
       const link = e.target.closest("a");
       if (link) {
+        // Save the code if available
         const code = input?.value.trim();
         if (code) {
           localStorage.setItem("invitationCode", code);
-          inviteDiv.style.display = "none";
         }
-        // DO NOT call e.preventDefault()
-        // Let the browser follow the link normally
+
+        // Hide the div and let the link redirect
+        inviteDiv.style.display = "none";
+        
+        // Make sure the link is followed after saving
+        setTimeout(() => {
+          window.location.href = link.href; // Manually redirect to the link
+        }, 100); // Give it a tiny delay to ensure the div hides first
       }
     });
   });
