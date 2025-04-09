@@ -90,33 +90,6 @@ input[type=text]:focus {
     
   }
 </style>
-<script>
-  // Early check to avoid showing the div at all
-  if (localStorage.getItem("invitationCode")) {
-    document.addEventListener("DOMContentLoaded", () => {
-      const inviteDiv = document.getElementById("inviteDiv");
-      if (inviteDiv) {
-        inviteDiv.remove(); // Remove it completely
-      }
-    });
-  } else {
-    document.addEventListener("DOMContentLoaded", () => {
-      const inviteDiv = document.getElementById("inviteDiv");
-      if (inviteDiv) {
-        inviteDiv.style.display = "block"; // Show it if no code saved
-      }
-
-      const input = document.getElementById("search-input");
-      input?.addEventListener("change", () => {
-        const code = input.value.trim();
-        if (code) {
-          localStorage.setItem("invitationCode", code);
-          inviteDiv.style.display = "none";
-        }
-      });
-    });
-  }
-</script>
 
 	
 	
