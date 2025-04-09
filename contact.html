@@ -114,20 +114,20 @@ input[type=text]:focus {
       return;
     }
 
-    // Show the invite div and "first time" headline
+    // Show invite div and default headline
     inviteDiv.style.display = "block";
     firstTimeHeadline?.style.display = "block";
     returningHeadline?.style.display = "none";
 
-    // Save code when user types into input
-    input?.addEventListener("change", () => {
+    // Save code as user types
+    input?.addEventListener("input", () => {
       const code = input.value.trim();
       if (code) {
         localStorage.setItem("invitationCode", code);
       }
     });
 
-    // Handle result link clicks
+    // Save code and redirect when link is clicked
     results?.addEventListener("click", (e) => {
       const link = e.target.closest("a");
       if (link) {
@@ -136,19 +136,21 @@ input[type=text]:focus {
           localStorage.setItem("invitationCode", code);
         }
 
-        // Swap headlines and hide the inviteDiv
+        // Update UI
         firstTimeHeadline?.style.display = "none";
         returningHeadline?.style.display = "block";
         inviteDiv.style.display = "none";
 
-        // Delay redirect just slightly
+        // Manually follow the link after saving
+        e.preventDefault(); // Prevent default link behavior
         setTimeout(() => {
           window.location.href = link.href;
-        }, 5);
+        }, 50); // Slight delay for localStorage write
       }
     });
   });
 </script>
+
 
 
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
