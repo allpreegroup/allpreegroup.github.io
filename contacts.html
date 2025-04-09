@@ -269,24 +269,32 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     }
 
     function generateQRCode(qrData) {
-        const encodedData = encodeURIComponent(qrData);
-        const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
+    const encodedData = encodeURIComponent(qrData);
+    const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
 
-        // Save to localStorage
-        localStorage.setItem("savedQRData", qrData);
+    // Save to localStorage
+    localStorage.setItem("savedQRData", qrData);
 
-        // Show the QR container and hide the form
-        qrBg.style.display = "block";
-        form.style.display = "none";
+    // Show the QR container and hide the form
+    qrBg.style.display = "block";
+    form.style.display = "none";
 
-        // Inject the QR code
-        qrContainer.innerHTML = `
-            <img 
-                src="${qrUrl}" 
-                alt="QR Code" 
-                style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: transparent;"
-            />
-        `;
+    // Get just the card number and format it
+    const cardOnly = qrData.split("@")[0];
+    const formattedCard = cardOnly.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, '');
+
+    // Inject both the QR image and the label
+    qrContainer.innerHTML = `
+        <img 
+            src="${qrUrl}" 
+            alt="QR Code" 
+            style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: transparent;"
+        />
+        <div id="qrLabel">${formattedCard}</div>
+    `;
+
+    qrBg.classList.add('show');
+}
 
         // Extract card number and format
         const cardOnly = qrData.split("@")[0];
