@@ -202,11 +202,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const qrLabel = document.getElementById("qrLabel");
 
     function generateQRCode(qrData) {
-        const encodedData = encodeURIComponent(qrData);
-        const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=600&margin=10&ecLevel=H`;
-        qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" width="100%" height="100%"  />`;
-        qrLabel.textContent = `Your QR Code: ${qrData}`;
-    }
+    const encodedData = encodeURIComponent(qrData);
+    
+    // Increase size to 1000 for crisp display
+    const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
+
+    qrContainer.innerHTML = `
+        <img 
+            src="${qrUrl}" 
+            alt="QR Code" 
+            style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 8px solid white;"
+        />
+    `;
+
+    qrLabel.textContent = `Your QR Code: ${qrData}`;
+}
 
     // Load from localStorage on page load
     window.addEventListener('DOMContentLoaded', () => {
