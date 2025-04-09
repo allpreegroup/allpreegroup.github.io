@@ -269,18 +269,15 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  
         // Inject the QR code and label
     document.getElementById("qrImage").innerHTML = `
-        <img 
-            src="${qrUrl}" 
-            alt="QR Code" 
-            style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
-        />
-    `;
-    
-    document.getElementById("qrLabel").textContent = formattedCard;
-
-    qrBg.classList.add('show');
-
- 
+              <img 
+                  src="${qrUrl}" 
+                  alt="QR Code" 
+                  style="width: auto; height: auto; background: transparent;"
+              />
+ 	
+          `;
+     document.getElementById("qrLabel").textContent = formattedCard;
+	    
          // Extract card number and format
          const cardOnly = qrData.split("@")[0];
          const formattedCard = formatCardNumber(cardOnly);
