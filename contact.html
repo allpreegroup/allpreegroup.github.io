@@ -25,6 +25,68 @@
       margin: 20px;
     }
   </style>
+	<style>
+
+#search-container {
+    max-width: 100%;
+        
+
+}
+
+input[type=text] {
+
+    outline: none;
+    padding: 15px 25px;
+    margin: 5px 1px 3px 0px;
+    border: none;
+    width: 100%;
+    border-radius: 1px;
+    box-shadow: 0 1px 0px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+
+}
+
+input[type=text]:hover {
+    outline: none;
+    border: none;
+    margin: 5px 1px 3px 0px;
+    padding: 15px 25px;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+input[type=text]:focus {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+    margin: 5px 1px 3px 0px;
+    padding: 15px 25px;
+    border: none;
+    outline: none;
+        -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+}
+
+
+    }
+</style>
+<style>
+	  .demo-wrapper {
+		  max-width: 80%;
+		  margin: 5% auto;
+	  }
+  </style>
+<style>
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+</style>
+
 	</head>
 <body>
 <!-- start webpushr tracking code --> 
@@ -157,28 +219,50 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         <!-- /.container-fluid -->
     </nav>
 
-	<style>
-  .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-  }
-</style>
-	
-  <div class="container">
+	<div class="container">
             <div class="row land">
                 <div class="home">     
 			<div class="center">
-                <div class="col-md-6 home-txt1">  
-			 <hr/>
+                <div class="col-md-6 home-txt1"> 
   <h1>Add Our Contact</h1>
   <div id="action"></div>
 <div id="qr" style="margin-top: 20px;">
     
 </div>
 
+  
+	 <!-- Instructions for Android -->
+  <div class="instructions android-instructions ios-instructions" style="display: none;">
+   
+	<h1>Next</h1>
+  <br> 
+	
+	<center><h1>Invitation Code</h1></center>
+	<center><h5>Enter Your Invitation Code Below</h5></center>
+<div id="search-container">
+<input type="text" id="search-input" placeholder="Enter Your Code Here...">
+	<ul id="results-container"></ul>
+</div>
 
+  </div>
+
+
+<script src="/js/jekyll-search.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+      SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json',
+        searchResultTemplate: '{snippet} <br> <a href="{url}">Click Here To Continue</a>',
+        noResultsText: 'Results not found!',
+        limit: 1,
+        fuzzy: false,
+        exclude: ['welcome']
+      })
+    </script>
+	
 <script>
   const contactDetails = {
     fullName: "Allpree.com",
@@ -324,7 +408,6 @@ ADR:;;${contactDetails.address}`;
   window.onload = detectDevice;
 </script>
 
-   </div></div></div></div></div>               
+
 </body>
- 
 </html>
