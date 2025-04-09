@@ -254,6 +254,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const qrBg = document.getElementById("qrBackground");
     const form = document.getElementById("redirectForm");
 
+    function formatCardNumber(cardNumber) {
+        return cardNumber.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, '');
+    }
+
     function generateQRCode(qrData) {
         const encodedData = encodeURIComponent(qrData);
         const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
@@ -270,12 +274,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             <img 
                 src="${qrUrl}" 
                 alt="QR Code" 
-                style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: transparent;"
             />
         `;
 
-        qrLabel.textContent = `Your QR Code: ${qrData}`;
-	    qrBg.classList.add('show');
+        // Extract card number and format
+        const cardOnly = qrData.split("@")[0];
+        const formattedCard = formatCardNumber(cardOnly);
+        qrLabel.textContent = formattedCard;
+
+        qrBg.classList.add('show');
     }
 
     // Handle page load
@@ -303,6 +311,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 </script>
+
 
 </body>
 </html>
