@@ -100,12 +100,17 @@ input[type=text]:focus {
      const inviteDiv = document.getElementById("inviteDiv");
      const input = document.getElementById("search-input");
      const results = document.getElementById("results-container");
- 
+
+     const firstTimeHeadline = document.getElementById("first-time-headline");
+     const returningHeadline = document.getElementById("returning-headline");
+	   
      const storedCode = localStorage.getItem("invitationCode");
  
      // If the code is already stored, remove the div and skip everything else
      if (storedCode) {
        inviteDiv?.remove();
+       firstTimeHeadline?.style.display = "none";
+       returningHeadline?.style.display = "block";     
        return;
      }
  
