@@ -64,24 +64,6 @@
       width: 100%; /* Allow it to take full width up to max-width */
     }
   </style>
-  <script>
-  window.onload = function () {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-    const isAndroid = /android/i.test(userAgent);
-    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-
-    // Hide both initially
-    document.getElementById('android-os').style.display = 'none';
-    document.getElementById('ios-os').style.display = 'none';
-
-    if (isAndroid) {
-      document.getElementById('android-os').style.display = 'block';
-    } else if (isIOS) {
-      document.getElementById('ios-os').style.display = 'block';
-    }
-  };
-</script>
 
 </head>
 <body>
@@ -215,8 +197,58 @@ Click The Button Below </h3> </center>
   </center>
 </div>
 
-
   <script>
+  function closeSplashPage() {
+    // Hide current instructions
+    document.getElementById('android-instructions').style.display = 'none';
+    document.getElementById('ios-instructions').style.display = 'none';
+    document.getElementById('desktop-warning').style.display = 'none';
+
+    // Always show additional instructions, allow repeat views
+    document.getElementById("additional-instructions").style.display = "block";
+  }
+
+  function showFinalInstructions() {
+    // Hide the additional instructions and show the final instructions
+    document.getElementById('additional-instructions').style.display = 'none';
+    document.getElementById('final-instructions').style.display = 'block';
+  }
+
+  function finishSetup() {
+    window.location.href = "/start"; // Final step complete, go home
+  }
+
+  // Detect device and show relevant instructions
+  function detectDevice() {
+    const ua = navigator.userAgent;
+
+    const isAndroid = /android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+    if (isAndroid) {
+      document.getElementById('android-instructions').style.display = 'block';
+      const androidOS = document.getElementById('android-os');
+      if (androidOS) androidOS.style.display = 'block';
+    } else if (isIOS) {
+      document.getElementById('ios-instructions').style.display = 'block';
+      const iosOS = document.getElementById('ios-os');
+      if (iosOS) iosOS.style.display = 'block';
+    } else {
+      document.getElementById('desktop-warning').style.display = 'block';
+    }
+
+    // Hide unused OS-specific <ol> if they exist
+    const androidOS = document.getElementById('android-os');
+    const iosOS = document.getElementById('ios-os');
+    if (androidOS && !isAndroid) androidOS.style.display = 'none';
+    if (iosOS && !isIOS) iosOS.style.display = 'none';
+  }
+
+  window.onload = detectDevice;
+</script>
+
+
+<!--  <script>
   function closeSplashPage() {
     // Hide current instructions
     document.getElementById('android-instructions').style.display = 'none';
@@ -249,7 +281,7 @@ Click The Button Below </h3> </center>
   }
 
   window.onload = detectDevice;
-</script>
+</script> -->
 
   
 
