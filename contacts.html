@@ -192,18 +192,18 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         </button>
     </form>
 
-    <!-- QR code output -->
     <div id="qrBackground" style="
     position: relative;
     width: 100%;
     max-width: 600px;
     margin: 40px auto;
-    background-image: url('https://www.allpree.com/img/qrcodebg.png');
+    background-image: url('your-background-image.jpg');
     background-size: cover;
     background-position: center;
-    aspect-ratio: 1/1; /* optional square shape */
+    aspect-ratio: 1/1;
     border-radius: 20px;
     overflow: hidden;
+    display: none; /* Initially hidden */
 ">
     <!-- QR code will be injected here -->
     <div id="qrContainer" style="
@@ -223,17 +223,20 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const qrLabel = document.getElementById("qrLabel");
 
     function generateQRCode(qrData) {
-    const encodedData = encodeURIComponent(qrData);
-    
-    // Increase size to 1000 for crisp display
-    const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
+        const encodedData = encodeURIComponent(qrData);
+        const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
 
-    qrContainer.innerHTML = `
-        <img 
-            src="${qrUrl}" 
-            alt="QR Code" 
-            style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 8px solid white;"
-        />
+        // Show the background container
+        document.getElementById("qrBackground").style.display = "block";
+
+        // Generate QR code and insert it
+        const qrContainer = document.getElementById("qrContainer");
+        qrContainer.innerHTML = `
+            <img 
+                src="${qrUrl}" 
+                alt="QR Code" 
+                style="width: 100%; height: auto;"
+            />
     `;
 
     qrLabel.textContent = `Your QR Code: ${qrData}`;
