@@ -290,6 +290,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	      <img 
                   src="${qrUrl}" 
                   alt="QR Code" 
+		  crossorigin="anonymous"
                   style="width: auto; height: auto; background: transparent;"
               />
 	     
@@ -318,13 +319,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	document.getElementById("downloadBtn").addEventListener("click", function () {
     const target = document.getElementById("qrBackground");
 
-    html2canvas(target).then(canvas => {
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true
+    }).then(canvas => {
         const link = document.createElement("a");
         link.download = "card-qr.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
     });
 });
+
 
 	
      // Handle form submission
