@@ -96,60 +96,52 @@ input[type=text]:focus {
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const inviteDiv = document.getElementById("inviteDiv");
-    const input = document.getElementById("search-input");
-    const results = document.getElementById("results-container");
-
-    const firstTimeHeadline = document.getElementById("first-time-headline");
-    const returningHeadline = document.getElementById("returning-headline");
-
-    const storedCode = localStorage.getItem("invitationCode");
-
-    // If the code is already stored, hide invite div and swap headlines
-    if (storedCode) {
-      inviteDiv?.remove();
-      firstTimeHeadline?.style.display = "none";
-      returningHeadline?.style.display = "block";
-      return;
-    }
-
-    // Show invite div and default headline
-    inviteDiv.style.display = "block";
-    firstTimeHeadline?.style.display = "block";
-    returningHeadline?.style.display = "none";
-
-    // Save code as user types
-    input?.addEventListener("input", () => {
-      const code = input.value.trim();
-      if (code) {
-        localStorage.setItem("invitationCode", code);
-      }
-    });
-
-    // Save code and redirect when link is clicked
-    results?.addEventListener("click", (e) => {
-      const link = e.target.closest("a");
-      if (link) {
-        const code = input?.value.trim();
-        if (code) {
-          localStorage.setItem("invitationCode", code);
-        }
-
-        // Update UI
-        firstTimeHeadline?.style.display = "none";
-        returningHeadline?.style.display = "block";
-        inviteDiv.style.display = "none";
-
-        // Manually follow the link after saving
-        e.preventDefault(); // Prevent default link behavior
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 50); // Slight delay for localStorage write
-      }
-    });
-  });
-</script>
+   document.addEventListener("DOMContentLoaded", () => {
+     const inviteDiv = document.getElementById("inviteDiv");
+     const input = document.getElementById("search-input");
+     const results = document.getElementById("results-container");
+ 
+     const storedCode = localStorage.getItem("invitationCode");
+ 
+     // If the code is already stored, remove the div and skip everything else
+     if (storedCode) {
+       inviteDiv?.remove();
+       return;
+     }
+ 
+     // Show the div only if no code is found
+     inviteDiv.style.display = "block";
+ 
+     // Save code to localStorage when user types into the input
+     input?.addEventListener("change", () => {
+       const code = input.value.trim();
+       if (code) {
+         localStorage.setItem("invitationCode", code);
+       }
+     });
+ 
+     // Save the code and hide the div when user clicks a result link
+     results?.addEventListener("click", (e) => {
+       const link = e.target.closest("a");
+       if (link) {
+         // Save the code if available
+         const code = input?.value.trim();
+         if (code) {
+           localStorage.setItem("invitationCode", code);
+         }
+ 
+         // Hide the div and let the link redirect
+         inviteDiv.style.display = "none";
+ 
+         // Make sure the link is followed after saving
+         setTimeout(() => {
+           window.location.href = link.href; // Manually redirect to the link
+         }, 10); // Give it a tiny delay to ensure the div hides first
+         }, 5); // Give it a tiny delay to ensure the div hides first
+       }
+     });
+   });
+ </script>
 
 
 
