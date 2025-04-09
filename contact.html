@@ -124,29 +124,33 @@ input[type=text]:focus {
     const inviteDiv = document.getElementById("inviteDiv");
     const storedCode = localStorage.getItem("invitationCode");
 
-    // If code is already stored, remove the div
     if (storedCode) {
-      if (inviteDiv) {
-        inviteDiv.remove(); // Completely removes the element
-      }
+      inviteDiv?.remove();
     } else {
-      // Show the div only if no code is found
-      if (inviteDiv) {
-        inviteDiv.style.display = "block";
+      inviteDiv.style.display = "block";
+      const input = document.getElementById("search-input");
 
-        const input = document.getElementById("search-input");
-        input?.addEventListener("change", () => {
-          const code = input.value.trim();
+      // Save the code when the user changes the input
+      input?.addEventListener("change", () => {
+        const code = input.value.trim();
+        if (code) {
+          localStorage.setItem("invitationCode", code);
+        }
+      });
+
+      // Save the code + hide div when user clicks a search result
+      const resultsContainer = document.getElementById("results-container");
+      resultsContainer?.addEventListener("click", (e) => {
+        const link = e.target.closest("a");
+        if (link) {
+          const code = input?.value.trim();
           if (code) {
-            try {
-              localStorage.setItem("invitationCode", code);
-              inviteDiv.style.display = "none";
-            } catch (e) {
-              console.error("localStorage error", e);
-            }
+            localStorage.setItem("invitationCode", code);
           }
-        });
-      }
+          inviteDiv.style.display = "none";
+          // Let the link continue to redirect naturally
+        }
+      });
     }
   });
 </script>
