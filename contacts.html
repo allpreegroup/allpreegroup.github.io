@@ -218,15 +218,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <script>
     const qrContainer = document.getElementById("qrContainer");
     const qrLabel = document.getElementById("qrLabel");
+    const qrBg = document.getElementById("qrBackground");
+    const form = document.getElementById("redirectForm");
 
     function generateQRCode(qrData) {
         const encodedData = encodeURIComponent(qrData);
         const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=10&ecLevel=H`;
 
-        // Show the background container
-        document.getElementById("qrBackground").style.display = "block";
+        // Save to localStorage
+        localStorage.setItem("savedQRData", qrData);
 
-        // Generate QR code and insert it
+        // Show the QR container and hide the form
+        qrBg.style.display = "block";
+        form.style.display = "none";
+
+        // Inject the QR code
         qrContainer.innerHTML = `
             <img 
                 src="${qrUrl}" 
@@ -238,16 +244,20 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         qrLabel.textContent = `Your QR Code: ${qrData}`;
     }
 
-    // Load from localStorage on page load
+    // Handle page load
     window.addEventListener('DOMContentLoaded', () => {
         const savedQR = localStorage.getItem("savedQRData");
         if (savedQR) {
             generateQRCode(savedQR);
+        } else {
+            // Show form if there's no QR saved
+            form.style.display = "block";
+            qrBg.style.display = "none";
         }
     });
 
     // Handle form submission
-    document.getElementById("redirectForm").addEventListener("submit", function(event) {
+    form.addEventListener("submit", function(event) {
         event.preventDefault();
 
         const code = document.getElementById("code").value.replace(/\s+/g, '');
@@ -255,12 +265,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
         if (code && pin) {
             const qrData = `${code}@${pin}`;
-            localStorage.setItem("savedQRData", qrData); // Save to localStorage
             generateQRCode(qrData);
         }
     });
 </script>
-
 
 </body>
 </html>
