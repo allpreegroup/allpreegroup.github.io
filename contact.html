@@ -122,36 +122,39 @@ input[type=text]:focus {
 	<script>
   document.addEventListener("DOMContentLoaded", () => {
     const inviteDiv = document.getElementById("inviteDiv");
+    const input = document.getElementById("search-input");
+    const results = document.getElementById("results-container");
+
     const storedCode = localStorage.getItem("invitationCode");
 
     if (storedCode) {
       inviteDiv?.remove();
-    } else {
-      inviteDiv.style.display = "block";
-      const input = document.getElementById("search-input");
+      return;
+    }
 
-      // Save the code when the user changes the input
-      input?.addEventListener("change", () => {
-        const code = input.value.trim();
+    inviteDiv.style.display = "block";
+
+    // Save code on input change
+    input?.addEventListener("change", () => {
+      const code = input.value.trim();
+      if (code) {
+        localStorage.setItem("invitationCode", code);
+      }
+    });
+
+    // 🔑 Detect click BEFORE redirect using mousedown
+    results?.addEventListener("mousedown", (e) => {
+      const link = e.target.closest("a");
+      if (link) {
+        const code = input?.value.trim();
         if (code) {
           localStorage.setItem("invitationCode", code);
-        }
-      });
-
-      // Save the code + hide div when user clicks a search result
-      const resultsContainer = document.getElementById("results-container");
-      resultsContainer?.addEventListener("click", (e) => {
-        const link = e.target.closest("a");
-        if (link) {
-          const code = input?.value.trim();
-          if (code) {
-            localStorage.setItem("invitationCode", code);
-          }
           inviteDiv.style.display = "none";
-          // Let the link continue to redirect naturally
         }
-      });
-    }
+        // DO NOT call e.preventDefault()
+        // Let the browser follow the link normally
+      }
+    });
   });
 </script>
 
