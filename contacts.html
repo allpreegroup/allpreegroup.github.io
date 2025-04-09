@@ -25,18 +25,50 @@
             display: inline-block;
             margin-top: 50px;
         }
-	 #qrContainer {
-            margin: 40px auto 0;
-            width: 90%;
-            max-width: 350px;
-        }    
-        #qrContainer img {
-            width: 100%;
-            height: auto;
-            border: 8px solid #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+	 #qrBackground {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 400px; /* Or use aspect-ratio: 1 / 1; */
+    margin: 40px auto;
+    background-image: url('your-background-image.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px;
+    overflow: hidden;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+#qrContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%; /* adjust based on desired size */
+    height: auto;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#qrContainer img {
+    width: 100%;
+    height: auto;
+    background: transparent;
+    border: none; /* or keep border if you want contrast */
+    border-radius: 12px;
+    box-shadow: none; /* or keep shadow if you want separation */
+}
+	    #qrBackground {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#qrBackground.show {
+    opacity: 1;
+}
         #qrLabel {
             margin-top: 10px;
             font-weight: bold;
@@ -243,6 +275,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         `;
 
         qrLabel.textContent = `Your QR Code: ${qrData}`;
+	    qrBg.classList.add('show');
     }
 
     // Handle page load
