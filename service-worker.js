@@ -15,7 +15,6 @@ var preLoad = function () {
             "/partner/",
             "/vouchers/",
             "/generategiftcard",
-            "/contact",
             "/manifest.json",
             "/img/AllPreepwaapp.png",
             "/404.html" // Ensure this file actually exists on your server
