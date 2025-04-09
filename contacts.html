@@ -91,6 +91,9 @@
 	
 </head>
 <body>
+	
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+		
 <!-- start webpushr tracking code --> 
 <script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
 fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
@@ -232,7 +235,22 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <div id="qrContainer"></div>
     <div id="qrLabel"></div>
 </div>
-
+<button id="downloadBtn" style="
+    margin-top: 20px;
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 8px;
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: none;
+">Download Card</button>
 <form id="redirectForm">
     <label for="code">Card Number:</label><br>
     <input type="text" id="code" name="code" required><br>
@@ -263,7 +281,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
          // Show the QR container and hide the form
          qrBg.style.display = "block";
          form.style.display = "none";
- 
+
+         document.getElementById("downloadBtn").style.display = "block";
+	    
         // Inject the QR code and label
               qrContainer.innerHTML = `
              
@@ -294,7 +314,19 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
              qrBg.style.display = "none";
          }
      });
- 
+
+	document.getElementById("downloadBtn").addEventListener("click", function () {
+    const target = document.getElementById("qrBackground");
+
+    html2canvas(target).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "card-qr.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+});
+
+	
      // Handle form submission
      form.addEventListener("submit", function(event) {
          event.preventDefault();
