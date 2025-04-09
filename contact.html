@@ -90,7 +90,36 @@ input[type=text]:focus {
     
   }
 </style>
+<script>
+  // Early check to avoid showing the div at all
+  if (localStorage.getItem("invitationCode")) {
+    document.addEventListener("DOMContentLoaded", () => {
+      const inviteDiv = document.getElementById("inviteDiv");
+      if (inviteDiv) {
+        inviteDiv.remove(); // Remove it completely
+      }
+    });
+  } else {
+    document.addEventListener("DOMContentLoaded", () => {
+      const inviteDiv = document.getElementById("inviteDiv");
+      if (inviteDiv) {
+        inviteDiv.style.display = "block"; // Show it if no code saved
+      }
 
+      const input = document.getElementById("search-input");
+      input?.addEventListener("change", () => {
+        const code = input.value.trim();
+        if (code) {
+          localStorage.setItem("invitationCode", code);
+          inviteDiv.style.display = "none";
+        }
+      });
+    });
+  }
+</script>
+
+	
+	
 </head>
 <body>
 <!-- start webpushr tracking code --> 
@@ -411,27 +440,6 @@ ADR:;;${contactDetails.address}`;
   }
 
   window.onload = detectDevice;
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const inviteDiv = document.getElementById("inviteDiv");
-  const storedCode = localStorage.getItem("invitationCode");
-
-  // Show the div only if there's no stored invitation code
-  if (!storedCode) {
-    inviteDiv.style.display = "block";
-  }
-
-  // Optional: Save the code to localStorage when entered
-  const searchInput = document.getElementById("search-input");
-  searchInput.addEventListener("change", function () {
-    const code = searchInput.value.trim();
-    if (code) {
-      localStorage.setItem("invitationCode", code);
-      inviteDiv.style.display = "none";
-    }
-  });
-});
 </script>
 
 </body>
