@@ -95,7 +95,64 @@ input[type=text]:focus {
   }
 </style>
 
-<script>
+	<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const inviteDiv = document.getElementById("inviteDiv");
+    const input = document.getElementById("search-input");
+    const results = document.getElementById("results-container");
+
+    const firstTimeHeadline = document.getElementById("first-time-headline");
+    const returningHeadline = document.getElementById("returning-headline");
+    
+    const storedCode = localStorage.getItem("invitationCode");
+
+    // If the code is already stored, remove the div and show returning headline
+    if (storedCode) {
+      inviteDiv?.remove();
+      if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
+      if (returningHeadline) returningHeadline.style.display = "block";
+      return;
+    }
+
+    // Show invite div and first-time headline
+    inviteDiv.style.display = "block";
+    if (firstTimeHeadline) firstTimeHeadline.style.display = "block";
+    if (returningHeadline) returningHeadline.style.display = "none";
+
+    // Save code to localStorage when user types into the input
+    input?.addEventListener("change", () => {
+      const code = input.value.trim();
+      if (code) {
+        localStorage.setItem("invitationCode", code);
+      }
+    });
+
+    // Save the code and hide the div when user clicks a result link
+    results?.addEventListener("click", (e) => {
+      const link = e.target.closest("a");
+      if (link) {
+        // Save the code if available
+        const code = input?.value.trim();
+        if (code) {
+          localStorage.setItem("invitationCode", code);
+        }
+
+        // Swap headlines and hide invite div
+        if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
+        if (returningHeadline) returningHeadline.style.display = "block";
+        inviteDiv.style.display = "none";
+
+        // Make sure the link is followed after saving
+        setTimeout(() => {
+          window.location.href = link.href; // Manually redirect to the link
+        }, 10);
+      }
+    });
+  });
+</script>
+
+
+<!-- <script>
    document.addEventListener("DOMContentLoaded", () => {
      const inviteDiv = document.getElementById("inviteDiv");
      const input = document.getElementById("search-input");
@@ -146,7 +203,7 @@ input[type=text]:focus {
        }
      });
    });
- </script>
+ </script> -->
 
 
 
