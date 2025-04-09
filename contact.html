@@ -407,7 +407,27 @@ ADR:;;${contactDetails.address}`;
 
   window.onload = detectDevice;
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const inviteDiv = document.getElementById("inviteDiv");
+  const storedCode = localStorage.getItem("invitationCode");
 
+  // Show the div only if there's no stored invitation code
+  if (!storedCode) {
+    inviteDiv.style.display = "block";
+  }
+
+  // Optional: Save the code to localStorage when entered
+  const searchInput = document.getElementById("search-input");
+  searchInput.addEventListener("change", function () {
+    const code = searchInput.value.trim();
+    if (code) {
+      localStorage.setItem("invitationCode", code);
+      inviteDiv.style.display = "none";
+    }
+  });
+});
+</script>
 
 </body>
 </html>
