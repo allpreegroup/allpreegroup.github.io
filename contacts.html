@@ -191,6 +191,25 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </center>
 
 <script>
+    const qrContainer = document.getElementById("qrContainer");
+    const qrLabel = document.getElementById("qrLabel");
+
+    function generateQRCode(qrData) {
+        const encodedData = encodeURIComponent(qrData);
+        const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=300&margin=10&ecLevel=H`;
+        qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" width="300" height="300" />`;
+        qrLabel.textContent = `Your QR Code: ${qrData}`;
+    }
+
+    // Load from localStorage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedQR = localStorage.getItem("savedQRData");
+        if (savedQR) {
+            generateQRCode(savedQR);
+        }
+    });
+
+    // Handle form submission
     document.getElementById("redirectForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
@@ -199,14 +218,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
         if (code && pin) {
             const qrData = `${code}@${pin}`;
-            const encodedData = encodeURIComponent(qrData);
-            const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=300&margin=10&ecLevel=H`;
-
-            const qrContainer = document.getElementById("qrContainer");
-            const qrLabel = document.getElementById("qrLabel");
-
-            qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" width="300" height="300" />`;
-            qrLabel.textContent = `Your QR Code: ${qrData}`;
+            localStorage.setItem("savedQRData", qrData); // Save to localStorage
+            generateQRCode(qrData);
         }
     });
 </script>
