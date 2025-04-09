@@ -231,12 +231,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                 <div class="col-md-6 home-txt1"> <br><br>
 <center>
    <div id="qrBackground">
-    <!-- QR code will be injected here -->
-	   
+    <!-- QR code will be injected here -->	   
     <div id="qrContainer">
-	   
+	<div id="qrImage"></div>
+        <!-- Label will be injected here -->
+        <div id="qrLabel"></div>   
     </div>
-<div id="qrLabel"></div>
  </div>
 
 <form id="redirectForm">
@@ -271,12 +271,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
          form.style.display = "none";
  
          // Inject the QR code
-         qrContainer.innerHTML = `
+         document.getElementById("qrImage").innerHTML = `
              <img 
                  src="${qrUrl}" 
                  alt="QR Code" 
                  style="width: auto; height: auto; background: transparent;"
              />
+	document.getElementById("qrLabel").textContent = formattedCard;
          `;
  
          // Extract card number and format
