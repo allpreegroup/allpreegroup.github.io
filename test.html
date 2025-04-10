@@ -333,11 +333,28 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			<!-- <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
   <script>
    function formatReferralCode(code) {
-  return code.replace(/\s+/g, '');
+  return code.replace(/\s+/g, ''); // Remove spaces without adding any dashes
+}
+
+// Function to check if the stored code has expired
+function isCodeExpired() {
+  const expirationDate = localStorage.getItem('referralCodeExpiration');
+  if (expirationDate) {
+    const currentTime = Date.now();
+    return currentTime > parseInt(expirationDate);
+  }
+  return true; // If no expiration date is set, consider it expired
 }
 
 function updateFlyersWithCode(code) {
   const formattedCode = formatReferralCode(code);
+
+  // Save the formatted code and set expiration time in localStorage
+  localStorage.setItem('generatedReferralCode', formattedCode);
+  
+  // Set expiration date for 7 days from now
+  const expirationTime = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+  localStorage.setItem('referralCodeExpiration', expirationTime);
 
   // Update the referral code for each flyer
   document.getElementById("flyer1Code").textContent = formattedCode;
@@ -374,6 +391,22 @@ document.getElementById("referralForm").addEventListener("submit", function(even
     updateFlyersWithCode(referralCode); // Update flyers with the code
   }
 });
+
+// On page load, check if a referral code is saved and if it has expired
+window.addEventListener('DOMContentLoaded', () => {
+  const savedReferralCode = localStorage.getItem('generatedReferralCode');
+  
+  if (savedReferralCode && !isCodeExpired()) {
+    updateFlyersWithCode(savedReferralCode); // Show saved referral code and flyers
+  } else {
+    // Code has expired or doesn't exist, show the form
+    document.getElementById("referralForm").style.display = "block";
+    document.getElementById("flyer1").style.display = "none";
+    document.getElementById("flyer2").style.display = "none";
+    document.getElementById("flyer3").style.display = "none";
+  }
+});
+
 
   </script>
 
