@@ -251,7 +251,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <img src="https://www.allpree.com/img/qrcodebg.png" alt="Flyer 1" class="flyer-img" />
     <div class="code-overlay" id="flyerCodeOverlay"></div>
 	 
-  <img id="flyerQRCode" class="flyer-qr" /> 
+  <img id="flyerQRCode" class="flyer-qr" style="display: none;" /> 
   </div></div>
 		
 
@@ -274,8 +274,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </center>
 <hr>
 
-	<script>
-    
+	
+<script>
 const form = document.getElementById("redirectForm");
 const flyer1 = document.getElementById("flyer1");
 const flyerQRCode = document.getElementById("flyerQRCode");  // Image tag for QR code
@@ -336,34 +336,27 @@ window.addEventListener('DOMContentLoaded', () => {
 document.getElementById("downloadBtn").addEventListener("click", function () {
     // Ensure the QR code image is fully loaded before proceeding
     if (flyerQRCode.complete) {
-        const flyerWrapper = flyer1.querySelector(".flyer-wrapper");
-
-        html2canvas(flyerWrapper, {
-            scale: 2,
-            useCORS: true
-        }).then(canvas => {
-            const link = document.createElement("a");
-            link.download = "card-with-qr.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        });
+        captureFlyer();
     } else {
         // Wait for the QR code image to load if it's not fully loaded yet
-        flyerQRCode.onload = function() {
-            const flyerWrapper = flyer1.querySelector(".flyer-wrapper");
-
-            html2canvas(flyerWrapper, {
-                scale: 2,
-                useCORS: true
-            }).then(canvas => {
-                const link = document.createElement("a");
-                link.download = "card-with-qr.png";
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
-        };
+        flyerQRCode.onload = captureFlyer;
     }
 });
+
+// Function to capture the flyer and download it
+function captureFlyer() {
+    const flyerWrapper = flyer1.querySelector(".flyer-wrapper");
+
+    html2canvas(flyerWrapper, {
+        scale: 2, // Adjust the scale for better resolution
+        useCORS: true
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "card-with-qr.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
 
 // Form submission handler to generate QR code
 form.addEventListener("submit", function (event) {
@@ -388,10 +381,7 @@ function downloadFlyer(flyerId) {
         link.click();
     });
 }
-
 </script>
-
-
 
 
 </body>
