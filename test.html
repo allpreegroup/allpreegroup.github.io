@@ -327,9 +327,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <input type="text" id="referralCode" name="referralCode" required>
   <button type="submit">Generate Flyers</button>
 </form>
+
+			
 <br>
-<p id="referralText">Use my referral code ${savedReferralCode} to get started!</p><br>
-<a id="referralText" href="https://wa.me/?text=Check%20out%20my%20referral%20code%20${savedReferralCode}%20to%20get%20started!" target="_blank">
+<p id="referralText" style="display: none;">Use my referral code ${savedReferralCode} to get started!</p><br>
+<a id="referralText" href="https://wa.me/?text=Check%20out%20my%20referral%20code%20${savedReferralCode}%20to%20get%20started!" target="_blank" style="display: none;">
   Share on WhatsApp
 </a>
 			
@@ -348,7 +350,33 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const referralCode = localStorage.getItem('generatedReferralCode');
+    
+    // Get the referral text and link elements
+    const textElement = document.getElementById('referralText');
+    const linkElement = document.getElementById('referralLink');
+    
+    if (referralCode && !isCodeExpired()) {
+      // Show the referral text and WhatsApp link if the referral code is valid
+      if (textElement) {
+        textElement.style.display = 'block'; // Show the referral text
+      }
+      if (linkElement) {
+        linkElement.style.display = 'inline-block'; // Show the referral link
+      }
+    } else {
+      // Hide the referral text and link if the referral code is not found or expired
+      if (textElement) {
+        textElement.style.display = 'none'; // Hide the referral text
+      }
+      if (linkElement) {
+        linkElement.style.display = 'none'; // Hide the referral link
+      }
+    }
+  });
+</script>
 
 
 			
@@ -429,7 +457,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("flyer3").style.display = "none";
   }
 });
-
 
   </script>
 
