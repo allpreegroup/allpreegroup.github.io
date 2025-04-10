@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v23";
+var CACHE_NAME = "offline-v24";
 
 var preLoad = function () {
     console.log("Installing web app...");
@@ -11,7 +11,7 @@ var preLoad = function () {
             "/howitwork/",
             "/start",
             "/menu/",
-            "/invite/",
+            "/marketing/",
             "/partner/",
             "/vouchers/",
             "/generategiftcard",
