@@ -14,8 +14,59 @@
       <title>Referral Flyer</title>
 <head>
 
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .flyer {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 3 / 5;
+      margin: 30px auto;
+      background-size: cover;
+      background-position: center;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .code-overlay {
+      position: absolute;
+      font-weight: bold;
+      font-size: 1.2em;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .download-btn {
+      margin-top: 10px;
+      display: none;
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #referralForm {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #referralInput {
+      padding: 10px;
+      width: 70%;
+      font-size: 1em;
+    }
+  </style>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	
+
+<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -71,7 +122,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-  </style>
+  </style> -->
 </head>
 <body>
 <!-- start webpushr tracking code --> 
@@ -210,7 +261,75 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                 <div class="home">     
 			<div class="center">
                 <div class="col-md-6 home-txt1"> <br><br>
-  <form id="referralForm">
+
+
+
+ <div id="referralForm">
+    <input type="text" id="referralInput" placeholder="Enter your referral code" required />
+    <button onclick="saveReferralCode()">Save Code</button>
+  </div>
+
+  <div id="flyers">
+    <div class="flyer" id="flyer1" style="background-image: url('https://www.allpree.com/img/ad1.png');">
+      <div class="code-overlay" id="code1" style="bottom: 10%; left: 10%;"></div>
+    </div>
+    <button class="download-btn" onclick="downloadFlyer('flyer1', 'code1')">Download Flyer 1</button>
+
+    <div class="flyer" id="flyer2" style="background-image: url('flyer2.jpg');">
+      <div class="code-overlay" id="code2" style="top: 15%; right: 10%;"></div>
+    </div>
+    <button class="download-btn" onclick="downloadFlyer('flyer2', 'code2')">Download Flyer 2</button>
+
+    <div class="flyer" id="flyer3" style="background-image: url('flyer3.jpg');">
+      <div class="code-overlay" id="code3" style="top: 50%; left: 50%; transform: translate(-50%, -50%)"></div>
+    </div>
+    <button class="download-btn" onclick="downloadFlyer('flyer3', 'code3')">Download Flyer 3</button>
+  </div>
+
+
+
+			 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script>
+    function saveReferralCode() {
+      const code = document.getElementById("referralInput").value.trim();
+      if (!code) return;
+      localStorage.setItem("referralCode", code);
+      showFlyers(code);
+    }
+
+    function showFlyers(code) {
+      document.getElementById("referralForm").style.display = "none";
+      document.getElementById("code1").textContent = code;
+      document.getElementById("code2").textContent = code;
+      document.getElementById("code3").textContent = code;
+
+      const buttons = document.querySelectorAll(".download-btn");
+      buttons.forEach(btn => btn.style.display = "block");
+    }
+
+    function downloadFlyer(flyerId, codeId) {
+      const flyer = document.getElementById(flyerId);
+      html2canvas(flyer, { scale: 3 }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = flyerId + ".png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("referralCode");
+      if (saved) {
+        showFlyers(saved);
+      }
+    });
+  </script>
+
+</body>
+</html>
+
+			
+ <!-- <form id="referralForm">
     <label for="refCode">Enter Your Referral Code:</label><br><br>
     <input type="text" id="refCode" required />
     <br><br>
@@ -262,7 +381,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         link.click();
       });
     });
-  </script>
+  </script> -->
 
 </body>
 </html>
