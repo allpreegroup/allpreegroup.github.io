@@ -62,7 +62,14 @@
     white-space: nowrap;
     text-align: center;
 }
-
+.flyer-qr {
+  position: absolute;
+  top: 20%; /* Adjust this value to position the QR code where you want on the flyer */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px; /* Set size of QR code */
+  height: auto;
+}
 .download-bt {
   margin-top: 10px;
   padding: 8px 16px;
@@ -305,9 +312,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/qrcodebg.png" alt="Flyer 1" class="flyer-img" />
     <div class="code-overlay" id="flyer1"></div>
+	   <img id="flyerQRCode" class="flyer-qr" style="display: none;" />
   </div>
 </div> <button class="download-bt" onclick="downloadFlyer('flyer1')" >Download Flyer</button>
 <br><br>	
+
+	
 <form id="redirectForm">
     <label for="code">Card Number:</label><br>
     <input type="text" id="code" name="code" required><br>
@@ -406,6 +416,107 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  </script> -->
 
 
+<!--	<script>
+    const qrContainer = document.getElementById("qrContainer");
+    const qrLabel = document.getElementById("qrLabel");
+    const qrBg = document.getElementById("qrBackground");
+    const form = document.getElementById("redirectForm");
+    const flyer1 = document.getElementById("flyer1");
+
+    function formatCardNumber(cardNumber) {
+        return cardNumber.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, '');
+    }
+
+    function generateQRCode(qrData) {
+        const encodedData = encodeURIComponent(qrData);
+        const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H`;
+
+        // Save to localStorage
+        localStorage.setItem("savedQRData", qrData);
+
+        // Show the QR container and hide the form
+        qrBg.style.display = "block";
+        form.style.display = "none";
+        
+        // Inject the QR code and label
+        qrContainer.innerHTML = `
+            <img 
+                src="${qrUrl}" 
+                alt="QR Code" 
+                crossorigin="anonymous"
+                style="width: auto; height: auto; background: transparent;"
+            />
+        `;
+        
+        // Extract card number and format
+        const cardOnly = qrData.split("@")[0];
+        const formattedCard = formatCardNumber(cardOnly);
+        qrLabel.textContent = formattedCard;
+        qrLabel.style.display = "block";  // Show the label
+
+        qrBg.classList.add('show');
+
+        // Show the overlay and set code for flyer
+        const codeOverlay = flyer1.querySelector(".code-overlay");
+        codeOverlay.textContent = formattedCard;
+        flyer1.style.display = "block";  // Show the flyer
+
+        // ✅ Show the download button
+        document.getElementById("downloadBtn").style.display = "block";
+    }
+
+    // Handle page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedQR = localStorage.getItem("savedQRData");
+        if (savedQR) {
+            generateQRCode(savedQR);
+        } else {
+            // Show form if there's no QR saved
+            form.style.display = "block";
+            qrBg.style.display = "none";
+            flyer1.style.display = "none";
+        }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+        const target = document.getElementById("qrBackground");
+
+        html2canvas(target, {
+            scale: 10,
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement("a");
+            link.download = "card-qr.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    });
+
+    // Handle form submission
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const code = document.getElementById("code").value.replace(/\s+/g, '');
+        const pin = document.getElementById("pin").value.replace(/\s+/g, '');
+
+        if (code && pin) {
+            const qrData = `${code}@${pin}`;
+            generateQRCode(qrData);
+        }
+    });
+
+    // Function to download the flyer image
+    function downloadFlyer(flyerId) {
+        const flyer = document.getElementById(flyerId);
+        html2canvas(flyer).then(canvas => {
+            const link = document.createElement("a");
+            link.download = `${flyerId}-flyer.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    }
+</script> -->
+
 	<script>
     const qrContainer = document.getElementById("qrContainer");
     const qrLabel = document.getElementById("qrLabel");
@@ -449,6 +560,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         // Show the overlay and set code for flyer
         const codeOverlay = flyer1.querySelector(".code-overlay");
         codeOverlay.textContent = formattedCard;
+
+        // Add the QR code to the flyer
+        const flyerQRCode = flyer1.querySelector("#flyerQRCode");
+        flyerQRCode.src = qrUrl;  // Set the QR code URL
+        flyerQRCode.style.display = "block";  // Show the QR code on the flyer
+
         flyer1.style.display = "block";  // Show the flyer
 
         // ✅ Show the download button
