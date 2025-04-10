@@ -658,7 +658,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         // Show the QR container and hide the form
         qrBg.style.display = "block";
         form.style.display = "none";
-        
+
         // Inject the QR code and label
         qrContainer.innerHTML = `
             <img 
@@ -668,7 +668,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                 style="width: auto; height: auto; background: transparent;"
             />
         `;
-        
+
         // Extract card number and format
         const cardOnly = qrData.split("@")[0];
         const formattedCard = formatCardNumber(cardOnly);
@@ -680,13 +680,15 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         // Show the overlay and set code for flyer
         const codeOverlay = flyer1.querySelector(".code-overlay");
         codeOverlay.textContent = formattedCard;
+        codeOverlay.style.display = "block";
 
         // Add the QR code to the flyer
         const flyerQRCode = flyer1.querySelector("#flyerQRCode");
-        flyerQRCode.src = qrUrl;  // Set the QR code URL
-        flyerQRCode.style.display = "block";  // Show the QR code on the flyer
+        flyerQRCode.src = qrUrl;
+        flyerQRCode.style.display = "block";
 
-        flyer1.style.display = "block";  // Show the flyer
+        // Show the flyer
+        flyer1.style.display = "block";
 
         // ✅ Show the download button
         document.getElementById("downloadBtn").style.display = "block";
@@ -698,7 +700,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         if (savedQR) {
             generateQRCode(savedQR);
         } else {
-            // Show form if there's no QR saved
             form.style.display = "block";
             qrBg.style.display = "none";
             flyer1.style.display = "none";
@@ -732,19 +733,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 
-    // Function to download the flyer image (including the QR code)
+    // Download the flyer with QR and overlay
     function downloadFlyer(flyerId) {
         const flyer = document.getElementById(flyerId);
-        
-        // Ensure QR code and overlay are visible before downloading
+
         const flyerQRCode = flyer.querySelector("#flyerQRCode");
         const codeOverlay = flyer.querySelector(".code-overlay");
 
-        flyerQRCode.style.display = "block";  // Ensure QR code is visible
-        codeOverlay.style.display = "block";  // Ensure overlay is visible
+        flyerQRCode.style.display = "block";
+        codeOverlay.style.display = "block";
 
-        // Capture the flyer with QR code and overlay using html2canvas
-        html2canvas(flyer).then(canvas => {
+        html2canvas(flyer, { useCORS: true, scale: 3 }).then(canvas => {
             const link = document.createElement("a");
             link.download = `${flyerId}-flyer.png`;
             link.href = canvas.toDataURL("image/png");
@@ -752,7 +751,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         });
     }
 </script>
-
 
 
 </body>
