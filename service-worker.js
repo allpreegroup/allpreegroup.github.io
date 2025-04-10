@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v25";
+var CACHE_NAME = "offline-v26";
 
 var preLoad = function () {
     console.log("Installing web app...");
