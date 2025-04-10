@@ -389,6 +389,15 @@ function updateFlyersWithCode(code) {
   // Replace in the link href
   linkElement.href = linkElement.href.replace('${savedReferralCode}', encodeURIComponent(formattedCode));
 }
+	function downloadFlyer(flyerId) {
+  const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
+  html2canvas(flyer, { scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${flyerId}-flyer.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
 
 // Handle form submission
 document.getElementById("referralForm").addEventListener("submit", function(event) {
