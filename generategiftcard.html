@@ -273,7 +273,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/qrcodebg.png" alt="Flyer 1" class="flyer-img" />
     <div class="code-overlay" id="flyerCodeOverlay"></div>
-    <img id="flyerQRCode" class="flyer-qr" style="display: none;" />
+	   <div id="qrContainer"></div>
+  <!--  <img id="flyerQRCode" class="flyer-qr" style="display: none;" /> -->
   </div></div>
 		
 
@@ -296,6 +297,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <hr>
 
 	<script>
+    const qrContainer = document.getElementById("qrContainer");
     const form = document.getElementById("redirectForm");
     const flyer1 = document.getElementById("flyer1");
     const flyerQRCode = document.getElementById("flyerQRCode");
@@ -314,6 +316,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         // Hide the form after submission
         form.style.display = "none";
 
+	// Inject the QR code and label
+               qrContainer.innerHTML = `
+              
+ 	      <img 
+                   src="${qrUrl}" 
+                   alt="QR Code" 
+ 		  crossorigin="anonymous"
+                   style="width: auto; height: auto; background: transparent;"
+               />
+ 	     
+     `;    
         // Format and set the card number
         const cardOnly = qrData.split("@")[0];
         const formattedCard = formatCardNumber(cardOnly);
