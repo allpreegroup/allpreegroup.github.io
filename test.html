@@ -15,7 +15,7 @@
 <head>
 
 <style>
-   body {
+  body {
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   text-align: center;
@@ -95,6 +95,7 @@ button {
 button:hover {
   background-color: #218838;
 }
+
   </style>
 
 	
@@ -295,9 +296,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			<div class="center">
                 <div class="col-md-6 home-txt1"> <br><br>
 
-
-
-<div class="flyer">
+<!-- Hidden until referral code is generated -->
+<div class="flyer" style="display:none;" id="flyer1">
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 1" class="flyer-img" />
     <div class="code-overlay" id="flyer1Code"></div>
@@ -305,7 +305,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <button class="download-btn" onclick="downloadFlyer('flyer1')" style="display:none;">Download Flyer</button>
 </div>
 
-<div class="flyer">
+<div class="flyer" style="display:none;" id="flyer2">
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 2" class="flyer-img" />
     <div class="code-overlay" id="flyer2Code"></div>
@@ -313,7 +313,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <button class="download-btn" onclick="downloadFlyer('flyer2')" style="display:none;">Download Flyer</button>
 </div>
 
-<div class="flyer">
+<div class="flyer" style="display:none;" id="flyer3">
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 3" class="flyer-img" />
     <div class="code-overlay" id="flyer3Code"></div>
@@ -321,11 +321,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <button class="download-btn" onclick="downloadFlyer('flyer3')" style="display:none;">Download Flyer</button>
 </div>
 
+<!-- Referral Code Form -->
 <form id="referralForm">
   <label for="referralCode">Enter Referral Code:</label>
   <input type="text" id="referralCode" name="referralCode" required>
   <button type="submit">Generate Flyers</button>
 </form>
+CSS:
 
 
 			<!-- <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
@@ -344,6 +346,12 @@ function updateFlyersWithCode(code) {
 
   // Show the download button after code is generated
   document.querySelectorAll(".download-btn").forEach(btn => btn.style.display = "inline-block");
+
+  // Show the flyers and hide the form
+  document.getElementById("flyer1").style.display = "inline-block";
+  document.getElementById("flyer2").style.display = "inline-block";
+  document.getElementById("flyer3").style.display = "inline-block";
+  document.getElementById("referralForm").style.display = "none";
 }
 
 function downloadFlyer(flyerId) {
