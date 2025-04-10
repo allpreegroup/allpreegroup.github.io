@@ -1,9 +1,7 @@
 var CACHE_NAME = "offline-v27";
 
 var preLoad = function () {
-    console.log("Installing web app...");
     return caches.open(CACHE_NAME).then(function (cache) {
-        console.log("Caching important routes...");
         return cache.addAll([
             "/",
             "/balance/",
@@ -17,27 +15,26 @@ var preLoad = function () {
             "/generategiftcard",
             "/manifest.json",
             "/img/AllPreepwaapp.png",
-            "/404.html" // Ensure this file actually exists on your server
-        ]).catch(err => console.error("Cache error:", err));
+            "/404.html"
+        ]).catch(err => {
+            console.error("Cache error:", err);
+        });
     });
 };
 
-// Install event: Cache important assets
+// Install event: Cache important assets, no unnecessary logs
 self.addEventListener("install", function (event) {
-    console.log("Service Worker installing...");
     event.waitUntil(preLoad());
     self.skipWaiting(); // Activate immediately
 });
 
-// Activate event: Clean up old caches
+// Activate event: Clean up old caches, no unnecessary logs
 self.addEventListener("activate", function (event) {
-    console.log("Service Worker activating...");
     event.waitUntil(
         caches.keys().then(function (cacheNames) {
             return Promise.all(
                 cacheNames.map(function (cache) {
                     if (cache !== CACHE_NAME) {
-                        console.log("Deleting old cache:", cache);
                         return caches.delete(cache);
                     }
                 })
@@ -47,7 +44,7 @@ self.addEventListener("activate", function (event) {
     self.clients.claim(); // Ensure control over open pages
 });
 
-// Fetch event: Serve from cache, fallback to network
+// Fetch event: Serve from cache, fallback to network, no pop-ups
 self.addEventListener("fetch", function (event) {
     event.respondWith(
         caches.match(event.request).then(function (cachedResponse) {
