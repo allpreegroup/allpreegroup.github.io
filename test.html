@@ -15,60 +15,92 @@
 <head>
 
 <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    .flyer {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      aspect-ratio: 0 / 0; 
-      margin: 0px auto;
-      background-size: auto; 
-      background-position: center;
-      border-radius: 0px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      
-    }
-    .code-overlay {
-      position: absolute;
-      font-weight: bold;
-      font-size: 1.2em;
-      color: white;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 12px;
-      border-radius: 8px;
-      white-space: nowrap;
-    }
-    .download-btn {
-      margin-top: 10px;
-      display: none;
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #referralForm {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #referralInput {
-      padding: 10px;
-      width: 70%;
-      font-size: 1em;
-    }
+   body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.flyer {
+  margin: 30px auto;
+  display: inline-block;
+}
+
+.flyer-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.flyer-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.code-overlay {
+  position: absolute;
+  top: 70%; /* adjust per flyer */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.2em;
+  white-space: nowrap;
+}
+
+.download-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.download-btn:hover {
+  background-color: #0056b3;
+}
+
+form {
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+input {
+  padding: 8px;
+  margin-top: 10px;
+  width: 200px;
+  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #218838;
+}
   </style>
 
 	
 
-<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!--  <style>
     body {
       font-family: sans-serif;
       background: #f0f0f0;
@@ -265,65 +297,76 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 
 
- <div id="referralForm">
-    <input type="text" id="referralInput" placeholder="Enter your referral code" required />
-    <button onclick="saveReferralCode()">Save Code</button>
+<div class="flyer">
+  <div class="flyer-wrapper">
+    <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 1" class="flyer-img" />
+    <div class="code-overlay" id="flyer1Code"></div>
   </div>
+  <button class="download-btn" onclick="downloadFlyer('flyer1')" style="display:none;">Download Flyer</button>
+</div>
 
-  <div id="flyers">
-    <div class="flyer" id="flyer1" style="background-image: url('https://www.allpree.com/img/ad1.png');">
-      <div class="code-overlay" id="code1" style="bottom: 10%; left: 10%;"></div>
-    </div>
-    <button class="download-btn" onclick="downloadFlyer('flyer1', 'code1')">Download Flyer 1</button>
-
-    <div class="flyer" id="flyer2" style="background-image: url('flyer2.jpg');">
-      <div class="code-overlay" id="code2" style="top: 15%; right: 10%;"></div>
-    </div>
-    <button class="download-btn" onclick="downloadFlyer('flyer2', 'code2')">Download Flyer 2</button>
-
-    <div class="flyer" id="flyer3" style="background-image: url('flyer3.jpg');">
-      <div class="code-overlay" id="code3" style="top: 50%; left: 50%; transform: translate(-50%, -50%)"></div>
-    </div>
-    <button class="download-btn" onclick="downloadFlyer('flyer3', 'code3')">Download Flyer 3</button>
+<div class="flyer">
+  <div class="flyer-wrapper">
+    <img src="your-flyer-image2.jpg" alt="Flyer 2" class="flyer-img" />
+    <div class="code-overlay" id="flyer2Code"></div>
   </div>
+  <button class="download-btn" onclick="downloadFlyer('flyer2')" style="display:none;">Download Flyer</button>
+</div>
+
+<div class="flyer">
+  <div class="flyer-wrapper">
+    <img src="your-flyer-image3.jpg" alt="Flyer 3" class="flyer-img" />
+    <div class="code-overlay" id="flyer3Code"></div>
+  </div>
+  <button class="download-btn" onclick="downloadFlyer('flyer3')" style="display:none;">Download Flyer</button>
+</div>
+
+<form id="referralForm">
+  <label for="referralCode">Enter Referral Code:</label>
+  <input type="text" id="referralCode" name="referralCode" required>
+  <button type="submit">Generate Flyers</button>
+</form>
 
 
-
-			 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+			<!-- <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
   <script>
-    function saveReferralCode() {
-      const code = document.getElementById("referralInput").value.trim();
-      if (!code) return;
-      localStorage.setItem("referralCode", code);
-      showFlyers(code);
-    }
+   function formatReferralCode(code) {
+  return code.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, ''); // format code
+}
 
-    function showFlyers(code) {
-      document.getElementById("referralForm").style.display = "none";
-      document.getElementById("code1").textContent = code;
-      document.getElementById("code2").textContent = code;
-      document.getElementById("code3").textContent = code;
+function updateFlyersWithCode(code) {
+  const formattedCode = formatReferralCode(code);
 
-      const buttons = document.querySelectorAll(".download-btn");
-      buttons.forEach(btn => btn.style.display = "block");
-    }
+  // Update the referral code for each flyer
+  document.getElementById("flyer1Code").textContent = formattedCode;
+  document.getElementById("flyer2Code").textContent = formattedCode;
+  document.getElementById("flyer3Code").textContent = formattedCode;
 
-    function downloadFlyer(flyerId, codeId) {
-      const flyer = document.getElementById(flyerId);
-      html2canvas(flyer, { scale: 3 }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = flyerId + ".png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
+  // Show the download button after code is generated
+  document.querySelectorAll(".download-btn").forEach(btn => btn.style.display = "inline-block");
+}
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const saved = localStorage.getItem("referralCode");
-      if (saved) {
-        showFlyers(saved);
-      }
-    });
+function downloadFlyer(flyerId) {
+  const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
+  html2canvas(flyer, { scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${flyerId}-flyer.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+// Handle form submission
+document.getElementById("referralForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+  
+  const referralCode = document.getElementById("referralCode").value.trim();
+  
+  if (referralCode) {
+    updateFlyersWithCode(referralCode); // Update flyers with the code
+  }
+});
+
   </script>
 
 </body>
