@@ -328,21 +328,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <button type="submit">Generate Flyers</button>
 </form>
 <br>
-Use my referral code ${savedReferralCode} to get started!.
+Use my referral code <span id="referralCodePlaceholder"></span> to get started!
 
 			
 <script>
- // Retrieve the saved referral code from localStorage
+// Retrieve the saved referral code from localStorage
 const savedReferralCode = localStorage.getItem('generatedReferralCode');
 
 // Check if the code exists and is not expired
 if (savedReferralCode && !isCodeExpired()) {
-  // Use the code in your sentence
-  const message = `Use my referral code ${savedReferralCode} to get started!`;
-  console.log(message);  // Output the sentence with the referral code
+  // Insert the saved referral code into the placeholder
+  document.getElementById('referralCodePlaceholder').textContent = savedReferralCode;
 } else {
-  console.log('Referral code has expired or does not exist.');
+  document.getElementById('referralCodePlaceholder').textContent = "No valid referral code found.";
 }
+
 
 </script>
 
