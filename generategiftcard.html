@@ -735,6 +735,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         document.getElementById("downloadBtn").style.display = "block";
     }
 
+    // On page load, show saved QR if exists
     window.addEventListener('DOMContentLoaded', () => {
         const savedQR = localStorage.getItem("savedQRData");
         if (savedQR) {
@@ -745,6 +746,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 
+    // Download flyer with QR and code overlay
     document.getElementById("downloadBtn").addEventListener("click", function () {
         html2canvas(flyer1, {
             scale: 3,
@@ -757,6 +759,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         });
     });
 
+    // Form submission handler
     form.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -769,15 +772,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 
+    // Optional: function to use for other flyers
     function downloadFlyer(flyerId) {
         const flyer = document.getElementById(flyerId);
-
-        const flyerQRCode = flyer.querySelector("#flyerQRCode");
-        const codeOverlay = flyer.querySelector(".code-overlay");
-
-        flyerQRCode.style.display = "block";
-        codeOverlay.style.display = "block";
-
         html2canvas(flyer, { useCORS: true, scale: 3 }).then(canvas => {
             const link = document.createElement("a");
             link.download = `${flyerId}-flyer.png`;
@@ -786,6 +783,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         });
     }
 </script>
+
 
 
 </body>
