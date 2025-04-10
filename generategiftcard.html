@@ -308,14 +308,26 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<hr>
 <!-- Hidden until referral code is generated -->
-<div class="flyer"  id="flyer1">
+
+<div class="flyer" id="flyer1" style="display: none;">
+  <div class="flyer-wrapper">
+    <img src="https://www.allpree.com/img/qrcodebg.png" alt="Flyer 1" class="flyer-img" />
+    <div class="code-overlay" id="flyerCodeOverlay"></div>
+    <img id="flyerQRCode" class="flyer-qr" style="display: none;" />
+  </div>
+  <button class="download-bt" onclick="downloadFlyer('flyer1')">Download Flyer</button>
+</div>
+
+
+	
+<!-- <div class="flyer"  id="flyer1">
   <div class="flyer-wrapper">
 	  <img id="flyerQRCode" class="flyer-qr" style="display: none;" />
     <img src="https://www.allpree.com/img/qrcodebg.png" alt="Flyer 1" class="flyer-img" />
     <div class="code-overlay" id="flyer1"></div>
 	   
   </div>
-</div> <button class="download-bt" onclick="downloadFlyer('flyer1')" >Download Flyer</button>
+</div> <button class="download-bt" onclick="downloadFlyer('flyer1')" >Download Flyer</button> -->
 <br><br>	
 
 	
@@ -724,11 +736,14 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     function downloadFlyer(flyerId) {
         const flyer = document.getElementById(flyerId);
         
-        // Ensure QR code is visible on the flyer before downloading
+        // Ensure QR code and overlay are visible before downloading
         const flyerQRCode = flyer.querySelector("#flyerQRCode");
-        flyerQRCode.style.display = "block";  // Ensure QR code is visible
+        const codeOverlay = flyer.querySelector(".code-overlay");
 
-        // Capture the flyer with QR code using html2canvas
+        flyerQRCode.style.display = "block";  // Ensure QR code is visible
+        codeOverlay.style.display = "block";  // Ensure overlay is visible
+
+        // Capture the flyer with QR code and overlay using html2canvas
         html2canvas(flyer).then(canvas => {
             const link = document.createElement("a");
             link.download = `${flyerId}-flyer.png`;
