@@ -12,7 +12,6 @@ var preLoad = function () {
             "/marketing/",
             "/partner/",
             "/vouchers/",
-            "/generategiftcard",
             "/manifest.json",
             "/img/AllPreepwaapp.png",
             "/404.html"
