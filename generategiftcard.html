@@ -289,37 +289,33 @@ function generateQRCode(qrData) {
     const encodedData = encodeURIComponent(qrData);
     const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H`;
 
-    // Save QR data in localStorage
     localStorage.setItem("savedQRData", qrData);
 
-    // Hide the form once QR code is generated
     form.style.display = "none";
 
-    // Format and display the card number
     const cardOnly = qrData.split("@")[0];
     const formattedCard = formatCardNumber(cardOnly);
 
-    // Set code overlay and QR code on flyer
     const codeOverlay = flyer1.querySelector(".code-overlay");
     codeOverlay.textContent = formattedCard;
     codeOverlay.style.display = "block";
 
-    // Set the QR code image directly on the flyerQRCode img element
-    flyerQRCode.src = qrUrl;  // Directly setting the src of the img element
-    flyerQRCode.style.display = "block";  // Make sure it's visible
-
-    // Ensure the background is loaded before displaying flyer
-    flyerBackground.onload = function() {
+    flyerQRCode.style.display = "none"; // Hide until loaded
+    flyerQRCode.onload = function () {
+        // QR code is ready → show everything
+        flyerQRCode.style.display = "block";
         flyer1.style.display = "block";
         document.getElementById("downloadBtn").style.display = "block";
     };
-    
-    // If the background is already loaded (cached), proceed immediately
-    if (flyerBackground.complete) {
-        flyer1.style.display = "block";
-        document.getElementById("downloadBtn").style.display = "block";
+
+    flyerQRCode.src = qrUrl;
+
+    // Just in case QR is cached and already loaded
+    if (flyerQRCode.complete) {
+        flyerQRCode.onload(); // Manually trigger if cached
     }
 }
+
 
 // On page load, show saved QR if exists
 window.addEventListener('DOMContentLoaded', () => {
