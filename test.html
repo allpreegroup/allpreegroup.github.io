@@ -336,54 +336,108 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </a>
 			
 <script>
+function formatReferralCode(code) {
+  return code.replace(/\s+/g, ''); // Remove spaces without adding any dashes
+}
+
+// Function to check if the stored code has expired
+function isCodeExpired() {
+  const expirationDate = localStorage.getItem('referralCodeExpiration');
+  if (expirationDate) {
+    const currentTime = Date.now();
+    return currentTime > parseInt(expirationDate);
+  }
+  return true; // If no expiration date is set, consider it expired
+}
+
+function updateFlyersWithCode(code) {
+  const formattedCode = formatReferralCode(code);
+
+  // Save the formatted code and set expiration time in localStorage
+  localStorage.setItem('generatedReferralCode', formattedCode);
+  
+  // Set expiration date for 7 days from now
+  const expirationTime = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+  localStorage.setItem('referralCodeExpiration', expirationTime);
+
+  // Update the referral code for each flyer
+  document.getElementById("flyer1Code").textContent = formattedCode;
+  document.getElementById("flyer2Code").textContent = formattedCode;
+  document.getElementById("flyer3Code").textContent = formattedCode;
+
+  // Show the download button after code is generated
+  document.querySelectorAll(".download-btn").forEach(btn => btn.style.display = "inline-block");
+
+  // Show the flyers and hide the form
+  document.getElementById("flyer1").style.display = "inline-block";
+  document.getElementById("flyer2").style.display = "inline-block";
+  document.getElementById("flyer3").style.display = "inline-block";
+  document.getElementById("referralForm").style.display = "none";
+
+  // Display the referral code and WhatsApp link
+  document.getElementById("referralText").style.display = "block";  // Show referral text
+  document.getElementById("referralTextLink").style.display = "block";  // Show WhatsApp link
+}
+
+function downloadFlyer(flyerId) {
+  const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
+  html2canvas(flyer, { scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${flyerId}-flyer.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+// Handle form submission
+document.getElementById("referralForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+  
+  const referralCode = document.getElementById("referralCode").value.trim();
+  
+  if (referralCode) {
+    updateFlyersWithCode(referralCode); // Update flyers with the code
+  }
+});
+
+// On page load, check if a referral code is saved and if it has expired
 window.addEventListener('DOMContentLoaded', () => {
-  const referralCode = localStorage.getItem('generatedReferralCode');
-  if (referralCode && !isCodeExpired()) {
+  const savedReferralCode = localStorage.getItem('generatedReferralCode');
+  
+  if (savedReferralCode && !isCodeExpired()) {
+    updateFlyersWithCode(savedReferralCode); // Show saved referral code and flyers
+
+    // Replace the referral code in the text and link
     const textElement = document.getElementById('referralText');
     const linkElement = document.getElementById('referralTextLink');
     
     // Replace in the visible text
-    textElement.innerHTML = textElement.innerHTML.replace('${savedReferralCode}', referralCode);
+    textElement.innerHTML = textElement.innerHTML.replace('${savedReferralCode}', savedReferralCode);
     
     // Replace in the link href
-    linkElement.href = linkElement.href.replace('${savedReferralCode}', encodeURIComponent(referralCode));
+    linkElement.href = linkElement.href.replace('${savedReferralCode}', encodeURIComponent(savedReferralCode));
+    
+    // Show the referral text and link
+    textElement.style.display = "block";
+    linkElement.style.display = "block";
+  } else {
+    // Code has expired or doesn't exist, show the form
+    document.getElementById("referralForm").style.display = "block";
+    document.getElementById("flyer1").style.display = "none";
+    document.getElementById("flyer2").style.display = "none";
+    document.getElementById("flyer3").style.display = "none";
   }
 });
 
+
 </script>
 
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const referralCode = localStorage.getItem('generatedReferralCode');
-    
-    // Get the referral text and link elements
-    const textElement = document.getElementById('referralText');
-    const linkElement = document.getElementById('referralLink');
-    
-    if (referralCode && !isCodeExpired()) {
-      // Show the referral text and WhatsApp link if the referral code is valid
-      if (textElement) {
-        textElement.style.display = 'block'; // Show the referral text
-      }
-      if (linkElement) {
-        linkElement.style.display = 'inline-block'; // Show the referral link
-      }
-    } else {
-      // Hide the referral text and link if the referral code is not found or expired
-      if (textElement) {
-        textElement.style.display = 'none'; // Hide the referral text
-      }
-      if (linkElement) {
-        linkElement.style.display = 'none'; // Hide the referral link
-      }
-    }
-  });
-</script>
+
 
 
 			
 
-			<!-- <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
+			<!-- <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script>
    function formatReferralCode(code) {
   return code.replace(/\s+/g, ''); // Remove spaces without adding any dashes
@@ -457,13 +511,17 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("flyer1").style.display = "none";
     document.getElementById("flyer2").style.display = "none";
     document.getElementById("flyer3").style.display = "none";
+
+	  // Display the referral code and WhatsApp link
+  document.getElementById("referralText").style.display = "block";  // Show referral text
+  document.getElementById("referralTextLink").style.display = "block";  // Show WhatsApp link
   }
 });
 
-  </script>
+  </script> 
 
 </body>
-</html>
+</html>  -->
 
 			
  <!-- <form id="referralForm">
