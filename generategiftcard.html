@@ -275,9 +275,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <div class="code-overlay" id="flyerCodeOverlay"></div>
     <img id="flyerQRCode" class="flyer-qr" style="display: none;" />
   </div></div>
-<button style="display: none;" class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
+<center> <button style="display: none;" class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
 
-<hr>
+			<hr>
+	<button onclick="localStorage.clear(); location.reload();">Clear Saved QR</button>
+<hr> 
 	
 <form id="redirectForm">
     <label for="code">Card Number:</label><br>
@@ -289,9 +291,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit"><i class="fa-solid fa-computer-mouse"></i> Generate Your Gift Card</button>
 </form>
 
-
-	<hr>
-	<button onclick="localStorage.clear(); location.reload();">Clear Saved QR</button>
+</center>
+	
 	
 <!-- <script>
     const qrContainer = document.getElementById("qrContainer");
@@ -750,18 +751,20 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         }
     });
 
-    // Download flyer with QR and code overlay
     document.getElementById("downloadBtn").addEventListener("click", function () {
-        html2canvas(flyer1, {
-            scale: 3,
-            useCORS: true
-        }).then(canvas => {
-            const link = document.createElement("a");
-            link.download = "flyer-with-qr.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        });
+    const flyerWrapper = flyer1.querySelector(".flyer-wrapper");
+
+    html2canvas(flyerWrapper, {
+        scale: 2,
+        useCORS: true
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "card-with-qr.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
     });
+});
+
 
     // Form submission handler
     form.addEventListener("submit", function (event) {
