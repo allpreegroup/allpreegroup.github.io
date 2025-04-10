@@ -328,24 +328,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <button type="submit">Generate Flyers</button>
 </form>
 <br>
-Use my referral code ${formattedCode} to get started!.
+Use my referral code ${savedReferralCode} to get started!.
 
 			
 <script>
-  // Function to retrieve and format the referral code
-function getFormattedReferralCode() {
-  const referralCode = localStorage.getItem('generatedReferralCode'); // Get the referral code from localStorage
-  if (referralCode) {
-    return `({${referralCode}})`; // Return the formatted referral code
-  }
-  return ''; // Return empty string if no referral code is found
+ // Retrieve the saved referral code from localStorage
+const savedReferralCode = localStorage.getItem('generatedReferralCode');
+
+// Check if the code exists and is not expired
+if (savedReferralCode && !isCodeExpired()) {
+  // Use the code in your sentence
+  const message = `Use my referral code ${savedReferralCode} to get started!`;
+  console.log(message);  // Output the sentence with the referral code
+} else {
+  console.log('Referral code has expired or does not exist.');
 }
-
-// Usage example: Directly insert the formatted code into your string
-const formattedCode = getFormattedReferralCode();
-const message = `Use my referral code ${formattedCode} to get started!`;
-
-console.log(message); // This will log: Use my referral code ({yourCode}) to get started!
 
 </script>
 
