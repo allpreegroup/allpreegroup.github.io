@@ -254,15 +254,14 @@ Click The Button Below </h4> </center>
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isInStandaloneMode()) {
-      // Already in PWA mode, just navigate normally
-      window.location.href = "https://www.allpree.com/contact";
+      // Already in PWA mode, navigate to final step
+      window.location.href = "/contact";
     } else {
+      // Not in standalone, show alert and suggest opening from home screen
       if (isAndroid || isIOS) {
-        // Try to open the PWA start URL (replace with your PWA start URL if different)
-        window.location.href = window.location.origin;
+        alert("Please open this from the installed app icon on your home screen to continue.");
       } else {
-        // Desktop fallback
-        alert("Please open this in the installed PWA app.");
+        alert("This feature is only available in the installed app (PWA). Please use your device's home screen shortcut.");
       }
     }
   }
@@ -295,6 +294,7 @@ Click The Button Below </h4> </center>
 
   window.onload = detectDevice;
 </script>
+
 
 
 
