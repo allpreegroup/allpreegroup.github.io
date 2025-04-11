@@ -100,13 +100,13 @@ input[type=text]:focus {
     const inviteDiv = document.getElementById("inviteDiv");
     const input = document.getElementById("search-input");
     const results = document.getElementById("results-container");
+    const countdown = document.getElementById("countdown");
 
     const firstTimeHeadline = document.getElementById("first-time-headline");
     const returningHeadline = document.getElementById("returning-headline");
     
     const storedCode = localStorage.getItem("invitationCode");
 
-    // If the code is already stored, remove the div and show returning headline
     if (storedCode) {
       inviteDiv?.remove();
       if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
@@ -114,12 +114,10 @@ input[type=text]:focus {
       return;
     }
 
-    // Show invite div and first-time headline
     inviteDiv.style.display = "block";
     if (firstTimeHeadline) firstTimeHeadline.style.display = "block";
     if (returningHeadline) returningHeadline.style.display = "none";
 
-    // Save code to localStorage when user types into the input
     input?.addEventListener("change", () => {
       const code = input.value.trim();
       if (code) {
@@ -127,83 +125,40 @@ input[type=text]:focus {
       }
     });
 
-    // Save the code and hide the div when user clicks a result link
     results?.addEventListener("click", (e) => {
       const link = e.target.closest("a");
       if (link) {
-        // Save the code if available
+        e.preventDefault(); // Prevent immediate navigation
+
         const code = input?.value.trim();
         if (code) {
           localStorage.setItem("invitationCode", code);
         }
 
-        // Swap headlines and hide invite div
         if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
         if (returningHeadline) returningHeadline.style.display = "block";
         inviteDiv.style.display = "none";
 
-        // Make sure the link is followed after saving
-        setTimeout(() => {
-          window.location.href = link.href; // Manually redirect to the link
-        }, 10);
+        // Show countdown
+        countdown.style.display = "block";
+        let seconds = 10;
+        countdown.textContent = `Redirecting in ${seconds}...`;
+
+        const countdownInterval = setInterval(() => {
+          seconds--;
+          if (seconds > 0) {
+            countdown.textContent = `Redirecting in ${seconds}...`;
+          } else {
+            clearInterval(countdownInterval);
+            countdown.textContent = "Redirecting...";
+            window.location.href = link.href;
+          }
+        }, 1000);
       }
     });
   });
 </script>
 
-
-<!-- <script>
-   document.addEventListener("DOMContentLoaded", () => {
-     const inviteDiv = document.getElementById("inviteDiv");
-     const input = document.getElementById("search-input");
-     const results = document.getElementById("results-container");
-
-     const firstTimeHeadline = document.getElementById("first-time-headline");
-     const returningHeadline = document.getElementById("returning-headline");
-	   
-     const storedCode = localStorage.getItem("invitationCode");
- 
-     // If the code is already stored, remove the div and skip everything else
-     if (storedCode) {
-       inviteDiv?.remove();
-       return;
-     }
-
-     // Show invite div and default headline
-    inviteDiv.style.display = "block";
-    
- 
-     // Save code to localStorage when user types into the input
-     input?.addEventListener("change", () => {
-       const code = input.value.trim();
-       if (code) {
-         localStorage.setItem("invitationCode", code);
-       }
-     });
- 
-     // Save the code and hide the div when user clicks a result link
-     results?.addEventListener("click", (e) => {
-       const link = e.target.closest("a");
-       if (link) {
-         // Save the code if available
-         const code = input?.value.trim();
-         if (code) {
-           localStorage.setItem("invitationCode", code);
-         }
- 
-          // Swap headlines and hide invite div
-        if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
-        if (returningHeadline) returningHeadline.style.display = "block";
-         inviteDiv.style.display = "none";
- 
-         // Make sure the link is followed after saving
-         setTimeout(() => {
-           window.location.href = link.href; // Manually redirect to the link
-         }, 10); // Give it a tiny delay to ensure the div hides first
-       }
-     });
-   });
- </script> -->
 
 
 
@@ -362,6 +317,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     
 </div>
 
+		<center> 	<div id="countdown" style="display:none; font-size: 1.5rem; margin-top: 10px; color: red;"></div> </center>
   
 	 <!-- Instructions for Android -->
   <div id="inviteDiv" class="instructions android-instructions ios-instructions" style="display: none;">
