@@ -283,7 +283,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <script>
 const form = document.getElementById("redirectForm");
 const flyer1 = document.getElementById("flyer1");
-const flyerQRCode = document.getElementById("flyerQRCode");  // Image tag for QR code
+const flyerQRCode = document.getElementById("flyerQRCode");
 const flyerBackground = flyer1.querySelector(".flyer-img");
 const countdownMsg = document.getElementById("countdownMsg");
 const downloadBtn = document.getElementById("downloadBtn");
@@ -307,28 +307,17 @@ function generateQRCode(qrData) {
     codeOverlay.textContent = formattedCard;
     codeOverlay.style.display = "block";
 
-    flyerQRCode.style.display = "none"; // Hide until loaded
+    flyerQRCode.style.display = "none";
 
     flyerQRCode.onload = function () {
         flyerQRCode.style.display = "block";
         flyer1.style.display = "block";
 
-        // Start countdown
-        countdownMsg.style.display = "block";
-        let seconds = 60;
-        countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
-
-        const countdown = setInterval(() => {
-            seconds--;
-            if (seconds > 0) {
-                countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
-            } else {
-                clearInterval(countdown);
-                countdownMsg.style.display = "none";
-                downloadBtn.style.display = "block";
-                downloadNote.style.display = "block";
-            }
-        }, 1000);
+        // Check if it was already downloaded
+        const alreadyDownloaded = localStorage.getItem("hasDownloadedQR");
+        if (!alreadyDownloaded) {
+            startCountdown(); // Only show download if not already downloaded
+        }
     };
 
     flyerQRCode.src = qrUrl;
@@ -338,10 +327,35 @@ function generateQRCode(qrData) {
     }
 }
 
+function startCountdown() {
+    let seconds = 10; // Adjust countdown time as needed
+    countdownMsg.style.display = "block";
+    countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
+
+    const countdown = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+            countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
+        } else {
+            clearInterval(countdown);
+            countdownMsg.style.display = "none";
+            downloadBtn.style.display = "block";
+            downloadNote.style.display = "block";
+        }
+    }, 1000);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const savedQR = localStorage.getItem("savedQRData");
+    const hasDownloaded = localStorage.getItem("hasDownloadedQR");
+
     if (savedQR) {
         generateQRCode(savedQR);
+        if (hasDownloaded) {
+            downloadBtn.style.display = "none";
+            downloadNote.style.display = "none";
+            countdownMsg.style.display = "none";
+        }
     } else {
         form.style.display = "block";
         flyer1.style.display = "none";
@@ -354,6 +368,11 @@ downloadBtn.addEventListener("click", function () {
     } else {
         flyerQRCode.onload = captureFlyer;
     }
+
+    // Hide the button/note permanently after click
+    localStorage.setItem("hasDownloadedQR", "true");
+    downloadBtn.style.display = "none";
+    downloadNote.style.display = "none";
 });
 
 function captureFlyer() {
@@ -379,6 +398,8 @@ form.addEventListener("submit", function (event) {
     if (code && pin) {
         const qrData = `${code}@${pin}`;
         generateQRCode(qrData);
+        // Reset the download flag if they submit new data
+        localStorage.removeItem("hasDownloadedQR");
     }
 });
 
@@ -392,6 +413,7 @@ function downloadFlyer(flyerId) {
     });
 }
 </script>
+
 
 
 </body>
