@@ -272,19 +272,22 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </form> </center>
 
 <hr> <center> 
-	<p id="downloadNote" style="display: none; margin-top: 10px;">
-  We recommend that you download your digital card and keep it safe to use when there is no internet connection.
-</p> 
-	<button style="display: none;" class="btn btn-outline btn-xla" id="downloadBtn"><i class="fa-solid fa-computer-mouse"></i> Download Card</button>
+	<p id="countdownMsg" style="display: none;"></p>
+<button id="downloadBtn" style="display: none;">Download</button>
+<p id="downloadNote" style="display: none;">
+  We recommend that you download your digital card and keep it safe to use when there is no internet connection
+</p>
 </center>
 <hr>
 
-	
 <script>
 const form = document.getElementById("redirectForm");
 const flyer1 = document.getElementById("flyer1");
 const flyerQRCode = document.getElementById("flyerQRCode");  // Image tag for QR code
 const flyerBackground = flyer1.querySelector(".flyer-img");
+const countdownMsg = document.getElementById("countdownMsg");
+const downloadBtn = document.getElementById("downloadBtn");
+const downloadNote = document.getElementById("downloadNote");
 
 function formatCardNumber(cardNumber) {
     return cardNumber.replace(/\s+/g, '').replace(/(.{4})/g, '$1-').replace(/-$/, '');
@@ -295,7 +298,6 @@ function generateQRCode(qrData) {
     const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H`;
 
     localStorage.setItem("savedQRData", qrData);
-
     form.style.display = "none";
 
     const cardOnly = qrData.split("@")[0];
@@ -306,24 +308,36 @@ function generateQRCode(qrData) {
     codeOverlay.style.display = "block";
 
     flyerQRCode.style.display = "none"; // Hide until loaded
+
     flyerQRCode.onload = function () {
-        // QR code is ready → show everything
         flyerQRCode.style.display = "block";
         flyer1.style.display = "block";
-        document.getElementById("downloadBtn").style.display = "block";
-	document.getElementById("downloadNote").style.display = "block";
+
+        // Start countdown
+        countdownMsg.style.display = "block";
+        let seconds = 60;
+        countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
+
+        const countdown = setInterval(() => {
+            seconds--;
+            if (seconds > 0) {
+                countdownMsg.textContent = `Preparing download... ${seconds} seconds`;
+            } else {
+                clearInterval(countdown);
+                countdownMsg.style.display = "none";
+                downloadBtn.style.display = "block";
+                downloadNote.style.display = "block";
+            }
+        }, 1000);
     };
 
     flyerQRCode.src = qrUrl;
 
-    // Just in case QR is cached and already loaded
     if (flyerQRCode.complete) {
-        flyerQRCode.onload(); // Manually trigger if cached
+        flyerQRCode.onload();
     }
 }
 
-
-// On page load, show saved QR if exists
 window.addEventListener('DOMContentLoaded', () => {
     const savedQR = localStorage.getItem("savedQRData");
     if (savedQR) {
@@ -334,23 +348,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Download button event to capture the flyer with QR code
-document.getElementById("downloadBtn").addEventListener("click", function () {
-    // Ensure the QR code image is fully loaded before proceeding
+downloadBtn.addEventListener("click", function () {
     if (flyerQRCode.complete) {
         captureFlyer();
     } else {
-        // Wait for the QR code image to load if it's not fully loaded yet
         flyerQRCode.onload = captureFlyer;
     }
 });
 
-// Function to capture the flyer and download it
 function captureFlyer() {
     const flyerWrapper = flyer1.querySelector(".flyer-wrapper");
 
     html2canvas(flyerWrapper, {
-        scale: 2, // Adjust the scale for better resolution
+        scale: 2,
         useCORS: true
     }).then(canvas => {
         const link = document.createElement("a");
@@ -360,7 +370,6 @@ function captureFlyer() {
     });
 }
 
-// Form submission handler to generate QR code
 form.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -373,15 +382,14 @@ form.addEventListener("submit", function (event) {
     }
 });
 
-// Optional: Function to download flyer with QR code
-/* function downloadFlyer(flyerId) {
+function downloadFlyer(flyerId) {
     const flyer = document.getElementById(flyerId);
     html2canvas(flyer, { useCORS: true, scale: 3 }).then(canvas => {
         const link = document.createElement("a");
         link.download = `${flyerId}-flyer.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
-    }); */
+    });
 }
 </script>
 
