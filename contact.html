@@ -132,22 +132,28 @@
     const input = document.getElementById("search-input");
     const results = document.getElementById("results-container");
     const countdown = document.getElementById("countdown");
+    const image = document.getElementById("persistent-img");
 
     const firstTimeHeadline = document.getElementById("first-time-headline");
     const returningHeadline = document.getElementById("returning-headline");
-    
+
     const storedCode = localStorage.getItem("invitationCode");
 
+    // If code exists, show the image and returning headline
     if (storedCode) {
       inviteDiv?.remove();
       if (firstTimeHeadline) firstTimeHeadline.style.display = "none";
       if (returningHeadline) returningHeadline.style.display = "block";
-      return;
+      if (image) image.style.display = "block"; // Show the persistent image
     }
 
-    inviteDiv.style.display = "block";
-    if (firstTimeHeadline) firstTimeHeadline.style.display = "block";
-    if (returningHeadline) returningHeadline.style.display = "none";
+    // If it's the first time, show form and hide image
+    if (!storedCode) {
+      inviteDiv.style.display = "block";
+      if (firstTimeHeadline) firstTimeHeadline.style.display = "block";
+      if (returningHeadline) returningHeadline.style.display = "none";
+      if (image) image.style.display = "none";
+    }
 
     input?.addEventListener("change", () => {
       const code = input.value.trim();
@@ -159,7 +165,7 @@
     results?.addEventListener("click", (e) => {
       const link = e.target.closest("a");
       if (link) {
-        e.preventDefault(); // Prevent immediate navigation
+        e.preventDefault(); // Prevent default nav
 
         const code = input?.value.trim();
         if (code) {
@@ -170,7 +176,6 @@
         if (returningHeadline) returningHeadline.style.display = "block";
         inviteDiv.style.display = "none";
 
-        // Show countdown
         countdown.style.display = "block";
         let seconds = 10;
         countdown.textContent = `Redirecting in ${seconds}...`;
@@ -187,8 +192,24 @@
         }, 1000);
       }
     });
+
+    // Watch for localStorage clearing — hide image when empty
+    window.addEventListener("storage", () => {
+      const stillStored = localStorage.getItem("invitationCode");
+      if (!stillStored && image) {
+        image.style.display = "none";
+      }
+    });
+
+    // Also check manually every 2 seconds (optional fallback)
+    setInterval(() => {
+      if (!localStorage.getItem("invitationCode") && image.style.display !== "none") {
+        image.style.display = "none";
+      }
+    }, 2000);
   });
 </script>
+
 
 
 
@@ -347,8 +368,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div id="qr" style="margin-top: 20px;">
     
 </div>
+<center> <img id="persistent-img" src="https://www.allpree.com/img/ad2.png" alt="Welcome Back" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 150px;">
 
-		<center> 	<div id="countdown" style="display:none; font-size: 1.5rem; margin-top: 10px; color: red;"></div> </center>
+		 	<div id="countdown" style="display:none; font-size: 1.5rem; margin-top: 10px; color: red;"></div> </center>
   
 	 <!-- Instructions for Android -->
   <div id="inviteDiv" class="instructions android-instructions ios-instructions" style="display: none;">
