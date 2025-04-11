@@ -338,7 +338,36 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <script src="/js/jekyll-search.js" type="text/javascript"></script>
 
 
-    <script type="text/javascript">
+<script type="text/javascript">
+  fetch('/search.json')
+    .then(response => response.json())
+    .then(data => {
+      // Define keywords or slugs you want to exclude
+      const excludeList = ['welcome', 'J388640'];
+
+      // Filter out any items whose URL includes any of the exclude terms
+      const filteredData = data.filter(item => {
+        return !excludeList.some(exclude => item.url.includes(exclude));
+      });
+
+      // Initialize the search with the filtered data
+      SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: filteredData,
+        searchResultTemplate: '{snippet} <br> <a href="{url}">Click Here To Continue</a>',
+        noResultsText: 'Results not found!',
+        limit: 1,
+        fuzzy: false
+      });
+    })
+    .catch(error => {
+      console.error('Search JSON fetch failed:', error);
+    });
+</script>
+
+			
+  <!--  <script type="text/javascript">
       SimpleJekyllSearch({
         searchInput: document.getElementById('search-input'),
         resultsContainer: document.getElementById('results-container'),
@@ -349,7 +378,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         fuzzy: false,
         exclude: ['welcome,J388640']
       })
-    </script>
+    </script> -->
 	
 <script>
   const contactDetails = {
