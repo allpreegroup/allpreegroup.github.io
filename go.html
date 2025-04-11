@@ -232,24 +232,28 @@ Click The Button Below </h4> </center>
   }
 
   function finishSetup() {
-    const isInStandaloneMode = () =>
-      window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isInStandaloneMode = () =>
+    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-    const isAndroid = /android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if (isInStandaloneMode()) {
-      // Already in PWA mode, navigate to final step
-      window.location.href = "/contact";
+  if (isInStandaloneMode()) {
+    // Already in PWA mode, go to contact
+    window.location.href = "/contact";
+  } else {
+    if (isAndroid) {
+      // Try to open the app by navigating to the start_url in manifest
+      alert("This app is already installed. If prompted, tap 'Open app' to continue.");
+      window.location.href = "/balance/"; // Must match your manifest start_url
+    } else if (isIOS) {
+      alert("Please open this from the app icon on your home screen to continue.");
     } else {
-      // Not in standalone, show alert and suggest opening from home screen
-      if (isAndroid || isIOS) {
-        alert("Please open this from the installed app icon on your home screen to continue.");
-      } else {
-        alert("This feature is only available in the installed app (PWA). Please use your device's home screen shortcut.");
-      }
+      alert("This feature is only available in the installed app (PWA). Please use your device's home screen shortcut.");
     }
   }
+}
+
 
   // Detect device and show relevant instructions
   function detectDevice() {
