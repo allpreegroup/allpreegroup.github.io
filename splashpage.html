@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading Allpree...</title>
+  <style>
+    /* Splash Page Styling */
+    body {
+      margin: 0;
+      background: #e7ebf2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Video Animation */
+    video {
+      width: 220px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Loading Text */
+    .loading-text {
+      margin-top: 20px;
+      font-family: Arial, sans-serif;
+      color: #333;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    /* Smooth fade-in effect */
+    .fade {
+      opacity: 0;
+      animation: fadeIn 2s ease-in forwards;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Splash Video Animation -->
+  <video autoplay muted loop playsinline>
+    <source src="https://www.allpree.com/img/allpree%20Video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Loading Text -->
+  <div class="loading-text fade">Loading Allpree...</div>
+
+  <script>
+    // Wait for 4 seconds (matching video duration) before redirecting
+    setTimeout(() => {
+      const isFirstTime = !localStorage.getItem("allpreeSignedUp");
+
+      if (isFirstTime) {
+        window.location.href = "/signup"; // Redirect to signup page
+      } else {
+        window.location.href = "/balance"; // Redirect to main page
+      }
+    }, 4000); // Delay to match video duration
+  </script>
+
+</body>
+</html>
