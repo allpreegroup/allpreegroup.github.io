@@ -79,42 +79,38 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Google Sheets URLs
-    const sheets = [
-      'https://opensheet.elk.sh/2PACX-1vT6dXsXqIJ-c2doo-Tex9nqaWqNzrWoafvrHtsP0p-RGziWNuIjBURFUvAXi-MMgYxpYaI_8-kREFL6/Deals',
-      'https://opensheet.elk.sh/YOUR_SHEET_ID_2/Deals'
-    ];
+    // Replace this URL with your actual Google Sheets URL
+    const sheetUrl = 'https://opensheet.elk.sh/2PACX-1vT6dXsXqIJ-c2doo-Tex9nqaWqNzrWoafvrHtsP0p-RGziWNuIjBURFUvAXi-MMgYxpYaI_8-kREFL6/Deals';
 
     async function loadDeals() {
       const container = document.getElementById('deal-grid');
       container.innerHTML = '';
 
-      for (let url of sheets) {
-        try {
-          const res = await fetch(url);
-          const deals = await res.json();
+      try {
+        const res = await fetch(sheetUrl);
+        const deals = await res.json();
 
-          deals.forEach(deal => {
-            const div = document.createElement('div');
-            div.className = 'deal';
-            div.innerHTML = `
-              <div class="brand">
-                <img src="${deal.BrandLogo}" alt="${deal.BrandName}" />
-                <span class="brand-name">${deal.BrandName}</span>
-              </div>
-              <img src="${deal.ImageURL}" alt="${deal.ProductName}">
-              <div class="deal-content">
-                <div class="deal-title">${deal.ProductName}</div>
-                <div class="price">JMD ${deal.OriginalPrice}</div>
-                <div class="discount">JMD ${deal.DiscountPrice}</div>
-                <p>${deal.Description || ''}</p>
-              </div>
-            `;
-            container.appendChild(div);
-          });
-        } catch (e) {
-          console.error('Failed to load deals from:', url);
-        }
+        deals.forEach(deal => {
+          const div = document.createElement('div');
+          div.className = 'deal';
+          div.innerHTML = `
+            <div class="brand">
+              <img src="${deal.BrandLogo}" alt="${deal.BrandName}" />
+              <span class="brand-name">${deal.BrandName}</span>
+            </div>
+            <img src="${deal.ImageURL}" alt="${deal.ProductName}">
+            <div class="deal-content">
+              <div class="deal-title">${deal.ProductName}</div>
+              <div class="price">JMD ${deal.OriginalPrice}</div>
+              <div class="discount">JMD ${deal.DiscountPrice}</div>
+              <p>${deal.Description || ''}</p>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        console.error('Failed to load deals:', e);
+        container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
       }
     }
 
