@@ -1,54 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Loading Allpree...</title>
- <style>
-  /* Splash Page Styling */
-  body {
-    margin: 0;
-    background: #e7ebf2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  <style>
+    body {
+      margin: 0;
+      background: #e7ebf2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-  /* Bigger Responsive Video */
-  video {
-    max-width: 90vw;
-    max-height: 90vh;
-    width: 320px;
-    height: auto;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  }
+    video {
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 320px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
 
-  /* Loading Text */
-  .loading-text {
-    margin-top: 24px;
-    font-family: Arial, sans-serif;
-    color: #333;
-    font-size: 18px;
-    text-align: center;
-    opacity: 0;
-    animation: pulseFade 4s ease-in-out forwards;
-  }
+    .loading-text {
+      margin-top: 24px;
+      font-family: Arial, sans-serif;
+      color: #333;
+      font-size: 18px;
+      text-align: center;
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-  /* Repeating fade animation */
-  @keyframes pulseFade {
-    0% { opacity: 0; transform: scale(0.95); }
-    25% { opacity: 1; transform: scale(1.02); }
-    50% { opacity: 0.5; transform: scale(1); }
-    75% { opacity: 1; transform: scale(1.03); }
-    100% { opacity: 0; transform: scale(1); }
-  }
-</style>
+    .loading-text span {
+      opacity: 0;
+      animation: fadeInLetter 0.5s forwards;
+    }
 
-
+    @keyframes fadeInLetter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
@@ -58,19 +56,25 @@
     Your browser does not support the video tag.
   </video>
 
-  <!-- Loading Text -->
-  <div class="loading-text fade">Loading Allpree...</div>
+  <!-- Loading Text (letter-by-letter) -->
+  <div class="loading-text" id="loadingText"></div>
 
   <script>
-    // Wait for 4.5 seconds then redirect
+    // Insert each letter into the span
+    const loadingText = "Loading Allpree...";
+    const container = document.getElementById("loadingText");
+
+    loadingText.split("").forEach((char, i) => {
+      const span = document.createElement("span");
+      span.textContent = char;
+      span.style.animationDelay = `${i * 0.15}s`; // delay each letter
+      container.appendChild(span);
+    });
+
+    // Redirect after 4.5 seconds
     setTimeout(() => {
       const isFirstTime = !localStorage.getItem("allpreeSignedUp");
-
-      if (isFirstTime) {
-        window.location.href = "/contact"; // First-time user
-      } else {
-        window.location.href = "/balance"; // Returning user
-      }
+      window.location.href = isFirstTime ? "/contact" : "/balance";
     }, 4500);
   </script>
 
