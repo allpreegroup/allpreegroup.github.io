@@ -216,8 +216,15 @@ Click The Button Below </h4> </center>
 
 	<script>
   // Reusable install mode checker
-  const isInStandaloneMode = () =>
-    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  function isInStandaloneMode() {
+  const displayMode = window.matchMedia('(display-mode: standalone)').matches;
+  const navigatorStandalone = window.navigator.standalone === true;
+
+  console.log("Display mode (matchMedia):", displayMode);
+  console.log("Navigator standalone (iOS):", navigatorStandalone);
+
+  return displayMode || navigatorStandalone;
+}
 
   function closeSplashPage() {
     // Hide current instructions
@@ -283,19 +290,22 @@ Click The Button Below </h4> </center>
   window.onload = detectDevice;
 
   // New function to check and show install status
-  function checkIfInstalled() {
-    const isInstalled = isInStandaloneMode();
-    const statusElement = document.getElementById('install-status');
-    if (statusElement) {
-      if (isInstalled) {
-        statusElement.textContent = "✅ App is installed and running in PWA mode.";
-        statusElement.style.color = "green";
-      } else {
-        statusElement.textContent = "❌ App is not installed. Please add it to your home screen.";
-        statusElement.style.color = "red";
-      }
+ function checkIfInstalled() {
+  const isInstalled = isInStandaloneMode();
+  const statusElement = document.getElementById('install-status');
+
+  if (statusElement) {
+    if (isInstalled) {
+      statusElement.textContent = "✅ App is installed and running in PWA mode.";
+      statusElement.style.color = "green";
+    } else {
+      statusElement.textContent = "❌ App is not installed. Please add it to your home screen.";
+      statusElement.style.color = "red";
     }
   }
+
+  console.log("Detected PWA installed:", isInstalled);
+}
 </script>
 
 
