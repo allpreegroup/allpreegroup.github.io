@@ -5,49 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Deals</title>
   <style>
-    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .countdown { text-align: center; font-size: 18px; margin-bottom: 20px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .countdown {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
     .deal-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 20px;
     }
     .deal {
       background: white;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+    .deal:hover {
+      transform: translateY(-5px);
     }
     .deal img {
       width: 100%;
-      height: 200px;
-      object-fit: cover;
+      height: 160px;
+      object-fit: contain;
+      background-color: #fff;
+      padding: 10px;
     }
     .deal-content {
-      padding: 15px;
+      padding: 12px;
+      text-align: center;
     }
     .deal-title {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 5px;
+      font-size: 15px;
+      font-weight: 600;
+      min-height: 40px;
+      margin-bottom: 8px;
     }
-    .price { color: #999; text-decoration: line-through; }
-    .discount { color: #e60000; font-weight: bold; font-size: 18px; }
+    .price {
+      color: #999;
+      font-size: 14px;
+      text-decoration: line-through;
+    }
+    .discount {
+      color: #e60000;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #e60000;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px;
-      background-color: #f0f0f0;
-      border-bottom: 1px solid #ddd;
+      padding: 10px 15px;
+      background-color: #f9f9f9;
+      border-bottom: 1px solid #eee;
     }
     .brand img {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
     }
-    .brand-name { font-weight: bold; font-size: 14px; }
+    .brand-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -79,7 +120,7 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Replace this URL with your actual Google Sheets URL
+    // Replace with your Google Sheet JSON link
     const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
 
     async function loadDeals() {
@@ -98,12 +139,14 @@
               <img src="${deal.BrandLogo}" alt="${deal.BrandName}" />
               <span class="brand-name">${deal.BrandName}</span>
             </div>
-            <img src="${deal.ImageURL}" alt="${deal.ProductName}">
+            <div style="position: relative;">
+              <img src="${deal.ImageURL}" alt="${deal.ProductName}">
+              <div class="badge">${getDiscountPercent(deal.OriginalPrice, deal.DiscountPrice)}% OFF</div>
+            </div>
             <div class="deal-content">
               <div class="deal-title">${deal.ProductName}</div>
               <div class="price">JMD ${deal.OriginalPrice}</div>
               <div class="discount">JMD ${deal.DiscountPrice}</div>
-              <p>${deal.Description || ''}</p>
             </div>
           `;
           container.appendChild(div);
@@ -112,6 +155,13 @@
         console.error('Failed to load deals:', e);
         container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
       }
+    }
+
+    function getDiscountPercent(original, discount) {
+      const o = parseFloat(original.replace(/[^\d.]/g, ''));
+      const d = parseFloat(discount.replace(/[^\d.]/g, ''));
+      if (isNaN(o) || isNaN(d) || o <= d) return '';
+      return Math.round(((o - d) / o) * 100);
     }
 
     loadDeals();
