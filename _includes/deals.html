@@ -18,40 +18,42 @@
       margin-bottom: 30px;
     }
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background-color: #fff;
-      padding: 1px 1px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1px;
-      min-height: 7px;
-      position: relative;
-    }
-    .brand-timer {
-      position: absolute;
-      right: 10px;
-      font-size: 14px;
-      color: red;
-    }
-    .brand-logo-container {
-      height: 60px;
-      width: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .brand-logo-container img {
-      max-height: 100%;
-      max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  padding: 1px 1px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1px;
+  min-height: 7px;
+}
+
+.brand-logo-container {
+  height: 60px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+    .brand img {
+      width: 75px;
+      height: 75px;
+      border-radius: 1px;
       object-fit: contain;
-      border-radius: 8px;
     }
     .brand-name {
       font-size: 18px;
       font-weight: bold;
     }
+
     .deal {
       background: white;
       border-radius: 10px;
@@ -65,16 +67,16 @@
     .deal-grid {
       display: grid;
       grid-auto-flow: column;
-      grid-template-rows: repeat(2, 1fr);
+       grid-template-rows: repeat(2, 1fr); /* 2 rows */
       grid-auto-columns: 50%;
       gap: 15px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       padding: 10px;
-      scrollbar-width: none;
+      scrollbar-width: none; /* Firefox */
     }
     .deal-grid::-webkit-scrollbar {
-      display: none;
+      display: none; /* Chrome, Safari */
     }
     .deal img {
       width: 100%;
@@ -112,6 +114,8 @@
       padding: 4px 6px;
       border-radius: 4px;
     }
+
+    /* Popup Styles */
     .popup-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -132,14 +136,15 @@
       position: relative;
     }
     .popup-content img {
-      width: 93.7%;
-      max-height: 250px;
-      object-fit: contain;
-      padding: 10px;
-      background: #f9f9f9;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-    }
+  width: 93.7%;
+  max-height: 250px;
+  object-fit: contain;
+  padding: 10px;
+  background: #f9f9f9;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  position: relative;
+}
     .popup-body {
       padding: 20px;
     }
@@ -160,17 +165,17 @@
       margin-bottom: 10px;
     }
     .popup-discount-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: red;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 4px;
-      z-index: 10;
-    }
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  z-index: 10;
+}
     .popup-description {
       font-size: 14px;
     }
@@ -187,16 +192,17 @@
 </head>
 <body>
   <h1>Today’s Deals</h1>
-   <div class="countdown" id="countdown">Deals expire in: </div>
+  <div class="countdown" id="countdown">Deals expire in: </div>
   <div id="deals-container">Loading deals...</div>
 
+  <!-- Popup Overlay -->
   <div class="popup-overlay" id="popup">
     <div class="popup-content" id="popupContent">
       <span class="popup-close" onclick="closePopup()">×</span>
-      <div style="position: relative;">
-        <span class="popup-discount-badge" id="popupBadge"></span>
-        <img id="popupImg" src="" alt="Product">
-      </div>
+     <div style="position: relative;">
+  <span class="popup-discount-badge" id="popupBadge"></span>
+  <img id="popupImg" src="" alt="Product">
+</div>
       <div class="popup-body">
         <div class="popup-title" id="popupTitle"></div>
         <div class="popup-price" id="popupPrice"></div>
@@ -220,28 +226,24 @@
       const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
 
       document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
-
-      // Update all brand timers too
-      document.querySelectorAll('.brand-timer').forEach(el => {
-        el.textContent = `${hours}:${minutes}:${seconds}`;
-      });
     }
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
     function openPopup({ image, name, original, discount, description }) {
-      const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
-      const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
-      const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
 
-      document.getElementById('popupImg').src = image;
-      document.getElementById('popupTitle').textContent = name;
-      document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-      document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
-      document.getElementById('popupDesc').textContent = description || '';
-      document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-      document.getElementById('popup').style.display = 'flex';
-    }
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popup').style.display = 'flex';
+}
+
 
     function closePopup() {
       document.getElementById('popup').style.display = 'none';
@@ -271,12 +273,12 @@
             const brandDiv = document.createElement('div');
             brandDiv.className = 'brand';
             brandDiv.innerHTML = `
-              <div class="brand-logo-container">
-                <img src="${currentLogo}" alt="${currentBrand}" />
-              </div>
-              <span class="brand-name">${currentBrand}</span>
-              <span class="brand-timer"></span>
-            `;
+            <div class="brand-logo-container">
+            <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <span class="brand-name">${currentBrand}</span>
+`          ;
+
 
             grid = document.createElement('div');
             grid.className = 'deal-grid';
@@ -325,10 +327,10 @@
     }
 
     loadDeals();
-
-    document.getElementById('popup').addEventListener('click', function (e) {
-      if (e.target === this) {
-        closePopup();
-      }
-    });
+ 
+  document.getElementById('popup').addEventListener('click', function (e) {
+  if (e.target === this) {
+    closePopup();
+  }
+});
   </script>
