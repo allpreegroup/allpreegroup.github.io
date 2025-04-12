@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Deals</title>
   <style>
     body {
@@ -15,54 +15,41 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    .countdown {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    .brand-section {
+    .brand-block {
       margin-bottom: 30px;
     }
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-      margin-bottom: 10px;
+      padding: 10px 0;
     }
     .brand img {
-      width: 50px;
-      height: 50px;
-      border-radius: 10px;
-      object-fit: contain;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
     }
     .brand-name {
-      font-size: 18px;
       font-weight: bold;
+      font-size: 18px;
     }
-    .deal-grid {
+    .deal-scroll {
       display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
       gap: 15px;
-      padding: 10px;
+      overflow-x: auto;
+      padding-bottom: 10px;
     }
     .deal {
       background: white;
       border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      flex: 0 0 auto;
-      width: 45%;
-      scroll-snap-align: start;
+      min-width: 47%;
       position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       cursor: pointer;
     }
     .deal img {
       width: 100%;
-      height: 150px;
+      height: 140px;
       object-fit: cover;
       border-top-left-radius: 10px;
       border-top-right-radius: 10px;
@@ -74,11 +61,14 @@
       font-size: 14px;
       font-weight: bold;
       margin-bottom: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .price {
       color: #999;
       text-decoration: line-through;
-      font-size: 14px;
+      font-size: 13px;
     }
     .discount {
       color: #e60000;
@@ -89,41 +79,41 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: red;
+      background-color: red;
       color: white;
       font-weight: bold;
       font-size: 12px;
-      padding: 4px 6px;
-      border-radius: 4px;
+      padding: 5px 8px;
+      border-radius: 5px;
     }
-
-    /* Popup Styles */
-    .popup-overlay {
+    /* Popup styles */
+    .popup {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.8);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
       display: none;
-      align-items: center;
       justify-content: center;
-      z-index: 9999;
+      align-items: center;
+      z-index: 999;
     }
     .popup-content {
       background: white;
-      border-radius: 10px;
-      max-width: 500px;
       width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
+      max-width: 400px;
+      border-radius: 10px;
+      overflow: hidden;
       position: relative;
     }
-    .popup-content img {
+    .popup img {
       width: 100%;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
+      height: 200px;
+      object-fit: cover;
     }
-    .popup-body {
-      padding: 20px;
+    .popup-info {
+      padding: 15px;
     }
     .popup-title {
       font-size: 18px;
@@ -131,45 +121,42 @@
       margin-bottom: 10px;
     }
     .popup-price {
-      font-size: 14px;
       text-decoration: line-through;
-      color: #888;
+      color: #999;
     }
     .popup-discount {
-      font-size: 18px;
+      font-size: 24px;
       color: #e60000;
       font-weight: bold;
       margin-bottom: 10px;
     }
-    .popup-description {
+    .popup-desc {
       font-size: 14px;
     }
-    .popup-close {
+    .close-popup {
       position: absolute;
       top: 10px;
       right: 15px;
-      font-size: 28px;
-      color: #333;
+      font-size: 24px;
       cursor: pointer;
       font-weight: bold;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <h1>Today’s Deals</h1>
-  <div class="countdown" id="countdown">Deals expire in: </div>
-  <div id="deals-container">Loading deals...</div>
+  <div id="deal-container"></div>
 
-  <!-- Popup Overlay -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup-content" id="popupContent">
-      <span class="popup-close" onclick="closePopup()">×</span>
-      <img id="popupImg" src="" alt="Product">
-      <div class="popup-body">
-        <div class="popup-title" id="popupTitle"></div>
-        <div class="popup-price" id="popupPrice"></div>
-        <div class="popup-discount" id="popupDiscount"></div>
-        <div class="popup-description" id="popupDesc"></div>
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <span class="close-popup" onclick="closePopup()">×</span>
+      <img id="popup-img" src="" alt="">
+      <div class="popup-info">
+        <div class="popup-title" id="popup-title"></div>
+        <div class="popup-price" id="popup-original"></div>
+        <div class="popup-discount" id="popup-discount"></div>
+        <div class="popup-desc" id="popup-desc"></div>
       </div>
     </div>
   </div>
@@ -177,106 +164,66 @@
   <script>
     const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
 
-    function updateCountdown() {
-      const now = new Date();
-      const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0);
-      const diff = midnight - now;
+    async function loadDeals() {
+      const res = await fetch(sheetUrl);
+      const data = await res.json();
 
-      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-      const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+      const grouped = [];
+      let currentBrand = null;
 
-      document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
+      data.forEach(row => {
+        if (row.BrandName && row.BrandLogo) {
+          currentBrand = { name: row.BrandName, logo: row.BrandLogo, deals: [] };
+          grouped.push(currentBrand);
+        } else if (currentBrand && row.ProductName) {
+          currentBrand.deals.push(row);
+        }
+      });
+
+      const container = document.getElementById('deal-container');
+      grouped.forEach(brand => {
+        const block = document.createElement('div');
+        block.className = 'brand-block';
+
+        const brandHTML = `
+          <div class="brand">
+            <img src="${brand.logo}" alt="${brand.name}" />
+            <span class="brand-name">${brand.name}</span>
+          </div>
+          <div class="deal-scroll">
+            ${brand.deals.map(deal => {
+              const discountPercent = Math.round(((parseFloat(deal.OriginalPrice) - parseFloat(deal.DiscountPrice)) / parseFloat(deal.OriginalPrice)) * 100);
+              const title = deal.ProductName.length > 10 ? deal.ProductName.slice(0, 10) + '...' : deal.ProductName;
+              return `
+                <div class="deal" onclick='openPopup(${JSON.stringify(deal).replace(/'/g, "\\'")})'>
+                  <span class="discount-badge">-${discountPercent}%</span>
+                  <img src="${deal.ImageURL}" alt="${deal.ProductName}">
+                  <div class="deal-content">
+                    <div class="deal-title">${title}</div>
+                    <div class="price">JMD ${deal.OriginalPrice}</div>
+                    <div class="discount">JMD ${deal.DiscountPrice}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        block.innerHTML = brandHTML;
+        container.appendChild(block);
+      });
     }
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
 
-    function openPopup({ image, name, original, discount, description }) {
-      document.getElementById('popupImg').src = image;
-      document.getElementById('popupTitle').textContent = name;
-      document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-      document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
-      document.getElementById('popupDesc').textContent = description || '';
+    function openPopup(deal) {
+      document.getElementById('popup-img').src = deal.ImageURL;
+      document.getElementById('popup-title').textContent = deal.ProductName;
+      document.getElementById('popup-original').textContent = 'Original Price: JMD ' + deal.OriginalPrice;
+      document.getElementById('popup-discount').textContent = 'Now: JMD ' + deal.DiscountPrice;
+      document.getElementById('popup-desc').textContent = deal.Description || '';
       document.getElementById('popup').style.display = 'flex';
     }
 
     function closePopup() {
       document.getElementById('popup').style.display = 'none';
-    }
-
-    async function loadDeals() {
-      const container = document.getElementById('deals-container');
-      container.innerHTML = '';
-
-      try {
-        const res = await fetch(sheetUrl);
-        const rows = await res.json();
-
-        let currentBrand = '';
-        let currentLogo = '';
-        let brandSection = null;
-        let grid = null;
-
-        rows.forEach(row => {
-          if (row.BrandName && row.BrandLogo) {
-            currentBrand = row.BrandName;
-            currentLogo = row.BrandLogo;
-
-            brandSection = document.createElement('div');
-            brandSection.className = 'brand-section';
-
-            const brandDiv = document.createElement('div');
-            brandDiv.className = 'brand';
-            brandDiv.innerHTML = `
-              <img src="${currentLogo}" alt="${currentBrand}" />
-              <span class="brand-name">${currentBrand}</span>
-            `;
-
-            grid = document.createElement('div');
-            grid.className = 'deal-grid';
-
-            brandSection.appendChild(brandDiv);
-            brandSection.appendChild(grid);
-            container.appendChild(brandSection);
-          }
-
-          if (row.ProductName && row.ImageURL) {
-            const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-            const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-            const shortName = row.ProductName.length > 10 ? row.ProductName.slice(0, 10) + '...' : row.ProductName;
-
-            const dealCard = document.createElement('div');
-            dealCard.className = 'deal';
-            dealCard.innerHTML = `
-              <span class="discount-badge">${percentOff}% OFF</span>
-              <img src="${row.ImageURL}" alt="${row.ProductName}">
-              <div class="deal-content">
-                <div class="deal-title">${shortName}</div>
-                <div class="price">JMD ${row.OriginalPrice}</div>
-                <div class="discount">JMD ${row.DiscountPrice}</div>
-              </div>
-            `;
-            dealCard.addEventListener('click', () => {
-              openPopup({
-                image: row.ImageURL,
-                name: row.ProductName,
-                original: row.OriginalPrice,
-                discount: row.DiscountPrice,
-                description: row.Description
-              });
-            });
-
-            grid?.appendChild(dealCard);
-          }
-        });
-
-      } catch (err) {
-        console.error('Failed to load deals:', err);
-        container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
-      }
     }
 
     loadDeals();
