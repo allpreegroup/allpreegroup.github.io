@@ -272,12 +272,20 @@
 
             const brandDiv = document.createElement('div');
             brandDiv.className = 'brand';
+            const expireDate = row.ExprieDate;
+            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
             brandDiv.innerHTML = `
             <div class="brand-logo-container">
             <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
             <span class="brand-name">${currentBrand}</span>
-`          ;
+            <span class="brand-timer" id="${timerId}"></span>
+          `;
+
+        if (expireDate) {
+           startBrandCountdown(expireDate, timerId);
+          }
 
 
             grid = document.createElement('div');
@@ -333,4 +341,25 @@
     closePopup();
   }
 });
+      function startBrandCountdown(expireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const timeLeft = new Date(expireDate) - new Date();
+    if (timeLeft <= 0) {
+      el.textContent = ' - Deal ended';
+      clearInterval(timer);
+    } else {
+      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+    }
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
+}
+
   </script>
