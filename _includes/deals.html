@@ -227,31 +227,6 @@
 
       document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
     }
-
-function updateBrandCountdowns() {
-  document.querySelectorAll('.brand-countdown').forEach(span => {
-    const expiryStr = span.getAttribute('data-expiry');
-    if (!expiryStr) return;
-
-    const expiry = new Date(expiryStr);
-    const now = new Date();
-    const diff = expiry - now;
-
-    if (diff <= 0) {
-      span.textContent = 'Expired';
-      return;
-    }
-
-    const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-    const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-    const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
-
-    span.textContent = `Ends in: ${hours}:${minutes}:${seconds}`;
-  });
-}
-
-
-      
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
@@ -289,33 +264,11 @@ function updateBrandCountdowns() {
 
         rows.forEach(row => {
           if (row.BrandName && row.BrandLogo) {
-  currentBrand = row.BrandName;
-  currentLogo = row.BrandLogo;
-  currentExpiry = row.ExpireDate; // store it from the current row
+            currentBrand = row.BrandName;
+            currentLogo = row.BrandLogo;
 
-  brandSection = document.createElement('div');
-  brandSection.className = 'brand-section';
-
-  const brandDiv = document.createElement('div');
-  brandDiv.className = 'brand';
-  brandDiv.innerHTML = `
-    <div class="brand-logo-container">
-      <img src="${currentLogo}" alt="${currentBrand}" />
-    </div>
-    <div style="display: flex; flex-direction: column;">
-      <span class="brand-name">${currentBrand}</span>
-      <span class="brand-countdown" data-expiry="${currentExpiry}">Loading...</span>
-    </div>
-  `;
-
-  grid = document.createElement('div');
-  grid.className = 'deal-grid';
-
-  brandSection.appendChild(brandDiv);
-  brandSection.appendChild(grid);
-  container.appendChild(brandSection);
-}
-
+            brandSection = document.createElement('div');
+            brandSection.className = 'brand-section';
 
             const brandDiv = document.createElement('div');
             brandDiv.className = 'brand';
@@ -323,11 +276,8 @@ function updateBrandCountdowns() {
             <div class="brand-logo-container">
             <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
-            <div style="display: flex; flex-direction: column;">
             <span class="brand-name">${currentBrand}</span>
-            <span class="brand-countdown" data-expiry=""></span>
-            </div>
-          `;
+`          ;
 
 
             grid = document.createElement('div');
@@ -377,8 +327,7 @@ function updateBrandCountdowns() {
     }
 
     loadDeals();
-    setInterval(updateBrandCountdowns, 1000);
-      
+ 
   document.getElementById('popup').addEventListener('click', function (e) {
   if (e.target === this) {
     closePopup();
