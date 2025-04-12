@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Daily Deals</title>
+  <title>Today’s Deals</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -51,7 +51,7 @@
 
     .deal-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(2, 1fr); /* Two per row */
       gap: 20px;
     }
 
@@ -62,6 +62,19 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
+      position: relative;
+    }
+
+    .discount-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e60000;
+      color: white;
+      font-weight: bold;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
     }
 
     .deal img {
@@ -99,15 +112,23 @@
       font-size: 13px;
       color: #555;
     }
+
+    @media (max-width: 600px) {
+      .deal-grid {
+        grid-template-columns: 1fr; /* Stack on small screens */
+      }
+    }
   </style>
 </head>
 <body>
   <h1>Today’s Deals</h1>
   <div class="countdown" id="countdown">Deals expire in: </div>
+
   <div id="brand-header" class="brand-header" style="display: none;">
     <img id="brand-logo" src="" alt="Brand Logo" />
     <div class="brand-name" id="brand-name"></div>
   </div>
+
   <div id="deal-grid" class="deal-grid">Loading deals...</div>
 
   <script>
@@ -130,7 +151,7 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals';
+    const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
 
     async function loadDeals() {
       const container = document.getElementById('deal-grid');
@@ -148,14 +169,19 @@
         const deals = data.slice(1);
 
         deals.forEach(deal => {
+          const original = parseFloat(deal.OriginalPrice.replace(/,/g, ''));
+          const discount = parseFloat(deal.DiscountPrice.replace(/,/g, ''));
+          const percent = Math.round(((original - discount) / original) * 100);
+
           const div = document.createElement('div');
           div.className = 'deal';
           div.innerHTML = `
+            <div class="discount-badge">-${percent}%</div>
             <img src="${deal.ImageURL}" alt="${deal.ProductName}">
             <div class="deal-content">
               <div class="deal-title">${deal.ProductName}</div>
-              <div class="price">JMD ${parseFloat(deal.OriginalPrice).toFixed(2)}</div>
-              <div class="discount">JMD ${parseFloat(deal.DiscountPrice).toFixed(2)}</div>
+              <div class="price">JMD ${original.toFixed(2)}</div>
+              <div class="discount">JMD ${discount.toFixed(2)}</div>
               ${deal.Description ? `<div class="description">${deal.Description}</div>` : ''}
             </div>
           `;
