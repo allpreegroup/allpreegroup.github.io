@@ -24,15 +24,31 @@
       margin-bottom: 30px;
     }
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 1px;
-      background-color: #fff;
-      padding: 1px;
-      border-radius: 10px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-      margin-bottom: 1px;
-    }
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+  min-height: 70px;
+}
+
+.brand-logo-container {
+  height: 60px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
     .brand img {
       width: 75px;
       height: 75px;
@@ -259,9 +275,12 @@
             const brandDiv = document.createElement('div');
             brandDiv.className = 'brand';
             brandDiv.innerHTML = `
-              <img src="${currentLogo}" alt="${currentBrand}" />
-              <span class="brand-name">${currentBrand}</span>
-            `;
+            <div class="brand-logo-container">
+            <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <span class="brand-name">${currentBrand}</span>
+`          ;
+
 
             grid = document.createElement('div');
             grid.className = 'deal-grid';
