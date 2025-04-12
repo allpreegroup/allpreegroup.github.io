@@ -58,6 +58,7 @@
       width: 45%;
       scroll-snap-align: start;
       position: relative;
+      cursor: pointer;
     }
     .deal img {
       width: 100%;
@@ -95,12 +96,83 @@
       padding: 4px 6px;
       border-radius: 4px;
     }
+
+    /* Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-content {
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .popup-content img {
+      width: 100%;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    .popup-body {
+      padding: 20px;
+    }
+    .popup-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-price {
+      font-size: 14px;
+      text-decoration: line-through;
+      color: #888;
+    }
+    .popup-discount {
+      font-size: 18px;
+      color: #e60000;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-description {
+      font-size: 14px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      color: #333;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <h1>Today’s Deals</h1>
   <div class="countdown" id="countdown">Deals expire in: </div>
   <div id="deals-container">Loading deals...</div>
+
+  <!-- Popup Overlay -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content" id="popupContent">
+      <span class="popup-close" onclick="closePopup()">×</span>
+      <img id="popupImg" src="" alt="Product">
+      <div class="popup-body">
+        <div class="popup-title" id="popupTitle"></div>
+        <div class="popup-price" id="popupPrice"></div>
+        <div class="popup-discount" id="popupDiscount"></div>
+        <div class="popup-description" id="popupDesc"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
@@ -119,6 +191,19 @@
     }
     setInterval(updateCountdown, 1000);
     updateCountdown();
+
+    function openPopup({ image, name, original, discount, description }) {
+      document.getElementById('popupImg').src = image;
+      document.getElementById('popupTitle').textContent = name;
+      document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+      document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+      document.getElementById('popupDesc').textContent = description || '';
+      document.getElementById('popup').style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
 
     async function loadDeals() {
       const container = document.getElementById('deals-container');
@@ -161,17 +246,29 @@
             const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
             const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
+            const shortName = row.ProductName.length > 10 ? row.ProductName.slice(0, 10) + '...' : row.ProductName;
+
             const dealCard = document.createElement('div');
             dealCard.className = 'deal';
             dealCard.innerHTML = `
               <span class="discount-badge">${percentOff}% OFF</span>
               <img src="${row.ImageURL}" alt="${row.ProductName}">
               <div class="deal-content">
-                <div class="deal-title">${row.ProductName}</div>
+                <div class="deal-title">${shortName}</div>
                 <div class="price">JMD ${row.OriginalPrice}</div>
                 <div class="discount">JMD ${row.DiscountPrice}</div>
               </div>
             `;
+            dealCard.addEventListener('click', () => {
+              openPopup({
+                image: row.ImageURL,
+                name: row.ProductName,
+                original: row.OriginalPrice,
+                discount: row.DiscountPrice,
+                description: row.Description
+              });
+            });
+
             grid?.appendChild(dealCard);
           }
         });
