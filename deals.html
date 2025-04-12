@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daily Deals</title>
   <style>
+    /* Your styles remain the same */
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -175,7 +176,10 @@
   </div>
 
   <script>
-    const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
+    const sheetUrls = [
+      'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals',
+      // Add more URLs as needed
+    ];
 
     function updateCountdown() {
       const now = new Date();
@@ -205,77 +209,88 @@
       document.getElementById('popup').style.display = 'none';
     }
 
+    async function fetchAllDeals() {
+      const allData = [];
+      for (const url of sheetUrls) {
+        try {
+          const res = await fetch(url);
+          const rows = await res.json();
+          allData.push(...rows);
+        } catch (e) {
+          console.error(`Failed to fetch from ${url}`, e);
+        }
+      }
+      return allData;
+    }
+
     async function loadDeals() {
       const container = document.getElementById('deals-container');
       container.innerHTML = '';
+      const rows = await fetchAllDeals();
 
-      try {
-        const res = await fetch(sheetUrl);
-        const rows = await res.json();
+      const brands = {};
 
-        let currentBrand = '';
-        let currentLogo = '';
-        let brandSection = null;
-        let grid = null;
+      rows.forEach(row => {
+        const brand = row.BrandName || 'Other';
+        if (!brands[brand]) {
+          brands[brand] = {
+            logo: row.BrandLogo,
+            products: []
+          };
+        }
+        if (row.ProductName && row.ImageURL) {
+          brands[brand].products.push(row);
+        }
+      });
 
-        rows.forEach(row => {
-          if (row.BrandName && row.BrandLogo) {
-            currentBrand = row.BrandName;
-            currentLogo = row.BrandLogo;
+      for (const [brandName, { logo, products }] of Object.entries(brands)) {
+        const brandSection = document.createElement('div');
+        brandSection.className = 'brand-section';
 
-            brandSection = document.createElement('div');
-            brandSection.className = 'brand-section';
+        const brandDiv = document.createElement('div');
+        brandDiv.className = 'brand';
+        brandDiv.innerHTML = `
+          <img src="${logo}" alt="${brandName}" />
+          <span class="brand-name">${brandName}</span>
+        `;
 
-            const brandDiv = document.createElement('div');
-            brandDiv.className = 'brand';
-            brandDiv.innerHTML = `
-              <img src="${currentLogo}" alt="${currentBrand}" />
-              <span class="brand-name">${currentBrand}</span>
-            `;
+        const grid = document.createElement('div');
+        grid.className = 'deal-grid';
 
-            grid = document.createElement('div');
-            grid.className = 'deal-grid';
+        products.forEach(row => {
+          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
-            brandSection.appendChild(brandDiv);
-            brandSection.appendChild(grid);
-            container.appendChild(brandSection);
-          }
+          const shortName = row.ProductName.length > 10 ? row.ProductName.slice(0, 10) + '...' : row.ProductName;
 
-          if (row.ProductName && row.ImageURL) {
-            const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-            const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-            const shortName = row.ProductName.length > 10 ? row.ProductName.slice(0, 10) + '...' : row.ProductName;
-
-            const dealCard = document.createElement('div');
-            dealCard.className = 'deal';
-            dealCard.innerHTML = `
-              <span class="discount-badge">${percentOff}% OFF</span>
-              <img src="${row.ImageURL}" alt="${row.ProductName}">
-              <div class="deal-content">
-                <div class="deal-title">${shortName}</div>
-                <div class="price">JMD ${row.OriginalPrice}</div>
-                <div class="discount">JMD ${row.DiscountPrice}</div>
-              </div>
-            `;
-            dealCard.addEventListener('click', () => {
-              openPopup({
-                image: row.ImageURL,
-                name: row.ProductName,
-                original: row.OriginalPrice,
-                discount: row.DiscountPrice,
-                description: row.Description
-              });
+          const dealCard = document.createElement('div');
+          dealCard.className = 'deal';
+          dealCard.innerHTML = `
+            <span class="discount-badge">${percentOff}% OFF</span>
+            <img src="${row.ImageURL}" alt="${row.ProductName}">
+            <div class="deal-content">
+              <div class="deal-title">${shortName}</div>
+              <div class="price">JMD ${row.OriginalPrice}</div>
+              <div class="discount">JMD ${row.DiscountPrice}</div>
+            </div>
+          `;
+          dealCard.addEventListener('click', () => {
+            openPopup({
+              image: row.ImageURL,
+              name: row.ProductName,
+              original: row.OriginalPrice,
+              discount: row.DiscountPrice,
+              description: row.Description
             });
+          });
 
-            grid?.appendChild(dealCard);
-          }
+          grid.appendChild(dealCard);
         });
 
-      } catch (err) {
-        console.error('Failed to load deals:', err);
-        container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
+        brandSection.appendChild(brandDiv);
+        brandSection.appendChild(grid);
+        container.appendChild(brandSection);
       }
     }
 
