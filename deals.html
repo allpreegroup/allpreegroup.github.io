@@ -34,6 +34,20 @@
     }
     .price { color: #999; text-decoration: line-through; }
     .discount { color: #e60000; font-weight: bold; font-size: 18px; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ddd;
+    }
+    .brand img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+    .brand-name { font-weight: bold; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -65,8 +79,9 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
+    // Google Sheets URLs
     const sheets = [
-      'https://opensheet.elk.sh/YOUR_SHEET_ID_1/Deals',
+      'https://opensheet.elk.sh/2PACX-1vT6dXsXqIJ-c2doo-Tex9nqaWqNzrWoafvrHtsP0p-RGziWNuIjBURFUvAXi-MMgYxpYaI_8-kREFL6/Deals',
       'https://opensheet.elk.sh/YOUR_SHEET_ID_2/Deals'
     ];
 
@@ -83,6 +98,10 @@
             const div = document.createElement('div');
             div.className = 'deal';
             div.innerHTML = `
+              <div class="brand">
+                <img src="${deal.BrandLogo}" alt="${deal.BrandName}" />
+                <span class="brand-name">${deal.BrandName}</span>
+              </div>
               <img src="${deal.ImageURL}" alt="${deal.ProductName}">
               <div class="deal-content">
                 <div class="deal-title">${deal.ProductName}</div>
