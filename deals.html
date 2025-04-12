@@ -118,10 +118,15 @@
       position: relative;
     }
     .popup-content img {
-      width: 100%;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-    }
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  padding: 10px;
+  background: #f9f9f9;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  position: relative;
+}
     .popup-body {
       padding: 20px;
     }
@@ -141,6 +146,18 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
+    .popup-discount-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  z-index: 10;
+}
     .popup-description {
       font-size: 14px;
     }
@@ -164,7 +181,10 @@
   <div class="popup-overlay" id="popup">
     <div class="popup-content" id="popupContent">
       <span class="popup-close" onclick="closePopup()">×</span>
-      <img id="popupImg" src="" alt="Product">
+     <div style="position: relative;">
+  <span class="popup-discount-badge" id="popupBadge"></span>
+  <img id="popupImg" src="" alt="Product">
+</div>
       <div class="popup-body">
         <div class="popup-title" id="popupTitle"></div>
         <div class="popup-price" id="popupPrice"></div>
@@ -193,13 +213,19 @@
     updateCountdown();
 
     function openPopup({ image, name, original, discount, description }) {
-      document.getElementById('popupImg').src = image;
-      document.getElementById('popupTitle').textContent = name;
-      document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-      document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
-      document.getElementById('popupDesc').textContent = description || '';
-      document.getElementById('popup').style.display = 'flex';
-    }
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popup').style.display = 'flex';
+}
+
 
     function closePopup() {
       document.getElementById('popup').style.display = 'none';
@@ -280,6 +306,12 @@
     }
 
     loadDeals();
+ 
+  document.getElementById('popup').addEventListener('click', function (e) {
+  if (e.target === this) {
+    closePopup();
+  }
+});
   </script>
 </body>
 </html>
