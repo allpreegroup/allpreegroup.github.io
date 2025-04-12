@@ -2,126 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daily Deals</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f5f5f5;
+      background: #f9f9f9;
       margin: 0;
       padding: 20px;
     }
+
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      font-size: 28px;
+      margin-bottom: 10px;
     }
+
     .countdown {
       text-align: center;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    .deal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-    .deal {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease;
-    }
-    .deal:hover {
-      transform: translateY(-5px);
-    }
-    .deal img {
-      width: 100%;
-      height: 160px;
-      object-fit: contain;
-      background-color: #fff;
-      padding: 10px;
-    }
-    .deal-content {
-      padding: 12px;
-      text-align: center;
-    }
-    .deal-title {
-      font-size: 15px;
-      font-weight: 600;
-      min-height: 40px;
-      margin-bottom: 8px;
-    }
-    .price {
-      color: #999;
-      font-size: 14px;
-      text-decoration: line-through;
-    }
-    .discount {
-      color: #e60000;
-      font-weight: bold;
       font-size: 16px;
+      margin-bottom: 25px;
+      color: #666;
     }
-    .badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: #e60000;
-      color: white;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .brand {
+
+    .brand-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 15px;
-      background-color: #f9f9f9;
-      border-bottom: 1px solid #eee;
+      gap: 15px;
+      padding: 15px 20px;
+      background: white;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    .brand img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+
+    .brand-header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: #fff;
     }
+
     .brand-name {
-      font-weight: bold;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .deal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .deal {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .deal img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .deal-content {
+      padding: 15px;
+      flex: 1;
+    }
+
+    .deal-title {
       font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      font-size: 14px;
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .discount {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e60000;
+      margin-top: 4px;
+    }
+
+    .description {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #555;
     }
   </style>
 </head>
 <body>
   <h1>Today’s Deals</h1>
   <div class="countdown" id="countdown">Deals expire in: </div>
+  <div id="brand-header" class="brand-header" style="display: none;">
+    <img id="brand-logo" src="" alt="Brand Logo" />
+    <div class="brand-name" id="brand-name"></div>
+  </div>
   <div id="deal-grid" class="deal-grid">Loading deals...</div>
 
   <script>
-    // Clear cache daily
     const today = new Date().toDateString();
     if (localStorage.getItem('lastVisit') !== today) {
       localStorage.clear();
       localStorage.setItem('lastVisit', today);
     }
 
-    // Countdown timer until midnight
     function updateCountdown() {
       const now = new Date();
       const midnight = new Date();
       midnight.setHours(24, 0, 0, 0);
       const diff = midnight - now;
-
       const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
       const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
       const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
-
       document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
     }
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Replace with your Google Sheet JSON link
-    const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals';
+    const sheetUrl = 'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/Deals';
 
     async function loadDeals() {
       const container = document.getElementById('deal-grid');
@@ -129,39 +138,34 @@
 
       try {
         const res = await fetch(sheetUrl);
-        const deals = await res.json();
+        const data = await res.json();
+
+        const brandRow = data[0];
+        document.getElementById('brand-logo').src = brandRow.BrandLogo;
+        document.getElementById('brand-name').textContent = brandRow.BrandName;
+        document.getElementById('brand-header').style.display = 'flex';
+
+        const deals = data.slice(1);
 
         deals.forEach(deal => {
           const div = document.createElement('div');
           div.className = 'deal';
           div.innerHTML = `
-            <div class="brand">
-              <img src="${deal.BrandLogo}" alt="${deal.BrandName}" />
-              <span class="brand-name">${deal.BrandName}</span>
-            </div>
-            <div style="position: relative;">
-              <img src="${deal.ImageURL}" alt="${deal.ProductName}">
-              <div class="badge">${getDiscountPercent(deal.OriginalPrice, deal.DiscountPrice)}% OFF</div>
-            </div>
+            <img src="${deal.ImageURL}" alt="${deal.ProductName}">
             <div class="deal-content">
               <div class="deal-title">${deal.ProductName}</div>
-              <div class="price">JMD ${deal.OriginalPrice}</div>
-              <div class="discount">JMD ${deal.DiscountPrice}</div>
+              <div class="price">JMD ${parseFloat(deal.OriginalPrice).toFixed(2)}</div>
+              <div class="discount">JMD ${parseFloat(deal.DiscountPrice).toFixed(2)}</div>
+              ${deal.Description ? `<div class="description">${deal.Description}</div>` : ''}
             </div>
           `;
           container.appendChild(div);
         });
+
       } catch (e) {
         console.error('Failed to load deals:', e);
         container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
       }
-    }
-
-    function getDiscountPercent(original, discount) {
-      const o = parseFloat(original.replace(/[^\d.]/g, ''));
-      const d = parseFloat(discount.replace(/[^\d.]/g, ''));
-      if (isNaN(o) || isNaN(d) || o <= d) return '';
-      return Math.round(((o - d) / o) * 100);
     }
 
     loadDeals();
