@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Deals</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    .countdown { text-align: center; font-size: 18px; margin-bottom: 20px; }
+    .deal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .deal {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .deal img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .deal-content {
+      padding: 15px;
+    }
+    .deal-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .price { color: #999; text-decoration: line-through; }
+    .discount { color: #e60000; font-weight: bold; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h1>Today’s Deals</h1>
+  <div class="countdown" id="countdown">Deals expire in: </div>
+  <div id="deal-grid" class="deal-grid">Loading deals...</div>
+
+  <script>
+    // Clear cache daily
+    const today = new Date().toDateString();
+    if (localStorage.getItem('lastVisit') !== today) {
+      localStorage.clear();
+      localStorage.setItem('lastVisit', today);
+    }
+
+    // Countdown timer until midnight
+    function updateCountdown() {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight - now;
+
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+      const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+      document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    const sheets = [
+      'https://opensheet.elk.sh/YOUR_SHEET_ID_1/Deals',
+      'https://opensheet.elk.sh/YOUR_SHEET_ID_2/Deals'
+    ];
+
+    async function loadDeals() {
+      const container = document.getElementById('deal-grid');
+      container.innerHTML = '';
+
+      for (let url of sheets) {
+        try {
+          const res = await fetch(url);
+          const deals = await res.json();
+
+          deals.forEach(deal => {
+            const div = document.createElement('div');
+            div.className = 'deal';
+            div.innerHTML = `
+              <img src="${deal.ImageURL}" alt="${deal.ProductName}">
+              <div class="deal-content">
+                <div class="deal-title">${deal.ProductName}</div>
+                <div class="price">JMD ${deal.OriginalPrice}</div>
+                <div class="discount">JMD ${deal.DiscountPrice}</div>
+                <p>${deal.Description || ''}</p>
+              </div>
+            `;
+            container.appendChild(div);
+          });
+        } catch (e) {
+          console.error('Failed to load deals from:', url);
+        }
+      }
+    }
+
+    loadDeals();
+  </script>
+</body>
+</html>
