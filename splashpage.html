@@ -17,20 +17,22 @@
       overflow: hidden;
     }
 
-    /* Video Animation */
+    /* Bigger Responsive Video */
     video {
-      width: 220px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 320px; /* default base size */
       height: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     /* Loading Text */
     .loading-text {
-      margin-top: 20px;
+      margin-top: 24px;
       font-family: Arial, sans-serif;
       color: #333;
-      font-size: 16px;
+      font-size: 18px;
       text-align: center;
     }
 
@@ -63,16 +65,16 @@
   <div class="loading-text fade">Loading Allpree...</div>
 
   <script>
-    // Wait for 4 seconds (matching video duration) before redirecting
+    // Wait for 4.5 seconds then redirect
     setTimeout(() => {
       const isFirstTime = !localStorage.getItem("allpreeSignedUp");
 
       if (isFirstTime) {
-        window.location.href = "/contact"; // Redirect to signup page
+        window.location.href = "/contact"; // First-time user
       } else {
-        window.location.href = "/balance"; // Redirect to main page
+        window.location.href = "/balance"; // Returning user
       }
-    }, 4500); // Delay to match video duration
+    }, 4500);
   </script>
 
 </body>
