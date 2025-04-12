@@ -53,6 +53,10 @@
       font-size: 18px;
       font-weight: bold;
     }
+    .brand-timer {
+  font-size: 14px;
+  margin-left: 8px;
+    }
 
     .deal {
       background: white;
@@ -341,25 +345,40 @@
     closePopup();
   }
 });
-      function startBrandCountdown(expireDate, elementId) {
+     function startBrandCountdown(expireDate, elementId) {
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
 
-    const timeLeft = new Date(expireDate) - new Date();
-    if (timeLeft <= 0) {
-      el.textContent = ' - Deal ended';
+    const now = new Date();
+    const end = new Date(expireDate);
+    const diff = end - now;
+
+    if (diff <= 0) {
+      el.textContent = ' - Deal Ended';
+      el.style.color = 'gray';
       clearInterval(timer);
-    } else {
-      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
-      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+      return;
     }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`);
+    parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
+
+    el.textContent = ` - Ends in: ${parts.join(' ')}`;
+    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
   }
 
   update();
   const timer = setInterval(update, 1000);
 }
+
 
   </script>
