@@ -229,153 +229,160 @@ const sheetUrls = [
 
 const allBrandsData = [];
 
-function openPopup({ image, name, original, discount, description }) {
-  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
-  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
-  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
-
-  document.getElementById('popupImg').src = image;
-  document.getElementById('popupTitle').textContent = name;
-  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
-  document.getElementById('popupDesc').textContent = description || '';
-  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-  document.getElementById('popup').style.display = 'flex';
-}
-
-function closePopup() {
-  document.getElementById('popup').style.display = 'none';
-}
-
 async function loadDeals() {
   const container = document.getElementById('deals-container');
-  container.innerHTML = '';
+  container.innerHTML = 'Loading deals...';
   allBrandsData.length = 0;
 
   try {
-    for (let sheetUrl of sheetUrls) {
-      const res = await fetch(sheetUrl);
+    const allRows = [];
+
+    for (let url of sheetUrls) {
+      const res = await fetch(url);
       const rows = await res.json();
+      allRows.push(...rows);
+    }
 
-      let currentBrand = '';
-      let currentLogo = '';
-      let brandSection = null;
-      let grid = null;
-      let brandDeals = [];
-      let expireDate = null;
+    container.innerHTML = ''; // Clear loading text
 
-      rows.forEach(row => {
-        if (row.BrandName && row.BrandLogo) {
-          currentBrand = row.BrandName;
-          currentLogo = row.BrandLogo;
-          expireDate = row.ExpireDate;
+    let currentBrand = '';
+    let currentLogo = '';
+    let expireDate = '';
+    let brandSection = null;
+    let grid = null;
+    let brandDeals = [];
 
-          brandSection = document.createElement('div');
-          brandSection.className = 'brand-section';
+    allRows.forEach(row => {
+      if (row.BrandName && row.BrandLogo) {
+        currentBrand = row.BrandName;
+        currentLogo = row.BrandLogo;
+        expireDate = row.ExpireDate;
 
-          const brandDiv = document.createElement('div');
-          brandDiv.className = 'brand';
-          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+        brandSection = document.createElement('div');
+        brandSection.className = 'brand-section';
 
-          brandDiv.innerHTML = `
-            <div class="brand-logo-container">
-              <img src="${currentLogo}" alt="${currentBrand}" />
-            </div>
-            <div>
-              <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}">Loading...</span>
-            </div>
-          `;
+        const brandDiv = document.createElement('div');
+        brandDiv.className = 'brand';
 
-          if (expireDate) {
-            const expireTime = new Date(expireDate);
-            const timerElement = document.getElementById(timerId);
+        const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-            function updateBrandTimer() {
-              const now = new Date();
-              const diff = expireTime - now;
+        brandDiv.innerHTML = `
+          <div class="brand-logo-container">
+            <img src="${currentLogo}" alt="${currentBrand}" />
+          </div>
+          <div>
+            <span class="brand-name">${currentBrand}</span><br>
+            <span class="brand-timer" id="${timerId}">Loading...</span>
+          </div>
+        `;
 
-              if (diff <= 0) {
-                timerElement.textContent = 'Expired';
-                clearInterval(interval);
-                return;
-              }
+        // Add to DOM BEFORE starting timer
+        grid = document.createElement('div');
+        grid.className = 'deal-grid';
 
-              const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-              const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-              const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+        brandSection.appendChild(brandDiv);
+        brandSection.appendChild(grid);
+        container.appendChild(brandSection);
 
-              timerElement.textContent = `Expires in: ${hours}:${minutes}:${seconds}`;
-            }
-
-            updateBrandTimer();
-            const interval = setInterval(updateBrandTimer, 1000);
-          }
-
-          grid = document.createElement('div');
-          grid.className = 'deal-grid';
-
-          brandSection.appendChild(brandDiv);
-          brandSection.appendChild(grid);
-          container.appendChild(brandSection);
-
-          allBrandsData.push({
-            brand: currentBrand,
-            logo: currentLogo,
-            expireDate,
-            section: brandSection,
-            grid,
-            deals: brandDeals
-          });
+        if (expireDate) {
+          startBrandCountdown(expireDate, timerId);
         }
 
-        if (row.ProductName && row.ImageURL) {
-          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+        brandDeals = [];
 
-          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+        allBrandsData.push({
+          brand: currentBrand,
+          logo: currentLogo,
+          expireDate,
+          section: brandSection,
+          grid,
+          deals: brandDeals
+        });
+      }
 
-          const dealCard = document.createElement('div');
-          dealCard.className = 'deal';
-          dealCard.innerHTML = `
-            <span class="discount-badge">${percentOff}% OFF</span>
-            <img src="${row.ImageURL}" alt="${row.ProductName}">
-            <div class="deal-content">
-              <div class="deal-title">${shortName}</div>
-              <div class="price">JMD $${row.OriginalPrice}</div>
-              <div class="discount">JMD $${row.DiscountPrice}</div>
-            </div>
-          `;
-          dealCard.addEventListener('click', () => {
-            openPopup({
-              image: row.ImageURL,
-              name: row.ProductName,
-              original: row.OriginalPrice,
-              discount: row.DiscountPrice,
-              description: row.Description
-            });
+      if (row.ProductName && row.ImageURL) {
+        const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+        const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+        const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+        const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+        const dealCard = document.createElement('div');
+        dealCard.className = 'deal';
+        dealCard.innerHTML = `
+          <span class="discount-badge">${percentOff}% OFF</span>
+          <img src="${row.ImageURL}" alt="${row.ProductName}">
+          <div class="deal-content">
+            <div class="deal-title">${shortName}</div>
+            <div class="price">JMD $${row.OriginalPrice}</div>
+            <div class="discount">JMD $${row.DiscountPrice}</div>
+          </div>
+        `;
+        dealCard.addEventListener('click', () => {
+          openPopup({
+            image: row.ImageURL,
+            name: row.ProductName,
+            original: row.OriginalPrice,
+            discount: row.DiscountPrice,
+            description: row.Description
           });
+        });
 
+        if (brandDeals) {
           brandDeals.push({
             element: dealCard,
             percentOff,
             expireDate: row.ExpireDate
           });
         }
-      });
-    }
+      }
+    });
 
-    // Sort each brand's grid by top discounts
+    // Sort and display deals
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
 
   } catch (err) {
-    console.error('Failed to load deals:', err);
-    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+    console.error('Error loading deals:', err);
+    container.innerHTML = 'Failed to load deals. Please try again later.';
   }
+}
+
+function startBrandCountdown(ExpireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const now = new Date();
+    const end = new Date(ExpireDate);
+    const diff = end - now;
+
+    if (diff <= 0) {
+      el.textContent = ' - Deal Ended';
+      el.style.color = 'gray';
+      clearInterval(timer);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`);
+    parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
+
+    el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
+    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
 }
 
 function filterUrgentHighDiscountBrands() {
@@ -393,11 +400,9 @@ function filterUrgentHighDiscountBrands() {
     return bestDiscountB - bestDiscountA;
   });
 
-  sorted.forEach(data => {
-    container.appendChild(data.section);
-  });
+  sorted.forEach(data => container.appendChild(data.section));
 }
 
-// Start loading the deals
-loadDeals();
+// Call loadDeals() when page is ready
+document.addEventListener('DOMContentLoaded', loadDeals);
 </script>
