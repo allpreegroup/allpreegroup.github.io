@@ -229,6 +229,24 @@ const sheetUrls = [
 
 const allBrandsData = [];
 
+function openPopup({ image, name, original, discount, description }) {
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup() {
+  document.getElementById('popup').style.display = 'none';
+}
+
 async function loadDeals() {
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -257,7 +275,6 @@ async function loadDeals() {
 
           const brandDiv = document.createElement('div');
           brandDiv.className = 'brand';
-
           const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
           brandDiv.innerHTML = `
@@ -270,23 +287,6 @@ async function loadDeals() {
             </div>
           `;
 
-          brandSection.appendChild(brandDiv);
-
-          grid = document.createElement('div');
-          grid.className = 'deal-grid';
-          brandSection.appendChild(grid);
-          container.appendChild(brandSection);
-
-          allBrandsData.push({
-            brand: currentBrand,
-            logo: currentLogo,
-            expireDate,
-            section: brandSection,
-            grid,
-            deals: brandDeals
-          });
-
-          // Countdown logic that was working
           if (expireDate) {
             const expireTime = new Date(expireDate);
             const timerElement = document.getElementById(timerId);
@@ -311,6 +311,22 @@ async function loadDeals() {
             updateBrandTimer();
             const interval = setInterval(updateBrandTimer, 1000);
           }
+
+          grid = document.createElement('div');
+          grid.className = 'deal-grid';
+
+          brandSection.appendChild(brandDiv);
+          brandSection.appendChild(grid);
+          container.appendChild(brandSection);
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
         }
 
         if (row.ProductName && row.ImageURL) {
@@ -350,15 +366,40 @@ async function loadDeals() {
       });
     }
 
+    // Sort each brand's grid by top discounts
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
+
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
 }
+
+function filterUrgentHighDiscountBrands() {
+  const container = document.getElementById('deals-container');
+  container.innerHTML = '';
+
+  const sorted = allBrandsData.slice().sort((a, b) => {
+    const timeA = new Date(a.expireDate) - new Date();
+    const timeB = new Date(b.expireDate) - new Date();
+    const bestDiscountA = Math.max(...a.deals.map(d => d.percentOff));
+    const bestDiscountB = Math.max(...b.deals.map(d => d.percentOff));
+
+    if (timeA < timeB) return -1;
+    if (timeA > timeB) return 1;
+    return bestDiscountB - bestDiscountA;
+  });
+
+  sorted.forEach(data => {
+    container.appendChild(data.section);
+  });
+}
+
+// Start loading the deals
+loadDeals();
 </script>
 
 
