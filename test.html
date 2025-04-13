@@ -268,7 +268,6 @@ async function loadDeals() {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
-          expireDate = null; // reset expireDate for each brand
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -294,8 +293,12 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          // Timer logic
-          if (expireDate) {
+          // Get the expire date for the brand and set the timer
+          if (row.ExpireDate) {
+            expireDate = new Date(row.ExpireDate);
+          }
+
+          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
             startBrandCountdown(expireDate, timerId);
           }
 
@@ -342,11 +345,6 @@ async function loadDeals() {
             percentOff,
             expireDate: row.ExpireDate
           });
-
-          // Set expireDate from product row if not already set
-          if (!expireDate && row.ExpireDate) {
-            expireDate = row.ExpireDate;
-          }
         }
       });
 
@@ -370,8 +368,7 @@ function startBrandCountdown(ExpireDate, elementId) {
     if (!el) return;
 
     const now = new Date();
-    const end = new Date(ExpireDate);
-    const diff = end - now;
+    const diff = ExpireDate - now;
 
     if (diff <= 0) {
       el.textContent = ' - Deal Ended';
