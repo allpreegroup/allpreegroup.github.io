@@ -311,8 +311,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
              <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
 
              
-            <a class="navbar-brand page-scroll" href="https://www.allpree.com/contact"><strong></i> <i class="fa-brands fa-whatsapp fa-lg"></i></strong> Sign Up</a>
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp"><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals/"><strong><i class="fa-solid fa-badge-percent fa-lg"></i></strong> Deals</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp" ><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
               
 	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
              <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
@@ -401,14 +401,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			<br><br> <center> <a id="back-to-home" href="/deals/" onclick="return handleGoHome()">← click if already sign up</a> </center>
 			<script>
   function handleGoHome() {
-    const isSignedUp = localStorage.getItem("allpreeSignedUp") === "true";
-    if (!isSignedUp) {
-      alert("Please sign up before going home!");
-      return false; // Prevent the redirect
-    }
-    // Otherwise allow navigation
-    return true;
+  const storedCode = localStorage.getItem("invitationCode");
+
+  if (storedCode) {
+    // ✅ Mark as signed up
+    localStorage.setItem("allpreeSignedUp", "true");
   }
+
+  // Always redirect to home — even if no code
+  return true;
+}
 </script>
 
 <script src="/js/jekyll-search.js" type="text/javascript"></script>
