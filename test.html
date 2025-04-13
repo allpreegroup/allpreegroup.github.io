@@ -228,7 +228,6 @@ const sheetUrls = [
 ];
 
 const allBrandsData = [];
-const activeTimers = {};
 
 function openPopup({ image, name, original, discount, description }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
@@ -269,7 +268,7 @@ async function loadDeals() {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
-          expireDate = row.ExpireDate;
+          expireDate = null; // reset expireDate for each brand
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -295,6 +294,7 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
+          // Timer logic
           if (expireDate) {
             startBrandCountdown(expireDate, timerId);
           }
@@ -305,8 +305,7 @@ async function loadDeals() {
             expireDate,
             section: brandSection,
             grid,
-            deals: brandDeals,
-            timerId
+            deals: brandDeals
           });
         }
 
@@ -343,8 +342,14 @@ async function loadDeals() {
             percentOff,
             expireDate: row.ExpireDate
           });
+
+          // Set expireDate from product row if not already set
+          if (!expireDate && row.ExpireDate) {
+            expireDate = row.ExpireDate;
+          }
         }
       });
+
     }
 
     // Sort each brand's grid by top discounts
@@ -360,10 +365,6 @@ async function loadDeals() {
 }
 
 function startBrandCountdown(ExpireDate, elementId) {
-  if (activeTimers[elementId]) {
-    clearInterval(activeTimers[elementId]);
-  }
-
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -375,7 +376,7 @@ function startBrandCountdown(ExpireDate, elementId) {
     if (diff <= 0) {
       el.textContent = ' - Deal Ended';
       el.style.color = 'gray';
-      clearInterval(activeTimers[elementId]);
+      clearInterval(timer);
       return;
     }
 
@@ -395,7 +396,7 @@ function startBrandCountdown(ExpireDate, elementId) {
   }
 
   update();
-  activeTimers[elementId] = setInterval(update, 1000);
+  const timer = setInterval(update, 1000);
 }
 
 function filterUrgentHighDiscountBrands() {
@@ -415,9 +416,6 @@ function filterUrgentHighDiscountBrands() {
 
   sorted.forEach(data => {
     container.appendChild(data.section);
-    if (data.expireDate && data.timerId) {
-      startBrandCountdown(data.expireDate, data.timerId);
-    }
   });
 }
 
@@ -430,7 +428,6 @@ document.getElementById('popup').addEventListener('click', function (e) {
 // Start loading
 loadDeals();
 </script>
-
 
 
 	
