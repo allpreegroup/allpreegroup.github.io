@@ -283,12 +283,12 @@ async function loadDeals() {
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}"></span>
+              <span class="brand-timer" id="${timerId}">Loading...</span>
             </div>
           `;
 
           if (expireDate) {
-            startBrandCountdown(expireDate, timerId);
+            startBrandCountdown(expireDate, timerId); // Assigning the countdown to the timer span under the brand name
           }
 
           grid = document.createElement('div');
@@ -377,13 +377,13 @@ function filterUrgentHighDiscountBrands() {
   });
 }
 
-function startBrandCountdown(ExprieDate, elementId) {
+function startBrandCountdown(expireDate, elementId) {
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
 
     const now = new Date();
-    const end = new Date(ExprieDate);
+    const end = new Date(expireDate);
     const diff = end - now;
 
     if (diff <= 0) {
@@ -422,3 +422,4 @@ document.getElementById('popup').addEventListener('click', function (e) {
 // Start loading the deals
 loadDeals();
 </script>
+
