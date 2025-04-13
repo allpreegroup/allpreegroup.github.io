@@ -228,6 +228,7 @@ const sheetUrls = [
 ];
 
 const allBrandsData = [];
+const activeTimers = {};
 
 function openPopup({ image, name, original, discount, description }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
@@ -294,7 +295,6 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          // Timer logic
           if (expireDate) {
             startBrandCountdown(expireDate, timerId);
           }
@@ -305,7 +305,8 @@ async function loadDeals() {
             expireDate,
             section: brandSection,
             grid,
-            deals: brandDeals
+            deals: brandDeals,
+            timerId
           });
         }
 
@@ -359,6 +360,10 @@ async function loadDeals() {
 }
 
 function startBrandCountdown(ExpireDate, elementId) {
+  if (activeTimers[elementId]) {
+    clearInterval(activeTimers[elementId]);
+  }
+
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -370,7 +375,7 @@ function startBrandCountdown(ExpireDate, elementId) {
     if (diff <= 0) {
       el.textContent = ' - Deal Ended';
       el.style.color = 'gray';
-      clearInterval(timer);
+      clearInterval(activeTimers[elementId]);
       return;
     }
 
@@ -390,7 +395,7 @@ function startBrandCountdown(ExpireDate, elementId) {
   }
 
   update();
-  const timer = setInterval(update, 1000);
+  activeTimers[elementId] = setInterval(update, 1000);
 }
 
 function filterUrgentHighDiscountBrands() {
@@ -410,6 +415,9 @@ function filterUrgentHighDiscountBrands() {
 
   sorted.forEach(data => {
     container.appendChild(data.section);
+    if (data.expireDate && data.timerId) {
+      startBrandCountdown(data.expireDate, data.timerId);
+    }
   });
 }
 
@@ -422,6 +430,7 @@ document.getElementById('popup').addEventListener('click', function (e) {
 // Start loading
 loadDeals();
 </script>
+
 
 
 	
