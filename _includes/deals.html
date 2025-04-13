@@ -242,15 +242,6 @@ function closePopup() {
   document.getElementById('popup').style.display = 'none';
 }
 
-function renderSortedProducts(list, grid) {
-  if (!list || !grid) return;
-  const sorted = [...list].sort((a, b) => b.percentOff - a.percentOff);
-  const top4 = sorted.slice(0, 4);
-  const rest = sorted.slice(4);
-  const all = [...top4, ...rest];
-  all.forEach(prod => grid.appendChild(prod.element));
-}
-
 async function loadDeals() {
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -264,19 +255,25 @@ async function loadDeals() {
       let currentLogo = '';
       let brandSection = null;
       let grid = null;
-      let productList = [];
+      let productList = []; // Temporary storage for products
 
       rows.forEach((row, index) => {
         const isNewBrand = row.BrandName && row.BrandLogo;
 
         if (isNewBrand) {
-         
-            if (productList.length > 0 && grid) {
-         productList.forEach(prod => prod.element.remove()); // clear grid safely
-          renderSortedProducts(productList, grid);
-       }
+          // Render the last brand's products before switching
+          if (productList.length > 0 && grid) {
+            // Sort by % OFF and render
+            productList.sort((a, b) => b.percentOff - a.percentOff);
+            const top4 = productList.slice(0, 4);
+            const rest = productList.slice(4);
+            const all = [...top4, ...rest];
 
-          // New brand setup
+            // Append sorted products to grid
+            all.forEach(prod => grid.appendChild(prod.element));
+          }
+
+          // Start new brand section
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
 
@@ -323,16 +320,13 @@ async function loadDeals() {
             const interval = setInterval(updateBrandTimer, 1000);
           }
 
-          if (expireDate) {
-            startBrandCountdown(expireDate, timerId);
-          }
-
           grid = document.createElement('div');
           grid.className = 'deal-grid';
           brandSection.appendChild(brandDiv);
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
-          productList = [];
+
+          productList = []; // reset for new brand
         }
 
         if (row.ProductName && row.ImageURL) {
@@ -363,13 +357,18 @@ async function loadDeals() {
             });
           });
 
+          // Save element and % off for sorting later
           productList.push({ element: dealCard, percentOff });
         }
 
-       if (index === rows.length - 1 && productList.length > 0 && grid) {
-  productList.forEach(prod => prod.element.remove()); // clear grid safely
-  renderSortedProducts(productList, grid);
-}
+        // If this is the last row, make sure to render the last brand's deals
+        if (index === rows.length - 1 && productList.length > 0 && grid) {
+          productList.sort((a, b) => b.percentOff - a.percentOff);
+          const top4 = productList.slice(0, 4);
+          const rest = productList.slice(4);
+          const all = [...top4, ...rest];
+          all.forEach(prod => grid.appendChild(prod.element));
+        }
       });
     }
   } catch (err) {
@@ -420,6 +419,7 @@ function startBrandCountdown(ExprieDate, elementId) {
   update();
   const timer = setInterval(update, 1000);
 }
+
 </script>
 
 
