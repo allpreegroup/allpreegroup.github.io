@@ -406,3 +406,57 @@ function filterUrgentHighDiscountBrands() {
 // Call loadDeals() when page is ready
 document.addEventListener('DOMContentLoaded', loadDeals);
 </script>
+
+	<div id="brand-timers-container"></div>
+
+<script>
+function startBrandCountdown(expireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const now = new Date();
+    const end = new Date(expireDate);
+    const diff = end - now;
+
+    if (diff <= 0) {
+      el.textContent = ' - Deal Ended';
+      el.style.color = 'gray';
+      clearInterval(timer);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`);
+    parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
+
+    el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
+    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
+}
+
+// Example usage:
+const container = document.getElementById('brand-timers-container');
+const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+container.innerHTML = `
+  <div>
+    <h3>Brand Example</h3>
+    <span id="${timerId}">Loading...</span>
+  </div>
+`;
+
+// Set your ExpireDate here
+const expireDate = '2025-04-15T23:59:59'; // Change as needed
+startBrandCountdown(expireDate, timerId);
+</script>
