@@ -254,8 +254,22 @@ async function loadDeals() {
 
   try {
     for (let sheetUrl of sheetUrls) {
+      console.log(`Fetching data from: ${sheetUrl}`); // Debugging log
+
       const res = await fetch(sheetUrl);
+
+      if (!res.ok) {
+        console.error('Error fetching data:', res.statusText); // Error handling
+        container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+        return;
+      }
+
       const rows = await res.json();
+
+      if (!rows || rows.length === 0) {
+        console.error('No data found in the sheet:', sheetUrl); // Error handling
+        continue;
+      }
 
       let currentBrand = '';
       let currentLogo = '';
@@ -265,6 +279,7 @@ async function loadDeals() {
       let expireDate = null;
 
       rows.forEach(row => {
+        // Check if row has required data
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -334,9 +349,10 @@ async function loadDeals() {
           });
         }
 
+        // Check for product deal information
         if (row.ProductName && row.ImageURL) {
-          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+          const original = row.OriginalPrice ? parseFloat(row.OriginalPrice.replace(/,/g, '')) : 0;
+          const discount = row.DiscountPrice ? parseFloat(row.DiscountPrice.replace(/,/g, '')) : 0;
           const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
           const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
@@ -381,26 +397,6 @@ async function loadDeals() {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-}
-
-function filterUrgentHighDiscountBrands() {
-  const container = document.getElementById('deals-container');
-  container.innerHTML = '';
-
-  const sorted = allBrandsData.slice().sort((a, b) => {
-    const timeA = new Date(a.expireDate) - new Date();
-    const timeB = new Date(b.expireDate) - new Date();
-    const bestDiscountA = Math.max(...a.deals.map(d => d.percentOff));
-    const bestDiscountB = Math.max(...b.deals.map(d => d.percentOff));
-
-    if (timeA < timeB) return -1;
-    if (timeA > timeB) return 1;
-    return bestDiscountB - bestDiscountA;
-  });
-
-  sorted.forEach(data => {
-    container.appendChild(data.section);
-  });
 }
 
 // Start loading the deals
