@@ -1,14 +1,15 @@
-var CACHE_NAME = "offline-v31";
+var CACHE_NAME = "offline-v32";
 
 var preLoad = function () {
     return caches.open(CACHE_NAME).then(function (cache) {
         return cache.addAll([
             "/",
             "/balance/",
-            "/storeapp/",
+            "/storeapp",
             "/howitwork/",
             "/menu/",
-            "/marketing/",
+            "/marketing",
+            "/deals",
             "/partner/",
             "/vouchers/",
             "/manifest.json",
