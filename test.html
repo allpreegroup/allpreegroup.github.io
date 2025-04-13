@@ -220,7 +220,6 @@
     </div>
   </div>
 
-
 <script>
 const sheetUrls = [
   'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
@@ -288,6 +287,7 @@ async function loadDeals() {
             </div>
           `;
 
+          // Handle expiration time
           if (expireDate) {
             const expireTime = new Date(expireDate);
             const timerElement = document.getElementById(timerId);
@@ -312,9 +312,9 @@ async function loadDeals() {
             updateBrandTimer();
             const interval = setInterval(updateBrandTimer, 1000);
           } else {
-            // If no expire date is present, show "No expiration"
+            // If no expire date, set timer to "No expiration"
             const timerElement = document.getElementById(timerId);
-            timerElement.textContent = "No expiration";
+            timerElement.textContent = 'No expiration';
           }
 
           grid = document.createElement('div');
@@ -370,11 +370,12 @@ async function loadDeals() {
         }
       });
 
-    // Sort each brand's grid by top discounts
-    allBrandsData.forEach(brandData => {
-      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-      brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-    });
+      // Sort each brand's grid by top discounts
+      allBrandsData.forEach(brandData => {
+        brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+        brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+      });
+    }
 
   } catch (err) {
     console.error('Failed to load deals:', err);
@@ -405,7 +406,6 @@ function filterUrgentHighDiscountBrands() {
 // Start loading the deals
 loadDeals();
 </script>
-
 
 
 	
