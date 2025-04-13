@@ -270,9 +270,11 @@ async function loadDeals() {
         const isNewBrand = row.BrandName && row.BrandLogo;
 
         if (isNewBrand) {
-          if (productList.length > 0 && grid) {
-            renderSortedProducts(productList, grid);
-          }
+         
+            if (productList.length > 0 && grid) {
+         productList.forEach(prod => prod.element.remove()); // clear grid safely
+          renderSortedProducts(productList, grid);
+       }
 
           // New brand setup
           currentBrand = row.BrandName;
@@ -364,9 +366,10 @@ async function loadDeals() {
           productList.push({ element: dealCard, percentOff });
         }
 
-        if (index === rows.length - 1 && productList.length > 0 && grid) {
-          renderSortedProducts(productList, grid);
-        }
+       if (index === rows.length - 1 && productList.length > 0 && grid) {
+  productList.forEach(prod => prod.element.remove()); // clear grid safely
+  renderSortedProducts(productList, grid);
+}
       });
     }
   } catch (err) {
