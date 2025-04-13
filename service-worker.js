@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v30";
+var CACHE_NAME = "offline-v31";
 
 var preLoad = function () {
     return caches.open(CACHE_NAME).then(function (cache) {
