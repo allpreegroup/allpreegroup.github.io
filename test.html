@@ -332,24 +332,22 @@ async function loadDeals() {
           grid = document.createElement('div');
           grid.className = 'deal-grid';
           brandSection.appendChild(grid);
-          container.appendChild(brandSection);
 
-          if (row.ExpireDate) {
-            expireDate = new Date(row.ExpireDate);
-          }
-
-          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-            startBrandCountdown(expireDate, timerId);
-          }
-
+          // Add section last to DOM for now
           allBrandsData.push({
             brand: currentBrand,
             logo: currentLogo,
-            expireDate,
+            expireDate: new Date(row.ExpireDate),
             section: brandSection,
             grid,
-            deals: brandDeals
+            deals: brandDeals,
+            bestDiscount: 0 // placeholder
           });
+
+          if (row.ExpireDate) {
+            expireDate = new Date(row.ExpireDate);
+            startBrandCountdown(expireDate, timerId);
+          }
         }
 
         if (row.ProductName && row.ImageURL) {
@@ -389,21 +387,16 @@ async function loadDeals() {
       });
     }
 
-    // Sort each brand's deals by discount descending
+    // Sort deals inside each brand and calculate best discount
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+      brandData.bestDiscount = brandData.deals.length ? brandData.deals[0].percentOff : 0;
     });
 
-    // Sort brands by best discount and update container
-    const sorted = allBrandsData.slice().sort((a, b) => {
-      const bestA = Math.max(...a.deals.map(d => d.percentOff));
-      const bestB = Math.max(...b.deals.map(d => d.percentOff));
-      return bestB - bestA;
-    });
-
-    container.innerHTML = '';
-    sorted.forEach(data => {
+    // Sort brands by best discount
+    allBrandsData.sort((a, b) => b.bestDiscount - a.bestDiscount);
+    allBrandsData.forEach(data => {
       container.appendChild(data.section);
     });
 
@@ -453,14 +446,11 @@ document.getElementById('popup').addEventListener('click', function (e) {
   }
 });
 
-// Start loading on page load
+// Load and set interval for refresh
 loadDeals();
-
-// 🔄 Refresh every 60 seconds
-setInterval(() => {
-  loadDeals();
-}, 60000);
+setInterval(loadDeals, 10000); // Refresh every 10 seconds
 </script>
+
 
 
 
