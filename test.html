@@ -332,22 +332,24 @@ async function loadDeals() {
           grid = document.createElement('div');
           grid.className = 'deal-grid';
           brandSection.appendChild(grid);
-
-          // Add section last to DOM for now
-          allBrandsData.push({
-            brand: currentBrand,
-            logo: currentLogo,
-            expireDate: new Date(row.ExpireDate),
-            section: brandSection,
-            grid,
-            deals: brandDeals,
-            bestDiscount: 0 // placeholder
-          });
+          container.appendChild(brandSection);
 
           if (row.ExpireDate) {
             expireDate = new Date(row.ExpireDate);
+          }
+
+          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
             startBrandCountdown(expireDate, timerId);
           }
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
         }
 
         if (row.ProductName && row.ImageURL) {
@@ -387,18 +389,46 @@ async function loadDeals() {
       });
     }
 
-    // Sort deals inside each brand and calculate best discount
+    // Sort each brand's grid by top discounts
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-      brandData.bestDiscount = brandData.deals.length ? brandData.deals[0].percentOff : 0;
     });
 
-    // Sort brands by best discount
-    allBrandsData.sort((a, b) => b.bestDiscount - a.bestDiscount);
-    allBrandsData.forEach(data => {
-      container.appendChild(data.section);
+    // Sort brands by highest discount and soonest expiration
+    allBrandsData.forEach(brandData => {
+      brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+      brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
     });
+
+    allBrandsData.sort((a, b) => {
+      if (b.bestDiscount !== a.bestDiscount) {
+        return b.bestDiscount - a.bestDiscount;
+      }
+      return a.timeRemaining - b.timeRemaining;
+    });
+
+    // Clear and re-render sorted
+    container.innerHTML = '';
+
+    allBrandsData.forEach((brandData, index) => {
+      if (index === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'top-deal-badge';
+        badge.textContent = '🔥 Top Deal';
+        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+        brandData.section.classList.add('top-brand-highlight');
+      }
+      container.appendChild(brandData.section);
+    });
+
+    // Scroll to top brand
+    setTimeout(() => {
+      const topBrand = allBrandsData[0];
+      if (topBrand?.section) {
+        topBrand.section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
 
   } catch (err) {
     console.error('Failed to load deals:', err);
@@ -446,9 +476,7 @@ document.getElementById('popup').addEventListener('click', function (e) {
   }
 });
 
-// Load and set interval for refresh
 loadDeals();
-setInterval(loadDeals, 10000); // Refresh every 10 seconds
 </script>
 
 
