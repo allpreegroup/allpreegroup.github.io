@@ -231,12 +231,10 @@ const allBrandsData = [];
 
 async function loadDeals() {
   const container = document.getElementById('deals-container');
-  container.innerHTML = 'Loading deals...';
+  container.innerHTML = '';
   allBrandsData.length = 0;
 
   try {
-    container.innerHTML = '';
-
     for (let sheetUrl of sheetUrls) {
       const res = await fetch(sheetUrl);
       const rows = await res.json();
@@ -251,6 +249,8 @@ async function loadDeals() {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
+          const expireDate = row.ExpireDate;
+          brandDeals = [];
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -259,8 +259,6 @@ async function loadDeals() {
           brandDiv.className = 'brand';
 
           const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-          const expireDate = row.ExpireDate;
 
           brandDiv.innerHTML = `
             <div class="brand-logo-container">
@@ -272,16 +270,17 @@ async function loadDeals() {
             </div>
           `;
 
-          if (expireDate) {
-            startBrandCountdown(expireDate, timerId);
-          }
-
           grid = document.createElement('div');
           grid.className = 'deal-grid';
 
           brandSection.appendChild(brandDiv);
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
+
+          // Start countdown AFTER adding to DOM
+          if (expireDate) {
+            startBrandCountdown(expireDate, timerId);
+          }
 
           allBrandsData.push({
             brand: currentBrand,
@@ -311,7 +310,6 @@ async function loadDeals() {
               <div class="discount">JMD $${row.DiscountPrice}</div>
             </div>
           `;
-
           dealCard.addEventListener('click', () => {
             openPopup({
               image: row.ImageURL,
@@ -335,7 +333,6 @@ async function loadDeals() {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
-
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
@@ -369,7 +366,7 @@ function startBrandCountdown(expireDate, elementId) {
     parts.push(`${minutes}m`);
     parts.push(`${seconds}s`);
 
-    el.textContent = `Ends in: ${parts.join(' ')}`;
+    el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
     el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
   }
 
@@ -396,10 +393,8 @@ function filterUrgentHighDiscountBrands() {
     container.appendChild(data.section);
   });
 }
-
-// Load the deals on page load
-document.addEventListener('DOMContentLoaded', loadDeals);
 </script>
+
 
 
 	<div id="brand-timers-container"></div>
