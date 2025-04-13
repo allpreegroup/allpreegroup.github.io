@@ -378,33 +378,28 @@ function filterUrgentHighDiscountBrands() {
 }
 
 function startBrandCountdown(expireDate, elementId) {
+  const targetDate = new Date(expireDate).getTime();
+
   function update() {
+    const now = new Date().getTime();
+    const diff = targetDate - now;
+
     const el = document.getElementById(elementId);
     if (!el) return;
 
-    const now = new Date();
-    const end = new Date(expireDate);
-    const diff = end - now;
-
     if (diff <= 0) {
-      el.textContent = ' - Deal Ended';
+      el.textContent = 'Deal Ended';
       el.style.color = 'gray';
       clearInterval(timer);
       return;
     }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    const parts = [];
-    if (days > 0) parts.push(`${days}d`);
-    if (hours > 0 || days > 0) parts.push(`${hours}h`);
-    parts.push(`${minutes}m`);
-    parts.push(`${seconds}s`);
-
-    el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
+    el.textContent = `Ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
     el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
   }
 
