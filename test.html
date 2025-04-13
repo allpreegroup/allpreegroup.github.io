@@ -380,6 +380,11 @@ function filterUrgentHighDiscountBrands() {
 function startBrandCountdown(expireDate, elementId) {
   const targetDate = new Date(expireDate).getTime();
 
+  if (isNaN(targetDate)) {
+    console.error('Invalid Expire Date:', expireDate);
+    return; // Exit if the date is invalid
+  }
+
   function update() {
     const now = new Date().getTime();
     const diff = targetDate - now;
@@ -417,4 +422,5 @@ document.getElementById('popup').addEventListener('click', function (e) {
 // Start loading the deals
 loadDeals();
 </script>
+
 
