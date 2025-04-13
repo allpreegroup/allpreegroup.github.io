@@ -288,7 +288,28 @@ async function loadDeals() {
           `;
 
           if (expireDate) {
-            startBrandCountdown(expireDate, timerId); // Assigning the countdown to the timer span under the brand name
+            const expireTime = new Date(expireDate);
+            const timerElement = document.getElementById(timerId);
+
+            function updateBrandTimer() {
+              const now = new Date();
+              const diff = expireTime - now;
+
+              if (diff <= 0) {
+                timerElement.textContent = 'Expired';
+                clearInterval(interval);
+                return;
+              }
+
+              const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+              const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+              const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+              timerElement.textContent = `Expires in: ${hours}:${minutes}:${seconds}`;
+            }
+
+            updateBrandTimer();
+            const interval = setInterval(updateBrandTimer, 1000);
           }
 
           grid = document.createElement('div');
@@ -377,50 +398,6 @@ function filterUrgentHighDiscountBrands() {
   });
 }
 
-function startBrandCountdown(expireDate, elementId) {
-  const targetDate = new Date(expireDate).getTime();
-
-  if (isNaN(targetDate)) {
-    console.error('Invalid Expire Date:', expireDate);
-    return; // Exit if the date is invalid
-  }
-
-  function update() {
-    const now = new Date().getTime();
-    const diff = targetDate - now;
-
-    const el = document.getElementById(elementId);
-    if (!el) return;
-
-    if (diff <= 0) {
-      el.textContent = 'Deal Ended';
-      el.style.color = 'gray';
-      clearInterval(timer);
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    el.textContent = `Ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
-  }
-
-  update();
-  const timer = setInterval(update, 1000);
-}
-
-// Close popup on background click
-document.getElementById('popup').addEventListener('click', function (e) {
-  if (e.target === this) {
-    closePopup();
-  }
-});
-
 // Start loading the deals
 loadDeals();
 </script>
-
-
