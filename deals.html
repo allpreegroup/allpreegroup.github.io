@@ -25,43 +25,6 @@
     
     }
 
-
-.deal-grid-wrapper {
-  /* Make the wrapper as wide as the brand section */
-  width: calc(100% + 30px);
-  margin-left: -15px;
-  margin-right: -15px;
-  
-  /* Add the glowing, gold lighting */
-  border: 3px solid gold;
-  border-radius: 12px;
-  box-shadow: 0 0 10px gold;
-  animation: glowPulse 2s ease-in-out infinite;
-  
-  /* Optional: slight rotation for a dynamic "angle" effect */
-  transform: rotate(-1.5deg);
-  position: relative;
-  overflow: hidden; /* ensures no inner element shows the transform */
-}
-
-/* If you need to "unrotate" the inner grid so that its content remains level: */
-.deal-grid-wrapper .deal-grid {
-  transform: rotate(1.5deg);
-}
-
-/* Your existing keyframes (unchanged) */
-@keyframes glowPulse {
-  0% {
-    box-shadow: 0 0 10px gold;
-  }
-  50% {
-    box-shadow: 0 0 20px orange;
-  }
-  100% {
-    box-shadow: 0 0 10px gold;
-  }
-}
-
 	     
 .top-deal-badge {
   background-color: gold;
@@ -511,66 +474,9 @@ async function loadDeals() {
       let grid = null;
       let brandDeals = [];
       let expireDate = null;
-
-      // Inside the rows.forEach loop where you create the brand section:
- rows.forEach(row => {
- if (row.BrandName && row.BrandLogo) {
-  currentBrand = row.BrandName;
-  currentLogo = row.BrandLogo;
-
-  brandSection = document.createElement('div');
-  brandSection.className = 'brand-section';
-
-  // Create the brand header div
-  const brandDiv = document.createElement('div');
-  brandDiv.className = 'brand';
-  const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-  brandDiv.innerHTML = `
-    <div class="brand-logo-container">
-      <img src="${currentLogo}" alt="${currentBrand}" />
-    </div>
-    <div>
-      <span class="brand-name">${currentBrand}</span><br>
-      <span class="brand-timer" id="${timerId}">Loading...</span>
-    </div>
-  `;
-
-  brandSection.appendChild(brandDiv);
-
-  // Create a wrapper for the deal grid that applies the glow and angle
-  const gridWrapper = document.createElement('div');
-  gridWrapper.className = 'deal-grid-wrapper'; // our new wrapper class
-
-  // Create the actual grid container
-  grid = document.createElement('div');
-  grid.className = 'deal-grid';
-  gridWrapper.appendChild(grid);
-
-  brandSection.appendChild(gridWrapper);
-  container.appendChild(brandSection);
-
-  if (row.ExpireDate) {
-    expireDate = new Date(row.ExpireDate);
-  }
-
-  if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-    startBrandCountdown(expireDate, timerId);
-  }
-
-  allBrandsData.push({
-    brand: currentBrand,
-    logo: currentLogo,
-    expireDate,
-    section: brandSection,
-    grid,
-    deals: brandDeals
-  });
-}
-
+    
 	    
-	    
-	    /* rows.forEach(row => {
+       rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -615,7 +521,7 @@ async function loadDeals() {
             grid,
             deals: brandDeals
           });
-        } */
+        } 
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
