@@ -263,7 +263,6 @@
 
 <script>
 const sheetUrls = [
-  'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
   'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
   'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
   'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
@@ -390,46 +389,23 @@ async function loadDeals() {
       });
     }
 
-    // Sort each brand's grid by top discounts
+    // Sort each brand's deals by discount descending
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
 
-    // Sort brands by highest discount and soonest expiration
-    allBrandsData.forEach(brandData => {
-      brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-      brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+    // Sort brands by best discount and update container
+    const sorted = allBrandsData.slice().sort((a, b) => {
+      const bestA = Math.max(...a.deals.map(d => d.percentOff));
+      const bestB = Math.max(...b.deals.map(d => d.percentOff));
+      return bestB - bestA;
     });
 
-    allBrandsData.sort((a, b) => {
-      if (b.bestDiscount !== a.bestDiscount) {
-        return b.bestDiscount - a.bestDiscount;
-      }
-      return a.timeRemaining - b.timeRemaining;
-    });
-
-    // Clear and re-render sorted
     container.innerHTML = '';
-
-    allBrandsData.forEach((brandData, index) => {
-      if (index === 0) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Top Deal';
-        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.classList.add('top-brand-highlight');
-      }
-      container.appendChild(brandData.section);
+    sorted.forEach(data => {
+      container.appendChild(data.section);
     });
-
-    // Scroll to top brand
-    setTimeout(() => {
-      const topBrand = allBrandsData[0];
-      if (topBrand?.section) {
-        topBrand.section.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
 
   } catch (err) {
     console.error('Failed to load deals:', err);
@@ -477,7 +453,13 @@ document.getElementById('popup').addEventListener('click', function (e) {
   }
 });
 
+// Start loading on page load
 loadDeals();
+
+// 🔄 Refresh every 60 seconds
+setInterval(() => {
+  loadDeals();
+}, 60000);
 </script>
 
 
