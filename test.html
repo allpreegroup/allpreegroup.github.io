@@ -227,40 +227,33 @@ const sheetUrls = [
   'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
 ];
 
-const allBrandsData = [];
-
 async function loadDeals() {
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
-  allBrandsData.length = 0;
 
-  try {
-    for (let sheetUrl of sheetUrls) {
-      const res = await fetch(sheetUrl);
-      const rows = await res.json();
+  for (let url of sheetUrls) {
+    const res = await fetch(url);
+    const rows = await res.json();
 
-      let currentBrand = '';
-      let currentLogo = '';
-      let brandSection = null;
-      let grid = null;
-      let brandDeals = [];
+    let currentBrand = '';
+    let currentLogo = '';
+    let currentExpire = '';
+    let brandGrid = null;
 
-      rows.forEach(row => {
-        if (row.BrandName && row.BrandLogo) {
-          currentBrand = row.BrandName;
-          currentLogo = row.BrandLogo;
-          const expireDate = row.ExpireDate;
-          brandDeals = [];
+    rows.forEach((row, index) => {
+      // New brand section
+      if (row.BrandName && row.BrandLogo) {
+        currentBrand = row.BrandName;
+        currentLogo = row.BrandLogo;
+        currentExpire = row.ExpireDate;
 
-          brandSection = document.createElement('div');
-          brandSection.className = 'brand-section';
+        const section = document.createElement('div');
+        section.className = 'brand-section';
 
-          const brandDiv = document.createElement('div');
-          brandDiv.className = 'brand';
+        const timerId = `timer-${Math.random().toString(36).substr(2, 9)}`;
 
-          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-          brandDiv.innerHTML = `
+        section.innerHTML = `
+          <div class="brand">
             <div class="brand-logo-container">
               <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
@@ -268,74 +261,57 @@ async function loadDeals() {
               <span class="brand-name">${currentBrand}</span><br>
               <span class="brand-timer" id="${timerId}">Loading...</span>
             </div>
-          `;
+          </div>
+          <div class="deal-grid"></div>
+        `;
 
-          grid = document.createElement('div');
-          grid.className = 'deal-grid';
+        container.appendChild(section);
 
-          brandSection.appendChild(brandDiv);
-          brandSection.appendChild(grid);
-          container.appendChild(brandSection);
+        brandGrid = section.querySelector('.deal-grid');
 
-          // Start countdown AFTER adding to DOM
-          if (expireDate) {
-            startBrandCountdown(expireDate, timerId);
-          }
-
-          allBrandsData.push({
-            brand: currentBrand,
-            logo: currentLogo,
-            expireDate,
-            section: brandSection,
-            grid,
-            deals: brandDeals
-          });
+        // Start countdown
+        if (currentExpire) {
+          startBrandCountdown(currentExpire, timerId);
         }
+      }
 
-        if (row.ProductName && row.ImageURL) {
-          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+      // Add deal card
+      if (row.ProductName && row.ImageURL && brandGrid) {
+        const original = parseFloat(row.OriginalPrice?.replace(/,/g, '')) || 0;
+        const discount = parseFloat(row.DiscountPrice?.replace(/,/g, '')) || 0;
+        const percentOff = original && discount
+          ? Math.round((1 - discount / original) * 100)
+          : 0;
 
-          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+        const shortName = row.ProductName.length > 15
+          ? row.ProductName.slice(0, 15) + '...'
+          : row.ProductName;
 
-          const dealCard = document.createElement('div');
-          dealCard.className = 'deal';
-          dealCard.innerHTML = `
-            <span class="discount-badge">${percentOff}% OFF</span>
-            <img src="${row.ImageURL}" alt="${row.ProductName}">
-            <div class="deal-content">
-              <div class="deal-title">${shortName}</div>
-              <div class="price">JMD $${row.OriginalPrice}</div>
-              <div class="discount">JMD $${row.DiscountPrice}</div>
-            </div>
-          `;
-          dealCard.addEventListener('click', () => {
-            openPopup({
-              image: row.ImageURL,
-              name: row.ProductName,
-              original: row.OriginalPrice,
-              discount: row.DiscountPrice,
-              description: row.Description
-            });
+        const card = document.createElement('div');
+        card.className = 'deal';
+        card.innerHTML = `
+          <span class="discount-badge">${percentOff}% OFF</span>
+          <img src="${row.ImageURL}" alt="${row.ProductName}">
+          <div class="deal-content">
+            <div class="deal-title">${shortName}</div>
+            <div class="price">JMD $${row.OriginalPrice}</div>
+            <div class="discount">JMD $${row.DiscountPrice}</div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          openPopup({
+            image: row.ImageURL,
+            name: row.ProductName,
+            original: row.OriginalPrice,
+            discount: row.DiscountPrice,
+            description: row.Description
           });
+        });
 
-          brandDeals.push({
-            element: dealCard,
-            percentOff,
-            expireDate: row.ExpireDate
-          });
-        }
-      });
-    }
-
-    allBrandsData.forEach(brandData => {
-      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-      brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+        brandGrid.appendChild(card);
+      }
     });
-  } catch (err) {
-    console.error('Failed to load deals:', err);
-    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
 }
 
@@ -372,26 +348,6 @@ function startBrandCountdown(expireDate, elementId) {
 
   update();
   const timer = setInterval(update, 1000);
-}
-
-function filterUrgentHighDiscountBrands() {
-  const container = document.getElementById('deals-container');
-  container.innerHTML = '';
-
-  const sorted = allBrandsData.slice().sort((a, b) => {
-    const timeA = new Date(a.expireDate) - new Date();
-    const timeB = new Date(b.expireDate) - new Date();
-    const bestDiscountA = Math.max(...a.deals.map(d => d.percentOff));
-    const bestDiscountB = Math.max(...b.deals.map(d => d.percentOff));
-
-    if (timeA < timeB) return -1;
-    if (timeA > timeB) return 1;
-    return bestDiscountB - bestDiscountA;
-  });
-
-  sorted.forEach(data => {
-    container.appendChild(data.section);
-  });
 }
 </script>
 
