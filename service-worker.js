@@ -1,4 +1,4 @@
-var CACHE_NAME = "offline-v33";
+var CACHE_NAME = "offline-v34";
 
 var preLoad = function () {
     return caches.open(CACHE_NAME).then(function (cache) {
@@ -9,6 +9,7 @@ var preLoad = function () {
             "/howitwork/",
             "/menu/",
             "/marketing",
+            "/splashpage",
             "/deals",
             "/partner/",
             "/vouchers/",
