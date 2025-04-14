@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  
+   
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -10,7 +10,7 @@
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
 
-   
+
      <title>See Today's Deals</title>
      <style>
     body {
@@ -486,7 +486,8 @@ async function loadDeals() {
       let brandDeals = [];
       let expireDate = '';
     
-      rows.forEach(row => {
+	    
+       rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -515,8 +516,8 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          if (row.ExpiryDate) {
-            expireDate = new Date(row.ExpiryDate);
+          if (row.expireDate) {
+            expireDate = new Date(row.expireDate);
           }
 
           if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
@@ -531,7 +532,7 @@ async function loadDeals() {
             grid,
             deals: brandDeals
           });
-        }
+        } 
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
@@ -564,7 +565,7 @@ async function loadDeals() {
           brandDeals.push({
             element: dealCard,
             percentOff,
-            expireDate: row.ExpiryDate
+            expireDate: row.expireDate
           });
         }
       });
@@ -598,6 +599,7 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Brand Now';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+        // brandData.section.classList.add('top-brand-highlight');
         brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
       }
       container.appendChild(brandData.section);
@@ -659,6 +661,5 @@ document.getElementById('popup').addEventListener('click', function (e) {
 
 loadDeals();
 </script>
-
 </body>
-</html>			 
+</html>
