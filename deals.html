@@ -12,7 +12,7 @@
 
     <meta charset="UTF-8">
      <title>See Today's Deals</title>
-     <style>
+       <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -205,10 +205,10 @@
   height: 100vh;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 10%,
-    rgba(0, 0, 0, 1) 20%,
-    rgba(0, 0, 0, 1) 30%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.8) 10%,
+    rgba(0, 0, 0, 0.7) 20%,
+    rgba(0, 0, 0, 0.6) 30%,
     rgba(0, 0, 0, 1) 40%,
     rgba(0, 0, 0, 1) 50%,
     rgba(0, 0, 0, 1) 60%,
@@ -341,6 +341,27 @@
   font-size: 16px;
   font-weight: bold;
 }
+
+.popup-back-arrow {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+  display: none;
+  z-index: 11;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.popup-back-arrow:hover {
+  color: black;
+}
+
 
   </style>
   
@@ -500,6 +521,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <span class="popup-close" onclick="closePopup()">×</span>
     <div style="position: relative;">
       <span class="popup-discount-badge" id="popupBadge"></span>
+      <button id="popupBack" class="popup-back-arrow">&#8592;</button>
       <img id="popupImg" src="" alt="Product">
     </div>
     <div class="popup-body">
@@ -522,8 +544,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div> 
 
 
-
-
 <script>
 const sheetUrls = [
   'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
@@ -537,13 +557,13 @@ const allBrandsData = [];
 const allDealsFlat = [];
 let currentPopupDeal = null;
 
-function openPopup({ image, name, original, discount, description, brandLogo, brandName }) {
+function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
   const savings = originalPrice - discountPrice;
 
-  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName }; // Track current deal
+  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
@@ -557,11 +577,23 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
 
+  const backArrow = document.getElementById('popupBack');
+  if (window.history.length > 1) {
+    backArrow.style.display = 'block';
+  } else {
+    backArrow.style.display = 'none';
+  }
+
+  if (!skipHistory) {
+    history.pushState({ popup: true, dealName: name }, '', '');
+  }
+
   document.getElementById('popup').style.display = 'flex';
 }
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
+  currentPopupDeal = null;
 }
 
 async function loadDeals() {
@@ -647,6 +679,7 @@ async function loadDeals() {
               <div class="discount">JMD $${row.DiscountPrice}</div>
             </div>
           `;
+
           const dealData = {
             image: row.ImageURL,
             name: row.ProductName,
@@ -665,18 +698,16 @@ async function loadDeals() {
             expireDate: row.expireDate
           });
 
-          allDealsFlat.push(dealData); // Add to global flat list
+          allDealsFlat.push(dealData);
         }
       });
     }
 
-    // Sort each brand's grid by top discounts
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
 
-    // Sort brands by highest discount and soonest expiration
     allBrandsData.forEach(brandData => {
       brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
       brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
@@ -755,15 +786,30 @@ document.getElementById('popup').addEventListener('click', function (e) {
   }
 });
 
-// 🔁 Popup image click: show random product, skip current
 document.getElementById('popupImg').addEventListener('click', () => {
   let next;
   do {
     const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
     next = allDealsFlat[randomIndex];
   } while (next.name === currentPopupDeal?.name);
-  openPopup(next);
+
+  openPopup(next); // pushState already handled in openPopup
 });
+
+document.getElementById('popupBack').addEventListener('click', () => {
+  window.history.back();
+});
+
+window.onpopstate = function (event) {
+  if (event.state?.popup && event.state.dealName) {
+    const deal = allDealsFlat.find(d => d.name === event.state.dealName);
+    if (deal) {
+      openPopup(deal, true); // skip history push
+    }
+  } else {
+    closePopup();
+  }
+};
 
 loadDeals();
 </script>
