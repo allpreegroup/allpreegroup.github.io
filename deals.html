@@ -538,7 +538,6 @@ function closePopup() {
   document.getElementById('popup').style.display = 'none';
 }
 
-
 async function loadDeals() {
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -556,8 +555,7 @@ async function loadDeals() {
       let brandDeals = [];
       let expireDate = '';
     
-	    
-       rows.forEach(row => {
+      rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -628,7 +626,9 @@ async function loadDeals() {
               name: row.ProductName,
               original: row.OriginalPrice,
               discount: row.DiscountPrice,
-              description: row.Description
+              description: row.Description,
+              brandLogo: currentLogo, // Pass the brand logo
+              brandName: currentBrand // Pass the brand name
             });
           });
 
@@ -667,9 +667,8 @@ async function loadDeals() {
       if (index === 0) {
         const badge = document.createElement('div');
         badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Brand Now';
+        badge.textContent = '🔥 Hottest Discount';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        // brandData.section.classList.add('top-brand-highlight');
         brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
       }
       container.appendChild(brandData.section);
@@ -731,5 +730,7 @@ document.getElementById('popup').addEventListener('click', function (e) {
 
 loadDeals();
 </script>
+
+			 
 </body>
 </html>
