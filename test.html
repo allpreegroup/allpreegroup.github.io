@@ -12,7 +12,284 @@
 
 
      <title>See Today's Deals</title>
-     <style>
+
+
+<style>
+  /* Base Styles */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    margin-top: 20px;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* Countdown Timer */
+  .countdown {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  /* Brand Section */
+  .brand-section {
+    margin-bottom: 30px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+    background-color: #fff;
+    padding: 1px 1px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1px;
+    min-height: 7px;
+  }
+
+  .brand-logo-container {
+    height: 60px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Needed for badge positioning */
+  }
+
+  .brand-logo-container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .brand img {
+    width: 100px;
+    height: 100px;
+    margin-left: 8px;
+    border-radius: 1px;
+    object-fit: contain;
+  }
+
+  .brand-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 67px;
+  }
+
+  .brand-timer {
+    font-size: 14px;
+    margin-left: 67px;
+  }
+
+  /* Deal Cards */
+  .deal {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex: 0 0 auto;
+    margin-left: -20px;
+    margin-right: -20px;
+    width: 100%;
+    scroll-snap-align: start;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .deal-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, 1fr);
+    grid-auto-columns: 54.2%;
+    margin-left: -5px;
+    margin-right: -5px;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 10px 20px;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .deal-grid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
+  .deal img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .deal-content {
+    padding: 10px;
+  }
+
+  .deal-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .price {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 14px;
+  }
+
+  .discount {
+    color: #e60000;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: red;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+
+  /* Popup Styles */
+  .popup-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .popup-content {
+    background: white;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .popup-content img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    padding: 10px;
+    background: #f9f9f9;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .popup-body {
+    padding: 20px;
+  }
+
+  .popup-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .popup-price {
+    font-size: 14px;
+    text-decoration: line-through;
+    color: #888;
+  }
+
+  .popup-discount {
+    font-size: 18px;
+    color: #e60000;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .popup-discount-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: red;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    z-index: 10;
+  }
+
+  .popup-description {
+    font-size: 14px;
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* Highlight & Badges */
+  .top-brand-highlight {
+    border: 3px solid gold;
+    border-radius: 12px;
+    animation: glowPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 10px gold;
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+
+  .top-deal-badge {
+    background-color: gold;
+    color: #000;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 20px;
+    position: absolute;
+    top: -10px;
+    right: -225px;
+    font-size: 12px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes glowPulse {
+    0% {
+      box-shadow: 0 0 10px gold;
+    }
+    50% {
+      box-shadow: 0 0 20px orange;
+    }
+    100% {
+      box-shadow: 0 0 10px gold;
+    }
+  }
+</style>
+
+
+
+
+
+	
+	<!-- <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -269,7 +546,7 @@
       cursor: pointer;
       font-weight: bold;
     }
-  </style>
+  </style> -->
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
 <script>
