@@ -197,8 +197,8 @@
     }
 
     /* Popup Styles */
-    /* Popup Styles */
-.popup-overlay {
+      /* Popup Styles */
+     .popup-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
@@ -220,19 +220,24 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
+
+	     /* Ensure column layout */
+      display: none;
+      flex-direction: column;
+      gap: 20px; /* Optional: Add space between the content and brand box */
 }
 
-.popup-content {
-  background: white;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
 
-.popup-content img {
+    .popup-content {
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .popup-content img {
   width: 100%;
   max-height: 250px;
   object-fit: contain;
@@ -242,31 +247,26 @@
   border-top-right-radius: 10px;
   position: relative;
 }
-
-.popup-body {
-  padding: 20px;
-}
-
-.popup-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.popup-price {
-  font-size: 14px;
-  text-decoration: line-through;
-  color: #888;
-}
-
-.popup-discount {
-  font-size: 18px;
-  color: #e60000;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.popup-discount-badge {
+    .popup-body {
+      padding: 20px;
+    }
+    .popup-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-price {
+      font-size: 14px;
+      text-decoration: line-through;
+      color: #888;
+    }
+    .popup-discount {
+      font-size: 18px;
+      color: #e60000;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-discount-badge {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -278,21 +278,50 @@
   border-radius: 4px;
   z-index: 10;
 }
+    .popup-description {
+      font-size: 14px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      color: #333;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-.popup-description {
-  font-size: 14px;
+.popup-brand-box {
+  margin: 20px;
+  padding: 15px;
+  border-top: 1px solid #eee;
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.popup-close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 28px;
-  color: #333;
-  cursor: pointer;
+.popup-brand-box .brand-logo-container {
+  height: 50px;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-brand-box .brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.popup-brand-box .brand-name {
+  font-size: 16px;
   font-weight: bold;
 }
-
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -445,22 +474,31 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			
   <div id="deals-container">Loading deals...</div>
 
-  <!-- Popup Overlay -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup-content" id="popupContent">
-      <span class="popup-close" onclick="closePopup()">×</span>
-     <div style="position: relative;">
-  <span class="popup-discount-badge" id="popupBadge"></span>
-  <img id="popupImg" src="" alt="Product">
-</div>
-      <div class="popup-body">
-        <div class="popup-title" id="popupTitle"></div>
-        <div class="popup-price" id="popupPrice"></div>
-        <div class="popup-discount" id="popupDiscount"></div>
-        <div class="popup-description" id="popupDesc"></div>
-      </div>
+ <!-- Popup Overlay -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <div style="position: relative;">
+      <span class="popup-discount-badge" id="popupBadge"></span>
+      <img id="popupImg" src="" alt="Product">
     </div>
+    <div class="popup-body">
+      <div class="popup-title" id="popupTitle"></div>
+      <div class="popup-price" id="popupPrice"></div>
+      <div class="popup-discount" id="popupDiscount"></div>
+      <div class="popup-description" id="popupDesc"></div>
+    </div>	  
+  </div> 
+
+ <!-- Brand Box Wrapper -->
+<div class="popup-brand-box" id="brandContainer">
+  <div class="brand-logo-container">
+    <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
   </div>
+  <div id="brandName" class="brand-name"></div>
+</div>
+	
+</div> 
 
 
 
@@ -476,23 +514,30 @@ const sheetUrls = [
 
 const allBrandsData = [];
 
-function openPopup({ image, name, original, discount, description }) {
+function openPopup({ image, name, original, discount, description, brandLogo, brandName }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
-  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+
+  // Set brand logo and name under the popup
+  document.getElementById('brandLogo').src = brandLogo;
+  document.getElementById('brandLogo').alt = brandName;
+  document.getElementById('brandName').textContent = brandName;
+
   document.getElementById('popup').style.display = 'flex';
 }
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
 }
+
 
 async function loadDeals() {
   const container = document.getElementById('deals-container');
