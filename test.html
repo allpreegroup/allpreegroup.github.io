@@ -421,22 +421,22 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			
   <div id="deals-container">Loading deals...</div>
 
-  <!-- Popup Overlay -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup-content" id="popupContent">
-      <span class="popup-close" onclick="closePopup()">×</span>
-     <div style="position: relative;">
-  <span class="popup-discount-badge" id="popupBadge"></span>
-  <img id="popupImg" src="" alt="Product">
-</div>
-      <div class="popup-body">
-        <div class="popup-title" id="popupTitle"></div>
-        <div class="popup-price" id="popupPrice"></div>
-        <div class="popup-discount" id="popupDiscount"></div>
-        <div class="popup-description" id="popupDesc"></div>
-      </div>
+<!-- Popup Overlay -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <div style="position: relative;">
+      <span class="popup-discount-badge" id="popupBadge"></span>
+      <img id="popupImg" src="" alt="Product">
+    </div>
+    <div class="popup-body">
+      <div class="popup-title" id="popupTitle"></div>
+      <div class="popup-price" id="popupPrice"></div>
+      <div class="popup-discount" id="popupDiscount"></div>
+      <div class="popup-description" id="popupDesc"></div>
     </div>
   </div>
+</div>
 
 <script>
 const sheetUrls = [
@@ -513,9 +513,15 @@ async function loadDeals() {
           container.appendChild(brandSection);
 
           // fix: handle expiration here safely
-          const brandExpireDate = row.expireDate ? new Date(row.expireDate) : null;
+          const brandExpireDate = row.ExpiryDate ? new Date(row.ExpiryDate) : null;
           if (brandExpireDate && !isNaN(brandExpireDate)) {
             startBrandCountdown(brandExpireDate, timerId);
+          } else {
+            const el = document.getElementById(timerId);
+            if (el) {
+              el.textContent = 'No Expiry';
+              el.style.color = 'gray';
+            }
           }
 
           allBrandsData.push({
@@ -560,7 +566,7 @@ async function loadDeals() {
             brandDeals.push({
               element: dealCard,
               percentOff,
-              expireDate: row.expireDate
+              expireDate: row.ExpiryDate
             });
           }
         }
@@ -615,6 +621,11 @@ async function loadDeals() {
 }
 
 function startBrandCountdown(expireDate, elementId) {
+  // Ensure expireDate is properly parsed as a Date object
+  if (typeof expireDate === 'string') {
+    expireDate = new Date(expireDate);
+  }
+
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -641,7 +652,7 @@ function startBrandCountdown(expireDate, elementId) {
     parts.push(`${seconds}s`);
 
     el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
-    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
+    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';  // Change color to red when less than an hour
   }
 
   update();
