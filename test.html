@@ -788,8 +788,12 @@ document.getElementById('popupImg').addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
     next = allDealsFlat[randomIndex];
   } while (next.name === currentPopupDeal?.name);
+  
+  // Push new history state BEFORE opening the new popup
+  history.pushState({ popup: true, dealName: next.name }, '', '');
   openPopup(next);
 });
+
 
 document.getElementById('popupBack').addEventListener('click', () => {
   window.history.back();
