@@ -577,6 +577,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
 
+  // Show/hide back arrow based on history
   const backArrow = document.getElementById('popupBack');
   if (window.history.length > 1) {
     backArrow.style.display = 'block';
@@ -584,6 +585,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
     backArrow.style.display = 'none';
   }
 
+  history.pushState({ popup: true, dealName: name }, '', '');
   document.getElementById('popup').style.display = 'flex';
 }
 
@@ -684,10 +686,7 @@ async function loadDeals() {
             brandName: currentBrand
           };
 
-          dealCard.addEventListener('click', () => {
-            history.pushState({ product: dealData.name }, '', `#${dealData.name.replace(/\s+/g, '-')}`);
-            openPopup(dealData);
-          });
+          dealCard.addEventListener('click', () => openPopup(dealData));
 
           brandDeals.push({
             element: dealCard,
@@ -789,21 +788,20 @@ document.getElementById('popupImg').addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
     next = allDealsFlat[randomIndex];
   } while (next.name === currentPopupDeal?.name);
-  history.pushState({ product: next.name }, '', `#${next.name.replace(/\s+/g, '-')}`);
   openPopup(next);
 });
 
 document.getElementById('popupBack').addEventListener('click', () => {
-  if (window.history.length > 1) {
-    window.history.back();
+  window.history.back();
+});
+
+window.onpopstate = function (event) {
+  if (event.state?.popup && currentPopupDeal) {
+    openPopup(currentPopupDeal);
   } else {
     closePopup();
   }
-});
-
-window.addEventListener('popstate', () => {
-  closePopup();
-});
+};
 
 loadDeals();
 </script>
