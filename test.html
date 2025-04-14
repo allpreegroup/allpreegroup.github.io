@@ -438,9 +438,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     </div>
   </div>
 
-
-
-
 <script>
 const sheetUrls = [
   'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
@@ -484,13 +481,12 @@ async function loadDeals() {
       let brandSection = null;
       let grid = null;
       let brandDeals = [];
-      let expireDate = '';
-    
-	    
-       rows.forEach(row => {
+
+      rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
+          brandDeals = []; // reset deals for this brand
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -516,23 +512,21 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          if (row.expireDate) {
-            expireDate = new Date(row.expireDate);
-          }
-
-          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-            startBrandCountdown(expireDate, timerId);
+          // fix: handle expiration here safely
+          const brandExpireDate = row.expireDate ? new Date(row.expireDate) : null;
+          if (brandExpireDate && !isNaN(brandExpireDate)) {
+            startBrandCountdown(brandExpireDate, timerId);
           }
 
           allBrandsData.push({
             brand: currentBrand,
             logo: currentLogo,
-            expireDate,
+            expireDate: brandExpireDate,
             section: brandSection,
             grid,
             deals: brandDeals
           });
-        } 
+        }
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
@@ -562,11 +556,13 @@ async function loadDeals() {
             });
           });
 
-          brandDeals.push({
-            element: dealCard,
-            percentOff,
-            expireDate: row.expireDate
-          });
+          if (brandDeals) {
+            brandDeals.push({
+              element: dealCard,
+              percentOff,
+              expireDate: row.expireDate
+            });
+          }
         }
       });
     }
@@ -599,8 +595,7 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Brand Now';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        // brandData.section.classList.add('top-brand-highlight');
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
+        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
       }
       container.appendChild(brandData.section);
     });
@@ -619,13 +614,13 @@ async function loadDeals() {
   }
 }
 
-function startBrandCountdown(ExpireDate, elementId) {
+function startBrandCountdown(expireDate, elementId) {
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
 
     const now = new Date();
-    const diff = ExpireDate - now;
+    const diff = expireDate - now;
 
     if (diff <= 0) {
       el.textContent = ' - Deal Ended';
@@ -661,5 +656,9 @@ document.getElementById('popup').addEventListener('click', function (e) {
 
 loadDeals();
 </script>
+
+
+
+
 </body>
 </html>
