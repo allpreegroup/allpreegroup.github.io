@@ -484,7 +484,7 @@ async function loadDeals() {
       let brandSection = null;
       let grid = null;
       let brandDeals = [];
-      let expireDate = null;
+      let expireDate = '';
     
 	    
        rows.forEach(row => {
@@ -516,8 +516,8 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          if (row.ExpireDate) {
-            expireDate = new Date(row.ExpireDate);
+          if (row.expireDate) {
+            expireDate = new Date(row.expireDate);
           }
 
           if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
@@ -565,7 +565,7 @@ async function loadDeals() {
           brandDeals.push({
             element: dealCard,
             percentOff,
-            expireDate: row.ExpireDate
+            expireDate: row.expireDate
           });
         }
       });
@@ -599,7 +599,7 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Brand Now';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.classList.add('top-brand-highlight');
+        // brandData.section.classList.add('top-brand-highlight');
         brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
       }
       container.appendChild(brandData.section);
