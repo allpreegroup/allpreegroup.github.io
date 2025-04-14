@@ -534,13 +534,16 @@ const sheetUrls = [
 ];
 
 const allBrandsData = [];
+const allDealsFlat = [];
+let currentPopupDeal = null;
 
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
   const savings = originalPrice - discountPrice;
-  const formattedSavings = savings.toLocaleString();
+
+  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName }; // Track current deal
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
@@ -548,9 +551,8 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`; // Added savings below discount badge
+  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
 
-  // Set brand logo and name under the popup
   document.getElementById('brandLogo').src = brandLogo;
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
@@ -566,6 +568,7 @@ async function loadDeals() {
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
   allBrandsData.length = 0;
+  allDealsFlat.length = 0;
 
   try {
     for (let sheetUrl of sheetUrls) {
@@ -578,7 +581,7 @@ async function loadDeals() {
       let grid = null;
       let brandDeals = [];
       let expireDate = '';
-    
+
       rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
@@ -624,7 +627,7 @@ async function loadDeals() {
             grid,
             deals: brandDeals
           });
-        } 
+        }
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
@@ -644,23 +647,25 @@ async function loadDeals() {
               <div class="discount">JMD $${row.DiscountPrice}</div>
             </div>
           `;
-          dealCard.addEventListener('click', () => {
-            openPopup({
-              image: row.ImageURL,
-              name: row.ProductName,
-              original: row.OriginalPrice,
-              discount: row.DiscountPrice,
-              description: row.Description,
-              brandLogo: currentLogo, // Pass the brand logo
-              brandName: currentBrand // Pass the brand name
-            });
-          });
+          const dealData = {
+            image: row.ImageURL,
+            name: row.ProductName,
+            original: row.OriginalPrice,
+            discount: row.DiscountPrice,
+            description: row.Description,
+            brandLogo: currentLogo,
+            brandName: currentBrand
+          };
+
+          dealCard.addEventListener('click', () => openPopup(dealData));
 
           brandDeals.push({
             element: dealCard,
             percentOff,
             expireDate: row.expireDate
           });
+
+          allDealsFlat.push(dealData); // Add to global flat list
         }
       });
     }
@@ -684,7 +689,6 @@ async function loadDeals() {
       return a.timeRemaining - b.timeRemaining;
     });
 
-    // Clear and re-render sorted
     container.innerHTML = '';
 
     allBrandsData.forEach((brandData, index) => {
@@ -693,12 +697,11 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Discount';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
+        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
       }
       container.appendChild(brandData.section);
     });
 
-    // Scroll to top brand
     setTimeout(() => {
       const topBrand = allBrandsData[0];
       if (topBrand?.section) {
@@ -752,8 +755,19 @@ document.getElementById('popup').addEventListener('click', function (e) {
   }
 });
 
+// 🔁 Popup image click: show random product, skip current
+document.getElementById('popupImg').addEventListener('click', () => {
+  let next;
+  do {
+    const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+    next = allDealsFlat[randomIndex];
+  } while (next.name === currentPopupDeal?.name);
+  openPopup(next);
+});
+
 loadDeals();
 </script>
+
 
 			 
 </body>
