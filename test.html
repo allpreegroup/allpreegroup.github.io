@@ -444,7 +444,7 @@ const sheetUrls = [
   'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
   'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
   'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
-]; 
+];
 
 const allBrandsData = [];
 
@@ -481,12 +481,12 @@ async function loadDeals() {
       let brandSection = null;
       let grid = null;
       let brandDeals = [];
-
+      let expireDate = '';
+    
       rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
-          brandDeals = []; // reset deals for this brand
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -501,7 +501,7 @@ async function loadDeals() {
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}"></span>
+              <span class="brand-timer" id="${timerId}">Loading...</span>
             </div>
           `;
 
@@ -512,27 +512,23 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          // fix: handle expiration here safely
-          const brandExpireDate = row.ExpiryDate ? new Date(row.ExpiryDate) : null;
-          if (brandExpireDate && !isNaN(brandExpireDate)) {
-            startBrandCountdown(brandExpireDate, timerId);
-          } else {
-            const el = document.getElementById(timerId);
-            if (el) {
-              el.textContent = 'No Expiry';
-              el.style.color = 'gray';
-            }
+          if (row.expireDate) {
+            expireDate = new Date(row.expireDate);
+          }
+
+          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
+            startBrandCountdown(expireDate, timerId);  // Timer function
           }
 
           allBrandsData.push({
             brand: currentBrand,
             logo: currentLogo,
-            expireDate: brandExpireDate,
+            expireDate,
             section: brandSection,
             grid,
             deals: brandDeals
           });
-        }
+        } 
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
@@ -562,13 +558,11 @@ async function loadDeals() {
             });
           });
 
-          if (brandDeals) {
-            brandDeals.push({
-              element: dealCard,
-              percentOff,
-              expireDate: row.ExpiryDate
-            });
-          }
+          brandDeals.push({
+            element: dealCard,
+            percentOff,
+            expireDate: row.expireDate
+          });
         }
       });
     }
@@ -601,7 +595,8 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Brand Now';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+        // brandData.section.classList.add('top-brand-highlight');
+        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
       }
       container.appendChild(brandData.section);
     });
@@ -621,11 +616,8 @@ async function loadDeals() {
 }
 
 function startBrandCountdown(expireDate, elementId) {
-  // Ensure expireDate is properly parsed as a Date object
-  if (typeof expireDate === 'string') {
-    expireDate = new Date(expireDate);
-  }
-
+  console.log('Starting countdown for:', expireDate); // Debugging log
+  
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -652,7 +644,7 @@ function startBrandCountdown(expireDate, elementId) {
     parts.push(`${seconds}s`);
 
     el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
-    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';  // Change color to red when less than an hour
+    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
   }
 
   update();
@@ -667,6 +659,7 @@ document.getElementById('popup').addEventListener('click', function (e) {
 
 loadDeals();
 </script>
+
 
 
 
