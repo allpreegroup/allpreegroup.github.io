@@ -421,24 +421,30 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			
   <div id="deals-container">Loading deals...</div>
 
-  <!-- Popup Overlay -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup-content" id="popupContent">
-      <span class="popup-close" onclick="closePopup()">×</span>
-     <div style="position: relative;">
-  <span class="popup-discount-badge" id="popupBadge"></span>
-  <img id="popupImg" src="" alt="Product">
-</div>
-      <div class="popup-body">
-        <div class="popup-title" id="popupTitle"></div>
-        <div class="popup-price" id="popupPrice"></div>
-        <div class="popup-discount" id="popupDiscount"></div>
-        <div class="popup-description" id="popupDesc"></div>
+ <!-- Popup Overlay -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <div style="position: relative;">
+      <span class="popup-discount-badge" id="popupBadge"></span>
+      <img id="popupImg" src="" alt="Product">
+    </div>
+    <div class="popup-body">
+      <div class="popup-title" id="popupTitle"></div>
+      <div class="popup-price" id="popupPrice"></div>
+      <div class="popup-discount" id="popupDiscount"></div>
+      <div class="popup-description" id="popupDesc"></div>
+    </div>
+
+    <!-- Brand Logo and Name Section -->
+    <div class="brand-container" id="brandContainer">
+      <div class="brand-logo-container">
+        <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
       </div>
+      <div id="brandName" class="brand-name"></div>
     </div>
   </div>
-
-
+</div>
 
 
 <script>
@@ -451,7 +457,7 @@ const sheetUrls = [
 
 const allBrandsData = [];
 
-function openPopup({ image, name, original, discount, description }) {
+function openPopup({ image, name, original, discount, description, brandLogo, brandName }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
@@ -462,6 +468,12 @@ function openPopup({ image, name, original, discount, description }) {
   document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+
+  // Set brand logo and name under the popup
+  document.getElementById('brandLogo').src = brandLogo;
+  document.getElementById('brandLogo').alt = brandName;
+  document.getElementById('brandName').textContent = brandName;
+
   document.getElementById('popup').style.display = 'flex';
 }
 
@@ -486,8 +498,7 @@ async function loadDeals() {
       let brandDeals = [];
       let expireDate = '';
     
-	    
-       rows.forEach(row => {
+      rows.forEach(row => {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -558,7 +569,9 @@ async function loadDeals() {
               name: row.ProductName,
               original: row.OriginalPrice,
               discount: row.DiscountPrice,
-              description: row.Description
+              description: row.Description,
+              brandLogo: currentLogo, // Pass the brand logo
+              brandName: currentBrand // Pass the brand name
             });
           });
 
@@ -599,7 +612,6 @@ async function loadDeals() {
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Brand Now';
         brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        // brandData.section.classList.add('top-brand-highlight');
         brandData.section.querySelector('.brand').classList.add('top-brand-highlight');   
       }
       container.appendChild(brandData.section);
@@ -661,5 +673,9 @@ document.getElementById('popup').addEventListener('click', function (e) {
 
 loadDeals();
 </script>
+
+
+
+
 </body>
 </html>
