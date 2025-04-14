@@ -554,6 +554,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
   const savings = originalPrice - discountPrice;
+  const formattedSavings = savings.toLocaleString();
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
@@ -561,7 +562,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-  document.getElementById('popupSavings').textContent = `$${savings.toFixed(2)} SAVINGS`; // Added savings below discount badge
+  document.getElementById('popupSavings').textContent = `${savings.toLocaleString()} SAVINGS`; // Added savings below discount badge
 
   // Set brand logo and name under the popup
   document.getElementById('brandLogo').src = brandLogo;
