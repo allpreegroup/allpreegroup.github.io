@@ -598,11 +598,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandName').textContent = brandName;
 	 
    // 👇 Add this to start the countdown in the brand box
-    if (expireDate) {
-    startBrandCountdown(expireDate, 'brandCountdown');
-  } else {
-    document.getElementById('brandCountdown').textContent = '';
-  }
+    if (expireDate && !isNaN(new Date(expireDate))) {
+  startBrandCountdown(expireDate, 'brandCountdown');
+} else {
+  document.getElementById('brandCountdown').textContent = '';
+}
 
     const backArrow = document.getElementById('popupBack');
     if (window.history.length > 1) {
