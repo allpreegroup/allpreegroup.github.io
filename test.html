@@ -577,13 +577,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   const allDealsFlat = [];
   let currentPopupDeal = null;
 
-  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName, expireDate }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
 
-    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName, expireDate };
 
     document.getElementById('popupImg').src = image;
     document.getElementById('popupTitle').textContent = name;
@@ -596,6 +596,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').src = brandLogo;
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
+	  
+    const brandCountdownEl = document.getElementById('brandCountdown');
+    if (expireDate && !isNaN(new Date(expireDate))) {
+     startBrandCountdown(expireDate, 'brandCountdown');
+    } else {
+     brandCountdownEl.textContent = '';
+     }
 	 
    
     const backArrow = document.getElementById('popupBack');
