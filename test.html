@@ -1,4 +1,374 @@
-<!DOCTYPE html>
+
+
+<style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .countdown {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .brand-section {
+      margin-bottom: 30px;
+    }
+    .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  padding: 1px 1px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1px;
+  min-height: 7px;
+}
+
+.brand-logo-container {
+  height: 60px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+    .brand img {
+      width: 100px;
+      height: 100px;
+      border-radius: 1px;
+      object-fit: contain;
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .brand-timer {
+  font-size: 14px;
+  margin-left: 8px;
+    }
+
+    .deal {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      flex: 0 0 auto;
+      width: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      cursor: pointer;
+    }
+    .deal-grid {
+      display: grid;
+      grid-auto-flow: column;
+       grid-template-rows: repeat(2, 1fr); /* 2 rows */
+      grid-auto-columns: 50%;
+      gap: 15px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 10px;
+      scrollbar-width: none; /* Firefox */
+    }
+    .deal-grid::-webkit-scrollbar {
+      display: none; /* Chrome, Safari */
+    }
+    .deal img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    .deal-content {
+      padding: 10px;
+    }
+    .deal-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .price {
+      color: #999;
+      text-decoration: line-through;
+      font-size: 14px;
+    }
+    .discount {
+      color: #e60000;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .discount-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 4px;
+    }
+
+    /* Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-content {
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .popup-content img {
+  width: 93.7%;
+  max-height: 250px;
+  object-fit: contain;
+  padding: 10px;
+  background: #f9f9f9;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  position: relative;
+}
+    .popup-body {
+      padding: 20px;
+    }
+    .popup-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-price {
+      font-size: 14px;
+      text-decoration: line-through;
+      color: #888;
+    }
+    .popup-discount {
+      font-size: 18px;
+      color: #e60000;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .popup-discount-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  z-index: 10;
+}
+    .popup-description {
+      font-size: 14px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      color: #333;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body><br>
+  <center> <h2>Today’s Deals</h2> </center>
+
+  <div id="deals-container">Loading deals...</div>
+
+  <!-- Popup Overlay -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content" id="popupContent">
+      <span class="popup-close" onclick="closePopup()">×</span>
+     <div style="position: relative;">
+  <span class="popup-discount-badge" id="popupBadge"></span>
+  <img id="popupImg" src="" alt="Product">
+</div>
+      <div class="popup-body">
+        <div class="popup-title" id="popupTitle"></div>
+        <div class="popup-price" id="popupPrice"></div>
+        <div class="popup-discount" id="popupDiscount"></div>
+        <div class="popup-description" id="popupDesc"></div>
+      </div>
+    </div>
+  </div>
+
+	<script>
+// ... original code above remains unchanged
+
+const sheetUrls = [
+  'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
+  'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
+  'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
+];
+
+const allBrandsData = [];
+
+async function loadDeals() {
+  const container = document.getElementById('deals-container');
+  container.innerHTML = '';
+  allBrandsData.length = 0;
+
+  try {
+    for (let sheetUrl of sheetUrls) {
+      const res = await fetch(sheetUrl);
+      const rows = await res.json();
+
+      let currentBrand = '';
+      let currentLogo = '';
+      let brandSection = null;
+      let grid = null;
+      let brandDeals = [];
+      let expireDate = null;
+
+      rows.forEach(row => {
+        if (row.BrandName && row.BrandLogo) {
+          currentBrand = row.BrandName;
+          currentLogo = row.BrandLogo;
+          expireDate = row.ExpireDate;
+
+          brandSection = document.createElement('div');
+          brandSection.className = 'brand-section';
+
+          const brandDiv = document.createElement('div');
+          brandDiv.className = 'brand';
+
+          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+          brandDiv.innerHTML = `
+            <div class="brand-logo-container">
+              <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <div>
+              <span class="brand-name">${currentBrand}</span><br>
+              <span class="brand-timer" id="${timerId}"></span>
+            </div>
+          `;
+
+          if (expireDate) {
+            startBrandCountdown(expireDate, timerId);
+          }
+
+          grid = document.createElement('div');
+          grid.className = 'deal-grid';
+
+          brandSection.appendChild(brandDiv);
+          brandSection.appendChild(grid);
+          container.appendChild(brandSection);
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
+        }
+
+        if (row.ProductName && row.ImageURL) {
+          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+          const dealCard = document.createElement('div');
+          dealCard.className = 'deal';
+          dealCard.innerHTML = `
+            <span class="discount-badge">${percentOff}% OFF</span>
+            <img src="${row.ImageURL}" alt="${row.ProductName}">
+            <div class="deal-content">
+              <div class="deal-title">${shortName}</div>
+              <div class="price">JMD $${row.OriginalPrice}</div>
+              <div class="discount">JMD $${row.DiscountPrice}</div>
+            </div>
+          `;
+          dealCard.addEventListener('click', () => {
+            openPopup({
+              image: row.ImageURL,
+              name: row.ProductName,
+              original: row.OriginalPrice,
+              discount: row.DiscountPrice,
+              description: row.Description
+            });
+          });
+
+          brandDeals.push({
+            element: dealCard,
+            percentOff,
+            expireDate: row.ExpireDate
+          });
+        }
+      });
+    }
+
+    allBrandsData.forEach(brandData => {
+      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+      brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+    });
+  } catch (err) {
+    console.error('Failed to load deals:', err);
+    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+  }
+}
+
+function filterUrgentHighDiscountBrands() {
+  const container = document.getElementById('deals-container');
+  container.innerHTML = '';
+
+  const sorted = allBrandsData.slice().sort((a, b) => {
+    const timeA = new Date(a.expireDate) - new Date();
+    const timeB = new Date(b.expireDate) - new Date();
+    const bestDiscountA = Math.max(...a.deals.map(d => d.percentOff));
+    const bestDiscountB = Math.max(...b.deals.map(d => d.percentOff));
+
+    if (timeA < timeB) return -1;
+    if (timeA > timeB) return 1;
+    return bestDiscountB - bestDiscountA;
+  });
+
+  sorted.forEach(data => {
+    container.appendChild(data.section);
+  });
+}
+</script>
+
+<!-- Somewhere in your HTML to test the filter: -->
+<button onclick="filterUrgentHighDiscountBrands()">🔥 Urgent + High Discount</button>
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="en">
     <html lang="en">
 <head>
