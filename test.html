@@ -545,274 +545,275 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 
 <script>
-const sheetUrls = [
-  'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
-  'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals',
-  'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
-  'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
-  'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
-];
+  const sheetUrls = [
+    'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
+    'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals',
+    'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
+    'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
+    'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
+  ];
 
-const allBrandsData = [];
-const allDealsFlat = [];
-let currentPopupDeal = null;
+  const allBrandsData = [];
+  const allDealsFlat = [];
+  let currentPopupDeal = null;
 
-function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
-  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
-  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
-  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
-  const savings = originalPrice - discountPrice;
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+    const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+    const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+    const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+    const savings = originalPrice - discountPrice;
 
-  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-  document.getElementById('popupImg').src = image;
-  document.getElementById('popupTitle').textContent = name;
-  document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
-  document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
-  document.getElementById('popupDesc').textContent = description || '';
-  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+    document.getElementById('popupImg').src = image;
+    document.getElementById('popupTitle').textContent = name;
+    document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+    document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+    document.getElementById('popupDesc').textContent = description || '';
+    document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+    document.getElementById('popupSavings').textContent = `SAVINGS JMD $${savings.toLocaleString()}`;
 
-  document.getElementById('brandLogo').src = brandLogo;
-  document.getElementById('brandLogo').alt = brandName;
-  document.getElementById('brandName').textContent = brandName;
+    document.getElementById('brandLogo').src = brandLogo;
+    document.getElementById('brandLogo').alt = brandName;
+    document.getElementById('brandName').textContent = brandName;
 
-  const backArrow = document.getElementById('popupBack');
-  if (window.history.length > 1) {
-    backArrow.style.display = 'block';
-  } else {
-    backArrow.style.display = 'none';
-  }
-
-  if (!skipHistory) {
-    history.pushState({ popup: true, dealName: name }, '', '');
-  }
-
-  document.getElementById('popup').style.display = 'flex';
-}
-
-function closePopup() {
-  document.getElementById('popup').style.display = 'none';
-  currentPopupDeal = null;
-}
-
-async function loadDeals() {
-  const container = document.getElementById('deals-container');
-  container.innerHTML = '';
-  allBrandsData.length = 0;
-  allDealsFlat.length = 0;
-
-  try {
-    for (let sheetUrl of sheetUrls) {
-      const res = await fetch(sheetUrl);
-      const rows = await res.json();
-
-      let currentBrand = '';
-      let currentLogo = '';
-      let brandSection = null;
-      let grid = null;
-      let brandDeals = [];
-      let expireDate = '';
-
-      rows.forEach(row => {
-        if (row.BrandName && row.BrandLogo) {
-          currentBrand = row.BrandName;
-          currentLogo = row.BrandLogo;
-
-          brandSection = document.createElement('div');
-          brandSection.className = 'brand-section';
-
-          const brandDiv = document.createElement('div');
-          brandDiv.className = 'brand';
-          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-          brandDiv.innerHTML = `
-            <div class="brand-logo-container">
-              <img src="${currentLogo}" alt="${currentBrand}" />
-            </div>
-            <div>
-              <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
-            </div>
-          `;
-
-          brandSection.appendChild(brandDiv);
-
-          grid = document.createElement('div');
-          grid.className = 'deal-grid';
-          brandSection.appendChild(grid);
-          container.appendChild(brandSection);
-
-          if (row.expireDate) {
-            expireDate = new Date(row.expireDate);
-          }
-
-          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-            startBrandCountdown(expireDate, timerId);
-          }
-
-          allBrandsData.push({
-            brand: currentBrand,
-            logo: currentLogo,
-            expireDate,
-            section: brandSection,
-            grid,
-            deals: brandDeals
-          });
-        }
-
-        if (row.ProductName && row.ImageURL) {
-          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
-
-          const dealCard = document.createElement('div');
-          dealCard.className = 'deal';
-          dealCard.innerHTML = `
-            <span class="discount-badge">${percentOff}% OFF</span>
-            <img src="${row.ImageURL}" alt="${row.ProductName}">
-            <div class="deal-content">
-              <div class="deal-title">${shortName}</div>
-              <div class="price">JMD $${row.OriginalPrice}</div>
-              <div class="discount">JMD $${row.DiscountPrice}</div>
-            </div>
-          `;
-
-          const dealData = {
-            image: row.ImageURL,
-            name: row.ProductName,
-            original: row.OriginalPrice,
-            discount: row.DiscountPrice,
-            description: row.Description,
-            brandLogo: currentLogo,
-            brandName: currentBrand
-          };
-
-          dealCard.addEventListener('click', () => openPopup(dealData));
-
-          brandDeals.push({
-            element: dealCard,
-            percentOff,
-            expireDate: row.expireDate
-          });
-
-          allDealsFlat.push(dealData);
-        }
-      });
+    const backArrow = document.getElementById('popupBack');
+    if (window.history.length > 1) {
+      backArrow.style.display = 'block';
+    } else {
+      backArrow.style.display = 'none';
     }
 
-    allBrandsData.forEach(brandData => {
-      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-      brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-    });
+    if (!skipHistory) {
+      history.pushState({ popup: true, dealName: name }, '', '');
+    }
 
-    allBrandsData.forEach(brandData => {
-      brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-      brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
-    });
+    document.getElementById('popup').style.display = 'flex';
+  }
 
-    allBrandsData.sort((a, b) => {
-      if (b.bestDiscount !== a.bestDiscount) {
-        return b.bestDiscount - a.bestDiscount;
-      }
-      return a.timeRemaining - b.timeRemaining;
-    });
+  function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    currentPopupDeal = null;
+  }
 
+  async function loadDeals() {
+    const container = document.getElementById('deals-container');
     container.innerHTML = '';
+    allBrandsData.length = 0;
+    allDealsFlat.length = 0;
 
-    allBrandsData.forEach((brandData, index) => {
-      if (index === 0) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Discount';
-        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+    try {
+      for (let sheetUrl of sheetUrls) {
+        const res = await fetch(sheetUrl);
+        const rows = await res.json();
+
+        let currentBrand = '';
+        let currentLogo = '';
+        let brandSection = null;
+        let grid = null;
+        let brandDeals = [];
+        let expireDate = '';
+
+        rows.forEach(row => {
+          if (row.BrandName && row.BrandLogo) {
+            currentBrand = row.BrandName;
+            currentLogo = row.BrandLogo;
+
+            brandSection = document.createElement('div');
+            brandSection.className = 'brand-section';
+
+            const brandDiv = document.createElement('div');
+            brandDiv.className = 'brand';
+            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+            brandDiv.innerHTML = `
+              <div class="brand-logo-container">
+                <img src="${currentLogo}" alt="${currentBrand}" />
+              </div>
+              <div>
+                <span class="brand-name">${currentBrand}</span><br>
+                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+              </div>
+            `;
+
+            brandSection.appendChild(brandDiv);
+
+            grid = document.createElement('div');
+            grid.className = 'deal-grid';
+            brandSection.appendChild(grid);
+            container.appendChild(brandSection);
+
+            if (row.expireDate) {
+              expireDate = new Date(row.expireDate);
+            }
+
+            if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
+              startBrandCountdown(expireDate, timerId);
+            }
+
+            allBrandsData.push({
+              brand: currentBrand,
+              logo: currentLogo,
+              expireDate,
+              section: brandSection,
+              grid,
+              deals: brandDeals
+            });
+          }
+
+          if (row.ProductName && row.ImageURL) {
+            const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+            const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+            const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+            const dealCard = document.createElement('div');
+            dealCard.className = 'deal';
+            dealCard.innerHTML = `
+              <span class="discount-badge">${percentOff}% OFF</span>
+              <img src="${row.ImageURL}" alt="${row.ProductName}">
+              <div class="deal-content">
+                <div class="deal-title">${shortName}</div>
+                <div class="price">JMD $${row.OriginalPrice}</div>
+                <div class="discount">JMD $${row.DiscountPrice}</div>
+              </div>
+            `;
+
+            const dealData = {
+              image: row.ImageURL,
+              name: row.ProductName,
+              original: row.OriginalPrice,
+              discount: row.DiscountPrice,
+              description: row.Description,
+              brandLogo: currentLogo,
+              brandName: currentBrand
+            };
+
+            dealCard.addEventListener('click', () => openPopup(dealData));
+
+            brandDeals.push({
+              element: dealCard,
+              percentOff,
+              expireDate: row.expireDate
+            });
+
+            allDealsFlat.push(dealData);
+          }
+        });
       }
-      container.appendChild(brandData.section);
-    });
 
-    setTimeout(() => {
-      const topBrand = allBrandsData[0];
-      if (topBrand?.section) {
-        topBrand.section.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+      allBrandsData.forEach(brandData => {
+        brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+        brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+      });
 
-  } catch (err) {
-    console.error('Failed to load deals:', err);
-    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+      allBrandsData.forEach(brandData => {
+        brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+        brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+      });
+
+      allBrandsData.sort((a, b) => {
+        if (b.bestDiscount !== a.bestDiscount) {
+          return b.bestDiscount - a.bestDiscount;
+        }
+        return a.timeRemaining - b.timeRemaining;
+      });
+
+      container.innerHTML = '';
+
+      allBrandsData.forEach((brandData, index) => {
+        if (index === 0) {
+          const badge = document.createElement('div');
+          badge.className = 'top-deal-badge';
+          badge.textContent = '🔥 Hottest Discount';
+          brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+          brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+        }
+        container.appendChild(brandData.section);
+      });
+
+      setTimeout(() => {
+        const topBrand = allBrandsData[0];
+        if (topBrand?.section) {
+          topBrand.section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+
+    } catch (err) {
+      console.error('Failed to load deals:', err);
+      container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+    }
   }
-}
 
-function startBrandCountdown(expireDate, elementId) {
-  function update() {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  function startBrandCountdown(expireDate, elementId) {
+    function update() {
+      const el = document.getElementById(elementId);
+      if (!el) return;
 
-    const now = new Date();
-    const diff = expireDate - now;
+      const now = new Date();
+      const diff = expireDate - now;
 
-    if (diff <= 0) {
-      el.textContent = ' - Deal Ended';
-      el.style.color = 'gray';
-      clearInterval(timer);
-      return;
+      if (diff <= 0) {
+        el.textContent = ' - Deal Ended';
+        el.style.color = 'gray';
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
+
+      el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
+      el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    const parts = [];
-    if (days > 0) parts.push(`${days}d`);
-    if (hours > 0 || days > 0) parts.push(`${hours}h`);
-    parts.push(`${minutes}m`);
-    parts.push(`${seconds}s`);
-
-    el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
-    el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
+    update();
+    const timer = setInterval(update, 1000);
   }
 
-  update();
-  const timer = setInterval(update, 1000);
-}
-
-document.getElementById('popup').addEventListener('click', function (e) {
-  if (e.target === this) {
-    closePopup();
-  }
-});
-
-document.getElementById('popupImg').addEventListener('click', () => {
-  let next;
-  do {
-    const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-    next = allDealsFlat[randomIndex];
-  } while (next.name === currentPopupDeal?.name);
-
-  openPopup(next); // pushState already handled in openPopup
-});
-
-document.getElementById('popupBack').addEventListener('click', () => {
-  window.history.back();
-});
-
-window.onpopstate = function (event) {
-  if (event.state?.popup && event.state.dealName) {
-    const deal = allDealsFlat.find(d => d.name === event.state.dealName);
-    if (deal) {
-      openPopup(deal, true); // skip history push
+  document.getElementById('popup').addEventListener('click', function (e) {
+    if (e.target === this) {
+      closePopup();
     }
-  } else {
-    closePopup();
-  }
-};
+  });
 
-loadDeals();
+  document.getElementById('popupImg').addEventListener('click', () => {
+    let next;
+    do {
+      const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+      next = allDealsFlat[randomIndex];
+    } while (next.name === currentPopupDeal?.name);
+
+    openPopup(next); // pushState already handled in openPopup
+  });
+
+  document.getElementById('popupBack').addEventListener('click', () => {
+    window.history.back();
+  });
+
+  window.onpopstate = function (event) {
+    if (event.state?.popup && event.state.dealName) {
+      const deal = allDealsFlat.find(d => d.name === event.state.dealName);
+      if (deal) {
+        openPopup(deal, true); // skip history push
+      }
+    } else {
+      closePopup();
+    }
+  };
+
+  loadDeals();
 </script>
+
 
 			 
 </body>
