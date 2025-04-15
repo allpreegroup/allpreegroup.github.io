@@ -626,15 +626,19 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             brandDiv.className = 'brand';
             const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-            brandDiv.innerHTML = `
-              <div class="brand-logo-container">
-                <img src="${currentLogo}" alt="${currentBrand}" />
-              </div>
-              <div>
-                <span class="brand-name">${currentBrand}</span><br>
-                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
-              </div>
-            `;
+brandDiv.innerHTML = `
+  <div class="brand-logo-container">
+    <img src="${currentLogo}" alt="${currentBrand}" />
+  </div>
+  <span class="brand-name">${currentBrand}</span>
+  <span class="brand-timer" id="${timerId}"></span>
+`;
+
+const expireDateStr = row.ExpiryDate || row.expireDate;
+if (expireDateStr) {
+  startBrandCountdown(expireDateStr, timerId);
+}
+
 
             brandSection.appendChild(brandDiv);
 
@@ -747,38 +751,26 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   }
 
   function startBrandCountdown(expireDate, elementId) {
-    function update() {
-      const el = document.getElementById(elementId);
-      if (!el) return;
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
 
-      const now = new Date();
-      const diff = expireDate - now;
-
-      if (diff <= 0) {
-        el.textContent = ' - Deal Ended';
-        el.style.color = 'gray';
-        clearInterval(timer);
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      const parts = [];
-      if (days > 0) parts.push(`${days}d`);
-      if (hours > 0 || days > 0) parts.push(`${hours}h`);
-      parts.push(`${minutes}m`);
-      parts.push(`${seconds}s`);
-
-      el.textContent = `Deals - Ends in: ${parts.join(' ')}`;
-      el.style.color = (diff < 60 * 60 * 1000) ? 'red' : '#555';
+    const timeLeft = new Date(expireDate) - new Date();
+    if (timeLeft <= 0) {
+      el.textContent = ' - Deal ended';
+      clearInterval(timer);
+    } else {
+      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
     }
-
-    update();
-    const timer = setInterval(update, 1000);
   }
+
+  update();
+  const timer = setInterval(update, 1000);
+}
+
 
   document.getElementById('popup').addEventListener('click', function (e) {
     if (e.target === this) {
