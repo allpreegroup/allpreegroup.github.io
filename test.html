@@ -588,6 +588,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   const allBrandsData = [];
   const allDealsFlat = [];
   let currentPopupDeal = null;
+  let popupTimer = null;
 
   function openPopup({ image, name, original, discount, description, brandLogo, brandName, expireDate }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
@@ -608,21 +609,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').src = brandLogo;
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
-	  
-    const brandCountdownEl = document.getElementById('brandCountdown');
-    if (expireDate && !isNaN(new Date(expireDate))) {
-     startBrandCountdown(expireDate, 'brandCountdown');
-    } else {
-     brandCountdownEl.textContent = '';
-     }
-	 
-   
+
+    const popupCountdownEl = document.getElementById('brandCountdown');
+if (popupTimer) clearInterval(popupTimer);
+if (expireDate && !isNaN(new Date(expireDate))) {
+  popupTimer = startBrandCountdown(expireDate, 'brandCountdown');
+} else {
+  popupCountdownEl.textContent = '';
+}
+
     const backArrow = document.getElementById('popupBack');
-    if (window.history.length > 1) {
-      backArrow.style.display = 'block';
-    } else {
-      backArrow.style.display = 'none';
-    }
+    backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
 
     if (!skipHistory) {
       history.pushState({ popup: true, dealName: name }, '', '');
@@ -634,6 +631,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   function closePopup() {
     document.getElementById('popup').style.display = 'none';
     currentPopupDeal = null;
+    if (popupTimer) clearInterval(popupTimer);
   }
 
   async function loadDeals() {
@@ -666,21 +664,18 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             brandDiv.className = 'brand';
             const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-brandDiv.innerHTML = `
- <div class="brand-logo-container">
-              <img src="${currentLogo}" alt="${currentBrand}" />
-            </div>
-            <div>
-              <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
-            </div>
-`;
+            brandDiv.innerHTML = `
+              <div class="brand-logo-container">
+                <img src="${currentLogo}" alt="${currentBrand}" />
+              </div>
+              <div>
+                <span class="brand-name">${currentBrand}</span><br>
+                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+              </div>
+            `;
 
-const expireDateStr = row.ExpiryDate || row.expireDate;
-if (expireDateStr) {
-  startBrandCountdown(expireDateStr, timerId);
-}
-
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            if (expireDateStr) startBrandCountdown(expireDateStr, timerId);
 
             brandSection.appendChild(brandDiv);
 
@@ -691,10 +686,6 @@ if (expireDateStr) {
 
             if (row.expireDate) {
               expireDate = new Date(row.expireDate);
-            }
-
-            if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-              startBrandCountdown(expireDate, timerId);
             }
 
             allBrandsData.push({
@@ -727,24 +718,24 @@ if (expireDateStr) {
             `;
 
             let popupExpireDate = row.ExpiryDate || row.expireDate || '';
-if (popupExpireDate) {
-  try {
-    popupExpireDate = new Date(popupExpireDate).toISOString(); // normalize
-  } catch (e) {
-    popupExpireDate = '';
-  }
-}
+            if (popupExpireDate) {
+              try {
+                popupExpireDate = new Date(popupExpireDate).toISOString();
+              } catch (e) {
+                popupExpireDate = '';
+              }
+            }
 
-const dealData = {
-  image: row.ImageURL,
-  name: row.ProductName,
-  original: row.OriginalPrice,
-  discount: row.DiscountPrice,
-  description: row.Description,
-  brandLogo: currentLogo,
-  brandName: currentBrand,
-  expireDate: popupExpireDate
-};
+            const dealData = {
+              image: row.ImageURL,
+              name: row.ProductName,
+              original: row.OriginalPrice,
+              discount: row.DiscountPrice,
+              description: row.Description,
+              brandLogo: currentLogo,
+              brandName: currentBrand,
+              expireDate: popupExpireDate
+            };
 
             dealCard.addEventListener('click', () => openPopup(dealData));
 
@@ -802,51 +793,44 @@ const dealData = {
     }
   }
 
-function startBrandCountdown(expireDate, elementId) {
-  function update() {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  function startBrandCountdown(expireDate, elementId) {
+    function update() {
+      const el = document.getElementById(elementId);
+      if (!el) return;
 
-    const timeLeft = new Date(expireDate) - new Date();
+      const timeLeft = new Date(expireDate) - new Date();
 
-    if (timeLeft <= 0) {
-      el.textContent = '❌ Deal ended';
-      el.classList.add('countdown-ended');
-      clearInterval(timer);
-    } else {
-      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
-      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-
-      let countdownStr = '';
-      if (days > 0) {
-        countdownStr += `${days}d `;
-      }
-
-      countdownStr += `${hrs}hr :${mins}min :${secs}sec`;
-
-      el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
-
-      if (timeLeft <= 3600000) {
-        el.classList.add('countdown-urgent');
+      if (timeLeft <= 0) {
+        el.textContent = '❌ Deal ended';
+        el.classList.add('countdown-ended');
+        clearInterval(timer);
       } else {
-        el.classList.remove('countdown-urgent');
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
+        const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+        const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+
+        let countdownStr = '';
+        if (days > 0) countdownStr += `${days}d `;
+        countdownStr += `${hrs}hr :${mins}min :${secs}sec`;
+
+        el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
+
+        if (timeLeft <= 3600000) {
+          el.classList.add('countdown-urgent');
+        } else {
+          el.classList.remove('countdown-urgent');
+        }
       }
     }
+
+    update();
+    const timer = setInterval(update, 1000);
+    return timer;
   }
 
-  update();
-  const timer = setInterval(update, 1000);
-}
-
-
-
-
   document.getElementById('popup').addEventListener('click', function (e) {
-    if (e.target === this) {
-      closePopup();
-    }
+    if (e.target === this) closePopup();
   });
 
   document.getElementById('popupImg').addEventListener('click', () => {
@@ -856,7 +840,7 @@ function startBrandCountdown(expireDate, elementId) {
       next = allDealsFlat[randomIndex];
     } while (next.name === currentPopupDeal?.name);
 
-    openPopup(next); // pushState already handled in openPopup
+    openPopup(next);
   });
 
   document.getElementById('popupBack').addEventListener('click', () => {
@@ -866,9 +850,7 @@ function startBrandCountdown(expireDate, elementId) {
   window.onpopstate = function (event) {
     if (event.state?.popup && event.state.dealName) {
       const deal = allDealsFlat.find(d => d.name === event.state.dealName);
-      if (deal) {
-        openPopup(deal, true); // skip history push
-      }
+      if (deal) openPopup(deal, true);
     } else {
       closePopup();
     }
@@ -876,7 +858,6 @@ function startBrandCountdown(expireDate, elementId) {
 
   loadDeals();
 </script>
-
 
 			 
 </body>
