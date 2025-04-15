@@ -320,6 +320,12 @@
   z-index: 10; /* Ensure it stays above other elements */
 }
 
+.popup-cashback {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #28a745;
+  font-size: 16px;
+}	       
 
 .popup-description {
   font-size: 14px;
@@ -597,6 +603,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
+    const cashbackPercent = 49; // set your max cashback
+    const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+
+    // Show cashback in the popup
+    const cashbackEl = document.getElementById('popupCashback');
+    cashbackEl.textContent = `💸 Up to ${cashbackPercent}% cashback: JMD $${cashbackAmount.toLocaleString()} (at our discretion)`;
    
 	  // Set popup countdown element
   const popupCountdownEl = document.getElementById('brandCountdown');
