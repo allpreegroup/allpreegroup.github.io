@@ -752,26 +752,38 @@ if (expireDateStr) {
     }
   }
 
-  function startBrandCountdown(expireDate, elementId) {
+ function startBrandCountdown(expireDate, elementId) {
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
 
     const timeLeft = new Date(expireDate) - new Date();
+
     if (timeLeft <= 0) {
-      el.textContent = ' - Deal ended';
+      el.textContent = '❌ Deal ended';
+      el.classList.add('countdown-ended');
       clearInterval(timer);
     } else {
       const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
       const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
       const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+
+      const countdownStr = `${hrs} hr:${mins} min:${secs} sec`;
+
+      el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
+
+      if (timeLeft <= 3600000) {
+        el.classList.add('countdown-urgent');
+      } else {
+        el.classList.remove('countdown-urgent');
+      }
     }
   }
 
   update();
   const timer = setInterval(update, 1000);
 }
+
 
 
   document.getElementById('popup').addEventListener('click', function (e) {
