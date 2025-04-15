@@ -597,13 +597,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
-    const popupCountdownEl = document.getElementById('brandCountdown');
-    if (popupTimer) clearInterval(popupTimer);
-    if (expireDate && !isNaN(new Date(expireDate))) {
+   
+	  // Set popup countdown element
+  const popupCountdownEl = document.getElementById('brandCountdown');
+  if (popupTimer) clearInterval(popupTimer);
+  if (expireDate && !isNaN(new Date(expireDate))) {
     popupTimer = startBrandCountdown(expireDate, 'brandCountdown');
-    } else {
+  } else {
     popupCountdownEl.textContent = '';
-    }
+  }
+
 
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName, expireDate };
