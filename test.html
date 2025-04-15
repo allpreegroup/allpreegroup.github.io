@@ -544,8 +544,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div> 
 
 
-
-
 <script>
 const sheetUrls = [
   'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
@@ -617,57 +615,7 @@ async function loadDeals() {
       let expireDate = '';
 
       rows.forEach(row => {
-    
-       if (row.BrandName && row.BrandLogo) {
-  currentBrand = row.BrandName;
-  currentLogo = row.BrandLogo;
-  expireDate = row.expireDate ? new Date(row.expireDate) : null; // Reset and update for each brand
-
-  brandSection = document.createElement('div');
-  brandSection.className = 'brand-section';
-
-  const brandDiv = document.createElement('div');
-  brandDiv.className = 'brand';
-  const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-  brandDiv.innerHTML = `
-    <div class="brand-logo-container">
-      <img src="${currentLogo}" alt="${currentBrand}" />
-    </div>
-    <div>
-      <span class="brand-name">${currentBrand}</span><br>
-      <span class="brand-timer" id="${timerId}">Loading countdown...</span>
-    </div>
-  `;
-
-  brandSection.appendChild(brandDiv);
-
-  grid = document.createElement('div');
-  grid.className = 'deal-grid';
-  brandSection.appendChild(grid);
-  container.appendChild(brandSection);
-
-  if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-    startBrandCountdown(expireDate, timerId);
-  }
-
-  brandDeals = [];
-
-  allBrandsData.push({
-    brand: currentBrand,
-    logo: currentLogo,
-    expireDate,
-    section: brandSection,
-    grid,
-    deals: brandDeals
-  });
-}
- 
-        
-        
-        
-        
-        /*   if (row.BrandName && row.BrandLogo) {
+        if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
 
@@ -684,7 +632,7 @@ async function loadDeals() {
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+              <span class="brand-timer" id="${timerId}">Loading timer... </span>
             </div>
           `;
 
@@ -695,9 +643,10 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          if (row.expireDate) {
-            expireDate = new Date(row.expireDate);
-          }
+          if (row.expireDate || row.ExpiryDate) {
+  expireDate = new Date(row.expireDate || row.ExpiryDate);
+}
+
 
           if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
             startBrandCountdown(expireDate, timerId);
@@ -711,7 +660,7 @@ async function loadDeals() {
             grid,
             deals: brandDeals
           });
-        } */
+        }
 
         if (row.ProductName && row.ImageURL) {
           const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
@@ -866,5 +815,7 @@ window.onpopstate = function (event) {
 loadDeals();
 </script>
 
+
+			 
 </body>
 </html>
