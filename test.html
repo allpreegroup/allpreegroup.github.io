@@ -762,10 +762,11 @@ if (expireDateStr) {
       el.textContent = ' - Deal ended';
       clearInterval(timer);
     } else {
-      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
-      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+const hrs = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
+const mins = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+const secs = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      el.textContent = ` - Ends in: ${days}d${hrs}:${mins}:${secs}`;
     }
   }
 
