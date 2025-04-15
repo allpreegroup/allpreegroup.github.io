@@ -1,6 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+ <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
+ <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
+<link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
 
-
-<style>
+    <meta charset="UTF-8">
+     <title>See Today's Deals</title>
+     <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -10,7 +22,45 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
-    }
+    
+    }.top-deal-badge {
+  background-color: gold;
+  color: #000;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+.brand-logo-container {
+  position: relative; /* Needed for badge positioning */
+}
+	
+.top-brand-highlight {
+  border: 3px solid gold;
+  border-radius: 12px;
+  animation: glowPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px gold;
+  margin-top: 10px;
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 10px gold;
+  }
+  50% {
+    box-shadow: 0 0 20px orange;
+  }
+  100% {
+    box-shadow: 0 0 10px gold;
+  }
+}
+
+     
+	
     .countdown {
       text-align: center;
       font-size: 18px;
@@ -195,13 +245,168 @@
       font-weight: bold;
     }
   </style>
+  <style>
+	  .demo-wrapper {
+		  max-width: 80%;
+		  margin: 5% auto;
+	  }
+  </style>
+<style>
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+</style>
+<link rel="manifest" href="https://www.allpree.com/manifest.json">
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("https://www.allpree.com/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
+    }
+</script>	
 </head>
-<body><br>
-  <center> <h2>Today’s Deals</h2> </center>
+<body>
+<!-- start webpushr tracking code --> 
+<script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
+fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
+webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
+<!-- end webpushr tracking code -->
 
-	<button onclick="filterUrgentHighDiscountBrands()" style="margin: 10px; padding: 8px 16px; font-weight: bold;">
-  🔥 Filter Urgent & High Discount Brands
-</button>
+<!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d4d4a08e-e7f1-49b4-9d7b-0c4c57222df1",
+      safari_web_id: "web.onesignal.auto.2d1085e1-a560-4918-b950-42f254dd8495",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script> -->
+
+<!-- Fullscreen Overlay -->
+ <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+   <button onclick="smartBack()" style="
+     position:absolute;
+     top:15px;
+     right:15px;
+     z-index:10000;
+     background:#000;
+     color:#fff;
+     border:none;
+     padding:10px 15px;
+     font-size:16px;
+     border-radius:8px;
+   ">✕ Close</button>
+ 
+   <div id="menuContent" style="padding:20px;"></div>
+ </div>
+ 
+ <script>
+ function loadMenu() {
+   fetch('https://www.allpree.com/menu/')
+     .then(response => response.text())
+     .then(html => {
+       document.getElementById('menuContent').innerHTML = html;
+       document.getElementById('fullscreenOverlay').style.display = 'block';
+     })
+     .catch(err => {
+       alert("Failed to load menu.");
+       console.error(err);
+     });
+ }
+ 
+ function smartBack(fallbackUrl = '/balance') {
+   const previous = document.referrer;
+ 
+   if (previous && previous !== window.location.href) {
+     window.location.href = previous;
+   } else {
+     window.location.href = fallbackUrl;
+   }
+ }
+ 
+ </script>
+
+
+<nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <a href="#" onclick="loadMenu(); return false;">   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Toggle navigation</span> Menu <i class="fa-solid fa-bars"></i>
+                </button> 
+
+             </a>
+               
+
+           <!--  <a class="navbar-brand page-scroll" href="https://twitter.com/allpreedotcom"><i class="fa-brands fa-twitter"></i></a>
+             <a class="navbar-brand page-scroll" href="https://instagram.com/allpreedotcom"><i class="fa-brands fa-instagram"></i></a>
+             <a class="navbar-brand page-scroll" href="https://facebook.com/allpreedotcom"><i class="fa-brands fa-facebook"></i></a> -->
+             
+             <!--    <a class="navbar-brand page-scroll" onclick="history.back()"><i class="fa-solid fa-backward"></i></a>  
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
+
+             
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals/"><strong><i class="fa-solid fa-badge-percent fa-lg"></i></strong> Deals</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp" ><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
+              
+	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/invite" >Earn</a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance"><strong><i class="fa-solid fa-house"></i> HOME</strong></a>
+               
+            <!--   <a class="navbar-brand page-scroll" href="https://www.allpree.com/join" >Msg HR</a> -->
+
+              
+             
+            <!--   <a class="navbar-brand page-scroll" href="https://www.snapchat.com/add/allpreedotcom"><i class="fa-brands fa-snapchat"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll" href="https://tiktok.com/@joinwatsapp"><i class="fa-brands fa-tiktok"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll">&nbsp;<strong>EVERY Day Is Black Friday!</strong></a>  
+      <a class="navbar-brand page-scroll">&nbsp;<strong>Allpree Plus <i class="fa-solid fa-location-plus"></i></strong></a>
+             <a class="navbar-brand page-scroll" href=""><strong><i class="fa-brands fa-whatsapp"></i> eCom <i class="fa-brands fa-btc"></i></strong> - Semi Done For You </a> 
+             	  <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Investors</a>
+              <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Resellers</a>
+             <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Referrals</a> 
+               -->
+              
+             
+             
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling &nbsp; -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <!--  <ul class="nav navbar-nav navbar-right">
+                <li>
+                   <a class="page-scroll" href="https://www.allpree.com/referral-program" >Refer & Earn</a>
+                    </li>
+                    <li>
+                   <a class="page-scroll" href="https://www.allpree.com/list/">All Stores</a>
+                    </li>
+                    <li>
+                  <a class="page-scroll" href="https://www.allpree.com/balance/"><strong>Check Balance</strong></a> 
+                    </li> 
+                </ul> -->
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+	<div class="container">
+            <div class="row land">
+                <div class="home">     
+			<div class="center">
+                <div class="col-md-6 home-txt1"> <br>
+                  <center> <h2>Today’s Deals</h2> </center>
+
 
   <div id="deals-container">Loading deals...</div>
 
@@ -222,7 +427,10 @@
     </div>
   </div>
 
-	<script>
+
+
+
+<script>
 const sheetUrls = [
   'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
   'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
@@ -270,7 +478,6 @@ async function loadDeals() {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
-          expireDate = row.ExpireDate;
 
           brandSection = document.createElement('div');
           brandSection.className = 'brand-section';
@@ -289,16 +496,20 @@ async function loadDeals() {
             </div>
           `;
 
-          if (expireDate) {
-            startBrandCountdown(expireDate, timerId); // Assigning the countdown to the timer span under the brand name
-          }
+          brandSection.appendChild(brandDiv);
 
           grid = document.createElement('div');
           grid.className = 'deal-grid';
-
-          brandSection.appendChild(brandDiv);
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
+
+          if (row.ExpireDate) {
+            expireDate = new Date(row.ExpireDate);
+          }
+
+          if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
+            startBrandCountdown(expireDate, timerId);
+          }
 
           allBrandsData.push({
             brand: currentBrand,
@@ -353,40 +564,54 @@ async function loadDeals() {
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
 
+    // Sort brands by highest discount and soonest expiration
+    allBrandsData.forEach(brandData => {
+      brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+      brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+    });
+
+    allBrandsData.sort((a, b) => {
+      if (b.bestDiscount !== a.bestDiscount) {
+        return b.bestDiscount - a.bestDiscount;
+      }
+      return a.timeRemaining - b.timeRemaining;
+    });
+
+    // Clear and re-render sorted
+    container.innerHTML = '';
+
+    allBrandsData.forEach((brandData, index) => {
+      if (index === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'top-deal-badge';
+        badge.textContent = '🔥 Top Deal';
+        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+        brandData.section.classList.add('top-brand-highlight');
+      }
+      container.appendChild(brandData.section);
+    });
+
+    // Scroll to top brand
+    setTimeout(() => {
+      const topBrand = allBrandsData[0];
+      if (topBrand?.section) {
+        topBrand.section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
 }
 
-function filterUrgentHighDiscountBrands() {
-  const container = document.getElementById('deals-container');
-  container.innerHTML = '';
-
-  const sorted = allBrandsData.slice().sort((a, b) => {
-    const timeA = new Date(a.expireDate) - new Date();
-    const timeB = new Date(b.expireDate) - new Date();
-    const bestDiscountA = Math.max(...a.deals.map(d => d.percentOff));
-    const bestDiscountB = Math.max(...b.deals.map(d => d.percentOff));
-
-    if (timeA < timeB) return -1;
-    if (timeA > timeB) return 1;
-    return bestDiscountB - bestDiscountA;
-  });
-
-  sorted.forEach(data => {
-    container.appendChild(data.section);
-  });
-}
-
-function startBrandCountdown(expireDate, elementId) {
+function startBrandCountdown(ExpireDate, elementId) {
   function update() {
     const el = document.getElementById(elementId);
     if (!el) return;
 
     const now = new Date();
-    const end = new Date(expireDate);
-    const diff = end - now;
+    const diff = ExpireDate - now;
 
     if (diff <= 0) {
       el.textContent = ' - Deal Ended';
@@ -414,17 +639,19 @@ function startBrandCountdown(expireDate, elementId) {
   const timer = setInterval(update, 1000);
 }
 
-// Close popup on background click
 document.getElementById('popup').addEventListener('click', function (e) {
   if (e.target === this) {
     closePopup();
   }
 });
 
-// Start loading the deals
 loadDeals();
 </script>
+</body>
+</html>
 
+
+			
 
 <!-- <!DOCTYPE html>
 <html lang="en">
