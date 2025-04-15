@@ -776,40 +776,21 @@ if (expireDateStr) {
     const el = document.getElementById(elementId);
     if (!el) return;
 
-    const now = new Date();
-    const end = new Date(expireDate);
-    const timeLeft = end - now;
-
+    const timeLeft = new Date(expireDate) - new Date();
     if (timeLeft <= 0) {
-      el.textContent = '❌ Deal ended';
-      el.classList.add('countdown-ended');
+      el.textContent = ' - Deal ended';
       clearInterval(timer);
     } else {
-      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
+      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
       const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
       const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-
-      let countdownStr = '';
-
-      if (days > 0) {
-        countdownStr += `${days}d `;
-      }
-
-      countdownStr += `${hr}:${mins}:${secs}`;
-
-      // Add flair
-      el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
-
-      // Add urgency class if under an hour
-      if (timeLeft <= 3600000) {
-        el.classList.add('countdown-urgent');
-      } else {
-        el.classList.remove('countdown-urgent');
-      }
+      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
     }
   }
 
+  update();
+  const timer = setInterval(update, 1000);
+}
   update();
   const timer = setInterval(update, 1000);
 }
