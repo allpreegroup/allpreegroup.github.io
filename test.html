@@ -713,16 +713,25 @@ if (expireDateStr) {
               </div>
             `;
 
-            const dealData = {
-              image: row.ImageURL,
-              name: row.ProductName,
-              original: row.OriginalPrice,
-              discount: row.DiscountPrice,
-              description: row.Description,
-              brandLogo: currentLogo,
-              brandName: currentBrand
-	      expireDate: row.expireDate || expireDate // safe fallback
-            };
+            let popupExpireDate = row.ExpiryDate || row.expireDate || '';
+if (popupExpireDate) {
+  try {
+    popupExpireDate = new Date(popupExpireDate).toISOString(); // normalize
+  } catch (e) {
+    popupExpireDate = '';
+  }
+}
+
+const dealData = {
+  image: row.ImageURL,
+  name: row.ProductName,
+  original: row.OriginalPrice,
+  discount: row.DiscountPrice,
+  description: row.Description,
+  brandLogo: currentLogo,
+  brandName: currentBrand,
+  expireDate: popupExpireDate
+};
 
             dealCard.addEventListener('click', () => openPopup(dealData));
 
