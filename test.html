@@ -632,7 +632,7 @@ async function loadDeals() {
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
-              <span class="brand-timer" id="${timerId}">Loading timer... </span>
+              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
             </div>
           `;
 
@@ -643,10 +643,9 @@ async function loadDeals() {
           brandSection.appendChild(grid);
           container.appendChild(brandSection);
 
-          if (row.expireDate || row.ExpiryDate) {
-  expireDate = new Date(row.expireDate || row.ExpiryDate);
-}
-
+          if (row.expireDate) {
+            expireDate = new Date(row.expireDate);
+          }
 
           if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
             startBrandCountdown(expireDate, timerId);
@@ -814,7 +813,6 @@ window.onpopstate = function (event) {
 
 loadDeals();
 </script>
-
 
 			 
 </body>
