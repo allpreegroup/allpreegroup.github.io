@@ -231,20 +231,7 @@
    const sheetUrl = 'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals';
       
      
-    function updateCountdown() {
-      const now = new Date();
-      const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0);
-      const diff = midnight - now;
-
-      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-      const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
-
-      document.getElementById('countdown').textContent = `Deals expire in: ${hours}:${minutes}:${seconds}`;
-    }
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
+   
 
     function openPopup({ image, name, original, discount, description }) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
