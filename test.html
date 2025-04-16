@@ -647,6 +647,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
 
+
+    document.body.style.overflow = 'hidden'; // Disable scrolling when popup is open
+
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup() {
+  document.body.style.overflow = ''; // Enable scrolling when popup is closed
+  document.getElementById('popup').style.display = 'none';
+  currentPopupDeal = null;
+}
 	  
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
