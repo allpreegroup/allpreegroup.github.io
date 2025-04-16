@@ -325,7 +325,11 @@
   font-weight: bold;
   color: #28a745;
   font-size: 14px;
-}	       
+}	
+ .final-price {
+  color: #888; /* Green shade for positive pricing */
+  font-weight: bold;
+}
 
 .popup-description {
   font-size: 14px;
@@ -606,10 +610,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const savings = originalPrice - discountPrice;
     const cashbackPercent = 49; // set your max cashback
     const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+    const finalPrice = discountPrice - cashbackAmount;
 
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
-    cashbackEl.textContent = `MAX CashBack: J$${cashbackAmount.toLocaleString()}*          (Using Our eGift Card) `;
+    cashbackEl.textContent = `MAX* CashBack: J$${cashbackAmount.toLocaleString()}  <span class="final-price">With Gift Card — Final price: JMD $${finalPrice.toLocaleString()}</span>`;
    
 	  // Set popup countdown element
   const popupCountdownEl = document.getElementById('brandCountdown');
