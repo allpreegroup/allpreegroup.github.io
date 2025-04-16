@@ -13,7 +13,7 @@
   
      <title>See Today's Deals</title>
 	
-        <style>
+         <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -26,7 +26,11 @@
     
     }
 
-	     
+.noscroll {
+  overflow: hidden;
+  height: 100vh;
+}
+		
 .top-deal-badge {
   background-color: gold;
   color: #000;
@@ -561,7 +565,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <span class="popup-close" onclick="closePopup()">×</span>
     <div style="position: relative;">
       <span class="popup-discount-badge" id="popupBadge"></span>
-      <button id="popupBack" class="popup-back-arrow">&#8592;</button>
+      <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
     </div>
     <div class="popup-body">
@@ -648,6 +652,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
 
+
+    
+  // ⛔️ Disable scroll
+  document.body.classList.add('noscroll');
+
 	  
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
@@ -692,6 +701,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   function closePopup() {
     document.getElementById('popup').style.display = 'none';
     currentPopupDeal = null;
+
+	  // ✅ Re-enable scroll
+  document.body.classList.remove('noscroll');
   }
 
   async function loadDeals() {
@@ -748,11 +760,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             container.appendChild(brandSection);
 
             if (expireDateStr) {
-  expireDate = new Date(expireDateStr);
-  if (!isNaN(expireDate)) {
-    startBrandCountdown(expireDate, timerId);
-  }
-}
+            expireDate = new Date(expireDateStr);
+           if (!isNaN(expireDate)) {
+           startBrandCountdown(expireDate, timerId);
+          }
+         }
 
             allBrandsData.push({
               brand: currentBrand,
@@ -896,7 +908,7 @@ function startBrandCountdown(expireDate, elementId) {
     }
   });
 
-  document.getElementById('popupImg').addEventListener('click', () => {
+/*  document.getElementById('popupImg').addEventListener('click', () => {
     let next;
     do {
       const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
@@ -904,11 +916,11 @@ function startBrandCountdown(expireDate, elementId) {
     } while (next.name === currentPopupDeal?.name);
 
     openPopup(next); // pushState already handled in openPopup
-  });
+  }); 
 
   document.getElementById('popupBack').addEventListener('click', () => {
     window.history.back();
-  });
+  }); */
 
   window.onpopstate = function (event) {
     if (event.state?.popup && event.state.dealName) {
@@ -922,8 +934,51 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
+
+
+	
+	function addPopupSwipeListeners() {
+  const popup = document.getElementById('popup');
+  let startY = 0;
+  let endY = 0;
+
+  popup.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+    }
+  });
+
+  popup.addEventListener('touchend', (e) => {
+    endY = e.changedTouches[0].clientY;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const deltaY = endY - startY;
+
+    if (Math.abs(deltaY) > 50) {
+      if (deltaY < 0) {
+        // Swipe Up — Show random product
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        openPopup(next);
+      } else {
+        // Swipe Down — Go back
+        window.history.back();
+      }
+    }
+  }
+}
+
+// Call this after your popup is ready
+addPopupSwipeListeners();
 </script>
 
-			 
+
+		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
