@@ -12,7 +12,7 @@
 
     <meta charset="UTF-8">
      <title>See Today's Deals</title>
-       <style>
+        <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -145,12 +145,6 @@
   font-size: 14px;
   margin-left: 67px;
     }
-	
-  .brand-countdown {
-  font-size: 13px;
-  margin-top: 2px;
-  color: #007bff;
-}       
 
     .deal {
       background: white;
@@ -291,9 +285,21 @@
   font-size: 18px;
   color: #e60000;
   font-weight: bold;
-  margin-bottom: 10px;
 }
-
+		
+.popup-cashback {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 18px;
+}	
+		
+.final-price {
+  margin-bottom: 10px;
+  color: #e60000; /* Green shade for positive pricing */
+  font-weight: bold;
+  font-size: 12px;
+}
+		
 .popup-discount-badge {
   position: absolute;
   top: 15px;
@@ -320,16 +326,6 @@
   z-index: 10; /* Ensure it stays above other elements */
 }
 
-.popup-cashback {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #28a745;
-  font-size: 14px;
-}	
- .final-price {
-  color: #888; /* Green shade for positive pricing */
-  font-weight: bold;
-}
 
 .popup-description {
   font-size: 14px;
@@ -356,11 +352,7 @@
   gap: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.popup-brand-box .brand-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
+
 .popup-brand-box .brand-logo-container {
   height: 50px;
   width: 50px;
@@ -568,9 +560,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <div class="popup-price" id="popupPrice"></div>
       <div class="popup-discount" id="popupDiscount"></div>
       <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
-      <div class="popup-description" id="popupDesc"></div>
       <div id="popupCashback" class="popup-cashback"></div>
-      <div id="brandCountdown" class="brand-timer-popup"></div>
+      <div class="popup-description" id="popupDesc"></div>
     </div>	  
   </div> 
 
@@ -579,73 +570,61 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="brand-logo-container">
     <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
   </div>
-  <div class="brand-info">
-    <div id="brandName" class="brand-name">
-    </div>
-   
-  </div>
+  <div id="brandName" class="brand-name"></div>
 </div>
 	
 </div> 
 
 
 <script>
-  const sheetUrls = [
-    'https://opensheet.elk.sh/1kM69M3em-ZZkmc2yC4q7TuYKJB2ENxC3ektmC0j-2gg/deals',
-    'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals',
-    'https://opensheet.elk.sh/1HZV3d6c7ywxDiA-YnVl7x_ZXp0GRw4F5CANsvfbh-Zs/deals',
-    'https://opensheet.elk.sh/1JxHWqn1qh0jocrLQ1ED__yOf6mjsELnK38OH2xsKZ_w/deals',
-    'https://opensheet.elk.sh/14Wm7x8CJH23F3W7m1Eh4KRxMSZPHn6DjxpkiuEgpmAs/deals'
-  ];
-
+	const sheetUrls = [
+   'https://opensheet.elk.sh/122HDrb0iu_XqBqdm6VzuvSy_Xez44GrtuhtXw3MYpAs/deals',
+     'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals',
+     'https://opensheet.elk.sh/1zm3qwBaxHXtFo3G78B3syL1yxhChcClQl-mNOOknS0w/deals',
+     'https://opensheet.elk.sh/1XvP_becB1mzzhjCnjLHQxb4PvUCdM6p3BMPwEzVP98g/deals',
+     'https://opensheet.elk.sh/1hmi8e1jx8giuCihxoJnpdy7m6bx2MI7avzk0DnpP8rE/deals'
+ ]; 
+	
   const allBrandsData = [];
   const allDealsFlat = [];
   let currentPopupDeal = null;
-  let popupTimer = null;
 
-  function openPopup({ image, name, original, discount, description, brandLogo, brandName, expireDate }, skipHistory = false) {
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
+
     const cashbackPercent = 49; // set your max cashback
     const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
     const finalPrice = discountPrice - cashbackAmount;
 
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
-    cashbackEl.innerHTML = `MAX* CashBack: J$${cashbackAmount.toLocaleString()} <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹* </span>`;
-   
-	  // Set popup countdown element
-    if (popupTimer) clearInterval(popupTimer);
-
-const parsedExpire = new Date(expireDate);
-if (expireDate && !isNaN(parsedExpire.getTime())) {
-  popupTimer = startBrandCountdown(parsedExpire, 'brandCountdown');
-} else {
-  popupCountdownEl.textContent = '';
-}
-
+    cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
 
 	  
-    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName, expireDate };
+	  
+    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
     document.getElementById('popupImg').src = image;
     document.getElementById('popupTitle').textContent = name;
-    document.getElementById('popupPrice').textContent = `Original Price: J$${original}`;
-    document.getElementById('popupDiscount').textContent = `Now: J$${discount}`;
+    document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+    document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
     document.getElementById('popupDesc').textContent = description || '';
     document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-    document.getElementById('popupSavings').textContent = `SAVINGS J$${savings.toLocaleString()}`;
-   
+    document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+
     document.getElementById('brandLogo').src = brandLogo;
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
 
-    
-
     const backArrow = document.getElementById('popupBack');
-    backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
+    if (window.history.length > 1) {
+      backArrow.style.display = 'block';
+    } else {
+      backArrow.style.display = 'none';
+    }
 
     if (!skipHistory) {
       history.pushState({ popup: true, dealName: name }, '', '');
@@ -657,7 +636,6 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
   function closePopup() {
     document.getElementById('popup').style.display = 'none';
     currentPopupDeal = null;
-    if (popupTimer) clearInterval(popupTimer);
   }
 
   async function loadDeals() {
@@ -690,18 +668,21 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
             brandDiv.className = 'brand';
             const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-            brandDiv.innerHTML = `
-              <div class="brand-logo-container">
-                <img src="${currentLogo}" alt="${currentBrand}" />
-              </div>
-              <div>
-                <span class="brand-name">${currentBrand}</span><br>
-                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
-              </div>
-            `;
+brandDiv.innerHTML = `
+ <div class="brand-logo-container">
+              <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <div>
+              <span class="brand-name">${currentBrand}</span><br>
+              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+            </div>
+`;
 
-            const expireDateStr = row.ExpiryDate || row.expireDate;
-            if (expireDateStr) startBrandCountdown(expireDateStr, timerId);
+const expireDateStr = row.ExpiryDate || row.expireDate;
+if (expireDateStr) {
+  startBrandCountdown(expireDateStr, timerId);
+}
+
 
             brandSection.appendChild(brandDiv);
 
@@ -712,6 +693,10 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
 
             if (row.expireDate) {
               expireDate = new Date(row.expireDate);
+            }
+
+            if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
+              startBrandCountdown(expireDate, timerId);
             }
 
             allBrandsData.push({
@@ -738,19 +723,10 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
               <img src="${row.ImageURL}" alt="${row.ProductName}">
               <div class="deal-content">
                 <div class="deal-title">${shortName}</div>
-                <div class="price">J$${row.OriginalPrice}</div>
-                <div class="discount">J$${row.DiscountPrice}</div>
+                <div class="price">JMD $${row.OriginalPrice}</div>
+                <div class="discount">JMD $${row.DiscountPrice}</div>
               </div>
             `;
-
-            let popupExpireDate = row.ExpiryDate || row.expireDate || '';
-            if (popupExpireDate) {
-              try {
-                popupExpireDate = new Date(popupExpireDate).toISOString();
-              } catch (e) {
-                popupExpireDate = '';
-              }
-            }
 
             const dealData = {
               image: row.ImageURL,
@@ -759,8 +735,7 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
               discount: row.DiscountPrice,
               description: row.Description,
               brandLogo: currentLogo,
-              brandName: currentBrand,
-              expireDate: row.ExpiryDate || row.expireDate || ''
+              brandName: currentBrand
             };
 
             dealCard.addEventListener('click', () => openPopup(dealData));
@@ -819,44 +794,51 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
     }
   }
 
-  function startBrandCountdown(expireDate, elementId) {	  
-    function update() {
-      const el = document.getElementById(elementId);
-      if (!el) return;
+function startBrandCountdown(expireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
 
-      const timeLeft = new Date(expireDate) - new Date();
+    const timeLeft = new Date(expireDate) - new Date();
 
-      if (timeLeft <= 0) {
-        el.textContent = '❌ Deal ended';
-        el.classList.add('countdown-ended');
-        clearInterval(timer);
+    if (timeLeft <= 0) {
+      el.textContent = '❌ Deal ended';
+      el.classList.add('countdown-ended');
+      clearInterval(timer);
+    } else {
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
+      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+
+      let countdownStr = '';
+      if (days > 0) {
+        countdownStr += `${days}d `;
+      }
+
+      countdownStr += `${hrs}hr :${mins}min :${secs}sec`;
+
+      el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
+
+      if (timeLeft <= 3600000) {
+        el.classList.add('countdown-urgent');
       } else {
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
-        const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-        const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-
-        let countdownStr = '';
-        if (days > 0) countdownStr += `${days}d `;
-        countdownStr += `${hrs}hr :${mins}min :${secs}sec`;
-
-        el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
-
-        if (timeLeft <= 3600000) {
-          el.classList.add('countdown-urgent');
-        } else {
-          el.classList.remove('countdown-urgent');
-        }
+        el.classList.remove('countdown-urgent');
       }
     }
-
-    update();
-    const timer = setInterval(update, 1000);
-    return timer;
   }
 
+  update();
+  const timer = setInterval(update, 1000);
+}
+
+
+
+
   document.getElementById('popup').addEventListener('click', function (e) {
-    if (e.target === this) closePopup();
+    if (e.target === this) {
+      closePopup();
+    }
   });
 
   document.getElementById('popupImg').addEventListener('click', () => {
@@ -866,7 +848,7 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
       next = allDealsFlat[randomIndex];
     } while (next.name === currentPopupDeal?.name);
 
-    openPopup(next);
+    openPopup(next); // pushState already handled in openPopup
   });
 
   document.getElementById('popupBack').addEventListener('click', () => {
@@ -876,7 +858,9 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
   window.onpopstate = function (event) {
     if (event.state?.popup && event.state.dealName) {
       const deal = allDealsFlat.find(d => d.name === event.state.dealName);
-      if (deal) openPopup(deal, true);
+      if (deal) {
+        openPopup(deal, true); // skip history push
+      }
     } else {
       closePopup();
     }
@@ -884,6 +868,7 @@ if (expireDate && !isNaN(parsedExpire.getTime())) {
 
   loadDeals();
 </script>
+
 
 			 
 </body>
