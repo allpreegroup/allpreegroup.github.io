@@ -599,9 +599,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 async function loadSheetUrls() {
   try {
-    const response = await fetch('https://www.allpree.com/sheeturls.json');
+    // Fetch the sheeturls.json
+    const response = await fetch('https://www.allpree.com/sheeturls.json'); // Make sure this is the correct URL to your JSON file
     const data = await response.json();
-    sheeturls = data.sheeturls; // This will be the array of URLs
+
+    // Now we have the array of URLs
+    sheetUrls = data.sheeturls; // This will assign the URLs to the sheetUrls variable
+    console.log(sheetUrls); // You can log the URLs to confirm
     loadDeals(); // Call the loadDeals function after loading the sheet URLs
   } catch (err) {
     console.error('Failed to load sheet URLs:', err);
