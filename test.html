@@ -747,11 +747,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             container.appendChild(brandSection);
 
             if (expireDateStr) {
-  expireDate = new Date(expireDateStr);
-  if (!isNaN(expireDate)) {
-    startBrandCountdown(expireDate, timerId);
-  }
-}
+            expireDate = new Date(expireDateStr);
+           if (!isNaN(expireDate)) {
+           startBrandCountdown(expireDate, timerId);
+          }
+         }
 
             allBrandsData.push({
               brand: currentBrand,
@@ -895,7 +895,7 @@ function startBrandCountdown(expireDate, elementId) {
     }
   });
 
-  document.getElementById('popupImg').addEventListener('click', () => {
+/*  document.getElementById('popupImg').addEventListener('click', () => {
     let next;
     do {
       const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
@@ -903,7 +903,7 @@ function startBrandCountdown(expireDate, elementId) {
     } while (next.name === currentPopupDeal?.name);
 
     openPopup(next); // pushState already handled in openPopup
-  });
+  }); */
 
   document.getElementById('popupBack').addEventListener('click', () => {
     window.history.back();
@@ -921,6 +921,42 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
+	let touchStartY = 0;
+let touchEndY = 0;
+
+function handleSwipeGesture() {
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaY) < 50) return; // ignore tiny swipes
+
+  if (deltaY < 0) {
+    // swipe up → show random deal
+    let next;
+    do {
+      const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+      next = allDealsFlat[randomIndex];
+    } while (next.name === currentPopupDeal?.name);
+    openPopup(next);
+  } else {
+    // swipe down → go back in popup history
+    window.history.back();
+  }
+}
+
+const popup = document.getElementById('popup');
+
+popup.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    touchStartY = e.touches[0].clientY;
+  }
+});
+
+popup.addEventListener('touchend', e => {
+  if (e.changedTouches.length === 1) {
+    touchEndY = e.changedTouches[0].clientY;
+    handleSwipeGesture();
+  }
+});
 </script>
 
 
