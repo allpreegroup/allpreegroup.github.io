@@ -623,21 +623,14 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
 
-    // ⏳ Set the timer in the popup
-    const popupTimerEl = document.getElementById('popupTimer');
-    popupTimerEl.innerHTML = 'Loading...';
-    popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+   const popupTimerEl = document.getElementById('popupTimer');
+popupTimerEl.innerHTML = 'Loading...';
+popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
 
-    // Find the brand's expireDate
-    const brandInfo = allBrandsData.find(b => b.brand === brandName);
-    if (brandInfo?.expireDate) {
-    const popupTimerId = 'popup-countdown-timer'; // unique ID for the popup
-    popupTimerEl.id = popupTimerId; // assign ID to use with startBrandCountdown
-    startBrandCountdown(brandInfo.expireDate, popupTimerId);
-    }
-
-
-	  
+const brandInfo = allBrandsData.find(b => b.brand === brandName);
+if (brandInfo?.expireDate) {
+  startBrandCountdown(brandInfo.expireDate, 'popupTimer');
+}  
     const backArrow = document.getElementById('popupBack');
     if (window.history.length > 1) {
       backArrow.style.display = 'block';
