@@ -25,7 +25,10 @@
     
     }
 
-	     
+.no-scroll {
+  overflow: hidden;
+}
+		
 .top-deal-badge {
   background-color: gold;
   color: #000;
@@ -648,13 +651,13 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
 
 
-    document.body.style.overflow = 'hidden'; // Disable scrolling when popup is open
+    document.body.classList.add('no-scroll'); // Disable scrolling when popup is open
 
   document.getElementById('popup').style.display = 'flex';
 }
 
 function closePopup() {
-  document.body.style.overflow = ''; // Enable scrolling when popup is closed
+  document.body.classList.remove('no-scroll'); // Enable scrolling when popup is closed
   document.getElementById('popup').style.display = 'none';
   currentPopupDeal = null;
 }
