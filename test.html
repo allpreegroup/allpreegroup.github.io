@@ -921,42 +921,48 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
-	let touchStartY = 0;
-let touchEndY = 0;
 
-function handleSwipeGesture() {
-  const deltaY = touchEndY - touchStartY;
 
-  if (Math.abs(deltaY) < 50) return; // ignore tiny swipes
+	
+	function addPopupSwipeListeners() {
+  const popup = document.getElementById('popup');
+  let startY = 0;
+  let endY = 0;
 
-  if (deltaY < 0) {
-    // swipe up → show random deal
-    let next;
-    do {
-      const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-      next = allDealsFlat[randomIndex];
-    } while (next.name === currentPopupDeal?.name);
-    openPopup(next);
-  } else {
-    // swipe down → go back in popup history
-    window.history.back();
+  popup.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+    }
+  });
+
+  popup.addEventListener('touchend', (e) => {
+    endY = e.changedTouches[0].clientY;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const deltaY = endY - startY;
+
+    if (Math.abs(deltaY) > 50) {
+      if (deltaY < 0) {
+        // Swipe Up — Show random product
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        openPopup(next);
+      } else {
+        // Swipe Down — Go back
+        window.history.back();
+      }
+    }
   }
 }
 
-const popup = document.getElementById('popup');
-
-popup.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) {
-    touchStartY = e.touches[0].clientY;
-  }
-});
-
-popup.addEventListener('touchend', e => {
-  if (e.changedTouches.length === 1) {
-    touchEndY = e.changedTouches[0].clientY;
-    handleSwipeGesture();
-  }
-});
+// Call this after your popup is ready
+addPopupSwipeListeners();
 </script>
 
 
