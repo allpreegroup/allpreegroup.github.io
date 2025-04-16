@@ -563,6 +563,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
       <div id="popupCashback" class="popup-cashback"></div>
       <div class="popup-description" id="popupDesc"></div>
+      <span id="popupTimer" class="brand-timer">Loading... </span>
     </div>	  
   </div> 
 
@@ -620,6 +621,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
 
+    // ⏳ Set the timer in the popup
+    const popupTimerEl = document.getElementById('popupTimer');
+    popupTimerEl.innerHTML = 'Visit us now - limited-time promotion!';
+    popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+    // Find the brand's expireDate
+    const brandInfo = allBrandsData.find(b => b.brand === brandName);
+    if (brandInfo?.expireDate) {
+    const popupTimerId = 'popup-countdown-timer'; // unique ID for the popup
+    popupTimerEl.id = popupTimerId; // assign ID to use with startBrandCountdown
+    startBrandCountdown(brandInfo.expireDate, popupTimerId);
+    }
+
+
+	  
     const backArrow = document.getElementById('popupBack');
     if (window.history.length > 1) {
       backArrow.style.display = 'block';
