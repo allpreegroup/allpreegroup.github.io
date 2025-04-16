@@ -287,6 +287,13 @@
   font-weight: bold;
   margin-bottom: 10px;
 }
+		
+.popup-discount {
+  font-size: 18px;
+  color: #e60000;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
 .popup-discount-badge {
   position: absolute;
@@ -582,6 +589,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
 
+    const cashbackPercent = 49; // set your max cashback
+    const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+    const finalPrice = discountPrice - cashbackAmount;
+
+    // Show cashback in the popup
+    const cashbackEl = document.getElementById('popupCashback');
+    cashbackEl.innerHTML = `MAX* CashBack: J$${cashbackAmount.toLocaleString()} <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹* </span>`;
+
+	  
+	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
     document.getElementById('popupImg').src = image;
