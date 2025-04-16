@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <html lang="en">
+ 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -10,8 +10,9 @@
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
 
-    <meta charset="UTF-8">
+  
      <title>See Today's Deals</title>
+	
         <style>
     body {
       font-family: sans-serif;
@@ -294,6 +295,7 @@
 }	
 		
 .final-price {
+  margin-top: -10px;  
   margin-bottom: 10px;
   color: #e60000; /* Green shade for positive pricing */
   font-weight: bold;
@@ -348,8 +350,9 @@
   background-color: #fdfdfd;
   border-radius: 8px;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column; /* Stack brand name and timer vertically */
+  align-items: flex-start; /* Align to the left */
+  gap: 8px; /* Space between brand name and timer */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -372,6 +375,12 @@
   font-size: 16px;
   font-weight: bold;
 }
+
+.popup-brand-box .brand-timer {
+  font-size: 14px;
+  color: #555;
+}
+
 
 .popup-back-arrow {
   position: absolute;
@@ -562,6 +571,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
       <div id="popupCashback" class="popup-cashback"></div>
       <div class="popup-description" id="popupDesc"></div>
+     
     </div>	  
   </div> 
 
@@ -570,7 +580,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="brand-logo-container">
     <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
   </div>
-  <div id="brandName" class="brand-name"></div>
+
+	<div class="brand-text-container">
+    <div id="brandName" class="brand-name"></div>
+    <span id="popupTimer" class="brand-timer"></span>
+  </div>
+  
 </div>
 	
 </div> 
@@ -589,6 +604,36 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   const allDealsFlat = [];
   let currentPopupDeal = null;
 
+ function startPopupCountdown(expireDate, el) {
+  if (!el || !expireDate) return;
+
+  function updateCountdown() {
+    const now = new Date();
+    const endTime = new Date(expireDate);
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      el.textContent = "❌ Deal expired";
+      el.classList.add("countdown-ended");
+      clearInterval(timerInterval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60); // 👈 add seconds here
+
+    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+
+    el.textContent = `⏳ ${timeStr}`;
+  }
+
+  updateCountdown(); // initial call
+  const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
+}
+
+	
   function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -619,6 +664,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
 
+    const popupTimerEl = document.getElementById('popupTimer');
+    popupTimerEl.textContent = 'Loading...';
+    popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+    // Find the brand's expireDate
+    const brandInfo = allBrandsData.find(b => b.brand === brandName);
+
+    if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+    }
+	  
     const backArrow = document.getElementById('popupBack');
     if (window.history.length > 1) {
       backArrow.style.display = 'block';
@@ -668,8 +724,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             brandDiv.className = 'brand';
             const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-brandDiv.innerHTML = `
- <div class="brand-logo-container">
+            brandDiv.innerHTML = `
+            <div class="brand-logo-container">
               <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
             <div>
@@ -678,10 +734,10 @@ brandDiv.innerHTML = `
             </div>
 `;
 
-const expireDateStr = row.ExpiryDate || row.expireDate;
-if (expireDateStr) {
-  startBrandCountdown(expireDateStr, timerId);
-}
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            if (expireDateStr) {
+            startBrandCountdown(expireDateStr, timerId);
+           }
 
 
             brandSection.appendChild(brandDiv);
@@ -691,13 +747,12 @@ if (expireDateStr) {
             brandSection.appendChild(grid);
             container.appendChild(brandSection);
 
-            if (row.expireDate) {
-              expireDate = new Date(row.expireDate);
-            }
-
-            if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-              startBrandCountdown(expireDate, timerId);
-            }
+            if (expireDateStr) {
+  expireDate = new Date(expireDateStr);
+  if (!isNaN(expireDate)) {
+    startBrandCountdown(expireDate, timerId);
+  }
+}
 
             allBrandsData.push({
               brand: currentBrand,
@@ -868,7 +923,6 @@ function startBrandCountdown(expireDate, elementId) {
 
   loadDeals();
 </script>
-
 
 			 
 </body>
