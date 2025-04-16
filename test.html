@@ -717,8 +717,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
             brandDiv.className = 'brand';
             const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-brandDiv.innerHTML = `
- <div class="brand-logo-container">
+            brandDiv.innerHTML = `
+            <div class="brand-logo-container">
               <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
             <div>
@@ -727,10 +727,10 @@ brandDiv.innerHTML = `
             </div>
 `;
 
-const expireDateStr = row.ExpiryDate || row.expireDate;
-if (expireDateStr) {
-  startBrandCountdown(expireDateStr, timerId);
-}
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            if (expireDateStr) {
+            startBrandCountdown(expireDateStr, timerId);
+           }
 
 
             brandSection.appendChild(brandDiv);
@@ -740,13 +740,12 @@ if (expireDateStr) {
             brandSection.appendChild(grid);
             container.appendChild(brandSection);
 
-            if (row.expireDate) {
-              expireDate = new Date(row.expireDate);
-            }
-
-            if (expireDate && expireDate instanceof Date && !isNaN(expireDate)) {
-              startBrandCountdown(expireDate, timerId);
-            }
+            if (expireDateStr) {
+  expireDate = new Date(expireDateStr);
+  if (!isNaN(expireDate)) {
+    startBrandCountdown(expireDate, timerId);
+  }
+}
 
             allBrandsData.push({
               brand: currentBrand,
