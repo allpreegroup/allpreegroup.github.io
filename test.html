@@ -593,6 +593,40 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   const allDealsFlat = [];
   let currentPopupDeal = null;
 
+  function startPopupCountdown(expireDate, el) {
+  if (!el || !expireDate) return;
+
+  function updateCountdown() {
+    const now = new Date();
+     const endTime = new Date(expireDate);
+     const diff = endTime - now;
+
+     if (diff <= 0) {
+      el.textContent = "❌ Deal expired";
+      el.classList.add("countdown-ended");
+      clearInterval(timerInterval);
+      return;
+  }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+    let timeStr = `${days}d ${hours}h ${minutes}m left`;
+
+    if (days === 0 && hours <= 3) {
+      el.classList.add("countdown-urgent");
+  }
+
+    el.textContent = `⏳ ${timeStr}`;
+  }
+
+    updateCountdown(); // initial call
+    const timerInterval = setInterval(updateCountdown, 60000); // every minute
+  }  
+
+
+	
   function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -623,14 +657,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     document.getElementById('brandLogo').alt = brandName;
     document.getElementById('brandName').textContent = brandName;
 
-   const popupTimerEl = document.getElementById('popupTimer');
-popupTimerEl.innerHTML = 'Loading...';
-popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+    const popupTimerEl = document.getElementById('popupTimer');
+    popupTimerEl.textContent = 'Loading...';
+    popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
 
-const brandInfo = allBrandsData.find(b => b.brand === brandName);
-if (brandInfo?.expireDate) {
-  startBrandCountdown(brandInfo.expireDate, 'popupTimer');
-}  
+    // Find the brand's expireDate
+    const brandInfo = allBrandsData.find(b => b.brand === brandName);
+
+    if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+    }
+	  
     const backArrow = document.getElementById('popupBack');
     if (window.history.length > 1) {
       backArrow.style.display = 'block';
