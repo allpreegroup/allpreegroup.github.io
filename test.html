@@ -621,22 +621,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);  // Calculate seconds
+    const seconds = Math.floor((diff / 1000) % 60); // 👈 add seconds here
 
-    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;  // Include seconds
+    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
 
-    el.textContent = `⏳ ${timeStr}`;  // Show the updated time with seconds
+    el.textContent = `⏳ ${timeStr}`;
   }
 
-  updateCountdown(); // Initial call to set the time
-  const timerInterval = setInterval(updateCountdown, 1000); // Update every second
+  updateCountdown(); // initial call
+  const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
 }
-
-// Example: how to call the function when opening the popup
-const expireDate = "2025-04-20T18:00:00";  // Set the expiration date
-const popupTimerElement = document.getElementById("popupTimer");  // Reference to the timer element in the popup
-
-startPopupCountdown(expireDate, popupTimerElement);  // Start the countdown
 
 	
   function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
