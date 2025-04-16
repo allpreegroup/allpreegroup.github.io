@@ -617,13 +617,14 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     cashbackEl.innerHTML = `MAX* CashBack: J$${cashbackAmount.toLocaleString()} <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹* </span>`;
    
 	  // Set popup countdown element
-  const popupCountdownEl = document.getElementById('brandCountdown');
-  if (popupTimer) clearInterval(popupTimer);
-  if (expireDate && !isNaN(new Date(expireDate))) {
-    popupTimer = startBrandCountdown(expireDate, 'brandCountdown');
-  } else {
-    popupCountdownEl.textContent = '';
-  }
+    if (popupTimer) clearInterval(popupTimer);
+
+const parsedExpire = new Date(expireDate);
+if (expireDate && !isNaN(parsedExpire.getTime())) {
+  popupTimer = startBrandCountdown(parsedExpire, 'brandCountdown');
+} else {
+  popupCountdownEl.textContent = '';
+}
 
 
 	  
@@ -759,7 +760,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
               description: row.Description,
               brandLogo: currentLogo,
               brandName: currentBrand,
-              expireDate: popupExpireDate
+              expireDate: row.ExpiryDate || row.expireDate || ''
             };
 
             dealCard.addEventListener('click', () => openPopup(dealData));
@@ -819,6 +820,14 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   }
 
   function startBrandCountdown(expireDate, elementId) {
+
+     const el = document.getElementById(elementId);
+    if (!el) {
+    console.warn(`Countdown element with ID "${elementId}" not found.`);
+    return;
+  }
+
+	  
     function update() {
       const el = document.getElementById(elementId);
       if (!el) return;
