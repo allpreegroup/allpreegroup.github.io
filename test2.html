@@ -6,46 +6,6 @@
   <title>Loved Deals</title>
   <link rel="stylesheet" href="styles.css">
 <style> 
-  /* Liked Deals Grid */
-#likedDealsContainer {
-  height: 70vh;
-  overflow-y: auto;
-}
-
-#likedDeals {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 10px;
-}
-
-#likedDeals .deal {
-  cursor: pointer;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-}
-
-#likedDeals .deal img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-#likedDeals .deal-title {
-  margin-top: 8px;
-  font-weight: bold;
-}
-
-#likedDeals .deal .price {
-  color: green;
-}
-
-#likedDeals .deal .discount {
-  color: red;
-}
-
 /* Popup Styles */
 #dealPopup {
   position: fixed;
@@ -82,6 +42,12 @@
   text-align: center;
 }
 
+#dealSwipeWrapper .deal-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
 button {
   background-color: #007bff;
   color: white;
@@ -95,23 +61,23 @@ button:hover {
   background-color: #0056b3;
 }
 
+
 </style>
   
 </head>
 <body>
 
+
   <!-- Button to view liked deals -->
   <button id="viewLikedDealsBtn">View Liked Deals</button>
-
-  <!-- Liked Deals Container -->
-  <div id="likedDealsContainer">
-    <div id="likedDeals"></div>
-  </div>
 
   <!-- Popup Modal for Deal Details -->
   <div id="dealPopup" style="display: none;">
     <div id="dealPopupContent">
-      <!-- Popup content will be injected here -->
+      <div id="dealSwipeWrapper">
+        <!-- Product details will be injected here and swipeable vertically -->
+      </div>
+      <button id="closePopupBtn">Close</button>
     </div>
   </div>
 
@@ -148,30 +114,8 @@ const likedDeals = [
   }
 ];
 
-// Function to display liked deals in grid
-function showLikedDeals() {
-  const likedDealsContainer = document.getElementById('likedDeals');
-  likedDealsContainer.innerHTML = ''; // Clear previous content
-
-  likedDeals.forEach(deal => {
-    const dealCard = document.createElement('div');
-    dealCard.className = 'deal';
-    dealCard.innerHTML = `
-      <img src="${deal.image}" alt="${deal.name}">
-      <div class="deal-title">${deal.name}</div>
-      <div class="price">JMD $${deal.original}</div>
-      <div class="discount">JMD $${deal.discount}</div>
-    `;
-    
-    // Add event listener to show the popup when clicked
-    dealCard.addEventListener('click', () => openDealPopup(deal));
-    
-    likedDealsContainer.appendChild(dealCard);
-  });
-}
-
-// Function to open popup for the selected deal
-function openDealPopup(deal) {
+// Function to open the popup with liked products
+function openDealPopup() {
   const popup = document.getElementById('dealPopup');
   const swipeWrapper = document.getElementById('dealSwipeWrapper');
 
@@ -194,7 +138,7 @@ function openDealPopup(deal) {
   popup.style.display = 'block';
 
   // Swipe functionality (vertical)
-  let currentIndex = likedDeals.indexOf(deal);
+  let currentIndex = 0;
   const cards = document.querySelectorAll('.deal-card');
 
   const updateSwipe = () => {
@@ -233,8 +177,8 @@ function openDealPopup(deal) {
   updateSwipe(); // Initial swipe position
 }
 
-// Display liked deals when the button is clicked
-document.getElementById('viewLikedDealsBtn').addEventListener('click', showLikedDeals);
+// Open popup when button is clicked
+document.getElementById('viewLikedDealsBtn').addEventListener('click', openDealPopup);
 
   </script>
 </body>
