@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loved Deals</title>
+  <link rel="stylesheet" href="styles.css">
+<style> 
+  /* Liked Deals Grid */
+#likedDealsContainer {
+  height: 70vh; /* Adjust height for the grid */
+  overflow-y: auto; /* Vertical scroll */
+}
+
+#likedDeals {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two items per row */
+  gap: 10px;
+  padding: 10px;
+}
+
+#likedDeals .deal {
+  cursor: pointer; /* Indicates that items are clickable */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+#likedDeals .deal img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+#likedDeals .deal-title {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+#likedDeals .deal .price {
+  color: green;
+}
+
+#likedDeals .deal .discount {
+  color: red;
+}
+
+/* Popup Styles */
+#dealPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  display: none;
+}
+
+#dealPopupContent {
+  position: relative;
+  top: 20%;
+  margin: auto;
+  width: 80%;
+  padding: 20px;
+  background: #333;
+  border-radius: 8px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
+}
+
+</style>
+  
+</head>
+<body>
+
+  <!-- Button to view liked deals -->
+  <button id="viewLikedDealsBtn">View Liked Deals</button>
+
+  <!-- Liked Deals Container -->
+  <div id="likedDealsContainer">
+    <div id="likedDeals"></div>
+  </div>
+
+  <!-- Popup Modal for Deal Details -->
+  <div id="dealPopup" style="display: none;">
+    <div id="dealPopupContent">
+      <!-- Popup content will be injected here -->
+    </div>
+  </div>
+
+  <script>
+// Sample data for the liked deals
+const likedDeals = [
+  {
+    id: 1,
+    name: 'Product 1',
+    image: 'https://via.placeholder.com/150',
+    original: 5000,
+    discount: 3500,
+  },
+  {
+    id: 2,
+    name: 'Product 2',
+    image: 'https://via.placeholder.com/150',
+    original: 7000,
+    discount: 4200,
+  },
+  {
+    id: 3,
+    name: 'Product 3',
+    image: 'https://via.placeholder.com/150',
+    original: 6000,
+    discount: 4000,
+  },
+  {
+    id: 4,
+    name: 'Product 4',
+    image: 'https://via.placeholder.com/150',
+    original: 8000,
+    discount: 4800,
+  }
+];
+
+// Function to display liked deals in grid
+function showLikedDeals() {
+  const likedDealsContainer = document.getElementById('likedDeals');
+  likedDealsContainer.innerHTML = ''; // Clear previous content
+
+  likedDeals.forEach(deal => {
+    const dealCard = document.createElement('div');
+    dealCard.className = 'deal';
+    dealCard.innerHTML = `
+      <img src="${deal.image}" alt="${deal.name}">
+      <div class="deal-title">${deal.name}</div>
+      <div class="price">JMD $${deal.original}</div>
+      <div class="discount">JMD $${deal.discount}</div>
+    `;
+    
+    // Add event listener to show the popup when clicked
+    dealCard.addEventListener('click', () => openDealPopup(deal));
+    
+    likedDealsContainer.appendChild(dealCard);
+  });
+}
+
+// Function to open popup for the selected deal
+function openDealPopup(deal) {
+  const popup = document.getElementById('dealPopup');
+  const popupContent = document.getElementById('dealPopupContent');
+
+  // Populate popup with deal details
+  popupContent.innerHTML = `
+    <img src="${deal.image}" alt="${deal.name}">
+    <div class="deal-title">${deal.name}</div>
+    <div class="price">JMD $${deal.original}</div>
+    <div class="discount">JMD $${deal.discount}</div>
+    <button id="closePopupBtn">Close</button>
+  `;
+
+  // Show the popup
+  popup.style.display = 'block';
+
+  // Close popup functionality
+  document.getElementById('closePopupBtn').addEventListener('click', () => {
+    popup.style.display = 'none';
+  });
+}
+
+// Display liked deals when the button is clicked
+document.getElementById('viewLikedDealsBtn').addEventListener('click', showLikedDeals);
+
+    
+  </script>
+</body>
+</html>
