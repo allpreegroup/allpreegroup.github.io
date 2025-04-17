@@ -37,7 +37,8 @@
 }
 
 #dealSwipeWrapper .deal-card {
-  min-height: 100%;
+  height: 100vh; /* Each card takes full height */
+  flex-shrink: 0;
   transition: transform 0.3s ease-in-out;
   text-align: center;
 }
@@ -60,6 +61,7 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
 
 
 </style>
@@ -161,24 +163,7 @@ function openDealPopup() {
     if (Math.abs(moveY) > 50) {
       if (moveY > 0 && currentIndex > 0) {
         currentIndex--; // Swipe up
-      } else if (moveY < 0 && currentIndex < likedDeals.length - 1) {
-        currentIndex++; // Swipe down
-      }
-      updateSwipe();
-      startY = e.touches[0].clientY;
-    }
-  }
-
-  // Close popup functionality
-  document.getElementById('closePopupBtn').addEventListener('click', () => {
-    popup.style.display = 'none';
-  });
-
-  updateSwipe(); // Initial swipe position
-}
-
-// Open popup when button is clicked
-document.getElementById('viewLikedDealsBtn').addEventListener('click', openDealPopup);
+      } else if (moveY < 0 && currentIndex < likedDeals.length
 
   </script>
 </body>
