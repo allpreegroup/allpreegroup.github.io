@@ -8,19 +8,19 @@
 <style> 
   /* Liked Deals Grid */
 #likedDealsContainer {
-  height: 70vh; /* Adjust height for the grid */
-  overflow-y: auto; /* Vertical scroll */
+  height: 70vh;
+  overflow-y: auto;
 }
 
 #likedDeals {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two items per row */
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   padding: 10px;
 }
 
 #likedDeals .deal {
-  cursor: pointer; /* Indicates that items are clickable */
+  cursor: pointer;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 10px;
@@ -66,6 +66,20 @@
   padding: 20px;
   background: #333;
   border-radius: 8px;
+  text-align: center;
+}
+
+#dealSwipeWrapper {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 60vh;
+}
+
+#dealSwipeWrapper .deal-card {
+  min-height: 100%;
+  transition: transform 0.3s ease-in-out;
+  text-align: center;
 }
 
 button {
@@ -76,9 +90,11 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+
 button:hover {
   background-color: #0056b3;
 }
+
 
 </style>
   
@@ -159,29 +175,69 @@ function showLikedDeals() {
 function openDealPopup(deal) {
   const popup = document.getElementById('dealPopup');
   const popupContent = document.getElementById('dealPopupContent');
+  const swipeWrapper = document.getElementById('dealSwipeWrapper');
 
-  // Populate popup with deal details
-  popupContent.innerHTML = `
-    <img src="${deal.image}" alt="${deal.name}">
-    <div class="deal-title">${deal.name}</div>
-    <div class="price">JMD $${deal.original}</div>
-    <div class="discount">JMD $${deal.discount}</div>
-    <button id="closePopupBtn">Close</button>
-  `;
+  // Populate swipeable wrapper with deal details
+  swipeWrapper.innerHTML = ''; // Clear previous content
+  likedDeals.forEach(d => {
+    const dealCard = document.createElement('div');
+    dealCard.className = 'deal-card';
+    dealCard.innerHTML = `
+      <img src="${d.image}" alt="${d.name}">
+      <div class="deal-title">${d.name}</div>
+      <div class="price">JMD $${d.original}</div>
+      <div class="discount">JMD $${d.discount}</div>
+    `;
+    
+    swipeWrapper.appendChild(dealCard);
+  });
 
   // Show the popup
   popup.style.display = 'block';
+
+  // Swipe functionality (vertical)
+  let currentIndex = likedDeals.indexOf(deal);
+  const cards = document.querySelectorAll('.deal-card');
+
+  const updateSwipe = () => {
+    const offset = -currentIndex * 100; // Move cards based on index
+    swipeWrapper.style.transform = `translateY(${offset}%)`;
+  };
+
+  // Add swipe listeners for up and down swipes
+  swipeWrapper.addEventListener('touchstart', handleTouchStart, false);
+  swipeWrapper.addEventListener('touchmove', handleTouchMove, false);
+
+  let startY;
+
+  function handleTouchStart(e) {
+    startY = e.touches[0].clientY;
+  }
+
+  function handleTouchMove(e) {
+    let moveY = e.touches[0].clientY - startY;
+    if (Math.abs(moveY) > 50) {
+      if (moveY > 0 && currentIndex > 0) {
+        currentIndex--; // Swipe up
+      } else if (moveY < 0 && currentIndex < likedDeals.length - 1) {
+        currentIndex++; // Swipe down
+      }
+      updateSwipe();
+      startY = e.touches[0].clientY;
+    }
+  }
 
   // Close popup functionality
   document.getElementById('closePopupBtn').addEventListener('click', () => {
     popup.style.display = 'none';
   });
+
+  updateSwipe(); // Initial swipe position
 }
 
 // Display liked deals when the button is clicked
 document.getElementById('viewLikedDealsBtn').addEventListener('click', showLikedDeals);
 
-    
   </script>
 </body>
 </html>
