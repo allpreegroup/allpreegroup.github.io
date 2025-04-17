@@ -248,23 +248,24 @@ Click The Button Below </h4> </center>
   }
 
   function finishSetup() {
-    const isAndroid = /android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if (isInStandaloneMode()) {
-      // Already in PWA mode, show message only
-      alert("You're already in the app (PWA mode).");
+  if (isInStandaloneMode()) {
+    // Already in PWA mode, show message only
+    alert("You're already in the app (PWA mode).");
+  } else {
+    if (isAndroid) {
+      alert("This app is already installed. If prompted, tap 'Open app' to continue.");
+      window.open("/contact", "_blank");
+    } else if (isIOS) {
+      alert("Please open this from the app icon on your home screen to continue.");
     } else {
-      if (isAndroid) {
-        alert("This app is already installed. If prompted, tap 'Open app' to continue.");
-        window.location.href = "/contact", "_blank"); // Removed redirect
-      } else if (isIOS) {
-        alert("Please open this from the app icon on your home screen to continue.");
-      } else {
-        alert("This feature is only available in the installed app (PWA). Please visit using your mobile device.");
-      }
+      alert("This feature is only available in the installed app (PWA). Please visit using your mobile device.");
     }
   }
+}
+
 
   // Detect device and show relevant instructions
   function detectDevice() {
