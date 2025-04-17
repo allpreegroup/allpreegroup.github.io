@@ -1,183 +1,1023 @@
 <!DOCTYPE html>
 <html lang="en">
+    <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loved Deals</title>
-  <link rel="stylesheet" href="styles.css">
-<style> 
-/* Popup Styles */
-#dealPopup {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+ <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
+ <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
+<link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
+
+    <meta charset="UTF-8">
+     <title>See Today's Deals</title>
+        <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin-top: 20px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    
+    }
+
+.noscroll {
+  overflow: hidden;
+  height: 100vh;
+}
+		
+.top-deal-badge {
+  background-color: gold;
+  color: #000;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -225px;
+  font-size: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+.brand-logo-container {
+  position: absolute; /* Needed for badge positioning */
+ 
+}
+	     
+	     
+.top-brand-highlight {
+	
+  border: 3px solid gold;	
+  border-radius: 12px;
+  animation: glowPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px gold;
+  
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 10px gold;
+  }
+  50% {
+    box-shadow: 0 0 20px orange;
+  }
+  100% {
+    box-shadow: 0 0 10px gold;
+  }
+}
+
+     .countdown-timer {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.countdown-urgent .countdown-timer {
+  color: #ff4136;
+  animation: blink 1s step-start 0s infinite;
+}
+
+.countdown-ended {
+  color: gray;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+	
+    .countdown {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .brand-section {
+      margin-bottom: 30px;
+	    
+	    
+    }
+    .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+	    
+  margin-left: -15px;
+  margin-right: -15px;
+  width: calc(100% + 30px); /* wider than container */    
+  
+  background-color: #fff;
+  padding: 1px 1px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1px;
+  min-height: 7px;
+}
+
+.brand-logo-container {
+  height: 60px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+    .brand img {
+      width: 100px;
+      height: 100px;
+      margin-left: 8px;
+      border-radius: 1px;
+      object-fit: contain;
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-left: 67px;
+    }
+    .brand-timer {
+  font-size: 14px;
+  margin-left: 67px;
+    }
+
+    .deal {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      flex: 0 0 auto;
+      margin-left: -20px;
+      margin-right: -20px;
+      width: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      cursor: pointer;
+    }
+    .deal-grid {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(2, 1fr); /* 2 rows */
+      grid-auto-columns: 54.2%;  
+       
+       margin-left: -5px;
+       margin-right: -5px;
+	    
+      gap: 15px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 10px 20px;  /*Slightly more padding for breathing room */
+      scrollbar-width: none; /* Firefox */
+    }
+    .deal-grid::-webkit-scrollbar {
+      display: none; /* Chrome, Safari */
+	    
+    }
+    .deal img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    .deal-content {
+      padding: 10px;
+      
+    }
+    .deal-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .price {
+      color: #999;
+      text-decoration: line-through;
+      font-size: 14px;
+    }
+    .discount {
+      color: #e60000;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .discount-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 4px;
+    }
+
+     /* Popup Styles */
+.popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 10%,
+    rgba(0, 0, 0, 1) 20%,
+    rgba(0, 0, 0, 1) 30%,
+    rgba(0, 0, 0, 1) 40%,
+    rgba(0, 0, 0, 1) 50%,
+    rgba(0, 0, 0, 1) 60%,
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 1) 90%,
+    rgba(0, 0, 0, 1) 100%
+  );
   display: none;
-}
-
-#dealPopupContent {
-  position: relative;
-  top: 20%;
-  margin: auto;
-  width: 80%;
-  padding: 20px;
-  background: #333;
-  border-radius: 8px;
-  text-align: center;
-}
-
-#dealSwipeWrapper {
-  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
   flex-direction: column;
-  overflow: hidden;
-  height: 60vh;
+  gap: 20px;
 }
 
-#dealSwipeWrapper .deal-card {
-  height: 100vh; /* Each card takes full height */
-  flex-shrink: 0;
-  transition: transform 0.3s ease-in-out;
-  text-align: center;
+.popup-content {
+  background: white;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
-#dealSwipeWrapper .deal-card img {
+.popup-content img {
   width: 100%;
-  height: auto;
-  border-radius: 8px;
+  max-height: 250px;
+  object-fit: contain;
+  padding: 10px;
+  background: #f9f9f9;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  position: relative;
 }
 
-button {
-  background-color: #007bff;
+.popup-body {
+  padding: 20px;
+}
+
+.popup-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.popup-price {
+  font-size: 14px;
+  text-decoration: line-through;
+  color: #888;
+}
+
+.popup-discount {
+  font-size: 18px;
+  color: #e60000;
+  font-weight: bold;
+}
+		
+.popup-cashback {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 18px;
+}	
+		
+.final-price {
+  margin-top: -10px;  
+  margin-bottom: 10px;
+  color: #e60000; /* Green shade for positive pricing */
+  font-weight: bold;
+  font-size: 12px;
+}
+		
+.popup-discount-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: red;
   color: white;
-  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.popup-savings {
+  position: absolute; /* Position it absolutely */
+  top: 15px; /* Adjust position as needed */
+  left: 15px; /* Align to the right side */
+  background: #28a745; /* Green color for savings */
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  z-index: 10; /* Ensure it stays above other elements */
+}
+
+
+.popup-description {
+  font-size: 14px;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  color: #333;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.popup-brand-box {
+  margin: 20px;
+  padding: 15px;
+  border-top: 1px solid #eee;
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column; /* Stack brand name and timer vertically */
+  align-items: flex-start; /* Align to the left */
+  gap: 8px; /* Space between brand name and timer */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.popup-brand-box .brand-logo-container {
+  height: 50px;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-brand-box .brand-logo-container img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.popup-brand-box .brand-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.popup-brand-box .brand-timer {
+  font-size: 14px;
+  color: #555;
+}
+
+
+.popup-back-arrow {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
   border: none;
-  border-radius: 5px;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+  display: none;
+  z-index: 11;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.popup-back-arrow:hover {
+  color: black;
+}
+
+.like-button.liked {
+  color: red;
+}	
+
+.liked-gallery {
+  display: none;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px;
+  background: #f5f5f5;
+}
+
+.liked-gallery img {
+  height: 120px;
+  margin-right: 10px;
+  border-radius: 8px;
   cursor: pointer;
 }
+		
+		
 
-button:hover {
-  background-color: #0056b3;
-}
-
-</style>
+  </style>
   
+<link rel="manifest" href="https://www.allpree.com/manifest.json">
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("https://www.allpree.com/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
+    }
+</script>	
 </head>
 <body>
+<!-- start webpushr tracking code --> 
+<script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
+fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
+webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
+<!-- end webpushr tracking code -->
 
-<!-- Button to open the popup -->
-<button id="viewLikedDealsBtn">View Liked Deals</button>
-
-<!-- Popup container -->
-<div id="dealPopup">
-  <div id="dealPopupContent">
-    <div id="dealSwipeWrapper"></div>
-    <button id="closePopupBtn">Close</button>
-  </div>
-</div>
-
-  <script>
-// Sample data for the liked deals
-const likedDeals = [
-  {
-    id: 1,
-    name: 'Product 1',
-    image: 'https://via.placeholder.com/150',
-    original: 5000,
-    discount: 3500,
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    image: 'https://via.placeholder.com/150',
-    original: 7000,
-    discount: 4200,
-  },
-  {
-    id: 3,
-    name: 'Product 3',
-    image: 'https://via.placeholder.com/150',
-    original: 6000,
-    discount: 4000,
-  },
-  {
-    id: 4,
-    name: 'Product 4',
-    image: 'https://via.placeholder.com/150',
-    original: 8000,
-    discount: 4800,
-  }
-];
-
-// Function to open the popup with liked products
-function openDealPopup() {
-  const popup = document.getElementById('dealPopup');
-  const swipeWrapper = document.getElementById('dealSwipeWrapper');
-
-  // Populate swipeable wrapper with deal details
-  swipeWrapper.innerHTML = ''; // Clear previous content
-  likedDeals.forEach(d => {
-    const dealCard = document.createElement('div');
-    dealCard.className = 'deal-card';
-    dealCard.innerHTML = `
-      <img src="${d.image}" alt="${d.name}">
-      <div class="deal-title">${d.name}</div>
-      <div class="price">JMD $${d.original}</div>
-      <div class="discount">JMD $${d.discount}</div>
-    `;
-    
-    swipeWrapper.appendChild(dealCard);
+<!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d4d4a08e-e7f1-49b4-9d7b-0c4c57222df1",
+      safari_web_id: "web.onesignal.auto.2d1085e1-a560-4918-b950-42f254dd8495",
+      notifyButton: {
+        enable: true,
+      },
+    });
   });
+</script> -->
 
-  // Show the popup
-  popup.style.display = 'block';
+<!-- Fullscreen Overlay -->
+ <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+   <button onclick="smartBack()" style="
+     position:absolute;
+     top:15px;
+     right:15px;
+     z-index:10000;
+     background:#000;
+     color:#fff;
+     border:none;
+     padding:10px 15px;
+     font-size:16px;
+     border-radius:8px;
+   ">✕ Close</button>
+ 
+   <div id="menuContent" style="padding:20px;"></div>
+ </div>
+ 
+ <script>
+ function loadMenu() {
+   fetch('https://www.allpree.com/menu/')
+     .then(response => response.text())
+     .then(html => {
+       document.getElementById('menuContent').innerHTML = html;
+       document.getElementById('fullscreenOverlay').style.display = 'block';
+     })
+     .catch(err => {
+       alert("Failed to load menu.");
+       console.error(err);
+     });
+ }
+ 
+ function smartBack(fallbackUrl = '/balance') {
+   const previous = document.referrer;
+ 
+   if (previous && previous !== window.location.href) {
+     window.location.href = previous;
+   } else {
+     window.location.href = fallbackUrl;
+   }
+ }
+ 
+ </script>
 
-  // Swipe functionality (vertical)
-  let currentIndex = 0;
-  const cards = document.querySelectorAll('.deal-card');
 
-  const updateSwipe = () => {
-    const offset = -currentIndex * 100; // Move cards based on index
-    swipeWrapper.style.transform = `translateY(${offset}%)`;
-  };
+<nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <a href="#" onclick="loadMenu(); return false;">   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Toggle navigation</span> Menu <i class="fa-solid fa-bars"></i>
+                </button> 
 
-  // Add swipe listeners for up and down swipes
-  swipeWrapper.addEventListener('touchstart', handleTouchStart, false);
-  swipeWrapper.addEventListener('touchmove', handleTouchMove, false);
+             </a>
+               
 
-  let startY;
+           <!--  <a class="navbar-brand page-scroll" href="https://twitter.com/allpreedotcom"><i class="fa-brands fa-twitter"></i></a>
+             <a class="navbar-brand page-scroll" href="https://instagram.com/allpreedotcom"><i class="fa-brands fa-instagram"></i></a>
+             <a class="navbar-brand page-scroll" href="https://facebook.com/allpreedotcom"><i class="fa-brands fa-facebook"></i></a> -->
+             
+             <!--    <a class="navbar-brand page-scroll" onclick="history.back()"><i class="fa-solid fa-backward"></i></a>  
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
 
-  function handleTouchStart(e) {
-    startY = e.touches[0].clientY;
+             
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals"><strong><i class="fa-solid fa-badge-percent fa-lg"></i></strong> Deals</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp" ><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
+              
+	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/invite" >Earn</a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance"><strong><i class="fa-solid fa-house"></i> HOME</strong></a>
+               
+            <!--   <a class="navbar-brand page-scroll" href="https://www.allpree.com/join" >Msg HR</a> -->
+
+              
+             
+            <!--   <a class="navbar-brand page-scroll" href="https://www.snapchat.com/add/allpreedotcom"><i class="fa-brands fa-snapchat"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll" href="https://tiktok.com/@joinwatsapp"><i class="fa-brands fa-tiktok"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll">&nbsp;<strong>EVERY Day Is Black Friday!</strong></a>  
+      <a class="navbar-brand page-scroll">&nbsp;<strong>Allpree Plus <i class="fa-solid fa-location-plus"></i></strong></a>
+             <a class="navbar-brand page-scroll" href=""><strong><i class="fa-brands fa-whatsapp"></i> eCom <i class="fa-brands fa-btc"></i></strong> - Semi Done For You </a> 
+             	  <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Investors</a>
+              <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Resellers</a>
+             <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Referrals</a> 
+               -->
+              
+             
+             
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling &nbsp; -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <!--  <ul class="nav navbar-nav navbar-right">
+                <li>
+                   <a class="page-scroll" href="https://www.allpree.com/referral-program" >Refer & Earn</a>
+                    </li>
+                    <li>
+                   <a class="page-scroll" href="https://www.allpree.com/list/">All Stores</a>
+                    </li>
+                    <li>
+                  <a class="page-scroll" href="https://www.allpree.com/balance/"><strong>Check Balance</strong></a> 
+                    </li> 
+                </ul> -->
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+	<div class="container">
+             <div class="row land">
+                 <div class="home">     
+ 			<div class="center">
+                 <div class="col-md-6 home-txt1"> <br><br>
+<button id="viewLikedBtn">View Liked Deals</button>
+<div id="likedGallery" class="liked-gallery"></div>
+			
+  <div id="deals-container">Loading deals...</div>
+
+ <!-- Popup Overlay -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <div style="position: relative;">
+      <span class="popup-discount-badge" id="popupBadge"></span>
+      <button id="popupBack" class="popup-back-arrow"></button> 
+      <img id="popupImg" src="" alt="Product">
+	    <button id="likeButton" class="like-button">❤️ Like</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-title" id="popupTitle"></div>
+      <div class="popup-price" id="popupPrice"></div>
+      <div class="popup-discount" id="popupDiscount"></div>
+      <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
+      <div id="popupCashback" class="popup-cashback"></div>
+      <div class="popup-description" id="popupDesc"></div>
+     
+    </div>	  
+  </div> 
+
+ <!-- Brand Box Wrapper -->
+<div class="popup-brand-box" id="brandContainer">
+  <div class="brand-logo-container">
+    <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
+  </div>
+
+	<div class="brand-text-container">
+    <div id="brandName" class="brand-name"></div>
+    <span id="popupTimer" class="brand-timer"></span>
+  </div>
+  
+</div>
+	
+</div> 
+
+
+<script>
+	let sheetUrls = [];
+
+async function loadSheetUrls() {
+  try {
+    // Fetch the sheeturls.json
+    const response = await fetch('https://www.allpree.com/sheeturls.json'); // Make sure this is the correct URL to your JSON file
+    const data = await response.json();
+
+    // Now we have the array of URLs
+    sheetUrls = data.sheeturls; // This will assign the URLs to the sheetUrls variable
+    console.log(sheetUrls); // You can log the URLs to confirm
+    loadDeals(); // Call the loadDeals function after loading the sheet URLs
+  } catch (err) {
+    console.error('Failed to load sheet URLs:', err);
+  }
+}
+
+loadSheetUrls(); // Call this function to initialize and load the URLs
+
+
+	let likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+
+function saveLikedDeals() {
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+}
+
+function isDealLiked(deal) {
+  return likedDeals.some(d => d.name === deal.name);
+}
+
+
+	
+  const allBrandsData = [];
+  const allDealsFlat = [];
+  let currentPopupDeal = null;
+
+ function startPopupCountdown(expireDate, el) {
+  if (!el || !expireDate) return;
+
+  function updateCountdown() {
+    const now = new Date();
+    const endTime = new Date(expireDate);
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      el.textContent = "❌ Deal expired";
+      el.classList.add("countdown-ended");
+      clearInterval(timerInterval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60); // 👈 add seconds here
+
+    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+
+    el.textContent = `⏳ ${timeStr}`;
   }
 
-  function handleTouchMove(e) {
-    let moveY = e.touches[0].clientY - startY;
-    if (Math.abs(moveY) > 50) {
-      if (moveY > 0 && currentIndex > 0) {
-        currentIndex--; // Swipe up
-      } else if (moveY < 0 && currentIndex < likedDeals.length - 1) {
-        currentIndex++; // Swipe down
+  updateCountdown(); // initial call
+  const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
+}
+	
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+    const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+    const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+    const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+    const savings = originalPrice - discountPrice;
+
+    const cashbackPercent = 49; // set your max cashback
+    const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+    const finalPrice = discountPrice - cashbackAmount;
+
+const likeButton = document.getElementById('likeButton');
+likeButton.classList.toggle('liked', isDealLiked(currentPopupDeal));
+
+likeButton.onclick = () => {
+  const index = likedDeals.findIndex(d => d.name === currentPopupDeal.name);
+
+  if (index === -1) {
+    likedDeals.push(currentPopupDeal);
+    likeButton.classList.add('liked');
+  } else {
+    likedDeals.splice(index, 1);
+    likeButton.classList.remove('liked');
+  }
+
+  saveLikedDeals();
+};
+
+	  
+    // Show cashback in the popup
+    const cashbackEl = document.getElementById('popupCashback');
+    cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+    
+  // ⛔️ Disable scroll
+  document.body.classList.add('noscroll');
+	  
+    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+
+    document.getElementById('popupImg').src = image;
+    document.getElementById('popupTitle').textContent = name;
+    document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+    document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
+    document.getElementById('popupDesc').textContent = description || '';
+    document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+    document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+
+    document.getElementById('brandLogo').src = brandLogo;
+    document.getElementById('brandLogo').alt = brandName;
+    document.getElementById('brandName').textContent = brandName;
+
+    const popupTimerEl = document.getElementById('popupTimer');
+    popupTimerEl.textContent = 'Loading...';
+    popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+    // Find the brand's expireDate
+    const brandInfo = allBrandsData.find(b => b.brand === brandName);
+
+    if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+    }
+	  
+    const backArrow = document.getElementById('popupBack');
+    if (window.history.length > 1) {
+      backArrow.style.display = 'block';
+    } else {
+      backArrow.style.display = 'none';
+    }
+
+    if (!skipHistory) {
+      history.pushState({ popup: true, dealName: name }, '', '');
+    }
+
+    document.getElementById('popup').style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    currentPopupDeal = null;
+
+	  // ✅ Re-enable scroll
+  document.body.classList.remove('noscroll');
+  }
+
+  async function loadDeals() {
+    const container = document.getElementById('deals-container');
+    container.innerHTML = '';
+    allBrandsData.length = 0;
+    allDealsFlat.length = 0;
+
+    try {
+      for (let sheetUrl of sheetUrls) {
+        const res = await fetch(sheetUrl);
+        const rows = await res.json();
+
+        let currentBrand = '';
+        let currentLogo = '';
+        let brandSection = null;
+        let grid = null;
+        let brandDeals = [];
+        let expireDate = '';
+
+        rows.forEach(row => {
+          if (row.BrandName && row.BrandLogo) {
+            currentBrand = row.BrandName;
+            currentLogo = row.BrandLogo;
+
+            brandSection = document.createElement('div');
+            brandSection.className = 'brand-section';
+
+            const brandDiv = document.createElement('div');
+            brandDiv.className = 'brand';
+            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+            brandDiv.innerHTML = `
+            <div class="brand-logo-container">
+              <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <div>
+              <span class="brand-name">${currentBrand}</span><br>
+              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+            </div>
+`;
+
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            if (expireDateStr) {
+            startBrandCountdown(expireDateStr, timerId);
+           }
+
+
+            brandSection.appendChild(brandDiv);
+
+            grid = document.createElement('div');
+            grid.className = 'deal-grid';
+            brandSection.appendChild(grid);
+            container.appendChild(brandSection);
+
+            if (expireDateStr) {
+            expireDate = new Date(expireDateStr);
+           if (!isNaN(expireDate)) {
+           startBrandCountdown(expireDate, timerId);
+          }
+         }
+
+            allBrandsData.push({
+              brand: currentBrand,
+              logo: currentLogo,
+              expireDate,
+              section: brandSection,
+              grid,
+              deals: brandDeals
+            });
+          }
+
+          if (row.ProductName && row.ImageURL) {
+            const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+            const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+            const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+            const dealCard = document.createElement('div');
+            dealCard.className = 'deal';
+            dealCard.innerHTML = `
+              <span class="discount-badge">${percentOff}% OFF</span>
+              <img src="${row.ImageURL}" alt="${row.ProductName}">
+              <div class="deal-content">
+                <div class="deal-title">${shortName}</div>
+                <div class="price">JMD $${row.OriginalPrice}</div>
+                <div class="discount">JMD $${row.DiscountPrice}</div>
+              </div>
+            `;
+
+            const dealData = {
+              image: row.ImageURL,
+              name: row.ProductName,
+              original: row.OriginalPrice,
+              discount: row.DiscountPrice,
+              description: row.Description,
+              brandLogo: currentLogo,
+              brandName: currentBrand
+            };
+
+            dealCard.addEventListener('click', () => openPopup(dealData));
+
+            brandDeals.push({
+              element: dealCard,
+              percentOff,
+              expireDate: row.expireDate
+            });
+
+            allDealsFlat.push(dealData);
+          }
+        });
       }
-      updateSwipe();
-      startY = e.touches[0].clientY;
+
+      allBrandsData.forEach(brandData => {
+        brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+        brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+      });
+
+      allBrandsData.forEach(brandData => {
+        brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+        brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+      });
+
+      allBrandsData.sort((a, b) => {
+        if (b.bestDiscount !== a.bestDiscount) {
+          return b.bestDiscount - a.bestDiscount;
+        }
+        return a.timeRemaining - b.timeRemaining;
+      });
+
+      container.innerHTML = '';
+
+      allBrandsData.forEach((brandData, index) => {
+        if (index === 0) {
+          const badge = document.createElement('div');
+          badge.className = 'top-deal-badge';
+          badge.textContent = '🔥 Hottest Discount';
+          brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+          brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+        }
+        container.appendChild(brandData.section);
+      });
+
+      setTimeout(() => {
+        const topBrand = allBrandsData[0];
+        if (topBrand?.section) {
+          topBrand.section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+
+    } catch (err) {
+      console.error('Failed to load deals:', err);
+      container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
     }
   }
 
-  // Close popup functionality
-  document.getElementById('closePopupBtn').addEventListener('click', () => {
-    popup.style.display = 'none';
-  });
+function startBrandCountdown(expireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
 
-  updateSwipe(); // Initial swipe position
+    const timeLeft = new Date(expireDate) - new Date();
+
+    if (timeLeft <= 0) {
+      el.textContent = '❌ Deal ended';
+      el.classList.add('countdown-ended');
+      clearInterval(timer);
+    } else {
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
+      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+
+      let countdownStr = '';
+      if (days > 0) {
+        countdownStr += `${days}d `;
+      }
+
+      countdownStr += `${hrs}hr :${mins}min :${secs}sec`;
+
+      el.innerHTML = `⏳ <span class="countdown-timer">Ends in: ${countdownStr}</span>`;
+
+      if (timeLeft <= 3600000) {
+        el.classList.add('countdown-urgent');
+      } else {
+        el.classList.remove('countdown-urgent');
+      }
+    }
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
 }
 
-// Open popup when button is clicked
-document.getElementById('viewLikedDealsBtn').addEventListener('click', openDealPopup);
+  document.getElementById('popup').addEventListener('click', function (e) {
+    if (e.target === this) {
+      closePopup();
+    }
+  });
+
+  window.onpopstate = function (event) {
+    if (event.state?.popup && event.state.dealName) {
+      const deal = allDealsFlat.find(d => d.name === event.state.dealName);
+      if (deal) {
+        openPopup(deal, true); // skip history push
+      }
+    } else {
+      closePopup();
+    }
+  };
+
+  loadDeals();
+	
+	function addPopupSwipeListeners() {
+  const popup = document.getElementById('popup');
+  let startY = 0;
+  let endY = 0;
+
+  popup.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+    }
+  });
+
+  popup.addEventListener('touchend', (e) => {
+    endY = e.changedTouches[0].clientY;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const deltaY = endY - startY;
+
+    if (Math.abs(deltaY) > 50) {
+      if (deltaY < 0) {
+        // Swipe Up — Show random product
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        openPopup(next);
+      } else {
+        // Swipe Down — Go back
+        window.history.back();
+      }
+    }
+  }
+}
+
+// Call this after your popup is ready
+addPopupSwipeListeners();
+</script>
 
 
-  </script>
+			 
 </body>
 </html>
