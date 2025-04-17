@@ -62,26 +62,21 @@ button:hover {
   background-color: #0056b3;
 }
 
-
-
 </style>
   
 </head>
 <body>
 
+<!-- Button to open the popup -->
+<button id="viewLikedDealsBtn">View Liked Deals</button>
 
-  <!-- Button to view liked deals -->
-  <button id="viewLikedDealsBtn">View Liked Deals</button>
-
-  <!-- Popup Modal for Deal Details -->
-  <div id="dealPopup" style="display: none;">
-    <div id="dealPopupContent">
-      <div id="dealSwipeWrapper">
-        <!-- Product details will be injected here and swipeable vertically -->
-      </div>
-      <button id="closePopupBtn">Close</button>
-    </div>
+<!-- Popup container -->
+<div id="dealPopup">
+  <div id="dealPopupContent">
+    <div id="dealSwipeWrapper"></div>
+    <button id="closePopupBtn">Close</button>
   </div>
+</div>
 
   <script>
 // Sample data for the liked deals
@@ -163,7 +158,25 @@ function openDealPopup() {
     if (Math.abs(moveY) > 50) {
       if (moveY > 0 && currentIndex > 0) {
         currentIndex--; // Swipe up
-      } else if (moveY < 0 && currentIndex < likedDeals.length
+      } else if (moveY < 0 && currentIndex < likedDeals.length - 1) {
+        currentIndex++; // Swipe down
+      }
+      updateSwipe();
+      startY = e.touches[0].clientY;
+    }
+  }
+
+  // Close popup functionality
+  document.getElementById('closePopupBtn').addEventListener('click', () => {
+    popup.style.display = 'none';
+  });
+
+  updateSwipe(); // Initial swipe position
+}
+
+// Open popup when button is clicked
+document.getElementById('viewLikedDealsBtn').addEventListener('click', openDealPopup);
+
 
   </script>
 </body>
