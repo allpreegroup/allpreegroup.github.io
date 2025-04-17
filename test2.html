@@ -409,19 +409,35 @@
   color: red;
 }	
 
-.liked-gallery {
-  display: none;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 10px;
-  background: #f5f5f5;
+.like-button, .bg-white {
+  background-color: #fff;
+  color: #f00;
+  padding: 10px 20px;
+  border: 1px solid #f00;
+  cursor: pointer;
 }
 
-.liked-gallery img {
-  height: 120px;
-  margin-right: 10px;
-  border-radius: 8px;
-  cursor: pointer;
+.like-button.liked {
+  background-color: #f00;
+  color: #fff;
+}
+
+.bg-white {
+  background-color: white;
+  color: #000;
+}
+
+.popup-back-arrow {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+.popup-discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 		
 		
@@ -574,12 +590,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="home">     
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
-<button id="viewLikedBtn">View Liked Deals</button>
-<div id="likedGallery" class="liked-gallery"></div>
+
 			
   <div id="deals-container">Loading deals...</div>
 
- <!-- Popup Overlay -->
+<!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
   <div class="popup-content" id="popupContent">
     <span class="popup-close" onclick="closePopup()">×</span>
@@ -587,35 +602,144 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
-	    <button id="likeButton" class="like-button">❤️ Like</button>
+       <button id="likeButton">🤍 Like</button>
+  <button id="viewLikedInside" style="display: none;">View ❤️</button>
+  <button id="backToRandom" style="display: none;">Back to Random Deal</button>
     </div>
+
     <div class="popup-body">
       <div class="popup-title" id="popupTitle"></div>
       <div class="popup-price" id="popupPrice"></div>
       <div class="popup-discount" id="popupDiscount"></div>
-      <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
+      <div class="popup-savings" id="popupSavings"></div>
       <div id="popupCashback" class="popup-cashback"></div>
       <div class="popup-description" id="popupDesc"></div>
-     
-    </div>	  
+    </div>  
   </div> 
 
- <!-- Brand Box Wrapper -->
-<div class="popup-brand-box" id="brandContainer">
-  <div class="brand-logo-container">
-    <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
-  </div>
+  <!-- Brand Box Wrapper -->
+  <div class="popup-brand-box" id="brandContainer">
+    <div class="brand-logo-container">
+      <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
+    </div>
 
-	<div class="brand-text-container">
-    <div id="brandName" class="brand-name"></div>
-    <span id="popupTimer" class="brand-timer"></span>
+    <div class="brand-text-container">
+      <div id="brandName" class="brand-name"></div>
+      <span id="popupTimer" class="brand-timer"></span>
+    </div>
   </div>
-  
 </div>
-	
-</div> 
 
 
+    <script>
+      let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || [];
+      let currentDeal = {}; // Current deal being viewed
+      let currentIndex = 0; // Current index of liked deals
+      let isViewingLikedDeals = false; // Track if viewing liked deals
+      const hasLikedDeals = likedDeals.length > 0;
+
+      // Initialize the popup and set up event handlers
+      function openPopup(deal) {
+        currentDeal = deal;
+
+        // Update content based on current deal
+        document.getElementById('popupImg').src = deal.image;
+        document.getElementById('popupTitle').innerText = deal.title;
+        document.getElementById('popupPrice').innerText = deal.price;
+        document.getElementById('popupDiscount').innerText = deal.discount;
+        document.getElementById('popupDesc').innerText = deal.description;
+
+        // Set like button text based on whether deal is liked
+        document.getElementById('likeButton').innerText = isDealLiked(deal) ? '❤️ Liked' : '🤍 Like';
+
+        // Show View ❤️ if there are liked deals and we're not in liked view
+        if (hasLikedDeals && !isViewingLikedDeals) {
+          document.getElementById('viewLikedInside').style.display = 'inline-block';
+        }
+
+        // Show "View Random" button when viewing liked deals
+        if (isViewingLikedDeals) {
+          document.getElementById('backToRandom').style.display = 'inline-block';
+        }
+
+        // Attach events to buttons
+        document.getElementById('likeButton').onclick = toggleLike;
+        document.getElementById('viewLikedInside').onclick = switchToLikedDeals;
+        document.getElementById('backToRandom').onclick = switchToRandomDeal;
+      }
+
+      // Check if the current deal is in the liked list
+      function isDealLiked(deal) {
+        return likedDeals.some(d => d.name === deal.name);
+      }
+
+      // Toggle the like/unlike action
+      function toggleLike() {
+        const index = likedDeals.findIndex(d => d.name === currentDeal.name);
+        if (index === -1) {
+          likedDeals.push(currentDeal);  // Add to liked deals
+          document.getElementById('likeButton').innerText = '❤️ Liked';
+        } else {
+          likedDeals.splice(index, 1);  // Remove from liked deals
+          document.getElementById('likeButton').innerText = '🤍 Like';
+        }
+        localStorage.setItem('likedDeals', JSON.stringify(likedDeals));  // Save changes to localStorage
+      }
+
+      // Switch to liked deals view
+      function switchToLikedDeals() {
+        isViewingLikedDeals = true;
+        document.getElementById('viewLikedInside').style.display = 'none';
+        document.getElementById('backToRandom').style.display = 'inline-block';
+        // Add logic to display liked deals
+        displayLikedDeal(currentIndex);
+      }
+
+      // Switch to random deal view
+      function switchToRandomDeal() {
+        isViewingLikedDeals = false;
+        document.getElementById('backToRandom').style.display = 'none';
+        document.getElementById('viewLikedInside').style.display = 'inline-block';
+        // Add logic to display random deal
+        openRandomDeal();
+      }
+
+      // Display the liked deal based on index
+      function displayLikedDeal(index) {
+        const likedDeal = likedDeals[index];
+        document.getElementById('popupImg').src = likedDeal.image;
+        document.getElementById('popupTitle').innerText = likedDeal.title;
+        document.getElementById('popupPrice').innerText = likedDeal.price;
+        document.getElementById('popupDiscount').innerText = likedDeal.discount;
+        document.getElementById('popupDesc').innerText = likedDeal.description;
+      }
+
+      // Open a random deal (this could be dynamic or preloaded)
+      function openRandomDeal() {
+        const randomDeal = {
+          name: 'Random Deal',
+          title: 'Amazing Deal!',
+          price: '$50',
+          discount: '20% off',
+          image: 'random.jpg',
+          description: 'Get this amazing product at a huge discount!',
+        };
+        openPopup(randomDeal);  // Update popup content to random deal
+      }
+
+      // Initialize popup with a random deal on load
+      window.onload = () => {
+        openRandomDeal();
+      };
+
+      // Close popup functionality
+      function closePopup() {
+        document.getElementById('popup').style.display = 'none';  // Close the popup
+      }
+    </script>
+
+
+			 
 <script>
 	let sheetUrls = [];
 
@@ -635,19 +759,6 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
-
-
-	let likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-
-function saveLikedDeals() {
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-}
-
-function isDealLiked(deal) {
-  return likedDeals.some(d => d.name === deal.name);
-}
-
-
 	
   const allBrandsData = [];
   const allDealsFlat = [];
@@ -707,9 +818,7 @@ likeButton.onclick = () => {
   }
 
   saveLikedDeals();
-};
-
-	  
+};	  
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
@@ -823,7 +932,6 @@ likeButton.onclick = () => {
            startBrandCountdown(expireDate, timerId);
           }
          }
-
             allBrandsData.push({
               brand: currentBrand,
               logo: currentLogo,
