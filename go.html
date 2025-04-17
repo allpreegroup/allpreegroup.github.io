@@ -82,8 +82,9 @@
             .catch((error) => console.log("Service Worker Registration Failed", error));
     }
 </script>
+	<center> 
 <i class="fa-brands fa-facebook lg"></i> <a href="https://m.facebook.com/allpreedotcom" target="_blank">16K followers</a> <i class="fa-brands fa-whatsapp lg"></i> 4.2k contacts <i class="fa-brands fa-instagram lg" ></i> <a href="https://m.instagram.com/allpreedotcom" target="_blank">297 followers</a>
-
+</center>
   
   <!-- Instructions for Android -->
   <div id="android-instructions" class="instructions" style="display: none;">
@@ -190,7 +191,7 @@ Click The Button Below </h4> </center>
     <li>📲 Enable push notifications then sign up</li>
   </ol>
 <p style="margin-top: 1.5rem;">  Note: only after installing our web app before you can click the button below </p>
-   <center>  <button onclick="finishSetup()"> CONTINUE </button></center> <br>
+   <center>  <button onclick="checkIfInstalled()"> CONTINUE </button></center> <br>
 	  <p id="install-status" style="margin-top: 1em;"></p>
 </div><br>
 	
@@ -252,11 +253,11 @@ Click The Button Below </h4> </center>
     } else {
       if (isAndroid) {
         alert("This app is already installed. If prompted, tap 'Open app' to continue.");
-         window.location.href = "/splashpage"; // Removed redirect
+        // window.location.href = "/splashpage"; // Removed redirect
       } else if (isIOS) {
         alert("Please open this from the app icon on your home screen to continue.");
       } else {
-        alert("This feature is only available in the installed app (PWA). Please use your device's home screen shortcut.");
+        alert("This feature is only available in the installed app (PWA). Please visit using your mobile device.");
       }
     }
   }
@@ -296,10 +297,10 @@ Click The Button Below </h4> </center>
 
   if (statusElement) {
     if (isInstalled) {
-      statusElement.textContent = "✅ App is installed and running in PWA mode.";
+      statusElement.textContent = "✅ App is installed and running in PWA mode. <a href="https://www.allpree.com/splashpage">Open App</a>";
       statusElement.style.color = "green";
     } else {
-      statusElement.textContent = "❌ App is not installed. Please add it to your home screen.";
+      statusElement.textContent = "❌ App is not installed. Please add it to your home screen. <a href="https://www.allpree.com/splashpage">Open App</a>";
       statusElement.style.color = "red";
     }
   }
