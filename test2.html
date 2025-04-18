@@ -425,93 +425,110 @@
   }
 
 /* Glowing, golden effect for the entire Liked Deals Gallery section */
+/* Liked Deals Gallery Wrapper */
 #likedDealsSection {
-  background-color: gold;
-  color: #000;
-  font-weight: bold;
+  border: 3px solid gold;
   padding: 1rem;
   border-radius: 12px;
-  position: relative;
-  box-shadow: 0 0 10px gold;
+  background-color: #fff;
   animation: glowPulse 2s ease-in-out infinite;
-  margin-bottom: 20px;
+  box-shadow: 0 0 10px gold;
+  margin-bottom: 30px;
 }
 
-/* Header for the liked deals section */
-#likedDealsSection h2 {
-  font-size: 1.3rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #000;
-  font-weight: bold;
-}
-
-/* Horizontal scrolling row */
+/* Deal Grid Style for Liked Deals */
 #likedDealsGallery {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr); /* Two rows if needed */
+  grid-auto-columns: 54.2%;
+  gap: 15px;
   overflow-x: auto;
-  padding: 0.5rem 0;
   scroll-snap-type: x mandatory;
+  padding: 10px 20px;
+  margin-left: -5px;
+  margin-right: -5px;
+  scrollbar-width: none; /* Firefox */
 }
 
-/* Individual card styling */
+#likedDealsGallery::-webkit-scrollbar {
+  display: none; /* Chrome & Safari */
+}
+
+/* Card style for each liked deal */
 .liked-deal-card {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  background: #fff;
-  border: 3px solid gold;
+  background: white;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 140px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  flex: 0 0 auto;
+  width: 100%;
+  scroll-snap-align: start;
   position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-/* Hover effect */
 .liked-deal-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
 }
 
-/* Card image */
+/* Optional glow if you want to emphasize it’s “liked” */
+.liked-deal-card.liked {
+  border: 2px solid #ff6f61;
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
+}
+
+/* Image Styling */
 .liked-deal-card img {
   width: 100%;
-  height: 120px;
+  height: 150px;
   object-fit: cover;
-  border-radius: 8px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
-/* Optional glow for already liked cards */
-.liked-deal-card.liked {
-  box-shadow: 0 0 15px gold;
+/* Card Content */
+.liked-deal-content {
+  padding: 10px;
 }
 
-/* Golden badge example */
-.liked-deal-badge {
-  background-color: gold;
-  color: #000;
+.liked-deal-title {
+  font-size: 14px;
   font-weight: bold;
-  padding: 2px 10px;
-  border-radius: 20px;
-  position: absolute;
-  top: -10px;
-  right: -20px;
-  font-size: 12px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  margin-bottom: 5px;
 }
 
-/* Gold glowing animation */
+.liked-deal-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 14px;
+}
+
+.liked-deal-discount {
+  color: #e60000;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Discount badge */
+.liked-discount-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+/* Glowing animation */
 @keyframes glowPulse {
-  0% {
-    box-shadow: 0 0 10px gold;
-  }
-  50% {
-    box-shadow: 0 0 20px orange;
-  }
-  100% {
-    box-shadow: 0 0 10px gold;
-  }
+  0% { box-shadow: 0 0 10px gold; }
+  50% { box-shadow: 0 0 20px orange; }
+  100% { box-shadow: 0 0 10px gold; }
 }
 
 
