@@ -700,22 +700,29 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 
 function renderLikedDealsGallery() {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+  // Get likedDeals from localStorage (it's now an object)
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
   const sectionEl = document.getElementById('likedDealsSection');
   
   // Clear previous content
   galleryEl.innerHTML = '';
 
+  // Get the keys (deal identifiers) of liked deals
+  const likedDealKeys = Object.keys(likedDeals).filter(key => likedDeals[key]);
+
   // Check if there are any liked deals to display
-  if (likedDeals.length === 0) {
+  if (likedDealKeys.length === 0) {
     sectionEl.style.display = 'none';
     return;
   }
 
-  // Iterate over liked deals and render them
-  likedDeals.forEach(deal => {
-    // Make sure all required deal properties are present
+  // Iterate over liked deal keys and render them
+  likedDealKeys.forEach(key => {
+    // Find the deal from your allDeals data using the key
+    const deal = allDealsFlat.find(d => d.name === key); // Assuming 'name' is unique
+
+    // Ensure the deal exists and has the required properties
     if (deal && deal.name && deal.image && deal.percentOff && deal.original && deal.discount) {
       const card = document.createElement('div');
       card.className = 'deal'; // Use 'deal' class for consistent styling
@@ -737,6 +744,7 @@ function renderLikedDealsGallery() {
   // Display the section if there are deals
   sectionEl.style.display = 'block';
 }
+
 
 
 	
@@ -803,12 +811,13 @@ function renderLikedDealsGallery() {
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
     const likeBtn = document.getElementById('popupLikeBtn');
-const dealKey = name; // or use a unique identifier
+const dealKey = name; // Replace with your unique deal identifier, like `deal.name` or `deal.id`
 
-// Load previous liked state
+// Load previous liked state from localStorage (it's now an object)
 const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
 const isLiked = likedDeals[dealKey];
 
+// Set the initial state of the button based on whether the deal is liked
 if (isLiked) {
   likeBtn.classList.add('liked');
   likeBtn.textContent = '❤️';
@@ -817,14 +826,18 @@ if (isLiked) {
   likeBtn.textContent = '🤍';
 }
 
-// Toggle like on click
+// Toggle the like status on button click
 likeBtn.onclick = () => {
-  const liked = likeBtn.classList.toggle('liked');
-  likeBtn.textContent = liked ? '❤️' : '🤍';
+  const liked = likeBtn.classList.toggle('liked'); // Toggle 'liked' class
+  likeBtn.textContent = liked ? '❤️' : '🤍'; // Change button text based on like status
 
-  likedDeals[dealKey] = liked;
+  // Update the likedDeals object
+  likedDeals[dealKey] = liked; // Store the like status for this specific deal
+
+  // Save the updated likedDeals object to localStorage
   localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
 };
+
 
 	  
     document.getElementById('popupImg').src = image;
