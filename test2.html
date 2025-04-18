@@ -776,47 +776,45 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const galleryEl = document.getElementById('likedDealsGallery');
-  const sectionEl = document.getElementById('likedDealsSection');
+  const galleryContainer = document.getElementById('likedDealsGallery');
+  galleryContainer.innerHTML = ''; // Clear old
 
-  galleryEl.innerHTML = ''; // Clear previous content
-
-  const likedKeys = Object.keys(likedDeals);
-
-  if (likedKeys.length === 0) {
-    sectionEl.style.display = 'none';
+  if (Object.keys(likedDeals).length === 0) {
+    galleryContainer.style.display = 'none';
     return;
   }
 
-  likedKeys.forEach(key => {
-    const deal = likedDeals[key]; // Use the saved full deal object
-    if (deal) {
-      const card = document.createElement('div');
-      card.className = 'deal liked'; // Use same classes as your main layout
+  galleryContainer.style.display = 'flex'; // or grid
 
-      const discountPercent = deal.originalPrice && deal.discountedPrice
-        ? Math.round(((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100)
-        : null;
+  Object.values(likedDeals).forEach(deal => {
+    const originalPrice = parseFloat(deal.original.replace(/,/g, '')) || 0;
+    const discountPrice = parseFloat(deal.discount.replace(/,/g, '')) || 0;
+    const percentOff = originalPrice && discountPrice
+      ? Math.round((1 - discountPrice / originalPrice) * 100)
+      : 0;
 
-      const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
+    const dealCard = document.createElement('div');
+    dealCard.className = 'liked-deal-card';
 
-      card.innerHTML = `
-        <img src="${deal.image}" alt="${deal.name}">
-        ${discountPercent ? `<span class="liked-discount-badge">${discountPercent}% OFF</span>` : ''}
-        <div class="liked-deal-content">
-          <div class="deal-title">${shortName}</div>
-          ${deal.originalPrice ? `<div class="liked-deal-price">JMD ${deal.originalPrice}</div>` : ''}
-          ${deal.discountedPrice ? `<div class="liked-deal-discount">JMD ${deal.discountedPrice}</div>` : ''}
+    dealCard.innerHTML = `
+      <div class="liked-deal-img-wrapper">
+        <img src="${deal.image}" alt="${deal.name}" class="liked-deal-img" />
+        ${percentOff ? `<div class="liked-discount-badge">${percentOff}% OFF</div>` : ''}
+      </div>
+      <div class="liked-deal-info">
+        <div class="liked-deal-name">${deal.name}</div>
+        <div class="liked-deal-prices">
+          <span class="liked-original-price">J$${originalPrice.toLocaleString()}</span>
+          <span class="liked-discount-price">J$${discountPrice.toLocaleString()}</span>
         </div>
-      `;
+      </div>
+    `;
 
-      card.addEventListener('click', () => openPopup(deal));
-      galleryEl.appendChild(card);
-    }
+    dealCard.onclick = () => openPopup(deal);
+    galleryContainer.appendChild(dealCard);
   });
-
-  sectionEl.style.display = 'block';
 }
+
 
 
 
@@ -887,7 +885,7 @@ function renderLikedDealsGallery() {
 
  function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
-  
+
   // Safeguard
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal data missing');
@@ -898,11 +896,11 @@ function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
 
-  // Set button state
+  // Set initial button state
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-  // ✅ Remove previous listener (by resetting onclick)
+  // ✅ Remove old listener by resetting onclick
   likeBtn.onclick = () => {
     const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
     const isNowLiked = likeBtn.classList.toggle('liked');
