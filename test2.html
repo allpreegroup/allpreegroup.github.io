@@ -427,6 +427,37 @@
             .catch((error) => console.log("Service Worker Registration Failed", error));
     }
 </script>	
+<script>
+  // Select all images with the 'lazy' class
+  const images = document.querySelectorAll('img.lazy');
+
+  // Define IntersectionObserver options
+  const options = {
+    root: null, // viewport as root
+    rootMargin: '0px', // no margin for early loading
+    threshold: 0.1 // trigger when 10% of the image is visible
+  };
+
+  // Create the IntersectionObserver
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        // Replace the placeholder with the actual image
+        img.src = img.getAttribute('data-src');
+        img.classList.remove('lazy'); // Remove lazy class once loaded
+        observer.unobserve(img); // Stop observing the image
+      }
+    });
+  }, options);
+
+  // Observe each lazy image
+  images.forEach(image => {
+    observer.observe(image);
+  });
+</script>
+
+	
 </head>
 <body>
 <!-- start webpushr tracking code --> 
