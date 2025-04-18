@@ -885,10 +885,10 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-  function setupLikeButton(deal) {
+ function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   
-  // Safeguard: Check if the button exists and deal is valid
+  // Safeguard
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal data missing');
     return;
@@ -896,29 +896,27 @@ function renderLikedDealsGallery() {
 
   const dealKey = deal.name;
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const isLiked = likedDeals[dealKey];
+  const isLiked = !!likedDeals[dealKey];
 
-  // Set the initial state of the like button based on localStorage data
-  likeBtn.classList.toggle('liked', !!isLiked);
+  // Set button state
+  likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-  // Add the event listener for toggling "like" state
-  likeBtn.addEventListener('click', () => {
-    const liked = likeBtn.classList.toggle('liked');
-    likeBtn.textContent = liked ? '❤️ Liked' : '🤍 Like';
+  // ✅ Remove previous listener (by resetting onclick)
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
 
-    // Update localStorage with the new like status
-    let updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-
-    if (liked) {
+    if (isNowLiked) {
       updatedLikedDeals[dealKey] = deal;
     } else {
       delete updatedLikedDeals[dealKey];
     }
 
     localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-    renderLikedDealsGallery(); // Re-render gallery after toggling
-  });
+    renderLikedDealsGallery();
+  };
 }
 
 
