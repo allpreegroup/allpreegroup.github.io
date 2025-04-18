@@ -1027,14 +1027,17 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // Scroll into view if opening
+  // ✅ Scroll into view with offset so brand name/logo isn’t hidden behind menu
   if (!isOpen) {
-    brandDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const offset = 80; // Adjust this number to match your sticky menu height
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
   }
 
   // Update the reference
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
 		  
