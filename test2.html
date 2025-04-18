@@ -771,14 +771,14 @@ function renderLikedDealsGallery() {
       card.className = 'deal liked'; // Use same classes as your main layout
 
       card.innerHTML = `
-        ${deal.discount ? `<div class="discount-badge">${deal.discount}% OFF</div>` : ''}
-        <img src="${deal.image}" alt="${deal.name}">
-        <div class="deal-content">
-          <div class="deal-title">${deal.name}</div>
-          ${deal.originalPrice ? `<div class="price">JMD ${deal.originalPrice}</div>` : ''}
-          ${deal.discountPrice ? `<div class="discount">Now JMD ${deal.discountPrice}</div>` : ''}
-        </div>
-      `;
+  <img src="${deal.image}" alt="${deal.name}">
+  ${deal.discount ? `<span class="liked-discount-badge">${deal.discount}% OFF</span>` : ''}
+  <div class="liked-deal-content">
+    <div class="deal-title">${shortName}</div>
+    ${deal.originalPrice ? `<div class="liked-deal-price">JMD ${deal.originalPrice}</div>` : ''}
+    ${deal.discountedPrice ? `<div class="liked-deal-discount">JMD ${deal.discountedPrice}</div>` : ''}
+  </div>
+`;
 
       card.addEventListener('click', () => openPopup(deal));
       galleryEl.appendChild(card);
