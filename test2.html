@@ -924,11 +924,20 @@ brandDiv.addEventListener('click', () => {
   }
 
 function startBrandCountdown(expireDate, elementId) {
-  function update() {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  const parsedDate = Date.parse(expireDate);
+  const el = document.getElementById(elementId);
 
-    const timeLeft = new Date(expireDate) - new Date();
+  if (!el) return;
+
+  // Show "Coming soon" for invalid or backdated dates
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = '⏳ Coming soon';
+    el.classList.add('countdown-upcoming');
+    return;
+  }
+
+  function update() {
+    const timeLeft = parsedDate - Date.now();
 
     if (timeLeft <= 0) {
       el.textContent = '❌ Deal ended';
