@@ -769,14 +769,29 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
             grid.className = 'deal-grid';
 
             grid.style.display = 'none'; // hidden by default
-brandSection.appendChild(grid);
 
-// Toggle visibility when the brand is tapped
+		  brandSection.appendChild(grid);
+grid.style.display = 'none'; // Hide by default
 brandDiv.style.cursor = 'pointer';
+
+// Track open grid globally
+let currentlyOpenGrid = window.currentlyOpenGrid || null;
+
 brandDiv.addEventListener('click', () => {
-  const isVisible = grid.style.display === 'grid';
-  grid.style.display = isVisible ? 'none' : 'grid';
+  const isOpen = grid.style.display === 'grid';
+
+  // Close any other open grid
+  if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+    currentlyOpenGrid.style.display = 'none';
+  }
+
+  // Toggle current one
+  grid.style.display = isOpen ? 'none' : 'grid';
+
+  // Update global ref
+  window.currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
 		  
