@@ -1105,20 +1105,19 @@ if (!likedDealsSection) {
   likedDealsSection.id = 'likedDealsSection';
   likedDealsSection.style.display = 'none';
   likedDealsSection.style.marginBottom = '1rem';
+
   likedDealsSection.innerHTML = `
     <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
-    <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
+    <div id="likedDealsGallery" class="deal-grid"></div>
   `;
+
   container.appendChild(likedDealsSection);
 }
 
-// 🔁 Render liked deals gallery
-renderLikedDealsGallery(); // this will toggle visibility of the section
+// 🔁 Render liked deals gallery (this toggles the visibility of the section)
+renderLikedDealsGallery();
 
-// 🔁 Only append it if visible
-if (likedDealsSection.style.display !== 'none') {
-  container.appendChild(likedDealsSection);
-}
+// ✅ No need to re-append if already in DOM (we already appended above if not present)
 
 // 🔁 Now append brand sections
 allBrandsData.forEach((brandData, index) => {
