@@ -707,28 +707,34 @@ function renderLikedDealsGallery() {
   // Clear previous content
   galleryEl.innerHTML = '';
 
+  // Check if there are any liked deals to display
   if (likedDeals.length === 0) {
     sectionEl.style.display = 'none';
     return;
   }
 
+  // Iterate over liked deals and render them
   likedDeals.forEach(deal => {
-    const card = document.createElement('div');
-    card.className = 'deal'; // Make sure the class is 'deal' for styling consistency
-    card.innerHTML = `
-      <span class="discount-badge">${deal.percentOff}% OFF</span>
-      <img src="${deal.image}" alt="${deal.name}">
-      <div class="deal-content">
-        <div class="deal-title">${deal.name}</div>
-        <div class="price">JMD $${deal.original}</div>
-        <div class="discount">JMD $${deal.discount}</div>
-      </div>
-    `;
+    // Make sure all required deal properties are present
+    if (deal && deal.name && deal.image && deal.percentOff && deal.original && deal.discount) {
+      const card = document.createElement('div');
+      card.className = 'deal'; // Use 'deal' class for consistent styling
+      card.innerHTML = `
+        <span class="discount-badge">${deal.percentOff}% OFF</span>
+        <img src="${deal.image}" alt="${deal.name}">
+        <div class="deal-content">
+          <div class="deal-title">${deal.name}</div>
+          <div class="price">JMD $${deal.original}</div>
+          <div class="discount">JMD $${deal.discount}</div>
+        </div>
+      `;
 
-    card.addEventListener('click', () => openPopup(deal));  // Assuming you have openPopup() defined for showing details
-    galleryEl.appendChild(card);
+      card.addEventListener('click', () => openPopup(deal));  // Assuming you have openPopup() defined to show the deal details
+      galleryEl.appendChild(card);
+    }
   });
 
+  // Display the section if there are deals
   sectionEl.style.display = 'block';
 }
 
