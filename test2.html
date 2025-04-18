@@ -773,7 +773,7 @@ function renderLikedDealsGallery() {
 
   galleryEl.innerHTML = ''; // Clear previous content
 
-  const likedKeys = Object.keys(likedDeals).filter(key => likedDeals[key]);
+  const likedKeys = Object.keys(likedDeals);
 
   if (likedKeys.length === 0) {
     sectionEl.style.display = 'none';
@@ -781,7 +781,7 @@ function renderLikedDealsGallery() {
   }
 
   likedKeys.forEach(key => {
-    const deal = allDealsFlat.find(d => d.name === key);
+    const deal = likedDeals[key]; // Use the saved full deal object
     if (deal) {
       const card = document.createElement('div');
       card.className = 'deal liked'; // Use same classes as your main layout
