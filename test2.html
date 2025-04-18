@@ -717,15 +717,17 @@ function renderLikedDealsGallery() {
     return;
   }
 
-  // Iterate over liked deal keys and render them
-  likedDealKeys.forEach(key => {
+  // Loop through the liked deals
+  likedDealKeys.forEach((key, index) => {
     // Find the deal from your allDeals data using the key
     const deal = allDealsFlat.find(d => d.name === key); // Assuming 'name' is unique
 
     // Ensure the deal exists and has the required properties
     if (deal && deal.name && deal.image && deal.percentOff && deal.original && deal.discount) {
+      // Create the deal card
       const card = document.createElement('div');
       card.className = 'deal'; // Use 'deal' class for consistent styling
+
       card.innerHTML = `
         <span class="discount-badge">${deal.percentOff}% OFF</span>
         <img src="${deal.image}" alt="${deal.name}">
@@ -736,6 +738,20 @@ function renderLikedDealsGallery() {
         </div>
       `;
 
+      // Add a "Hottest Discount" badge to the first liked deal
+      if (index === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'top-deal-badge';
+        badge.textContent = '🔥 Hottest Discount';
+        card.querySelector('.deal-content').prepend(badge); // Add the badge at the top of the deal card
+      }
+
+      // Add a highlight to the first liked deal
+      if (index === 0) {
+        card.classList.add('top-deal-highlight');
+      }
+
+      // Add the card to the gallery
       card.addEventListener('click', () => openPopup(deal));  // Assuming you have openPopup() defined to show the deal details
       galleryEl.appendChild(card);
     }
