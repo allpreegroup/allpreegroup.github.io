@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <html lang="en">
+ 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -8,12 +8,11 @@
  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
  <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
 
-
-    <meta charset="UTF-8">
+  
      <title>See Today's Deals</title>
+	
          <style>
     body {
       font-family: sans-serif;
@@ -407,16 +406,7 @@
   color: black;
 }
 
-.heart-icon {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 18px;
-  cursor: pointer;
-  color: white;
-  z-index: 10;
-}
-		 
+
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -427,37 +417,6 @@
             .catch((error) => console.log("Service Worker Registration Failed", error));
     }
 </script>	
-<script>
-  // Select all images with the 'lazy' class
-  const images = document.querySelectorAll('img.lazy');
-
-  // Define IntersectionObserver options
-  const options = {
-    root: null, // viewport as root
-    rootMargin: '0px', // no margin for early loading
-    threshold: 0.1 // trigger when 10% of the image is visible
-  };
-
-  // Create the IntersectionObserver
-  const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        // Replace the placeholder with the actual image
-        img.src = img.getAttribute('data-src');
-        img.classList.remove('lazy'); // Remove lazy class once loaded
-        observer.unobserve(img); // Stop observing the image
-      }
-    });
-  }, options);
-
-  // Observe each lazy image
-  images.forEach(image => {
-    observer.observe(image);
-  });
-</script>
-
-	
 </head>
 <body>
 <!-- start webpushr tracking code --> 
@@ -600,42 +559,43 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 			
   <div id="deals-container">Loading deals...</div>
 
-<!-- Popup Overlay -->
+ <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
   <div class="popup-content" id="popupContent">
     <span class="popup-close" onclick="closePopup()">×</span>
     <div style="position: relative;">
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
-      <img class="lazy" id="popupImg" src="" alt="Product">
-      
+      <img id="popupImg" src="" alt="Product">
     </div>
-
     <div class="popup-body">
       <div class="popup-title" id="popupTitle"></div>
       <div class="popup-price" id="popupPrice"></div>
       <div class="popup-discount" id="popupDiscount"></div>
-      <div class="popup-savings" id="popupSavings"></div>
+      <div class="popup-savings" id="popupSavings"></div> <!-- Savings element below the discount -->
       <div id="popupCashback" class="popup-cashback"></div>
       <div class="popup-description" id="popupDesc"></div>
-    </div>  
+     
+    </div>	  
   </div> 
 
-  <!-- Brand Box Wrapper -->
-  <div class="popup-brand-box" id="brandContainer">
-    <div class="brand-logo-container">
-      <img class="lazy" id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
-    </div>
-
-    <div class="brand-text-container">
-      <div id="brandName" class="brand-name"></div>
-      <span id="popupTimer" class="brand-timer"></span>
-    </div>
+ <!-- Brand Box Wrapper -->
+<div class="popup-brand-box" id="brandContainer">
+  <div class="brand-logo-container">
+    <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
   </div>
+
+	<div class="brand-text-container">
+    <div id="brandName" class="brand-name"></div>
+    <span id="popupTimer" class="brand-timer"></span>
+  </div>
+  
 </div>
+	
+</div> 
 
 
- <script>
+<script>
 	let sheetUrls = [];
 
 async function loadSheetUrls() {
@@ -789,7 +749,7 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
             brandDiv.innerHTML = `
             <div class="brand-logo-container">
-              <img class="lazy" src="${currentLogo}" alt="${currentBrand}" />
+              <img src="${currentLogo}" alt="${currentBrand}" />
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
@@ -838,7 +798,7 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
             dealCard.className = 'deal';
             dealCard.innerHTML = `
               <span class="discount-badge">${percentOff}% OFF</span>
-              <img class="lazy" src="${row.ImageURL}" alt="${row.ProductName}">
+              <img src="${row.ImageURL}" alt="${row.ProductName}">
               <div class="deal-content">
                 <div class="deal-title">${shortName}</div>
                 <div class="price">JMD $${row.OriginalPrice}</div>
@@ -950,6 +910,9 @@ function startBrandCountdown(expireDate, elementId) {
   const timer = setInterval(update, 1000);
 }
 
+
+
+
   document.getElementById('popup').addEventListener('click', function (e) {
     if (e.target === this) {
       closePopup();
@@ -982,6 +945,8 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
+
+
 	
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
@@ -1023,6 +988,8 @@ function startBrandCountdown(expireDate, elementId) {
 // Call this after your popup is ready
 addPopupSwipeListeners();
 </script>
-			 
+
+
+		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
