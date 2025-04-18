@@ -577,7 +577,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
-      
+       <div class="like-heart" onclick="toggleLike('${deal.name}')">
+  <i id="heart-${deal.name}" class="fa fa-heart-o"></i>
+         <i id="popupHeart" class="fa fa-heart-o like-icon" onclick="togglePopupLike()"></i>
+</div>
     </div>
 
     <div class="popup-body">
@@ -604,7 +607,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div>
 
 
-   <script>
+ <script>
 	let sheetUrls = [];
 
 async function loadSheetUrls() {
@@ -623,50 +626,7 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
-
-
-function toggleLike(dealName) {
-  const popupHeart = document.getElementById('popupHeart');
-const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-
-popupHeart.dataset.dealName = name;
-
-if (likedDeals.includes(name)) {
-  popupHeart.classList.remove('fa-heart-o');
-  popupHeart.classList.add('fa-heart');
-  popupHeart.style.color = 'red';
-} else {
-  popupHeart.classList.remove('fa-heart');
-  popupHeart.classList.add('fa-heart-o');
-  popupHeart.style.color = 'white';
-}
-
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-}
-
-function togglePopupLike() {
-  const heartIcon = document.getElementById('popupHeart');
-  const dealName = heartIcon.dataset.dealName;
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-
-  const index = likedDeals.indexOf(dealName);
-  if (index === -1) {
-    likedDeals.push(dealName);
-    heartIcon.classList.remove('fa-heart-o');
-    heartIcon.classList.add('fa-heart');
-    heartIcon.style.color = 'red';
-  } else {
-    likedDeals.splice(index, 1);
-    heartIcon.classList.remove('fa-heart');
-    heartIcon.classList.add('fa-heart-o');
-    heartIcon.style.color = 'white';
-  }
-
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-}
-
-
-	  
+	
   const allBrandsData = [];
   const allDealsFlat = [];
   let currentPopupDeal = null;
@@ -711,20 +671,6 @@ function togglePopupLike() {
     const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
     const finalPrice = discountPrice - cashbackAmount;
 
-    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-const heartIcon = document.getElementById(`heart-${deal.name}`);
-if (likedDeals.includes(deal.name)) {
-  heartIcon.classList.remove('fa-heart-o');
-  heartIcon.classList.add('fa-heart');
-  heartIcon.style.color = 'red';
-} else {
-  heartIcon.classList.remove('fa-heart');
-  heartIcon.classList.add('fa-heart-o');
-  heartIcon.style.color = 'white';
-}
-
-
-	  
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
@@ -862,36 +808,15 @@ if (likedDeals.includes(deal.name)) {
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal';
-          
-              dealCard.innerHTML = `
-  <span class="discount-badge">${percentOff}% OFF</span>
-  <i class="fa fa-heart-o heart-icon" id="heart-${row.ProductName.replace(/\s+/g, '-')}"></i>
-  <img src="${row.ImageURL}" alt="${row.ProductName}">
-  <div class="deal-content">
-    <div class="deal-title">${shortName}</div>
-    <div class="price">JMD $${row.OriginalPrice}</div>
-    <div class="discount">JMD $${row.DiscountPrice}</div>
-  </div>
-`;
-setTimeout(() => {
-  const heartIcon = document.getElementById(`heart-${row.ProductName.replace(/\s+/g, '-')}`);
-  if (heartIcon) {
-    heartIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // prevent triggering the popup
-      toggleLike(row.ProductName);
-    });
-
-    // Initialize heart icon style based on liked status
-    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-    if (likedDeals.includes(row.ProductName)) {
-      heartIcon.classList.remove('fa-heart-o');
-      heartIcon.classList.add('fa-heart');
-      heartIcon.style.color = 'red';
-    }
-  }
-}, 0);
-
-                
+            dealCard.innerHTML = `
+              <span class="discount-badge">${percentOff}% OFF</span>
+              <img src="${row.ImageURL}" alt="${row.ProductName}">
+              <div class="deal-content">
+                <div class="deal-title">${shortName}</div>
+                <div class="price">JMD $${row.OriginalPrice}</div>
+                <div class="discount">JMD $${row.DiscountPrice}</div>
+              </div>
+            `;
 
             const dealData = {
               image: row.ImageURL,
@@ -1075,8 +1000,6 @@ function startBrandCountdown(expireDate, elementId) {
 // Call this after your popup is ready
 addPopupSwipeListeners();
 </script>
-
-
 			 
 </body>
 </html>
