@@ -98,11 +98,17 @@
       font-size: 18px;
       margin-bottom: 20px;
     }
+		 
     .brand-section {
       margin-bottom: 30px;
-	    
-	    
+		    
     }
+
+.countdown-upcoming {
+  color: orange;
+  font-style: italic;
+}
+		 
     .brand {
   display: flex;
   align-items: center;
@@ -622,9 +628,18 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
+  const parsedDate = Date.parse(expireDate);
+
+  // If date is invalid or already expired
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = "⏳ Coming soon";
+    el.classList.add("countdown-upcoming");
+    return;
+  }
+
   function updateCountdown() {
     const now = new Date();
-    const endTime = new Date(expireDate);
+    const endTime = new Date(parsedDate);
     const diff = endTime - now;
 
     if (diff <= 0) {
@@ -637,15 +652,15 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60); // 👈 add seconds here
+    const seconds = Math.floor((diff / 1000) % 60);
 
     let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
 
     el.textContent = `⏳ ${timeStr}`;
   }
 
-  updateCountdown(); // initial call
-  const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
+  updateCountdown();
+  const timerInterval = setInterval(updateCountdown, 1000);
 }
 
 	
@@ -717,12 +732,13 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   document.body.classList.remove('noscroll');
   }
 
+	
   async function loadDeals() {
     const container = document.getElementById('deals-container');
     container.innerHTML = '';
     allBrandsData.length = 0;
     allDealsFlat.length = 0;
-
+    let currentlyOpenGrid = null;
     try {
       for (let sheetUrl of sheetUrls) {
         const res = await fetch(sheetUrl);
@@ -757,17 +773,52 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
             </div>
 `;
 
-            const expireDateStr = row.ExpiryDate || row.expireDate;
-            if (expireDateStr) {
-            startBrandCountdown(expireDateStr, timerId);
-           }
 
 
+		  const expireDateStr = row.ExpiryDate || row.expireDate;
+const parsedDate = Date.parse(expireDateStr);
+
+// Check if the date is invalid or already expired
+if (isNaN(parsedDate) || parsedDate < Date.now()) {
+  const el = document.getElementById(timerId);
+  if (el) {
+    el.textContent = '⏳ Coming soon';
+    el.classList.add('countdown-upcoming');
+  }
+} else {
+  // Valid future date — start countdown
+  startBrandCountdown(expireDateStr, timerId);
+}
+
+	
             brandSection.appendChild(brandDiv);
 
             grid = document.createElement('div');
             grid.className = 'deal-grid';
-            brandSection.appendChild(grid);
+
+            grid.style.display = 'none'; // hidden by default
+
+		 brandSection.appendChild(grid);
+grid.style.display = 'none'; // Hide all by default
+brandDiv.style.cursor = 'pointer';
+
+brandDiv.addEventListener('click', () => {
+  const isOpen = grid.style.display === 'grid';
+
+  // Close the currently open grid if it's not this one
+  if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+    currentlyOpenGrid.style.display = 'none';
+  }
+
+  // Toggle this one
+  grid.style.display = isOpen ? 'none' : 'grid';
+
+  // Update the reference
+  currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+});
+
+
+		  
             container.appendChild(brandSection);
 
             if (expireDateStr) {
@@ -873,11 +924,20 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   }
 
 function startBrandCountdown(expireDate, elementId) {
-  function update() {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  const parsedDate = Date.parse(expireDate);
+  const el = document.getElementById(elementId);
 
-    const timeLeft = new Date(expireDate) - new Date();
+  if (!el) return;
+
+  // Show "Coming soon" for invalid or backdated dates
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = '⏳ Coming soon';
+    el.classList.add('countdown-upcoming');
+    return;
+  }
+
+  function update() {
+    const timeLeft = parsedDate - Date.now();
 
     if (timeLeft <= 0) {
       el.textContent = '❌ Deal ended';
