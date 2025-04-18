@@ -411,7 +411,18 @@
 .popup-back-arrow:hover {
   color: black;
 }
+.like-btn {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
 
+  .like-btn.liked {
+    color: red;
+    transform: scale(1.2);
+  }
 
   </style>
   
@@ -573,6 +584,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
+	    <div id="popupLikeWrapper" style="text-align: center; margin-top: 10px;">
+  <button id="popupLikeBtn" class="like-btn" aria-label="Like this deal">🤍</button>
+</div>
     </div>
     <div class="popup-body">
       <div class="popup-title" id="popupTitle"></div>
@@ -687,6 +701,31 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
+    const likeBtn = document.getElementById('popupLikeBtn');
+const dealKey = name; // or use a unique identifier
+
+// Load previous liked state
+const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+const isLiked = likedDeals[dealKey];
+
+if (isLiked) {
+  likeBtn.classList.add('liked');
+  likeBtn.textContent = '❤️';
+} else {
+  likeBtn.classList.remove('liked');
+  likeBtn.textContent = '🤍';
+}
+
+// Toggle like on click
+likeBtn.onclick = () => {
+  const liked = likeBtn.classList.toggle('liked');
+  likeBtn.textContent = liked ? '❤️' : '🤍';
+
+  likedDeals[dealKey] = liked;
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+};
+
+	  
     document.getElementById('popupImg').src = image;
     document.getElementById('popupTitle').textContent = name;
     document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
