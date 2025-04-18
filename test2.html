@@ -424,6 +424,64 @@
     transform: scale(1.2);
   }
 
+/* Glowing effect for the entire Liked Deals Gallery section */
+#likedDealsSection {
+  border: 2px solid #ff6f61; /* Set the color of the border */
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 111, 97, 0.5); /* Glowing effect */
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Glowing effect when hovered over Liked Deals Gallery */
+#likedDealsSection:hover {
+  box-shadow: 0 0 20px rgba(255, 111, 97, 0.8); /* Glowing effect on hover */
+}
+
+/* Styling for each liked deal card */
+.liked-deal-card {
+  position: relative;
+  border: 2px solid #ff6f61; /* Set the border color */
+  border-radius: 8px;
+  padding: 0.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Glowing effect for each liked deal card */
+.liked-deal-card:hover {
+  transform: scale(1.05); /* Slight scale effect on hover */
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Glowing effect */
+}
+
+.liked-deal-card img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Optional: Add some extra glow for the liked deals */
+.liked-deal-card.liked {
+  border: 2px solid #ff6f61;
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Add glow to the liked deals */
+}
+
+#likedDealsGallery {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  justify-content: flex-start;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #ff6f61;
+  text-align: center;
+}
+
+
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -573,7 +631,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
 
-			
+			 
+<div id="likedDealsSection" style="display: none; margin-bottom: 1rem;">
+  <h2>❤️ Liked Deals Gallery</h2>
+  <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
+</div>			
   <div id="deals-container">Loading deals...</div>
 
  <!-- Popup Overlay -->
@@ -639,6 +701,45 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   const allDealsFlat = [];
   let currentPopupDeal = null;
 
+
+function renderLikedDealsGallery() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const galleryEl = document.getElementById('likedDealsGallery');
+  const sectionEl = document.getElementById('likedDealsSection');
+  
+  // Clear previous content
+  galleryEl.innerHTML = '';
+
+  const likedKeys = Object.keys(likedDeals).filter(key => likedDeals[key]);
+
+  if (likedKeys.length === 0) {
+    sectionEl.style.display = 'none';
+    return;
+  }
+
+  likedKeys.forEach(key => {
+    const deal = allDealsFlat.find(d => d.name === key); // allDealsFlat is your combined list of all deals
+
+    if (deal) {
+      const card = document.createElement('div');
+      card.className = 'liked-deal-card liked'; // Adding 'liked' class for glow effect
+      card.style.minWidth = '120px';
+      card.style.cursor = 'pointer';
+      card.innerHTML = `
+        <img src="${deal.image}" alt="${deal.name}" style="width: 100%; border-radius: 8px;">
+        <div style="font-size: 0.85rem; margin-top: 0.25rem;">${deal.name}</div>
+      `;
+
+      card.addEventListener('click', () => openPopup(deal));
+      galleryEl.appendChild(card);
+    }
+  });
+
+  sectionEl.style.display = 'block';
+}
+
+
+	
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
