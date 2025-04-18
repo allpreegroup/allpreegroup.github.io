@@ -1028,16 +1028,23 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // ✅ Scroll into view with offset so brand name/logo isn’t hidden behind menu
+  // ✅ Scroll into view with dynamic offset so brand isn't hidden
   if (!isOpen) {
-    const offset = 80; // Adjust this number to match your sticky menu height
-    const top = brandDiv.getBoundingClientRect().top + window.scrollY - offset;
+    const likedDealsSection = document.getElementById('likedDealsSection');
+    const likedVisible = likedDealsSection && likedDealsSection.style.display !== 'none';
+
+    const baseOffset = 80; // height of your sticky header
+    const extraOffset = likedVisible ? likedDealsSection.offsetHeight + 16 : 0;
+    const totalOffset = baseOffset + extraOffset;
+
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - totalOffset;
     window.scrollTo({ top, behavior: 'smooth' });
   }
 
   // Update the reference
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
 
