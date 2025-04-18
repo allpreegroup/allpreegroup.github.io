@@ -1026,26 +1026,31 @@ brandDiv.addEventListener('click', () => {
 container.innerHTML = '';
 
 // 🔁 Ensure liked deals section exists
-/* let likedDealsSection = document.getElementById('likedDealsSection');
+// Ensure the likedDealsSection exists
+let likedDealsSection = document.getElementById('likedDealsSection');
 if (!likedDealsSection) {
   likedDealsSection = document.createElement('div');
   likedDealsSection.id = 'likedDealsSection';
-  likedDealsSection.style.display = 'none';
+  likedDealsSection.style.display = 'none';  // Initially hide it
   likedDealsSection.style.marginBottom = '1rem';
   likedDealsSection.innerHTML = `
     <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
     <div id="likedDealsGallery" class="deal-grid"></div>
   `;
-  container.appendChild(likedDealsSection); // Only append here once
+  container.appendChild(likedDealsSection);
 }
 
 // 🔁 Render liked deals gallery
 renderLikedDealsGallery();
 
-// 🔁 Append liked deals section only if visible (i.e., has liked items)
-if (likedDealsSection.style.display !== 'none') {
-  container.appendChild(likedDealsSection);
-} */
+// 🔁 Show the liked deals section if there are liked items
+const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+if (likedDeals.length > 0) {
+  likedDealsSection.style.display = 'block'; // Show if there are liked deals
+} else {
+  likedDealsSection.style.display = 'none';  // Hide if there are no liked deals
+}
+
 
 // 🔁 Append brand sections
 allBrandsData.forEach((brandData, index) => {
