@@ -771,28 +771,24 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
             grid.style.display = 'none'; // hidden by default
 
-		  brandSection.appendChild(grid);
-grid.style.display = 'none'; // Hide by default
+		 brandSection.appendChild(grid);
+grid.style.display = 'none'; // Hide all by default
 brandDiv.style.cursor = 'pointer';
-
-// Track open grid globally
-let currentlyOpenGrid = window.currentlyOpenGrid || null;
 
 brandDiv.addEventListener('click', () => {
   const isOpen = grid.style.display === 'grid';
 
-  // Close any other open grid
+  // Close the currently open grid if it's not this one
   if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
     currentlyOpenGrid.style.display = 'none';
   }
 
-  // Toggle current one
+  // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // Update global ref
-  window.currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+  // Update the reference
+  currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
-
 
 
 		  
