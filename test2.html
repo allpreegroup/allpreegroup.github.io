@@ -826,15 +826,12 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-    const likeBtn = document.getElementById('popupLikeBtn');
-const dealKey = name; // Replace with your unique deal identifier, like `deal.name` or `deal.id`
+  const likeBtn = document.getElementById('popupLikeBtn');
+const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+const index = likedDeals.findIndex(d => d.name === deal.name);
 
-// Load previous liked state from localStorage (it's now an object)
-const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-const isLiked = likedDeals[dealKey];
-
-// Set the initial state of the button based on whether the deal is liked
-if (isLiked) {
+// Set initial icon
+if (index !== -1) {
   likeBtn.classList.add('liked');
   likeBtn.textContent = '❤️';
 } else {
@@ -842,16 +839,20 @@ if (isLiked) {
   likeBtn.textContent = '🤍';
 }
 
-// Toggle the like status on button click
+// Toggle like on click
 likeBtn.onclick = () => {
-  const liked = likeBtn.classList.toggle('liked'); // Toggle 'liked' class
-  likeBtn.textContent = liked ? '❤️' : '🤍'; // Change button text based on like status
+  const liked = likeBtn.classList.toggle('liked');
+  likeBtn.textContent = liked ? '❤️' : '🤍';
 
-  // Update the likedDeals object
-  likedDeals[dealKey] = liked; // Store the like status for this specific deal
+  let updatedLikes = [...likedDeals];
 
-  // Save the updated likedDeals object to localStorage
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+  if (liked) {
+    updatedLikes.push(deal); // Add full deal object
+  } else {
+    updatedLikes = updatedLikes.filter(d => d.name !== deal.name);
+  }
+
+  localStorage.setItem('likedDeals', JSON.stringify(updatedLikes));
 };
 
 
