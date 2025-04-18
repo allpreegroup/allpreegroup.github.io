@@ -1042,18 +1042,25 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-      container.innerHTML = '';
+        container.innerHTML = '';
 
-      allBrandsData.forEach((brandData, index) => {
-        if (index === 0) {
-          const badge = document.createElement('div');
-          badge.className = 'top-deal-badge';
-          badge.textContent = '🔥 Hottest Discount';
-          brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-          brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
-        }
-        container.appendChild(brandData.section);
-      });
+if (likedDealsSection && likedDealsSection.style.display !== 'none') {
+  container.appendChild(likedDealsSection);
+}
+
+allBrandsData.forEach((brandData, index) => {
+  if (index === 0) {
+    const badge = document.createElement('div');
+    badge.className = 'top-deal-badge';
+    badge.textContent = '🔥 Hottest Discount';
+    brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+    brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+  }
+  container.appendChild(brandData.section);
+});
+
+
+	    
 
       setTimeout(() => {
         const topBrand = allBrandsData[0];
