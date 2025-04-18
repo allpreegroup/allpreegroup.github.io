@@ -1029,20 +1029,29 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // ✅ Scroll into view with accurate offset
+ // ✅ Scroll into view with accurate offset
 if (!isOpen) {
   const headerHeight = 80; // sticky menu height
   const likedDealsSection = document.getElementById('likedDealsSection');
-
+  
+  // Ensure likedDealsSection exists and is visible
   const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
 
-  // Adjust the offset if the gallery is visible
-  const extraOffset = likedVisible ? -likedDealsSection.offsetHeight - 16 : 0; // tweak 16 if needed
+  // Add extra offset if liked section is visible
+  const extraOffset = likedVisible ? -likedDealsSection.offsetHeight - 16 : 0; // adjust 16 if needed
 
-  const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
+  // Get the position of the clicked brand element
+  const brandTop = brandDiv.getBoundingClientRect().top + window.scrollY;
 
-  window.scrollTo({ top, behavior: 'smooth' });
+  // Calculate the final scroll position
+  const scrollToPosition = brandTop - headerHeight + extraOffset;
+
+  window.scrollTo({ top: scrollToPosition, behavior: 'smooth' });
 }
+
+// Update the open grid reference
+currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+
 
 
 
