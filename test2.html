@@ -628,9 +628,18 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
+  const parsedDate = Date.parse(expireDate);
+
+  // If date is invalid or already expired
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = "⏳ Coming soon";
+    el.classList.add("countdown-upcoming");
+    return;
+  }
+
   function updateCountdown() {
     const now = new Date();
-    const endTime = new Date(expireDate);
+    const endTime = new Date(parsedDate);
     const diff = endTime - now;
 
     if (diff <= 0) {
@@ -643,15 +652,15 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60); // 👈 add seconds here
+    const seconds = Math.floor((diff / 1000) % 60);
 
     let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
 
     el.textContent = `⏳ ${timeStr}`;
   }
 
-  updateCountdown(); // initial call
-  const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
+  updateCountdown();
+  const timerInterval = setInterval(updateCountdown, 1000);
 }
 
 	
