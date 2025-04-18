@@ -630,12 +630,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="home">     
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
-
 			 
-<div id="likedDealsSection" style="display: none; margin-bottom: 1rem;">
-  <h2>❤️ Liked Deals Gallery</h2>
-  <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
-</div>			
+			
   <div id="deals-container">Loading deals...</div>
 
  <!-- Popup Overlay -->
@@ -1042,12 +1038,18 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-        container.innerHTML = '';
+       // Clear container again before final rendering
+container.innerHTML = '';
 
+// 🔁 Render liked gallery
+renderLikedDealsGallery(); // this populates likedDealsGallery and toggles visibility
+
+const likedDealsSection = document.getElementById('likedDealsSection');
 if (likedDealsSection && likedDealsSection.style.display !== 'none') {
   container.appendChild(likedDealsSection);
 }
 
+// 🔁 Now add all brands below it
 allBrandsData.forEach((brandData, index) => {
   if (index === 0) {
     const badge = document.createElement('div');
@@ -1056,6 +1058,7 @@ allBrandsData.forEach((brandData, index) => {
     brandData.section.querySelector('.brand-logo-container').appendChild(badge);
     brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
   }
+
   container.appendChild(brandData.section);
 });
 
