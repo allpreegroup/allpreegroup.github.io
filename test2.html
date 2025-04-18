@@ -576,11 +576,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <div style="position: relative;">
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
-      <img id="popupImg" src="" alt="Product">
-       <div class="like-heart" onclick="toggleLike('${deal.name}')">
-  <i id="heart-${deal.name}" class="fa fa-heart-o"></i>
-         <i id="popupHeart" class="fa fa-heart-o like-icon" onclick="togglePopupLike()"></i>
-</div>
+      <img class="lazy" id="popupImg" src="" alt="Product">
+      
     </div>
 
     <div class="popup-body">
@@ -596,7 +593,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <!-- Brand Box Wrapper -->
   <div class="popup-brand-box" id="brandContainer">
     <div class="brand-logo-container">
-      <img id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
+      <img class="lazy" id="brandLogo" src="" alt="Brand Logo" class="brand-logo">
     </div>
 
     <div class="brand-text-container">
@@ -761,7 +758,7 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
             brandDiv.innerHTML = `
             <div class="brand-logo-container">
-              <img src="${currentLogo}" alt="${currentBrand}" />
+              <img class="lazy" src="${currentLogo}" alt="${currentBrand}" />
             </div>
             <div>
               <span class="brand-name">${currentBrand}</span><br>
@@ -810,7 +807,7 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
             dealCard.className = 'deal';
             dealCard.innerHTML = `
               <span class="discount-badge">${percentOff}% OFF</span>
-              <img src="${row.ImageURL}" alt="${row.ProductName}">
+              <img class="lazy" src="${row.ImageURL}" alt="${row.ProductName}">
               <div class="deal-content">
                 <div class="deal-title">${shortName}</div>
                 <div class="price">JMD $${row.OriginalPrice}</div>
@@ -922,9 +919,6 @@ function startBrandCountdown(expireDate, elementId) {
   const timer = setInterval(update, 1000);
 }
 
-
-
-
   document.getElementById('popup').addEventListener('click', function (e) {
     if (e.target === this) {
       closePopup();
@@ -957,8 +951,6 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
-
-
 	
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
