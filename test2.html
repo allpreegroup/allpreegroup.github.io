@@ -766,22 +766,20 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 
 
-		   expireDateStr = row.ExpiryDate || row.expireDate;
+		  const expireDateStr = row.ExpiryDate || row.expireDate;
+const parsedDate = Date.parse(expireDateStr);
 
-          // Check if the date is valid or invalid and start countdown accordingly
-          const parsedDate = Date.parse(expireDateStr); // This returns NaN if it's invalid
-
-          if (!isNaN(parsedDate)) {
-            // Valid date — start countdown
-            startBrandCountdown(parsedDate, timerId);
-          } else {
-            // Invalid or missing date — show "Coming soon"
-            const el = document.getElementById(timerId);
-            if (el) {
-              el.textContent = '⏳ Coming soon';
-              el.classList.add('countdown-upcoming');
-            }
-          }
+// Check if the date is invalid or already expired
+if (isNaN(parsedDate) || parsedDate < Date.now()) {
+  const el = document.getElementById(timerId);
+  if (el) {
+    el.textContent = '⏳ Coming soon';
+    el.classList.add('countdown-upcoming');
+  }
+} else {
+  // Valid future date — start countdown
+  startBrandCountdown(expireDateStr, timerId);
+}
 
 	
             brandSection.appendChild(brandDiv);
