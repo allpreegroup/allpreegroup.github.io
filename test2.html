@@ -1029,31 +1029,25 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
- // ✅ Scroll into view with accurate offset
-if (!isOpen) {
-  const headerHeight = 80; // sticky menu height
-  const likedDealsSection = document.getElementById('likedDealsSection');
-  
-  // Ensure likedDealsSection exists and is visible
-  const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+ // ✅ Scroll into view with proper offset, accounting for the liked section
+  if (!isOpen) {
+    const headerHeight = 80; // sticky header height
+    const likedDealsSection = document.getElementById('likedDealsSection');
 
-  // Add extra offset if liked section is visible
-  const extraOffset = likedVisible ? -likedDealsSection.offsetHeight - 16 : 0; // adjust 16 if needed
+    // Check if liked section is visible (hidden = null)
+    const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
 
-  // Get the position of the clicked brand element
-  const brandTop = brandDiv.getBoundingClientRect().top + window.scrollY;
+    // Add extra offset only if liked section is NOT visible (to compensate upward shift)
+    const extraOffset = likedVisible ? 30 : 0; // adjust 10 if needed
 
-  // Calculate the final scroll position
-  const scrollToPosition = brandTop - headerHeight + extraOffset;
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
 
-  window.scrollTo({ top: scrollToPosition, behavior: 'smooth' });
-}
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
 
-// Update the open grid reference
-currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
-
-
-
+  // Update open grid reference
+  currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+});
 
 
 
