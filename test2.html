@@ -631,11 +631,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
 			 
-	<!-- Liked deals gallery - initially hidden -->
-<div id="likedDealsSection" style="display: none; margin-bottom: 1rem;">
-  <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
-  <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
-</div>
+	
 			 
   <div id="deals-container">Loading deals...</div>
 
@@ -1043,18 +1039,32 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-       // Clear container again before final rendering
+      // 🔁 Clear the main container
 container.innerHTML = '';
 
-// 🔁 Render liked gallery
-renderLikedDealsGallery(); // this populates likedDealsGallery and toggles visibility
-
-const likedDealsSection = document.getElementById('likedDealsSection');
-if (likedDealsSection && likedDealsSection.style.display !== 'none') {
+// 🔁 Create the liked deals section (if not already in DOM)
+let likedDealsSection = document.getElementById('likedDealsSection');
+if (!likedDealsSection) {
+  likedDealsSection = document.createElement('div');
+  likedDealsSection.id = 'likedDealsSection';
+  likedDealsSection.style.display = 'none';
+  likedDealsSection.style.marginBottom = '1rem';
+  likedDealsSection.innerHTML = `
+    <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
+    <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
+  `;
   container.appendChild(likedDealsSection);
 }
 
-// 🔁 Now add all brands below it
+// 🔁 Render liked deals gallery
+renderLikedDealsGallery(); // this will toggle visibility of the section
+
+// 🔁 Only append it if visible
+if (likedDealsSection.style.display !== 'none') {
+  container.appendChild(likedDealsSection);
+}
+
+// 🔁 Now append brand sections
 allBrandsData.forEach((brandData, index) => {
   if (index === 0) {
     const badge = document.createElement('div');
@@ -1066,8 +1076,6 @@ allBrandsData.forEach((brandData, index) => {
 
   container.appendChild(brandData.section);
 });
-
-
 	    
 
       setTimeout(() => {
