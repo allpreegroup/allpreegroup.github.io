@@ -886,16 +886,16 @@ const isLiked = likedDeals[dealKey];
 
 if (isLiked) {
   likeBtn.classList.add('liked');
-  likeBtn.textContent = '❤️';
+  likeBtn.textContent = '❤️ Liked';
 } else {
   likeBtn.classList.remove('liked');
-  likeBtn.textContent = '🤍';
+  likeBtn.textContent = '🤍 Like';
 }
 
 // 🔁 Toggle like on click
 likeBtn.onclick = () => {
   const liked = likeBtn.classList.toggle('liked');
-  likeBtn.textContent = liked ? '❤️' : '🤍';
+  likeBtn.textContent = liked ? '❤️ Liked' : '🤍 Like';
 
   likedDeals[dealKey] = liked;
   localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
@@ -1143,7 +1143,6 @@ if (!likedDealsSection) {
   likedDealsSection.style.marginBottom = '1rem';
 
   likedDealsSection.innerHTML = `
-    <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
     <div id="likedDealsGallery" class="likedDealsGallery"></div>
   `;
 
