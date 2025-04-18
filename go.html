@@ -479,7 +479,164 @@
    <center><a href="""><img src="https://www.allpree.com/img/AllPree Project STicker.png" width="110" height="110" alt=""></a> </center> 
 
 <center> <h3> Would You Want To See Deals Up To 80% Off?</h3> <b>Note:</b> Scroll Horizontally</center>	  
- test
+
+
+<div id="deals-container">Loading deals...</div>
+
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content" id="popupContent">
+      <span class="popup-close" onclick="closePopup()">×</span>
+     <div style="position: relative;">
+  <span class="popup-discount-badge" id="popupBadge"></span>
+  <img id="popupImg" src="" alt="Product">
+</div>
+      <div class="popup-body">
+        <div class="popup-title" id="popupTitle"></div>
+        <div class="popup-price" id="popupPrice"></div>
+        <div class="popup-discount" id="popupDiscount"></div>
+        <div class="popup-description" id="popupDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  
+      <script>
+   const sheetUrl = 'https://opensheet.elk.sh/15ePEcLiUoDz8o_jucPS6pWay4x5Kk_RFrvP9FZBkLbI/deals';
+  
+    function openPopup({ image, name, original, discount, description }) {
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popup').style.display = 'flex';
+}
+
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+
+    async function loadDeals() {
+      const container = document.getElementById('deals-container');
+      container.innerHTML = '';
+
+      try {
+        const res = await fetch(sheetUrl);
+        const rows = await res.json();
+
+        let currentBrand = '';
+        let currentLogo = '';
+        let brandSection = null;
+        let grid = null;
+
+        rows.forEach(row => {
+          if (row.BrandName && row.BrandLogo) {
+            currentBrand = row.BrandName;
+            currentLogo = row.BrandLogo;
+
+            brandSection = document.createElement('div');
+            brandSection.className = 'brand-section';
+
+            const brandDiv = document.createElement('div');
+            brandDiv.className = 'brand';
+            const expireDate = row.ExpiryDate;
+            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+            brandDiv.innerHTML = `
+            <div class="brand-logo-container">
+            <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <span class="brand-name">${currentBrand}</span>
+            <span class="brand-timer" id="${timerId}"></span>
+          `;
+
+        if (expireDate) {
+           startBrandCountdown(expireDate, timerId);
+          }
+
+
+            grid = document.createElement('div');
+            grid.className = 'deal-grid';
+
+            brandSection.appendChild(brandDiv);
+            brandSection.appendChild(grid);
+            container.appendChild(brandSection);
+          }
+
+          if (row.ProductName && row.ImageURL) {
+            const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+            const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+            const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+            const dealCard = document.createElement('div');
+            dealCard.className = 'deal';
+            dealCard.innerHTML = `
+              <span class="discount-badge">${percentOff}% OFF</span>
+              <img src="${row.ImageURL}" alt="${row.ProductName}">
+              <div class="deal-content">
+                <div class="deal-title">${shortName}</div>
+                <div class="price">JMD $${row.OriginalPrice}</div>
+                <div class="discount">JMD $${row.DiscountPrice}</div>
+              </div>
+            `;
+            dealCard.addEventListener('click', () => {
+              openPopup({
+                image: row.ImageURL,
+                name: row.ProductName,
+                original: row.OriginalPrice,
+                discount: row.DiscountPrice,
+                description: row.Description
+              });
+            });
+
+            grid?.appendChild(dealCard);
+          }
+        });
+
+      } catch (err) {
+        console.error('Failed to load deals:', err);
+        container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
+      }
+    }
+
+    loadDeals();
+ 
+  document.getElementById('popup').addEventListener('click', function (e) {
+  if (e.target === this) {
+    closePopup();
+  }
+});
+      function startBrandCountdown(expireDate, elementId) {
+  function update() {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const timeLeft = new Date(expireDate) - new Date();
+    if (timeLeft <= 0) {
+      el.textContent = ' - Deal ended';
+      clearInterval(timer);
+    } else {
+      const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+      const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+      el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+    }
+  }
+
+  update();
+  const timer = setInterval(update, 1000);
+}
+
+  </script>
+
 	  
    <center>  <h5>IF YES <br>Click The Button Below </h5></center>
   
