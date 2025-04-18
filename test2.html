@@ -424,25 +424,61 @@
     transform: scale(1.2);
   }
 
-.liked-brand-highlight {
-  border: 3px solid #ff66a3;
-  border-radius: 12px;
-  box-shadow: 0 0 12px #ff66a3;
-  animation: glowLiked 2s ease-in-out infinite;
+/* Glowing effect for the entire Liked Deals Gallery section */
+#likedDealsSection {
+  border: 2px solid #ff6f61; /* Set the color of the border */
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 111, 97, 0.5); /* Glowing effect */
+  transition: box-shadow 0.3s ease-in-out;
 }
 
-@keyframes glowLiked {
-  0% {
-    box-shadow: 0 0 10px #ff66a3;
-  }
-  50% {
-    box-shadow: 0 0 20px #ff3399;
-  }
-  100% {
-    box-shadow: 0 0 10px #ff66a3;
-  }
+/* Glowing effect when hovered over Liked Deals Gallery */
+#likedDealsSection:hover {
+  box-shadow: 0 0 20px rgba(255, 111, 97, 0.8); /* Glowing effect on hover */
 }
 
+/* Styling for each liked deal card */
+.liked-deal-card {
+  position: relative;
+  border: 2px solid #ff6f61; /* Set the border color */
+  border-radius: 8px;
+  padding: 0.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Glowing effect for each liked deal card */
+.liked-deal-card:hover {
+  transform: scale(1.05); /* Slight scale effect on hover */
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Glowing effect */
+}
+
+.liked-deal-card img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Optional: Add some extra glow for the liked deals */
+.liked-deal-card.liked {
+  border: 2px solid #ff6f61;
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Add glow to the liked deals */
+}
+
+#likedDealsGallery {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  justify-content: flex-start;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #ff6f61;
+  text-align: center;
+}
 
 
 		 
@@ -664,50 +700,40 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 
 function renderLikedDealsGallery() {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
   const sectionEl = document.getElementById('likedDealsSection');
-
+  
+  // Clear previous content
   galleryEl.innerHTML = '';
 
-  if (!Array.isArray(likedDeals) || likedDeals.length === 0) {
+  const likedKeys = Object.keys(likedDeals).filter(key => likedDeals[key]);
+
+  if (likedKeys.length === 0) {
     sectionEl.style.display = 'none';
     return;
   }
 
-  likedDeals.forEach(deal => {
-    if (deal && deal.name && deal.image && deal.percentOff && deal.original && deal.discount) {
-      const brand = document.createElement('div');
-      brand.className = 'brand liked-brand-highlight'; // reuse .brand style + add pink glow
+  likedKeys.forEach(key => {
+    const deal = allDealsFlat.find(d => d.name === key); // allDealsFlat is your combined list of all deals
 
-      const logoContainer = document.createElement('div');
-      logoContainer.className = 'brand-logo-container';
-
-      const img = document.createElement('img');
-      img.src = deal.image;
-      img.alt = deal.name;
-      logoContainer.appendChild(img);
-
-      const content = document.createElement('div');
-      content.className = 'deal-content';
-      content.innerHTML = `
-        <div class="discount-badge">${deal.percentOff}% OFF</div>
-        <div class="deal-title">${deal.name}</div>
-        <div class="price">JMD $${deal.original}</div>
-        <div class="discount">JMD $${deal.discount}</div>
+    if (deal) {
+      const card = document.createElement('div');
+      card.className = 'liked-deal-card liked'; // Adding 'liked' class for glow effect
+      card.style.minWidth = '120px';
+      card.style.cursor = 'pointer';
+      card.innerHTML = `
+        <img src="${deal.image}" alt="${deal.name}" style="width: 100%; border-radius: 8px;">
+        <div style="font-size: 0.85rem; margin-top: 0.25rem;">${deal.name}</div>
       `;
 
-      brand.appendChild(logoContainer);
-      brand.appendChild(content);
-
-      brand.addEventListener('click', () => openPopup(deal));
-      galleryEl.appendChild(brand);
+      card.addEventListener('click', () => openPopup(deal));
+      galleryEl.appendChild(card);
     }
   });
 
   sectionEl.style.display = 'block';
 }
-
 
 
 	
@@ -750,9 +776,7 @@ function renderLikedDealsGallery() {
 }
 
 	
- function openPopup(deal, skipHistory = false) {
-  const { image, name, original, discount, description, brandLogo, brandName } = deal;
-
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
@@ -775,12 +799,14 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-  const likeBtn = document.getElementById('popupLikeBtn');
-const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-const index = likedDeals.findIndex(d => d.name === deal.name);
+    const likeBtn = document.getElementById('popupLikeBtn');
+const dealKey = name; // or use a unique identifier
 
-// Set initial icon
-if (index !== -1) {
+// Load previous liked state
+const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+const isLiked = likedDeals[dealKey];
+
+if (isLiked) {
   likeBtn.classList.add('liked');
   likeBtn.textContent = '❤️';
 } else {
@@ -793,18 +819,9 @@ likeBtn.onclick = () => {
   const liked = likeBtn.classList.toggle('liked');
   likeBtn.textContent = liked ? '❤️' : '🤍';
 
-  let updatedLikes = [...likedDeals];
-
-  if (liked) {
-    updatedLikes.push(deal); // Add full deal object
-  } else {
-    updatedLikes = updatedLikes.filter(d => d.name !== deal.name);
-  }
-
-  localStorage.setItem('likedDeals', JSON.stringify(updatedLikes));
+  likedDeals[dealKey] = liked;
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
 };
-
-
 
 	  
     document.getElementById('popupImg').src = image;
@@ -1022,58 +1039,43 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-     // 🔁 Clear the main container
+      // 🔁 Clear the main container
 container.innerHTML = '';
 
-// 🔁 Ensure liked deals section exists
-// Ensure the likedDealsSection exists
-/* let likedDealsSection = document.getElementById('likedDealsSection');
+// 🔁 Create the liked deals section (if not already in DOM)
+let likedDealsSection = document.getElementById('likedDealsSection');
 if (!likedDealsSection) {
   likedDealsSection = document.createElement('div');
   likedDealsSection.id = 'likedDealsSection';
-  likedDealsSection.style.display = 'none';  // Initially hide it
+  likedDealsSection.style.display = 'none';
   likedDealsSection.style.marginBottom = '1rem';
   likedDealsSection.innerHTML = `
     <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
-    <div id="likedDealsGallery" class="deal-grid"></div>
+    <div id="likedDealsGallery" style="display: flex; overflow-x: auto; gap: 1rem; padding: 0.5rem 0;"></div>
   `;
   container.appendChild(likedDealsSection);
 }
 
 // 🔁 Render liked deals gallery
-renderLikedDealsGallery();
+renderLikedDealsGallery(); // this will toggle visibility of the section
 
-// 🔁 Show the liked deals section if there are liked items
-const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-if (likedDeals.length > 0) {
-  likedDealsSection.style.display = 'block'; // Show if there are liked deals
-} else {
-  likedDealsSection.style.display = 'none';  // Hide if there are no liked deals
-} */
+// 🔁 Only append it if visible
+if (likedDealsSection.style.display !== 'none') {
+  container.appendChild(likedDealsSection);
+}
 
-
-// 🔁 Append brand sections
+// 🔁 Now append brand sections
 allBrandsData.forEach((brandData, index) => {
-  const brandSection = brandData.section;
-
   if (index === 0) {
-    // Highlight top brand
     const badge = document.createElement('div');
     badge.className = 'top-deal-badge';
     badge.textContent = '🔥 Hottest Discount';
-
-    const logoContainer = brandSection.querySelector('.brand-logo-container');
-    const brandEl = brandSection.querySelector('.brand');
-
-    if (logoContainer && brandEl) {
-      logoContainer.appendChild(badge);
-      brandEl.classList.add('top-brand-highlight');
-    }
+    brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+    brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
   }
 
-  container.appendChild(brandSection);
+  container.appendChild(brandData.section);
 });
-
 	    
 
       setTimeout(() => {
