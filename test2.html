@@ -631,116 +631,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div>
 
 
-    <script>
-      let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || [];
-      let currentDeal = {}; // Current deal being viewed
-      let currentIndex = 0; // Current index of liked deals
-      let isViewingLikedDeals = false; // Track if viewing liked deals
-      const hasLikedDeals = likedDeals.length > 0;
-
-      // Initialize the popup and set up event handlers
-      function openPopup(deal) {
-        currentDeal = deal;
-
-        // Update content based on current deal
-        document.getElementById('popupImg').src = deal.image;
-        document.getElementById('popupTitle').innerText = deal.title;
-        document.getElementById('popupPrice').innerText = deal.price;
-        document.getElementById('popupDiscount').innerText = deal.discount;
-        document.getElementById('popupDesc').innerText = deal.description;
-
-        // Set like button text based on whether deal is liked
-        document.getElementById('likeButton').innerText = isDealLiked(deal) ? '❤️ Liked' : '🤍 Like';
-
-        // Show View ❤️ if there are liked deals and we're not in liked view
-        if (hasLikedDeals && !isViewingLikedDeals) {
-          document.getElementById('viewLikedInside').style.display = 'inline-block';
-        }
-
-        // Show "View Random" button when viewing liked deals
-        if (isViewingLikedDeals) {
-          document.getElementById('backToRandom').style.display = 'inline-block';
-        }
-
-        // Attach events to buttons
-        document.getElementById('likeButton').onclick = toggleLike;
-        document.getElementById('viewLikedInside').onclick = switchToLikedDeals;
-        document.getElementById('backToRandom').onclick = switchToRandomDeal;
-      }
-
-      // Check if the current deal is in the liked list
-      function isDealLiked(deal) {
-        return likedDeals.some(d => d.name === deal.name);
-      }
-
-      // Toggle the like/unlike action
-      function toggleLike() {
-        const index = likedDeals.findIndex(d => d.name === currentDeal.name);
-        if (index === -1) {
-          likedDeals.push(currentDeal);  // Add to liked deals
-          document.getElementById('likeButton').innerText = '❤️ Liked';
-        } else {
-          likedDeals.splice(index, 1);  // Remove from liked deals
-          document.getElementById('likeButton').innerText = '🤍 Like';
-        }
-        localStorage.setItem('likedDeals', JSON.stringify(likedDeals));  // Save changes to localStorage
-      }
-
-      // Switch to liked deals view
-      function switchToLikedDeals() {
-        isViewingLikedDeals = true;
-        document.getElementById('viewLikedInside').style.display = 'none';
-        document.getElementById('backToRandom').style.display = 'inline-block';
-        // Add logic to display liked deals
-        displayLikedDeal(currentIndex);
-      }
-
-      // Switch to random deal view
-      function switchToRandomDeal() {
-        isViewingLikedDeals = false;
-        document.getElementById('backToRandom').style.display = 'none';
-        document.getElementById('viewLikedInside').style.display = 'inline-block';
-        // Add logic to display random deal
-        openRandomDeal();
-      }
-
-      // Display the liked deal based on index
-      function displayLikedDeal(index) {
-        const likedDeal = likedDeals[index];
-        document.getElementById('popupImg').src = likedDeal.image;
-        document.getElementById('popupTitle').innerText = likedDeal.title;
-        document.getElementById('popupPrice').innerText = likedDeal.price;
-        document.getElementById('popupDiscount').innerText = likedDeal.discount;
-        document.getElementById('popupDesc').innerText = likedDeal.description;
-      }
-
-      // Open a random deal (this could be dynamic or preloaded)
-      function openRandomDeal() {
-        const randomDeal = {
-          name: 'Random Deal',
-          title: 'Amazing Deal!',
-          price: '$50',
-          discount: '20% off',
-          image: 'random.jpg',
-          description: 'Get this amazing product at a huge discount!',
-        };
-        openPopup(randomDeal);  // Update popup content to random deal
-      }
-
-      // Initialize popup with a random deal on load
-      window.onload = () => {
-        openRandomDeal();
-      };
-
-      // Close popup functionality
-      function closePopup() {
-        document.getElementById('popup').style.display = 'none';  // Close the popup
-      }
-    </script>
-
-
-			 
-<script>
+  <script>
 	let sheetUrls = [];
 
 async function loadSheetUrls() {
@@ -792,6 +683,7 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   updateCountdown(); // initial call
   const timerInterval = setInterval(updateCountdown, 1000); // update every second 👈
 }
+
 	
   function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
@@ -803,28 +695,16 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
     const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
     const finalPrice = discountPrice - cashbackAmount;
 
-const likeButton = document.getElementById('likeButton');
-likeButton.classList.toggle('liked', isDealLiked(currentPopupDeal));
-
-likeButton.onclick = () => {
-  const index = likedDeals.findIndex(d => d.name === currentPopupDeal.name);
-
-  if (index === -1) {
-    likedDeals.push(currentPopupDeal);
-    likeButton.classList.add('liked');
-  } else {
-    likedDeals.splice(index, 1);
-    likeButton.classList.remove('liked');
-  }
-
-  saveLikedDeals();
-};	  
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+
+
     
   // ⛔️ Disable scroll
   document.body.classList.add('noscroll');
+
+	  
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
@@ -932,6 +812,7 @@ likeButton.onclick = () => {
            startBrandCountdown(expireDate, timerId);
           }
          }
+
             allBrandsData.push({
               brand: currentBrand,
               logo: currentLogo,
@@ -1065,11 +946,28 @@ function startBrandCountdown(expireDate, elementId) {
   const timer = setInterval(update, 1000);
 }
 
+
+
+
   document.getElementById('popup').addEventListener('click', function (e) {
     if (e.target === this) {
       closePopup();
     }
   });
+
+/*  document.getElementById('popupImg').addEventListener('click', () => {
+    let next;
+    do {
+      const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+      next = allDealsFlat[randomIndex];
+    } while (next.name === currentPopupDeal?.name);
+
+    openPopup(next); // pushState already handled in openPopup
+  }); 
+
+  document.getElementById('popupBack').addEventListener('click', () => {
+    window.history.back();
+  }); */
 
   window.onpopstate = function (event) {
     if (event.state?.popup && event.state.dealName) {
@@ -1083,6 +981,8 @@ function startBrandCountdown(expireDate, elementId) {
   };
 
   loadDeals();
+
+
 	
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
