@@ -579,6 +579,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <img id="popupImg" src="" alt="Product">
        <div class="like-heart" onclick="toggleLike('${deal.name}')">
   <i id="heart-${deal.name}" class="fa fa-heart-o"></i>
+         <i id="popupHeart" class="fa fa-heart-o like-icon" onclick="togglePopupLike()"></i>
 </div>
     </div>
 
@@ -628,11 +629,30 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 
 function toggleLike(dealName) {
-  const heartIcon = document.getElementById(`heart-${dealName}`);
+  const popupHeart = document.getElementById('popupHeart');
+const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+
+popupHeart.dataset.dealName = name;
+
+if (likedDeals.includes(name)) {
+  popupHeart.classList.remove('fa-heart-o');
+  popupHeart.classList.add('fa-heart');
+  popupHeart.style.color = 'red';
+} else {
+  popupHeart.classList.remove('fa-heart');
+  popupHeart.classList.add('fa-heart-o');
+  popupHeart.style.color = 'white';
+}
+
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+}
+
+function togglePopupLike() {
+  const heartIcon = document.getElementById('popupHeart');
+  const dealName = heartIcon.dataset.dealName;
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
 
   const index = likedDeals.indexOf(dealName);
-
   if (index === -1) {
     likedDeals.push(dealName);
     heartIcon.classList.remove('fa-heart-o');
@@ -647,7 +667,6 @@ function toggleLike(dealName) {
 
   localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
 }
-
 
 
 	  
@@ -1059,7 +1078,6 @@ function startBrandCountdown(expireDate, elementId) {
 // Call this after your popup is ready
 addPopupSwipeListeners();
 </script>
-
 
 
 			 
