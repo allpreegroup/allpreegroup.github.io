@@ -1013,8 +1013,8 @@ if (isNaN(parsedDate) || parsedDate < Date.now()) {
 
             grid.style.display = 'none'; // hidden by default
 
-		 brandSection.appendChild(grid);
-grid.style.display = 'none'; // Hide all by default
+		brandSection.appendChild(grid);
+grid.style.display = 'none';
 brandDiv.style.cursor = 'pointer';
 
 brandDiv.addEventListener('click', () => {
@@ -1028,16 +1028,17 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // ✅ Scroll into view with dynamic offset so brand isn't hidden
+  // ✅ Scroll into view with accurate offset
   if (!isOpen) {
+    const headerHeight = 80; // sticky header
     const likedDealsSection = document.getElementById('likedDealsSection');
-    const likedVisible = likedDealsSection && likedDealsSection.style.display !== 'none';
 
-    const baseOffset = 80; // height of your sticky header
-    const extraOffset = likedVisible ? likedDealsSection.offsetHeight + 16 : 0;
-    const totalOffset = baseOffset + extraOffset;
+    // Only add extra offset if gallery is hidden (because it shifts everything upward)
+    const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+    const extraOffset = likedVisible ? 0 : -likedDealsSection.offsetHeight - 16;
 
-    const top = brandDiv.getBoundingClientRect().top + window.scrollY - totalOffset;
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
+
     window.scrollTo({ top, behavior: 'smooth' });
   }
 
