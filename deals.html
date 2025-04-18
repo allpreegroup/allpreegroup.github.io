@@ -813,6 +813,11 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
+  // Scroll into view if opening
+  if (!isOpen) {
+    brandDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   // Update the reference
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
