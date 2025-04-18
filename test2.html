@@ -877,13 +877,14 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-    const likeBtn = document.getElementById('popupLikeBtn');
+   const likeBtn = document.getElementById('popupLikeBtn');
 const dealKey = name; // or however you're identifying the deal
 
 // Load previous liked state
 const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
 const isLiked = likedDeals[dealKey];
 
+// Set the like button state based on whether the deal is liked
 if (isLiked) {
   likeBtn.classList.add('liked');
   likeBtn.textContent = '❤️ Liked';
@@ -897,12 +898,28 @@ likeBtn.onclick = () => {
   const liked = likeBtn.classList.toggle('liked');
   likeBtn.textContent = liked ? '❤️ Liked' : '🤍 Like';
 
-  likedDeals[dealKey] = liked;
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+  if (liked) {
+    likeDeal(deal); // Save the full deal object when liked
+  } else {
+    let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || {};
+    delete likedDeals[dealKey]; // Remove the deal from likedDeals
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+  }
 
   // ✅ Re-render the gallery immediately
   renderLikedDealsGallery();
 };
+
+	  function likeDeal(deal) {
+  // Retrieve previously liked deals from localStorage (or initialize an empty object)
+  let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || {};
+
+  // Save the entire deal object, using the deal's unique identifier (e.g., `deal.name`)
+  likedDeals[deal.name] = deal;
+
+  // Store the updated likedDeals in localStorage
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+}
 
 
 	  
