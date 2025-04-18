@@ -1158,11 +1158,13 @@ allBrandsData.forEach((brandData, index) => {
 	    
 
       setTimeout(() => {
-        const topBrand = allBrandsData[0];
-        if (topBrand?.section) {
-          topBrand.section.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
+  const topBrand = allBrandsData[0];
+  if (topBrand?.section) {
+    const offset = 80; // Adjust to match your menu height
+    const top = topBrand.section.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+}, 100);
 
     } catch (err) {
       console.error('Failed to load deals:', err);
