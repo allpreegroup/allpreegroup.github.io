@@ -98,11 +98,17 @@
       font-size: 18px;
       margin-bottom: 20px;
     }
+		 
     .brand-section {
       margin-bottom: 30px;
-	    
-	    
+		    
     }
+
+.countdown-upcoming {
+  color: orange;
+  font-style: italic;
+}
+		 
     .brand {
   display: flex;
   align-items: center;
@@ -758,12 +764,26 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
             </div>
 `;
 
-            const expireDateStr = row.ExpiryDate || row.expireDate;
-            if (expireDateStr) {
-            startBrandCountdown(expireDateStr, timerId);
-           }
 
 
+		   expireDateStr = row.ExpiryDate || row.expireDate;
+
+          // Check if the date is valid or invalid and start countdown accordingly
+          const parsedDate = Date.parse(expireDateStr); // This returns NaN if it's invalid
+
+          if (!isNaN(parsedDate)) {
+            // Valid date — start countdown
+            startBrandCountdown(parsedDate, timerId);
+          } else {
+            // Invalid or missing date — show "Coming soon"
+            const el = document.getElementById(timerId);
+            if (el) {
+              el.textContent = '⏳ Coming soon';
+              el.classList.add('countdown-upcoming');
+            }
+          }
+
+	
             brandSection.appendChild(brandDiv);
 
             grid = document.createElement('div');
