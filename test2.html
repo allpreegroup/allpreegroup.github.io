@@ -767,6 +767,10 @@ function renderLikedDealsGallery() {
       const card = document.createElement('div');
       card.className = 'deal liked'; // Use same classes as your main layout
 
+	    const discountPercent = deal.originalPrice && deal.discountedPrice
+  ? Math.round(((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100)
+  : null;
+	    
 	const shortName = deal.name.length > 30 ? deal.name.substring(0, 30) + '...' : deal.name;    
       card.innerHTML = `
   <img src="${deal.image}" alt="${deal.name}">
