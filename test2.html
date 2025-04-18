@@ -429,7 +429,10 @@ height: 60px;
 /* Liked Deals Gallery Wrapper */
 #likedDealsSection {
   border: 0px ;
-  padding: 1rem;
+  padding-top: 0;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
   
   box-shadow: 0 0 0px;
   margin-bottom: 40px;
@@ -1008,19 +1011,17 @@ if (isNaN(parsedDate) || parsedDate < Date.now()) {
 	
             brandSection.appendChild(brandDiv);
 
-            grid = document.createElement('div');
-            grid.className = 'deal-grid';
+grid = document.createElement('div');
+grid.className = 'deal-grid';
+grid.style.display = 'none'; // Hidden by default
 
-            grid.style.display = 'none'; // hidden by default
-
-		brandSection.appendChild(grid);
-grid.style.display = 'none';
+brandSection.appendChild(grid);
 brandDiv.style.cursor = 'pointer';
 
 brandDiv.addEventListener('click', () => {
   const isOpen = grid.style.display === 'grid';
 
-  // Close the currently open grid if it's not this one
+  // Close any currently open grid
   if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
     currentlyOpenGrid.style.display = 'none';
   }
@@ -1028,23 +1029,26 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // ✅ Scroll into view with accurate offset
+  // ✅ Scroll into view with proper offset, accounting for the liked section
   if (!isOpen) {
-    const headerHeight = 80; // sticky header
+    const headerHeight = 80; // sticky header height
     const likedDealsSection = document.getElementById('likedDealsSection');
 
-    // Only add extra offset if gallery is hidden (because it shifts everything upward)
+    // Check if liked section is visible (hidden = null)
     const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
-    const extraOffset = likedVisible ? 0 : -likedDealsSection.offsetHeight - 16;
 
-    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
+    // Add extra offset only if liked section is NOT visible (to compensate upward shift)
+    const extraOffset = likedVisible ? 10 : 0; // adjust 10 if needed
+
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
 
     window.scrollTo({ top, behavior: 'smooth' });
   }
 
-  // Update the reference
+  // Update open grid reference
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
 
