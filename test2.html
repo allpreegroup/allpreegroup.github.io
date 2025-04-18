@@ -859,7 +859,7 @@ function renderLikedDealsGallery() {
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
     const likeBtn = document.getElementById('popupLikeBtn');
-const dealKey = name; // or use a unique identifier
+const dealKey = name; // or however you're identifying the deal
 
 // Load previous liked state
 const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -873,14 +873,18 @@ if (isLiked) {
   likeBtn.textContent = '🤍';
 }
 
-// Toggle like on click
+// 🔁 Toggle like on click
 likeBtn.onclick = () => {
   const liked = likeBtn.classList.toggle('liked');
   likeBtn.textContent = liked ? '❤️' : '🤍';
 
   likedDeals[dealKey] = liked;
   localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+
+  // ✅ Re-render the gallery immediately
+  renderLikedDealsGallery();
 };
+
 
 	  
     document.getElementById('popupImg').src = image;
