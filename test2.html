@@ -1071,10 +1071,10 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-      // 🔁 Clear the main container
+     // 🔁 Clear the main container
 container.innerHTML = '';
 
-// 🔁 Create the liked deals section (if not already in DOM)
+// 🔁 Ensure liked deals section exists
 let likedDealsSection = document.getElementById('likedDealsSection');
 if (!likedDealsSection) {
   likedDealsSection = document.createElement('div');
@@ -1083,31 +1083,41 @@ if (!likedDealsSection) {
   likedDealsSection.style.marginBottom = '1rem';
   likedDealsSection.innerHTML = `
     <h2 style="text-align: center; font-size: 1.2rem; margin-bottom: 0.5rem;">❤️ Liked Deals Gallery</h2>
-   <div id="likedDealsGallery" class="deal-grid"></div>
+    <div id="likedDealsGallery" class="deal-grid"></div>
   `;
-  container.appendChild(likedDealsSection);
+  container.appendChild(likedDealsSection); // Only append here once
 }
 
 // 🔁 Render liked deals gallery
-renderLikedDealsGallery(); // this will toggle visibility of the section
+renderLikedDealsGallery();
 
-// 🔁 Only append it if visible
+// 🔁 Append liked deals section only if visible (i.e., has liked items)
 if (likedDealsSection.style.display !== 'none') {
   container.appendChild(likedDealsSection);
 }
 
-// 🔁 Now append brand sections
+// 🔁 Append brand sections
 allBrandsData.forEach((brandData, index) => {
+  const brandSection = brandData.section;
+
   if (index === 0) {
+    // Highlight top brand
     const badge = document.createElement('div');
     badge.className = 'top-deal-badge';
     badge.textContent = '🔥 Hottest Discount';
-    brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-    brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+
+    const logoContainer = brandSection.querySelector('.brand-logo-container');
+    const brandEl = brandSection.querySelector('.brand');
+
+    if (logoContainer && brandEl) {
+      logoContainer.appendChild(badge);
+      brandEl.classList.add('top-brand-highlight');
+    }
   }
 
-  container.appendChild(brandData.section);
+  container.appendChild(brandSection);
 });
+
 	    
 
       setTimeout(() => {
