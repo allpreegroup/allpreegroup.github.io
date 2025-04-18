@@ -877,45 +877,40 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
+  function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
-if (!likeBtn || !deal || !deal.name) return; // safeguard everything
-const dealKey = deal.name; // ✅ FIXED: use deal.name directly
 
-// Load previous liked state
-const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-const isLiked = likedDeals[dealKey];
-
-// Set the like button state based on whether the deal is liked
-if (isLiked) {
-  likeBtn.classList.add('liked');
-  likeBtn.textContent = '❤️ Liked';
-} else {
-  likeBtn.classList.remove('liked');
-  likeBtn.textContent = '🤍 Like';
-}
-
-// 🔁 Toggle like on click
-likeBtn.onclick = () => {
-  const liked = likeBtn.classList.toggle('liked');
-  likeBtn.textContent = liked ? '❤️ Liked' : '🤍 Like';
-
-  if (liked) {
-    likeDeal(deal); // Save the full deal object when liked
-  } else {
-    let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || {};
-    delete likedDeals[dealKey]; // Remove the deal from likedDeals
-    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+  if (!likeBtn || !deal || !deal.name) {
+    console.warn('Like button or deal data missing');
+    return;
   }
 
-  // ✅ Re-render the gallery immediately
-  renderLikedDealsGallery();
-};
+  const dealKey = deal.name;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = likedDeals[dealKey];
 
-function likeDeal(deal) {
-  let likedDeals = JSON.parse(localStorage.getItem('likedDeals')) || {};
-  likedDeals[deal.name] = deal;
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+  // Set initial state
+  likeBtn.classList.toggle('liked', !!isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  // Toggle on click
+  likeBtn.onclick = () => {
+    const liked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = liked ? '❤️ Liked' : '🤍 Like';
+
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+    if (liked) {
+      updatedLikedDeals[dealKey] = deal;
+    } else {
+      delete updatedLikedDeals[dealKey];
+    }
+
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery();
+  };
 }
+
 
 
 	  
@@ -954,6 +949,9 @@ function likeDeal(deal) {
     }
 
     document.getElementById('popup').style.display = 'flex';
+
+    // ✅ Call the like button setup after the DOM is updated
+    setupLikeButton(currentPopupDeal);
   }
 
   function closePopup() {
