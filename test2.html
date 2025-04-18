@@ -750,7 +750,9 @@ function renderLikedDealsGallery() {
 }
 
 	
-  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+ function openPopup(deal, skipHistory = false) {
+  const { image, name, original, discount, description, brandLogo, brandName } = deal;
+
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
