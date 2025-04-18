@@ -424,61 +424,25 @@
     transform: scale(1.2);
   }
 
-/* Glowing effect for the entire Liked Deals Gallery section */
-#likedDealsSection {
-  border: 2px solid #ff6f61; /* Set the color of the border */
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 111, 97, 0.5); /* Glowing effect */
-  transition: box-shadow 0.3s ease-in-out;
+.liked-brand-highlight {
+  border: 3px solid #ff66a3;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #ff66a3;
+  animation: glowLiked 2s ease-in-out infinite;
 }
 
-/* Glowing effect when hovered over Liked Deals Gallery */
-#likedDealsSection:hover {
-  box-shadow: 0 0 20px rgba(255, 111, 97, 0.8); /* Glowing effect on hover */
+@keyframes glowLiked {
+  0% {
+    box-shadow: 0 0 10px #ff66a3;
+  }
+  50% {
+    box-shadow: 0 0 20px #ff3399;
+  }
+  100% {
+    box-shadow: 0 0 10px #ff66a3;
+  }
 }
 
-/* Styling for each liked deal card */
-.liked-deal-card {
-  position: relative;
-  border: 2px solid #ff6f61; /* Set the border color */
-  border-radius: 8px;
-  padding: 0.5rem;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-/* Glowing effect for each liked deal card */
-.liked-deal-card:hover {
-  transform: scale(1.05); /* Slight scale effect on hover */
-  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Glowing effect */
-}
-
-.liked-deal-card img {
-  width: 100%;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Optional: Add some extra glow for the liked deals */
-.liked-deal-card.liked {
-  border: 2px solid #ff6f61;
-  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7); /* Add glow to the liked deals */
-}
-
-#likedDealsGallery {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding: 0.5rem 0;
-  justify-content: flex-start;
-}
-
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #ff6f61;
-  text-align: center;
-}
 
 
 		 
@@ -700,64 +664,47 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 
 function renderLikedDealsGallery() {
-  // Get likedDeals from localStorage (it's now an object)
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
   const galleryEl = document.getElementById('likedDealsGallery');
   const sectionEl = document.getElementById('likedDealsSection');
-  
-  // Clear previous content
+
   galleryEl.innerHTML = '';
 
-  // Get the keys (deal identifiers) of liked deals
-  const likedDealKeys = Object.keys(likedDeals).filter(key => likedDeals[key]);
-
-  // Check if there are any liked deals to display
-  if (likedDealKeys.length === 0) {
+  if (!Array.isArray(likedDeals) || likedDeals.length === 0) {
     sectionEl.style.display = 'none';
     return;
   }
 
-  // Loop through the liked deals
-  likedDealKeys.forEach((key, index) => {
-    // Find the deal from your allDeals data using the key
-    const deal = allDealsFlat.find(d => d.name === key); // Assuming 'name' is unique
-
-    // Ensure the deal exists and has the required properties
+  likedDeals.forEach(deal => {
     if (deal && deal.name && deal.image && deal.percentOff && deal.original && deal.discount) {
-      // Create the deal card
-      const card = document.createElement('div');
-      card.className = 'deal'; // Use 'deal' class for consistent styling
+      const brand = document.createElement('div');
+      brand.className = 'brand liked-brand-highlight'; // reuse .brand style + add pink glow
 
-      card.innerHTML = `
-        <span class="discount-badge">${deal.percentOff}% OFF</span>
-        <img src="${deal.image}" alt="${deal.name}">
-        <div class="deal-content">
-          <div class="deal-title">${deal.name}</div>
-          <div class="price">JMD $${deal.original}</div>
-          <div class="discount">JMD $${deal.discount}</div>
-        </div>
+      const logoContainer = document.createElement('div');
+      logoContainer.className = 'brand-logo-container';
+
+      const img = document.createElement('img');
+      img.src = deal.image;
+      img.alt = deal.name;
+      logoContainer.appendChild(img);
+
+      const content = document.createElement('div');
+      content.className = 'deal-content';
+      content.innerHTML = `
+        <div class="discount-badge">${deal.percentOff}% OFF</div>
+        <div class="deal-title">${deal.name}</div>
+        <div class="price">JMD $${deal.original}</div>
+        <div class="discount">JMD $${deal.discount}</div>
       `;
 
-      // Add a "Hottest Discount" badge to the first liked deal
-      if (index === 0) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Discount';
-        card.querySelector('.deal-content').prepend(badge); // Add the badge at the top of the deal card
-      }
+      brand.appendChild(logoContainer);
+      brand.appendChild(content);
 
-      // Add a highlight to the first liked deal
-      if (index === 0) {
-        card.classList.add('top-deal-highlight');
-      }
-
-      // Add the card to the gallery
-      card.addEventListener('click', () => openPopup(deal));  // Assuming you have openPopup() defined to show the deal details
-      galleryEl.appendChild(card);
+      brand.addEventListener('click', () => openPopup(deal));
+      galleryEl.appendChild(brand);
     }
   });
 
-  // Display the section if there are deals
   sectionEl.style.display = 'block';
 }
 
