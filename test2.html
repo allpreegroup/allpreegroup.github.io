@@ -717,12 +717,13 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   document.body.classList.remove('noscroll');
   }
 
+	
   async function loadDeals() {
     const container = document.getElementById('deals-container');
     container.innerHTML = '';
     allBrandsData.length = 0;
     allDealsFlat.length = 0;
-
+    let currentlyOpenGrid = null;
     try {
       for (let sheetUrl of sheetUrls) {
         const res = await fetch(sheetUrl);
