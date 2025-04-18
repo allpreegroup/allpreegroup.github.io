@@ -8,11 +8,13 @@
  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
  <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
     <meta charset="UTF-8">
      <title>See Today's Deals</title>
-        <style>
+         <style>
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -404,44 +406,6 @@
 .popup-back-arrow:hover {
   color: black;
 }
-
-.like-button.liked {
-  color: red;
-}	
-
-.like-button, .bg-white {
-  background-color: #fff;
-  color: #f00;
-  padding: 10px 20px;
-  border: 1px solid #f00;
-  cursor: pointer;
-}
-
-.like-button.liked {
-  background-color: #f00;
-  color: #fff;
-}
-
-.bg-white {
-  background-color: white;
-  color: #000;
-}
-
-.popup-back-arrow {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-}
-
-.popup-discount-badge {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-		
-		
-
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -602,9 +566,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <span class="popup-discount-badge" id="popupBadge"></span>
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
-       <button id="likeButton">🤍 Like</button>
-  <button id="viewLikedInside" style="display: none;">View ❤️</button>
-  <button id="backToRandom" style="display: none;">Back to Random Deal</button>
+       <div class="like-heart" onclick="toggleLike('${deal.name}')">
+  <i id="heart-${deal.name}" class="fa fa-heart-o"></i>
+</div>
     </div>
 
     <div class="popup-body">
@@ -650,7 +614,32 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
-	
+
+
+function toggleLike(dealName) {
+  const heartIcon = document.getElementById(`heart-${dealName}`);
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+
+  const index = likedDeals.indexOf(dealName);
+
+  if (index === -1) {
+    likedDeals.push(dealName);
+    heartIcon.classList.remove('fa-heart-o');
+    heartIcon.classList.add('fa-heart');
+    heartIcon.style.color = 'red';
+  } else {
+    likedDeals.splice(index, 1);
+    heartIcon.classList.remove('fa-heart');
+    heartIcon.classList.add('fa-heart-o');
+    heartIcon.style.color = 'white';
+  }
+
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+}
+
+
+
+	  
   const allBrandsData = [];
   const allDealsFlat = [];
   let currentPopupDeal = null;
@@ -695,6 +684,20 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
     const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
     const finalPrice = discountPrice - cashbackAmount;
 
+    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+const heartIcon = document.getElementById(`heart-${deal.name}`);
+if (likedDeals.includes(deal.name)) {
+  heartIcon.classList.remove('fa-heart-o');
+  heartIcon.classList.add('fa-heart');
+  heartIcon.style.color = 'red';
+} else {
+  heartIcon.classList.remove('fa-heart');
+  heartIcon.classList.add('fa-heart-o');
+  heartIcon.style.color = 'white';
+}
+
+
+	  
     // Show cashback in the popup
     const cashbackEl = document.getElementById('popupCashback');
     cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
