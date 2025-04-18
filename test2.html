@@ -424,50 +424,96 @@
     transform: scale(1.2);
   }
 
-/* 💖 Liked Deals Gallery Section */
+/* Glowing, golden effect for the entire Liked Deals Gallery section */
 #likedDealsSection {
-  border: 2px solid #ff6f61;
+  background-color: gold;
+  color: #000;
+  font-weight: bold;
   padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 111, 97, 0.5);
-  transition: box-shadow 0.3s ease-in-out;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 0 10px gold;
+  animation: glowPulse 2s ease-in-out infinite;
+  margin-bottom: 20px;
 }
-#likedDealsSection:hover {
-  box-shadow: 0 0 20px rgba(255, 111, 97, 0.8);
+
+/* Header for the liked deals section */
+#likedDealsSection h2 {
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #000;
+  font-weight: bold;
 }
+
+/* Horizontal scrolling row */
 #likedDealsGallery {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   padding: 0.5rem 0;
-  justify-content: flex-start;
+  scroll-snap-type: x mandatory;
 }
+
+/* Individual card styling */
 .liked-deal-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  background: #fff;
+  border: 3px solid gold;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 140px;
   position: relative;
-  border: 2px solid #ff6f61;
-  border-radius: 8px;
-  padding: 0.5rem;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
+
+/* Hover effect */
 .liked-deal-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
 }
+
+/* Card image */
 .liked-deal-card img {
   width: 100%;
-  border-radius: 8px;
+  height: 120px;
   object-fit: cover;
+  border-radius: 8px;
 }
+
+/* Optional glow for already liked cards */
 .liked-deal-card.liked {
-  border: 2px solid #ff6f61;
-  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
+  box-shadow: 0 0 15px gold;
 }
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #ff6f61;
-  text-align: center;
+
+/* Golden badge example */
+.liked-deal-badge {
+  background-color: gold;
+  color: #000;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -20px;
+  font-size: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
+
+/* Gold glowing animation */
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 10px gold;
+  }
+  50% {
+    box-shadow: 0 0 20px orange;
+  }
+  100% {
+    box-shadow: 0 0 10px gold;
+  }
+}
+
 
 		 
   </style>
