@@ -1083,51 +1083,28 @@ function goToPrevLikedDeal() {
 function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
 
-  // Safeguard
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal data missing');
     return;
   }
 
-  const dealKey = deal.name;
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const isLiked = !!likedDeals[dealKey];
+  const isLiked = !!likedDeals[deal.name];
 
   // Set initial button state
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-  // ✅ Remove old listener by resetting onclick
+  // ✅ Remove old listener and set up new one
   likeBtn.onclick = () => {
-    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-    const isNowLiked = likeBtn.classList.toggle('liked');
-    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+    const wasLiked = likeBtn.classList.contains('liked');
+    likeBtn.classList.toggle('liked');
+    likeBtn.textContent = wasLiked ? '🤍 Like' : '❤️ Liked';
 
-    // Calculate percentOff if the deal is being liked
-    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
-    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-    const percentOff = original && discount
-      ? Math.round(((original - discount) / original) * 100)
-      : 0;
-
-    // If the deal is liked, add it to the updated list with percentOff
-    if (isNowLiked) {
-      updatedLikedDeals[dealKey] = {
-        ...deal,
-        percentOff // Add percentOff to the saved deal
-      };
-    } else {
-      // If the deal is unliked, remove it from the updated list
-      delete updatedLikedDeals[dealKey];
-    }
-
-        // Update the likedDeals in localStorage
-    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-    renderLikedDealsGallery(); // Re-render the gallery
-
-    // ✅ Refresh unlikedDeals
-    unlikedDeals = allDeals.filter(d => !Object.keys(updatedLikedDeals).includes(d.name));
-};
+    // Call your central logic
+    toggleLike(deal);
+    renderLikedDealsGallery();
+  };
 }
 
 
@@ -1487,6 +1464,37 @@ function showRandomUnlikedDeal() {
 }
 
 
+// =======================
+// Toggle Like Logic
+// =======================
+function toggleLike(deal) {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+  if (likedDeals[deal.name]) {
+    delete likedDeals[deal.name];
+  } else {
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    likedDeals[deal.name] = {
+      ...deal,
+      percentOff
+    };
+  }
+
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+
+  // Refresh global unlikedDeals
+  const likedDealIds = new Set(Object.keys(likedDeals));
+  unlikedDeals = allDealsFlat.filter(d => !likedDealIds.has(d.name));
+}
+
+
+
+		
 // Handle swipe up/down
 function handleSwipe() {
   const deltaY = endY - startY;
