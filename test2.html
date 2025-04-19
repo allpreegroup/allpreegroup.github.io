@@ -1041,6 +1041,27 @@ document.getElementById('showLikedBtn').onclick = () => {
   document.body.classList.remove('noscroll');
   }
 
+function showRandomDealsInPopup() {
+  const randomIndex = Math.floor(Math.random() * allDeals.length);
+  const deal = allDeals[randomIndex];
+  openPopup(deal, true);
+}
+
+function showLikedDealsInPopup() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedKeys = Object.keys(likedDeals);
+  if (likedKeys.length === 0) {
+    alert("No liked deals yet.");
+    return;
+  }
+
+  // Just show the first liked deal for now
+  const deal = likedDeals[likedKeys[0]];
+  openPopup(deal, true);
+}
+
+
+
 	
   async function loadDeals() {
     const container = document.getElementById('deals-container');
