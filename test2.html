@@ -813,10 +813,12 @@ async function loadSheetUrls() {
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
 	
-  const allBrandsData = [];
-  const allDealsFlat = [];
-  let currentPopupDeal = null;
-
+const allBrandsData = [];       // Holds all data from each brand's sheet
+const allDealsFlat = [];        // Flattened list of all deals across brands
+let currentPopupDeal = null;    // Currently open deal in the popup
+let likedDealIndex = 0;         // Index of current liked deal being viewed
+let likedDealKeys = [];         // Array of liked deal keys
+let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 
 function renderLikedDealsGallery() {
    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -988,10 +990,6 @@ document.getElementById('showLikedBtn').onclick = () => {
   document.getElementById('showRandomBtn').classList.remove('active');
   showLikedDealsInPopup(); // You'll define this
 };
-
-
-
-
 	  
     document.getElementById('popupImg').src = image;
     document.getElementById('popupTitle').textContent = name;
@@ -1041,27 +1039,49 @@ document.getElementById('showLikedBtn').onclick = () => {
   document.body.classList.remove('noscroll');
   }
 
+// Show a random deal in popup
 function showRandomDealsInPopup() {
+  isLikedMode = false; // Switching to random mode
   const randomIndex = Math.floor(Math.random() * allDeals.length);
   const deal = allDeals[randomIndex];
   openPopup(deal, true);
 }
 
+// Show the first liked deal
 function showLikedDealsInPopup() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedKeys = Object.keys(likedDeals);
-  if (likedKeys.length === 0) {
+  likedDealKeys = Object.keys(likedDeals);
+
+  if (likedDealKeys.length === 0) {
     alert("No liked deals yet.");
     return;
   }
 
-  // Just show the first liked deal for now
-  const deal = likedDeals[likedKeys[0]];
+  isLikedMode = true; // Switching to liked mode
+  likedDealIndex = 0;
+  const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
 
+// Go to the next liked deal (swipe up)
+function goToNextLikedDeal() {
+  if (likedDealKeys.length === 0) return;
 
+  likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const deal = likedDeals[likedDealKeys[likedDealIndex]];
+  openPopup(deal, true);
+}
 
+// Go to the previous liked deal (swipe down)
+function goToPrevLikedDeal() {
+  if (likedDealKeys.length === 0) return;
+
+  likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const deal = likedDeals[likedDealKeys[likedDealIndex]];
+  openPopup(deal, true);
+}	
 	
   async function loadDeals() {
     const container = document.getElementById('deals-container');
@@ -1389,11 +1409,14 @@ function startBrandCountdown(expireDate, elementId) {
   });
 
   function handleSwipe() {
-    const deltaY = endY - startY;
+  const deltaY = endY - startY;
 
-    if (Math.abs(deltaY) > 50) {
-      if (deltaY < 0) {
-        // Swipe Up — Show random product
+  if (Math.abs(deltaY) > 50) {
+    if (deltaY < 0) {
+      // Swipe Up
+      if (isLikedMode) {
+        goToNextLikedDeal();
+      } else {
         let next;
         do {
           const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
@@ -1401,12 +1424,18 @@ function startBrandCountdown(expireDate, elementId) {
         } while (next.name === currentPopupDeal?.name);
 
         openPopup(next);
+      }
+    } else {
+      // Swipe Down
+      if (isLikedMode) {
+        goToPrevLikedDeal();
       } else {
-        // Swipe Down — Go back
         window.history.back();
       }
     }
   }
+}
+
 }
 
 // Call this after your popup is ready
