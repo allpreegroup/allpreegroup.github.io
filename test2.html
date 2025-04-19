@@ -846,7 +846,7 @@ let currentPopupDeal = null;    // Currently open deal in the popup
 let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
-let unlikedDeals = [];
+let unlikedDeals = [];	
 	
 function renderLikedDealsGallery() {
    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1001,10 +1001,13 @@ function renderLikedDealsGallery() {
       delete updatedLikedDeals[dealKey];
     }
 
-    // Update the likedDeals in localStorage
+        // Update the likedDeals in localStorage
     localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
     renderLikedDealsGallery(); // Re-render the gallery
-  };
+
+    // ✅ Refresh unlikedDeals
+    unlikedDeals = allDeals.filter(d => !Object.keys(updatedLikedDeals).includes(d.name));
+};
 }
 
 document.getElementById('showRandomBtn').onclick = () => {
@@ -1454,7 +1457,8 @@ function showRandomUnlikedDeal() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedDealIds = new Set(Object.keys(likedDeals));
 
-  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
+  // Update the GLOBAL unlikedDeals
+  unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals!");
@@ -1477,20 +1481,19 @@ function showRandomUnlikedDeal() {
   openPopup(next, true);
 }
 
+
 // Handle swipe up/down
 function handleSwipe() {
   const deltaY = endY - startY;
 
   if (Math.abs(deltaY) > 50) {
     if (deltaY < 0) {
-      // Swipe Up
       if (isLikedMode) {
         goToNextLikedDeal();
       } else {
-        showRandomUnlikedDeal();
+        showRandomUnlikedDeal(); // uses updated unlikedDeals
       }
     } else {
-      // Swipe Down
       if (isLikedMode) {
         goToPrevLikedDeal();
       } else {
@@ -1499,6 +1502,7 @@ function handleSwipe() {
     }
   }
 }
+
 
 
 }
