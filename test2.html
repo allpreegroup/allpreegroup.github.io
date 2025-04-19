@@ -460,20 +460,41 @@ height: 60px;
 }
 
 /* Liked Deals Gallery (Horizontal Scroll) */
+#likedDealsSection {
+  border: 0px;
+  padding: 0 1rem 1rem 1rem;
+  box-shadow: 0 0 0px;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.4s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Deal Grid Style for Liked Deals */
 #likedDealsGallery {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(1, 1fr);
+  grid-auto-columns: 54.2%;
   gap: 15px;
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
   padding: 10px 20px;
-  margin-left: -5px;
-  margin-right: -5px;
-  margin-top: -25px; /* Pulls the gallery up */
-  scrollbar-width: none; /* Firefox */
+  margin: -25px -5px 0 -5px;
+  scrollbar-width: none;
 }
 
 #likedDealsGallery::-webkit-scrollbar {
-  display: none; /* Chrome & Safari */
+  display: none;
 }
 
 /* Card style for each liked deal */
@@ -481,12 +502,14 @@ height: 60px;
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  flex: 0 0 auto;
-  width: 180px; /* Set a fixed width */
   scroll-snap-align: start;
   position: relative;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px;
 }
 
 .liked-deal-card:hover {
@@ -494,7 +517,7 @@ height: 60px;
   box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
 }
 
-/* Optional glow if you want to emphasize it’s “liked” */
+/* Optional glow if liked */
 .liked-deal-card.liked {
   border: 2px solid #ff6f61;
   box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
@@ -502,8 +525,8 @@ height: 60px;
 
 /* Image Styling */
 .liked-deal-card img {
-  width: 100%; /* Take up full width of the card */
-  height: 120px; /* Adjust height */
+  width: 100%;
+  height: 120px;
   object-fit: cover;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -511,13 +534,17 @@ height: 60px;
 
 /* Card Content */
 .liked-deal-content {
+  width: 100%;
   padding: 10px;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .liked-deal-title {
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 5px;
+  line-height: 1.2;
 }
 
 .liked-deal-price {
