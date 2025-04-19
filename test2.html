@@ -678,8 +678,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
              <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
 
              
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals"><strong><i class="fa-solid fa-badge-percent fa-lg"></i></strong> Deals</a>
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/storeapp" ><strong><i class="fa-solid fa-shop"></i></strong> Brands</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals"><strong><i class="fa-solid fa-badge-percent fa-lg"></i></strong> Brand Deals</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/generategiftcard" ><strong><i class="fa-solid fa-credit-card"></i></strong> Card </a>
               
 	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
              <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
@@ -792,36 +792,12 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
-
-
-let popupDealList = []; // Used for navigating within popup
-
-const allBrandsData = [];
-const allDealsFlat = [];
-
-let currentPopupDeal = null;
-let inLikedSwipeMode = false;
-let currentLikedDeals = [];
-
-let startY = 0;
-let endY = 0;
-
-function handleSwipe() {
-  const deltaY = endY - startY;
-
-  if (Math.abs(deltaY) > 50 && currentPopupDeal) {
-    const list = inLikedSwipeMode ? currentLikedDeals : allDealsFlat;
-    const currentIndex = list.findIndex(d => d.name === currentPopupDeal.name);
-
-    if (deltaY < 0 && currentIndex < list.length - 1) {
-      openPopup(list[currentIndex + 1]);
-    } else if (deltaY > 0 && currentIndex > 0) {
-      openPopup(list[currentIndex - 1]);
-    }
-  }
-}
-
 	
+  const allBrandsData = [];
+  const allDealsFlat = [];
+  let currentPopupDeal = null;
+
+
 function renderLikedDealsGallery() {
    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
    const galleryEl = document.getElementById('likedDealsGallery');
@@ -837,26 +813,11 @@ function renderLikedDealsGallery() {
    }
  
    likedKeys.forEach(key => {
-  const deal = likedDeals[key];
-  if (deal && deal.name && deal.image && deal.original) {
-    const card = document.createElement('div');
-    card.className = 'deal liked'; // Your custom styling class
-    card.innerHTML = `
-      <img src="${deal.image}" alt="${deal.name}" />
-      <p>${deal.name}</p>
-    `;
-
-    // Add this here:
-    card.addEventListener('click', () => {
-      inLikedSwipeMode = true;
-      currentLikedDeals = Object.values(likedDeals); // or likedKeys.map(k => likedDeals[k]) if you want ordering
-      openPopup(deal);
-    });
-
-    likedGalleryContainer.appendChild(card);
-  }
-});
-
+     const deal = likedDeals[key];
+     if (deal && deal.name && deal.image && deal.original) {
+       const card = document.createElement('div');
+       card.className = 'deal liked'; // Apply the correct class for styling
+ 	    
  
  	    // Get the percentOff from the deal object
         const percentOff = deal.percentOff || 0; // Fallback if not found
@@ -926,9 +887,8 @@ function renderLikedDealsGallery() {
 }
 
 	
-  function openPopup(deal, skipHistory = false, fromLikedGallery = false) {
-  const { image, name, original, discount, description, brandLogo, brandName } = deal;
- const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+    const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
     const savings = originalPrice - discountPrice;
@@ -948,18 +908,8 @@ function renderLikedDealsGallery() {
 
 	  
 	  
-   currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
-if (fromLikedGallery) {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  window.popupDealList = Object.values(likedDeals);
-} else {
-  // Default to full list (or whatever main deal list you're using)
-  window.popupDealList = allDeals;
-}
-
-
-	  
  function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
 
@@ -1053,12 +1003,8 @@ if (fromLikedGallery) {
   }
 
   function closePopup() {
-  document.getElementById('popup').style.display = 'none';
-  currentPopupDeal = null;
-  inLikedSwipeMode = false; // Reset swipe mode
-  currentLikedDeals = [];   // Clear liked deals
-}
-
+    document.getElementById('popup').style.display = 'none';
+    currentPopupDeal = null;
 
 	  // ✅ Re-enable scroll
   document.body.classList.remove('noscroll');
