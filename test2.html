@@ -898,16 +898,30 @@ function renderLikedDealsGallery() {
     const isNowLiked = likeBtn.classList.toggle('liked');
     likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
 
+    // Calculate percentOff if the deal is being liked
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    // If the deal is liked, add it to the updated list with percentOff
     if (isNowLiked) {
-      updatedLikedDeals[dealKey] = deal;
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff // Add percentOff to the saved deal
+      };
     } else {
+      // If the deal is unliked, remove it from the updated list
       delete updatedLikedDeals[dealKey];
     }
 
+    // Update the likedDeals in localStorage
     localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-    renderLikedDealsGallery();
+    renderLikedDealsGallery(); // Re-render the gallery
   };
 }
+
 
 
 
