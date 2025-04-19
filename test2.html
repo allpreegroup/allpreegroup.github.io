@@ -805,17 +805,17 @@ function renderLikedDealsGallery() {
       const card = document.createElement('div');
       card.className = 'deal liked'; // Apply the correct class for styling
 
-	    // Get the percentOff from the deal object
-	    const brandLogo = localStorage.getItem('brandLogo'); 
-       const percentOff = deal.percentOff || 0; // Fallback if not found
+	// Get the percentOff from the deal object
+      const brandLogo = localStorage.getItem('brandLogo'); 
+      const percentOff = deal.percentOff || 0; // Fallback if not found
       const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
 
       card.innerHTML = `
-       <div class="liked-deal-brand">
-          ${brandLogo ? `<img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand img" />` : ''}
+        <div class="liked-deal-brand">
+          ${brandLogo ? `<img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img" />` : ''}
         </div>
-	<img src="${deal.image}" alt="${deal.name}">
-        ${percentOff? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
+        <img src="${deal.image}" alt="${deal.name}">
+        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
         <div class="liked-deal-content">
           <div class="deal-title">${shortName}</div>
           <div class="liked-deal-price">JMD ${deal.original}</div>
@@ -823,6 +823,7 @@ function renderLikedDealsGallery() {
         </div>
       `;
 
+	    
       card.addEventListener('click', () => openPopup(deal));
       galleryEl.appendChild(card);
     }
