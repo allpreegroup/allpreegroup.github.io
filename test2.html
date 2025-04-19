@@ -884,7 +884,13 @@ function renderLikedDealsGallery() {
          </div>
        `;
  
-       card.addEventListener('click', () => openPopup(deal));
+       card.addEventListener('click', () => {
+  isLikedMode = true; // Activate liked mode for swiping
+  likedDealKeys = Object.keys(likedDeals);
+  likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
+  openPopup(deal);
+});
+
        galleryEl.appendChild(card);
      }
    });
