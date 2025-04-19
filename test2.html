@@ -910,6 +910,17 @@ function renderLikedDealsGallery() {
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
+
+if (fromLikedGallery) {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedList = Object.values(likedDeals);
+  window.popupDealList = likedList;
+} else {
+  // if not from gallery, fallback to full list if needed
+  window.popupDealList = null;
+}
+
+	  
  function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
 
