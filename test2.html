@@ -780,7 +780,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="popup-overlay" id="popup">
 
 <div class="tab-switcher">
-  <button id="showLikedBtn" class="tab-btn">Liked</button>
+  <button id="showLikedBtn" class="tab-btn">Your Likes</button>
   <button id="showRandomBtn" class="tab-btn active">For You</button>
 </div>
 	
@@ -1449,7 +1449,36 @@ function startBrandCountdown(expireDate, elementId) {
     handleSwipe();
   });
 
-  function handleSwipe() {
+  // Show a random deal that hasn't been liked
+function showRandomUnlikedDeal() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDealIds = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  if (unlikedDeals.length === 1) {
+    openPopup(unlikedDeals[0], true);
+    return;
+  }
+
+  let attempts = 0;
+  let next;
+  do {
+    const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+    next = unlikedDeals[randomIndex];
+    attempts++;
+  } while (next.name === currentPopupDeal?.name && attempts < 10);
+
+  openPopup(next, true);
+}
+
+// Handle swipe up/down
+function handleSwipe() {
   const deltaY = endY - startY;
 
   if (Math.abs(deltaY) > 50) {
@@ -1458,15 +1487,7 @@ function startBrandCountdown(expireDate, elementId) {
       if (isLikedMode) {
         goToNextLikedDeal();
       } else {
-        let next;
-        do {
-          // const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-          // next = allDealsFlat[randomIndex];
-	const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-        next = unlikedDeals[randomIndex];
-        } while (next.name === currentPopupDeal?.name);
-
-        openPopup(next);
+        showRandomUnlikedDeal();
       }
     } else {
       // Swipe Down
