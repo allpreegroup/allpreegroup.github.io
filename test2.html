@@ -843,7 +843,8 @@ let currentPopupDeal = null;    // Currently open deal in the popup
 let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
-
+let unlikedDeals = [];
+	
 function renderLikedDealsGallery() {
    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
    const galleryEl = document.getElementById('likedDealsGallery');
@@ -1068,11 +1069,10 @@ function showRandomDealsInPopup() {
   isLikedMode = false;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedDealNames = new Set(Object.keys(likedDeals)); // assuming names are the keys
+  const likedDealIds = new Set(Object.keys(likedDeals)); // assuming 'name' is unique
 
-  // Create a temporary filtered list without touching allDeals
-  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.id));
-
+  // 👇 Store filtered list globally
+  unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals! 🎉");
@@ -1456,10 +1456,12 @@ function startBrandCountdown(expireDate, elementId) {
         goToNextLikedDeal();
       } else {
         let next;
+        if (unlikedDeals.length === 0) return;
+
         do {
-          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-          next = allDealsFlat[randomIndex];
-        } while (next.name === currentPopupDeal?.name);
+          const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+          next = unlikedDeals[randomIndex];
+        } while (next.name === currentPopupDeal?.name && unlikedDeals.length > 1);
 
         openPopup(next);
       }
@@ -1473,6 +1475,7 @@ function startBrandCountdown(expireDate, elementId) {
     }
   }
 }
+
 
 }
 
