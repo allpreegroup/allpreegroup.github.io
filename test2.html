@@ -437,7 +437,7 @@ height: 60px;
 /* Glowing, golden effect for the entire Liked Deals Gallery section */
 /* Liked Deals Gallery Wrapper */
 #likedDealsSection {
-  border: 0px ;
+  border: 0px;
   padding-top: 0;
   padding-right: 1rem;
   padding-bottom: 1rem;
@@ -459,16 +459,12 @@ height: 60px;
   }
 }
 
-
-/* Deal Grid Style for Liked Deals */
+/* Liked Deals Gallery (Horizontal Scroll) */
 #likedDealsGallery {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(1, 1fr); /* Two rows if needed */
-  grid-auto-columns: 54.2%;
+  display: flex;
+  flex-wrap: nowrap;
   gap: 15px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   padding: 10px 20px;
   margin-left: -5px;
   margin-right: -5px;
@@ -486,7 +482,7 @@ height: 60px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   flex: 0 0 auto;
-  width: 100%;
+  width: 180px; /* Set a fixed width */
   scroll-snap-align: start;
   position: relative;
   cursor: pointer;
@@ -506,8 +502,8 @@ height: 60px;
 
 /* Image Styling */
 .liked-deal-card img {
-  width: 80%;
-  height: 80px;
+  width: 100%; /* Take up full width of the card */
+  height: 120px; /* Adjust height */
   object-fit: cover;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -548,14 +544,6 @@ height: 60px;
   padding: 4px 6px;
   border-radius: 4px;
 }
-
-/* Glowing animation */
-/* @keyframes glowPulse {
-  0% { box-shadow: 0 0 10px gold; }
-  50% { box-shadow: 0 0 20px orange; }
-  100% { box-shadow: 0 0 10px gold; }
-} */
-
 
 		 
   </style>
@@ -776,45 +764,47 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const galleryContainer = document.getElementById('likedDealsGallery');
-  galleryContainer.innerHTML = ''; // Clear old
+  const galleryEl = document.getElementById('likedDealsGallery');
+  const sectionEl = document.getElementById('likedDealsSection');
 
-  if (Object.keys(likedDeals).length === 0) {
-    galleryContainer.style.display = 'none';
+  galleryEl.innerHTML = ''; // Clear previous content
+
+  const likedKeys = Object.keys(likedDeals);
+
+  if (likedKeys.length === 0) {
+    sectionEl.style.display = 'none'; // Hide section if no liked deals
     return;
   }
 
-  galleryContainer.style.display = 'flex'; // or grid
+  likedKeys.forEach(key => {
+    const deal = likedDeals[key];
+    if (deal && deal.name && deal.image && deal.original) {
+      const card = document.createElement('div');
+      card.className = 'deal liked'; // Apply the correct class for styling
 
-  Object.values(likedDeals).forEach(deal => {
-    const originalPrice = parseFloat(deal.original.replace(/,/g, '')) || 0;
-    const discountPrice = parseFloat(deal.discount.replace(/,/g, '')) || 0;
-    const percentOff = originalPrice && discountPrice
-      ? Math.round((1 - discountPrice / originalPrice) * 100)
-      : 0;
+      const discountPercent = deal.original && deal.discount
+        ? Math.round(((deal.original - deal.discount) / deal.original) * 100)
+        : 0;
 
-    const dealCard = document.createElement('div');
-    dealCard.className = 'liked-deal-card';
+      const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
 
-    dealCard.innerHTML = `
-      <div class="liked-deal-img-wrapper">
-        <img src="${deal.image}" alt="${deal.name}" class="liked-deal-img" />
-        ${percentOff ? `<div class="liked-discount-badge">${percentOff}% OFF</div>` : ''}
-      </div>
-      <div class="liked-deal-info">
-        <div class="liked-deal-name">${deal.name}</div>
-        <div class="liked-deal-prices">
-          <span class="liked-original-price">J$${originalPrice.toLocaleString()}</span>
-          <span class="liked-discount-price">J$${discountPrice.toLocaleString()}</span>
+      card.innerHTML = `
+        <img src="${deal.image}" alt="${deal.name}">
+        ${discountPercent ? `<span class="liked-discount-badge">${discountPercent}% OFF</span>` : ''}
+        <div class="liked-deal-content">
+          <div class="deal-title">${shortName}</div>
+          <div class="liked-deal-price">JMD ${deal.original}</div>
+          <div class="liked-deal-discount">JMD ${deal.discount}</div>
         </div>
-      </div>
-    `;
+      `;
 
-    dealCard.onclick = () => openPopup(deal);
-    galleryContainer.appendChild(dealCard);
+      card.addEventListener('click', () => openPopup(deal));
+      galleryEl.appendChild(card);
+    }
   });
-}
 
+  sectionEl.style.display = 'block'; // Ensure the section is shown once content is added
+}
 
 
 
