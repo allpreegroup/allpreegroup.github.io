@@ -269,22 +269,20 @@ height: 60px;
 
 .tab-switcher {
   display: flex;
+  width: 50%;
   justify-content: center;
   background: black;
   padding: 10px 0;
-  gap: 10px; /* Optional spacing between buttons */
-  flex-wrap: nowrap; /* Prevent wrapping */
-  overflow-x: auto;  /* Scroll horizontally on small screens */
 }
 
 .tab-btn {
+  flex: 1;
   background: transparent;
   border: none;
   font-size: 11px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.5);
-  padding: 8px 16px;
-  white-space: nowrap; /* Prevent text from breaking into multiple lines */
+  padding: 5px;
   position: relative;
   cursor: pointer;
 }
@@ -304,7 +302,6 @@ height: 60px;
   background: #fff;
   border-radius: 2px;
 }
-
 
 		 
 .popup-content img {
@@ -846,8 +843,7 @@ let currentPopupDeal = null;    // Currently open deal in the popup
 let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
-let unlikedDeals = [];	
-	
+
 function renderLikedDealsGallery() {
    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
    const galleryEl = document.getElementById('likedDealsGallery');
@@ -959,8 +955,54 @@ function renderLikedDealsGallery() {
 	  
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
-    
- 
+
+ function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+
+  // Safeguard
+  if (!likeBtn || !deal || !deal.name) {
+    console.warn('Like button or deal data missing');
+    return;
+  }
+
+  const dealKey = deal.name;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  // Set initial button state
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  // ✅ Remove old listener by resetting onclick
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+    // Calculate percentOff if the deal is being liked
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    // If the deal is liked, add it to the updated list with percentOff
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff // Add percentOff to the saved deal
+      };
+    } else {
+      // If the deal is unliked, remove it from the updated list
+      delete updatedLikedDeals[dealKey];
+    }
+
+    // Update the likedDeals in localStorage
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery(); // Re-render the gallery
+  };
+}
+
 document.getElementById('showRandomBtn').onclick = () => {
   document.getElementById('showRandomBtn').classList.add('active');
   document.getElementById('showLikedBtn').classList.remove('active');
@@ -1011,7 +1053,6 @@ document.getElementById('showLikedBtn').onclick = () => {
 
     // ✅ Call the like button setup after the DOM is updated
     setupLikeButton(currentPopupDeal);
-
   }
 
   function closePopup() {
@@ -1024,24 +1065,11 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 // Show a random deal in popup
 function showRandomDealsInPopup() {
-  isLikedMode = false;
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedDealIds = new Set(Object.keys(likedDeals)); // assuming 'name' is unique
-
-  // 👇 Store filtered list globally
-  unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals! 🎉");
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-  const deal = unlikedDeals[randomIndex];
+  isLikedMode = false; // Switching to random mode
+  const randomIndex = Math.floor(Math.random() * allDeals.length);
+  const deal = allDeals[randomIndex];
   openPopup(deal, true);
 }
-
 
 // Show the first liked deal
 function showLikedDealsInPopup() {
@@ -1078,36 +1106,6 @@ function goToPrevLikedDeal() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }	
-
-
-function setupLikeButton(deal) {
-  const likeBtn = document.getElementById('popupLikeBtn');
-
-  if (!likeBtn || !deal || !deal.name) {
-    console.warn('Like button or deal data missing');
-    return;
-  }
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const isLiked = !!likedDeals[deal.name];
-
-  // Set initial button state
-  likeBtn.classList.toggle('liked', isLiked);
-  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
-
-  // ✅ Remove old listener and set up new one
-  likeBtn.onclick = () => {
-    const wasLiked = likeBtn.classList.contains('liked');
-    likeBtn.classList.toggle('liked');
-    likeBtn.textContent = wasLiked ? '🤍 Like' : '❤️ Liked';
-
-    // Call your central logic
-    toggleLike(deal);
-    renderLikedDealsGallery();
-  };
-}
-
-
 	
   async function loadDeals() {
     const container = document.getElementById('deals-container');
@@ -1434,79 +1432,25 @@ function startBrandCountdown(expireDate, elementId) {
     handleSwipe();
   });
 
-  // Show a random deal that hasn't been liked
-function showRandomUnlikedDeal() {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedDealIds = new Set(Object.keys(likedDeals));
-
-  // Update the GLOBAL unlikedDeals
-  unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
-  }
-
-  if (unlikedDeals.length === 1) {
-    openPopup(unlikedDeals[0], true);
-    return;
-  }
-
-  let attempts = 0;
-  let next;
-  do {
-    const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-    next = unlikedDeals[randomIndex];
-    attempts++;
-  } while (next.name === currentPopupDeal?.name && attempts < 10);
-
-  openPopup(next, true);
-}
-
-
-// =======================
-// Toggle Like Logic
-// =======================
-function toggleLike(deal) {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-
-  if (likedDeals[deal.name]) {
-    delete likedDeals[deal.name];
-  } else {
-    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
-    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-    const percentOff = original && discount
-      ? Math.round(((original - discount) / original) * 100)
-      : 0;
-
-    likedDeals[deal.name] = {
-      ...deal,
-      percentOff
-    };
-  }
-
-  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-
-  // Refresh global unlikedDeals
-  const likedDealIds = new Set(Object.keys(likedDeals));
-  unlikedDeals = allDealsFlat.filter(d => !likedDealIds.has(d.name));
-}
-
-
-
-		
-// Handle swipe up/down
-function handleSwipe() {
+  function handleSwipe() {
   const deltaY = endY - startY;
 
   if (Math.abs(deltaY) > 50) {
     if (deltaY < 0) {
+      // Swipe Up
       if (isLikedMode) {
         goToNextLikedDeal();
       } else {
-        showRandomUnlikedDeal(); // uses updated unlikedDeals
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        openPopup(next);
       }
     } else {
+      // Swipe Down
       if (isLikedMode) {
         goToPrevLikedDeal();
       } else {
@@ -1515,8 +1459,6 @@ function handleSwipe() {
     }
   }
 }
-
-
 
 }
 
