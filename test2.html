@@ -792,6 +792,9 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
+
+
+let popupDealList = []; // Used for navigating within popup
 	
   const allBrandsData = [];
   const allDealsFlat = [];
@@ -909,17 +912,16 @@ function renderLikedDealsGallery() {
 
 	  
 	  
-    currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
-
+   currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
 if (fromLikedGallery) {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedList = Object.values(likedDeals);
-  window.popupDealList = likedList;
+  window.popupDealList = Object.values(likedDeals);
 } else {
-  // if not from gallery, fallback to full list if needed
-  window.popupDealList = null;
+  // Default to full list (or whatever main deal list you're using)
+  window.popupDealList = allDeals;
 }
+
 
 	  
  function setupLikeButton(deal) {
