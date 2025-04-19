@@ -127,7 +127,8 @@
 }
 
 .brand-logo-container {
-  height: 60px;
+ 
+height: 60px;
   width: 60px;
   display: flex;
   align-items: center;
@@ -319,10 +320,28 @@
   background: red;
   color: white;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 9px;
   padding: 5px 8px;
   border-radius: 4px;
   z-index: 10;
+}
+		 /* Style for the Like Button */
+.like-btn {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  position: absolute; /* Position it inside the container */
+  bottom: -123px; /* Pushes the button down */
+  right: 15px; /* Adjust to your desired position (can be changed to center, right, etc.) */
+  color: black; /* Initial color */
+  z-index: 10; /* Ensures it's above other content */
+}
+
+.like-btn.liked {
+  color: red;
+  transform: scale(1.2); /* Enlarges the button when liked */
 }
 
 .popup-savings {
@@ -411,8 +430,158 @@
 .popup-back-arrow:hover {
   color: black;
 }
+		 
+
+/* Liked Deals Gallery (Horizontal Scroll) */
+#likedDealsSection {
+  border: 0px ;
+  padding-top: 0;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  
+  box-shadow: 0 0 0px;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.4s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 
+/* Deal Grid Style for Liked Deals */
+#likedDealsGallery {
+display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(1, 1fr); /* Two rows if needed */
+  grid-auto-columns: 54.2%;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 10px 20px;
+  margin-left: -5px;
+  margin-right: -5px;
+  margin-top: -25px; /* Pulls the gallery up */
+  scrollbar-width: none; /* Firefox */
+}
+
+#likedDealsGallery::-webkit-scrollbar {
+  display: none; /* Chrome & Safari */
+}
+
+/* Style for the container around the brand logo (liked-deal-brand) */
+.liked-deal-brand {
+height: 40px;
+  width: 40px;
+  display: flex;
+	border: 3px solid #163a5c; /* Glowing border */
+  align-items: center;
+  justify-content: center;
+	border-radius: 50%;
+	overflow: hidden;
+	object-position: top;
+	position: relative;
+	margin-top: 10px;
+        margin-left: 10px;
+}
+
+/* Styling for the image inside the brand logo container */
+.liked-deal-brand-img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+	
+  border-radius: 8px;
+  align-items: center;
+  padding: 3px;
+  justify-content: center;
+}
+
+		 
+/* Card style for each liked deal */
+.liked-deal-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  flex: 0 0 auto;
+  width: 100%;
+  scroll-snap-align: start;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.liked-deal-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
+}
+		 
+/* Optional glow if liked */
+.liked-deal-card.liked {
+   border: 2px solid #ff6f61;
+  box-shadow: 0 0 15px rgba(255, 111, 97, 0.7);
+}
+
+/* Image Styling */
+.liked-deal-card-img {
+  width: 65%;
+  height: 65%;
+  margin-top: -20px;
+  object-fit: contain; /* shows entire image without cropping */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: white; /* background: #f9f9f9; *//* optional: adds background behind image if needed */
+  padding: 30px; /* optional: gives image breathing room */
+}
+
+/* Card Content */
+.liked-deal-content {
+ padding-left: 12px;
+height: 20%;
+}
+		 
+.liked-deal-title {
+  font-size: 9px;
+  font-weight: bold;
+  margin-top: -25px;
+  margin-bottom: 5px;
+}
+
+.liked-deal-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 14px;
+}
+
+
+.liked-deal-discount {
+ color: #e60000;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Discount badge */
+.liked-discount-badge {
+  position: absolute;
+  top: 16.6px;
+  right: 10px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -561,8 +730,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="home">     
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
-
-			
+			 
+	
+			 
   <div id="deals-container">Loading deals...</div>
 
  <!-- Popup Overlay -->
@@ -571,8 +741,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <span class="popup-close" onclick="closePopup()">×</span>
     <div style="position: relative;">
       <span class="popup-discount-badge" id="popupBadge"></span>
+	    
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
+	   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
     </div>
     <div class="popup-body">
       <div class="popup-title" id="popupTitle"></div>
@@ -625,6 +797,57 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
   const allDealsFlat = [];
   let currentPopupDeal = null;
 
+
+function renderLikedDealsGallery() {
+   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+   const galleryEl = document.getElementById('likedDealsGallery');
+   const sectionEl = document.getElementById('likedDealsSection');
+ 
+   galleryEl.innerHTML = ''; // Clear previous content
+ 
+   const likedKeys = Object.keys(likedDeals);
+ 
+   if (likedKeys.length === 0) {
+     sectionEl.style.display = 'none'; // Hide section if no liked deals
+     return;
+   }
+ 
+   likedKeys.forEach(key => {
+     const deal = likedDeals[key];
+     if (deal && deal.name && deal.image && deal.original) {
+       const card = document.createElement('div');
+       card.className = 'deal liked'; // Apply the correct class for styling
+ 	    
+ 
+ 	    // Get the percentOff from the deal object
+        const percentOff = deal.percentOff || 0; // Fallback if not found
+	const brandLogo = deal.brandLogo || '';
+       const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
+ 
+       card.innerHTML = `
+         <div class="liked-deal-brand">
+           <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
+         </div>
+	 <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
+         ${percentOff? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
+         <div class="liked-deal-content">
+           <div class="liked-deal-title">${shortName}</div>
+           <div class="liked-deal-price">J$${deal.original}</div>
+           <div class="liked-deal-discount">J$${deal.discount}</div>
+         </div>
+       `;
+ 
+       card.addEventListener('click', () => openPopup(deal));
+       galleryEl.appendChild(card);
+     }
+   });
+ 
+   sectionEl.style.display = 'block'; // Ensure the section is shown once content is added
+ }
+ 
+
+
+	
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
@@ -687,6 +910,58 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 	  
     currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
+ function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+
+  // Safeguard
+  if (!likeBtn || !deal || !deal.name) {
+    console.warn('Like button or deal data missing');
+    return;
+  }
+
+  const dealKey = deal.name;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  // Set initial button state
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  // ✅ Remove old listener by resetting onclick
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+    // Calculate percentOff if the deal is being liked
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    // If the deal is liked, add it to the updated list with percentOff
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff // Add percentOff to the saved deal
+      };
+    } else {
+      // If the deal is unliked, remove it from the updated list
+      delete updatedLikedDeals[dealKey];
+    }
+
+    // Update the likedDeals in localStorage
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery(); // Re-render the gallery
+  };
+}
+
+
+
+
+
+	  
     document.getElementById('popupImg').src = image;
     document.getElementById('popupTitle').textContent = name;
     document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
@@ -722,6 +997,9 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
     }
 
     document.getElementById('popup').style.display = 'flex';
+
+    // ✅ Call the like button setup after the DOM is updated
+    setupLikeButton(currentPopupDeal);
   }
 
   function closePopup() {
@@ -793,19 +1071,17 @@ if (isNaN(parsedDate) || parsedDate < Date.now()) {
 	
             brandSection.appendChild(brandDiv);
 
-            grid = document.createElement('div');
-            grid.className = 'deal-grid';
+grid = document.createElement('div');
+grid.className = 'deal-grid';
+grid.style.display = 'none'; // Hidden by default
 
-            grid.style.display = 'none'; // hidden by default
-
-		 brandSection.appendChild(grid);
-grid.style.display = 'none'; // Hide all by default
+brandSection.appendChild(grid);
 brandDiv.style.cursor = 'pointer';
 
 brandDiv.addEventListener('click', () => {
   const isOpen = grid.style.display === 'grid';
 
-  // Close the currently open grid if it's not this one
+  // Close any currently open grid
   if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
     currentlyOpenGrid.style.display = 'none';
   }
@@ -813,14 +1089,26 @@ brandDiv.addEventListener('click', () => {
   // Toggle this one
   grid.style.display = isOpen ? 'none' : 'grid';
 
-  // Scroll into view if opening
+ // ✅ Scroll into view with proper offset, accounting for the liked section
   if (!isOpen) {
-    brandDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const headerHeight = 70; // sticky header height
+    const likedDealsSection = document.getElementById('likedDealsSection');
+
+    // Check if liked section is visible (hidden = null)
+    const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+
+    // Add extra offset only if liked section is NOT visible (to compensate upward shift)
+    const extraOffset = likedVisible ? 5 : 0; // adjust 10 if needed
+
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+
+    window.scrollTo({ top, behavior: 'smooth' });
   }
 
-  // Update the reference
+  // Update open grid reference
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
 		  
@@ -902,25 +1190,44 @@ brandDiv.addEventListener('click', () => {
         return a.timeRemaining - b.timeRemaining;
       });
 
-      container.innerHTML = '';
+      // 🔁 Clear the main container
+container.innerHTML = '';
 
-      allBrandsData.forEach((brandData, index) => {
-        if (index === 0) {
-          const badge = document.createElement('div');
-          badge.className = 'top-deal-badge';
-          badge.textContent = '🔥 Hottest Discount';
-          brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-          brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
-        }
-        container.appendChild(brandData.section);
-      });
+// 🔁 Create the liked deals section (if not already in DOM)
+let likedDealsSection = document.getElementById('likedDealsSection');
+if (!likedDealsSection) {
+  likedDealsSection = document.createElement('div');
+  likedDealsSection.id = 'likedDealsSection';
+  likedDealsSection.style.display = 'none';
+  likedDealsSection.style.marginBottom = '1rem';
 
-      setTimeout(() => {
-        const topBrand = allBrandsData[0];
-        if (topBrand?.section) {
-          topBrand.section.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
+  likedDealsSection.innerHTML = `
+    <div id="likedDealsGallery" class="likedDealsGallery"></div>
+  `;
+
+  container.appendChild(likedDealsSection);
+}
+
+// 🔁 Render liked deals gallery (this toggles the visibility of the section)
+renderLikedDealsGallery();
+
+// ✅ No need to re-append if already in DOM (we already appended above if not present)
+
+// 🔁 Now append brand sections
+allBrandsData.forEach((brandData, index) => {
+  if (index === 0) {
+    const badge = document.createElement('div');
+    badge.className = 'top-deal-badge';
+    badge.textContent = '🔥 Hottest Discount';
+    brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+    brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+  }
+
+  container.appendChild(brandData.section);
+});
+	    
+
+     
 
     } catch (err) {
       console.error('Failed to load deals:', err);
