@@ -1068,10 +1068,11 @@ function showRandomDealsInPopup() {
   isLikedMode = false;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedDealIds = new Set(Object.keys(likedDeals)); // assuming keys are unique names or IDs
+  const likedDealNames = new Set(Object.keys(likedDeals)); // assuming names are the keys
 
-  // Filter out liked deals from allDeals
-  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
+  // Create a temporary filtered list without touching allDeals
+  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.id));
+
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals! 🎉");
