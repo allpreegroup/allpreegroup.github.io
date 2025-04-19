@@ -1065,11 +1065,24 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 // Show a random deal in popup
 function showRandomDealsInPopup() {
-  isLikedMode = false; // Switching to random mode
-  const randomIndex = Math.floor(Math.random() * allDeals.length);
-  const deal = allDeals[randomIndex];
+  isLikedMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDealIds = new Set(Object.keys(likedDeals)); // assuming keys are unique names or IDs
+
+  // Filter out liked deals from allDeals
+  const unlikedDeals = allDeals.filter(deal => !likedDealIds.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals! 🎉");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
 }
+
 
 // Show the first liked deal
 function showLikedDealsInPopup() {
