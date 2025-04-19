@@ -1456,12 +1456,12 @@ function startBrandCountdown(expireDate, elementId) {
         goToNextLikedDeal();
       } else {
         let next;
-        if (unlikedDeals.length === 0) return;
-
         do {
-          const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-          next = unlikedDeals[randomIndex];
-        } while (next.name === currentPopupDeal?.name && unlikedDeals.length > 1);
+          // const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          // next = allDealsFlat[randomIndex];
+	const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+        next = unlikedDeals[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
 
         openPopup(next);
       }
