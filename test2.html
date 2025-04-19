@@ -267,17 +267,39 @@ height: 60px;
 }
 
 
-.switcher {
-  padding: 5px 10px;
-  margin-right: 5px;
+.tab-switcher {
+  display: flex;
+  justify-content: center;
+  background: black;
+  padding: 10px 0;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
   border: none;
-  background: #ddd;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  position: relative;
   cursor: pointer;
 }
 
-.switcher.active {
-  background: #333;
+.tab-btn.active {
   color: #fff;
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
 }
 
 		 
@@ -752,9 +774,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
-	<div id="dealSwitcher" style="margin-top: 10px;">
-  <button id="showRandomBtn" class="switcher active">Random Deals</button>
-  <button id="showLikedBtn" class="switcher">Liked Deals</button>
+
+<div class="tab-switcher">
+  <button id="showLikedBtn" class="tab-btn">Your Likes</button>
+  <button id="showRandomBtn" class="tab-btn active">For You</button>
 </div>
 	
   <div class="popup-content" id="popupContent">
