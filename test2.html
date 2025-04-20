@@ -1309,7 +1309,14 @@ document.getElementById('showLikedBtn').onclick = () => {
       container.appendChild(brandData.section);
     });
 
-      
+     // ✅ Cleanup liked deals that no longer exist
+(async () => { 
+  console.log("⏳ Waiting for loadDeals...");
+  await loadDeals();
+  console.log("✅ Finished loading deals:", allDealsFlat.length, "deals loaded");
+
+  cleanUpLikedDeals();
+})(); 
 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
@@ -1427,14 +1434,7 @@ function startBrandCountdown(expireDate, elementId) {
 	
   loadDeals();
 
-	// ✅ Cleanup liked deals that no longer exist
-(async () => { 
-  console.log("⏳ Waiting for loadDeals...");
-  await loadDeals();
-  console.log("✅ Finished loading deals:", allDealsFlat.length, "deals loaded");
-
-  cleanUpLikedDeals();
-})();
+	
 
 	
 	function addPopupSwipeListeners() {
