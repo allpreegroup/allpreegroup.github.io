@@ -1031,11 +1031,14 @@ likeBtn.onclick = () => {
   localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
   renderLikedDealsGallery();
 
-  // 👉 Only go to next deal if in random mode
+  // 👉 Force wait a tiny bit to ensure localStorage is updated
   if (!isLikedMode && isNowLiked) {
-    showRandomDealsInPopup(deal.name);
+    setTimeout(() => {
+      showRandomDealsInPopup();
+    }, 50); // short delay ensures the deal is filtered out
   }
 };
+
 
 
 
