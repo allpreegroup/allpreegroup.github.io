@@ -1008,7 +1008,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
- const dealKey = `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+ const dealKey = getDealKey(deal);
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
@@ -1337,7 +1337,7 @@ function cleanUpLikedDeals(validKeys) {
   
  // At the end of loadDeals()
 const validKeys = allDealsFlat.map(deal =>
-  `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`
+  getDealKey(deal)
 );
 console.log('✅ Valid Keys from allDealsFlat:', validKeys);
 
