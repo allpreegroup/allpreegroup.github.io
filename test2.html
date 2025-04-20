@@ -1010,34 +1010,7 @@ function setupLikeButton(deal) {
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-likeBtn.onclick = () => {
-  const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const isNowLiked = likeBtn.classList.toggle('liked');
-  likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
-
-  const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
-  const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-  const percentOff = original && discount
-    ? Math.round(((original - discount) / original) * 100)
-    : 0;
-
-  if (isNowLiked) {
-    updatedLikedDeals[deal.name] = { ...deal, percentOff };
-  } else {
-    delete updatedLikedDeals[deal.name];
-  }
-
-  localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-  renderLikedDealsGallery();
-
-  // 👇 Automatically show the next random deal if in random mode
-  if (!isLikedMode) {
-    showRandomDealsInPopup();
-  }
-};
-
-	
-/*  likeBtn.onclick = () => {
+  likeBtn.onclick = () => {
     const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
     const isNowLiked = likeBtn.classList.toggle('liked');
     likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
@@ -1059,7 +1032,7 @@ likeBtn.onclick = () => {
 
 	  
   };
-} */
+} 
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
