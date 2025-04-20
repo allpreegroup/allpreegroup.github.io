@@ -860,11 +860,10 @@ function renderLikedDealsGallery() {
 
   // ✅ Move this outside the loop
   function switchToLikedMode() {
-    isLikedMode = true;
-    document.getElementById('showLikedBtn')?.classList.add('active');
-    document.getElementById('showRandomBtn')?.classList.remove('active');
-  }
-
+  isLikedMode = true;
+  document.getElementById('showLikedBtn')?.classList.add('active');
+  document.getElementById('showRandomBtn')?.classList.remove('active');
+}
   likedKeys.forEach(key => {
     const deal = likedDeals[key];
     if (deal && deal.name && deal.image && deal.original) {
@@ -888,12 +887,9 @@ function renderLikedDealsGallery() {
         </div>
       `;
 
-      card.addEventListener('click', () => {
-        likedDealKeys = Object.keys(likedDeals);
-        likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
-        switchToLikedMode(); // Set liked mode
-        openPopup(deal);
-      });
+     // Inside renderLikedDealsGallery()
+likedCard.addEventListener('click', () => openPopup(deal, false, true));  // liked mode = true
+
 
       galleryEl.appendChild(card);
     }
@@ -945,7 +941,8 @@ function renderLikedDealsGallery() {
 }
 
 	
-  function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+ function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false, isLikedMode = false)
+
     const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
     const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
     const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
@@ -1061,6 +1058,11 @@ document.getElementById('showLikedBtn').onclick = () => {
       history.pushState({ popup: true, dealName: name }, '', '');
     }
 
+    if (isLikedMode) {
+      enableSwipeControls();  // Enable swiping in liked mode
+    } else {
+      disableSwipeControls(); // Disable swiping in normal mode
+    }	
     document.getElementById('popup').style.display = 'flex';
 
     // ✅ Call the like button setup after the DOM is updated
@@ -1072,10 +1074,13 @@ function switchToAllDealsMode() {
   document.getElementById('showRandomBtn')?.classList.add('active');
 }
 
-	  card.addEventListener('click', () => {
-  switchToAllDealsMode(); // sets isLikedMode and highlights the tab
-  openPopup(deal);         // opens the popup
+// Inside your allDeals rendering loop
+card.addEventListener('click', () => {
+  switchToAllDealsMode();
+  openPopup(deal, false, false);  // liked mode = false
 });
+
+
 
 	  
   }
