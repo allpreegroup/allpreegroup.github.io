@@ -999,8 +999,48 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 }
 
 //outside 
+
+function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+  if (!likeBtn || !deal || !deal.name) return;
+
+  const dealKey = deal.name;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = { ...deal, percentOff };
+    } else {
+      delete updatedLikedDeals[dealKey];
+    }
+
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery();
+
+    // 👇 This makes sure the next random deal excludes the one just liked
+    if (isNowLiked) {
+      showRandomDealsInPopup();
+    }
+  };
+}
+
+
 	
- function setupLikeButton(deal) {
+/* function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
@@ -1033,7 +1073,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 	  
   };
-} 
+} */
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
@@ -1041,24 +1081,7 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
-function showRandomDealsInPopup() {
-  const allDeals = dealsData; // Make sure this is your full deals array
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
-  
-  // If no liked deals, fall back to showing random deals from all
-  const sourceDeals = likedDeals.length > 0
-    ? allDeals.filter(deal => likedDeals.includes(deal.id))
-    : allDeals;
-
-  const shuffledDeals = sourceDeals.sort(() => 0.5 - Math.random());
-  const selectedDeals = shuffledDeals.slice(0, 5); // or however many you want
-
-  renderDealsInPopup(selectedDeals);
-}
-
-
-	
-/* function showRandomDealsInPopup() {
+ function showRandomDealsInPopup() {
   isLikedMode = false;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1074,7 +1097,7 @@ function showRandomDealsInPopup() {
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
-} */
+} 
 
 
 	
