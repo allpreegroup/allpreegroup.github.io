@@ -1279,7 +1279,9 @@ function cleanUpLikedDeals() {
         }
       });
     }
-
+	  
+cleanUpLikedDeals(); // only after allDealsFlat is complete
+	  
     allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
@@ -1324,8 +1326,8 @@ function cleanUpLikedDeals() {
     });
 
       // ✅ Cleanup liked deals that no longer exist
- await loadAllSheets(); // your deal-loading logic
-cleanUpLikedDeals(); // only after allDealsFlat is complete
+// await loadAllSheets(); // your deal-loading logic
+// cleanUpLikedDeals(); // only after allDealsFlat is complete
 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
