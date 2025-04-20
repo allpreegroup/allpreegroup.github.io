@@ -1316,33 +1316,36 @@ document.getElementById('showLikedBtn').onclick = () => {
   }
 }
 
-
 function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const validNames = allDealsFlat.map(d => d.name.trim().toLowerCase());
+
+  const validIds = new Set(
+    allDealsFlat.map(d =>
+      `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
+    )
+  );
+
+  console.log('✅ Valid IDs from sheets:', [...validIds]);
+  console.log('💾 Current likedDeals keys:', Object.keys(liked));
 
   let updated = false;
 
-  for (let name in liked) {
-    const safeName = name.trim().toLowerCase();
-
-    if (!validNames.includes(safeName)) {
-      console.log("Removing invalid liked deal:", name);
-      delete liked[name];
+  for (let key in liked) {
+    const deal = liked[key];
+    const dealId = `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+    if (!validIds.has(dealId)) {
+      console.log('❌ Removing invalid liked deal:', key);
+      delete liked[key];
       updated = true;
     }
   }
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
-    console.log("✅ Updated likedDeals in localStorage.");
+    console.log('✅ Updated likedDeals in localStorage.');
   }
 }
 
-
-
-
-	
 	
 function startBrandCountdown(expireDate, elementId) {
   const parsedDate = Date.parse(expireDate);
@@ -1427,11 +1430,6 @@ function startBrandCountdown(expireDate, elementId) {
 	// ✅ Cleanup liked deals that no longer exist
 (async () => {
   await loadDeals();
-	console.log("🔍 Searching for:", "Coming Soon 1");
-
-const found = allDealsFlat.find(d => d.name === "Coming Soon 1");
-
-console.log("✅ Found?", !!found, found);
   cleanUpLikedDeals();
 })();
 	
