@@ -1314,15 +1314,12 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-
-  // Build a Set of valid deal names from the loaded Google Sheets data
-  const validDealNames = new Set(allDealsFlat.map(d => d.name.trim()));
-
+  const validNames = new Set(allDealsFlat.map(d => d.name));
   let updated = false;
 
-  // Loop through liked deals and remove ones not found in current data
   for (let name in liked) {
-    if (!validDealNames.has(name.trim())) {
+    if (!validNames.has(name)) {
+      console.log(`Removing invalid liked deal: ${name}`);
       delete liked[name];
       updated = true;
     }
@@ -1330,9 +1327,12 @@ function cleanUpLikedDeals() {
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
-    console.log('Removed outdated liked deals.');
+    console.log("Updated likedDeals in localStorage.");
+  } else {
+    console.log("No cleanup needed.");
   }
 }
+
 
 
 	
