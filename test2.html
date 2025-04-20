@@ -1110,33 +1110,22 @@ document.getElementById('showLikedBtn').onclick = () => {
 };
 
 
-function cleanUpLikedDeals() {
-  const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+function cleanUpLikedDeals(validKeys) {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const updatedLikedDeals = {};
 
-  // ✅ Match how the keys are saved in localStorage (brandName & name)
-  const validKeys = new Set(
-    allDealsFlat.map(d =>
-      `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
-    )
-  );
+  console.log('💾 Current likedDeals keys:', Object.keys(likedDeals));
 
-  console.log("✅ Valid Keys from allDealsFlat:", [...validKeys]);
-  console.log("💾 Current likedDeals keys:", Object.keys(liked));
-
-  let updated = false;
-
-  for (let key in liked) {
-    if (!validKeys.has(key)) {
-      console.log("❌ Removing invalid liked deal:", key);
-      delete liked[key];
-      updated = true;
+  Object.entries(likedDeals).forEach(([key, deal]) => {
+    if (validKeys.includes(key)) {
+      updatedLikedDeals[key] = deal;
+    } else {
+      console.log('❌ Removing invalid liked deal:', key);
     }
-  }
+  });
 
-  if (updated) {
-    localStorage.setItem('likedDeals', JSON.stringify(liked));
-    console.log("✅ Updated likedDeals in localStorage.");
-  }
+  localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+  console.log('✅ Updated likedDeals in localStorage.');
 }
 
 	
@@ -1342,7 +1331,14 @@ function cleanUpLikedDeals() {
 
      // ✅ Cleanup liked deals that no longer exist
   
-  cleanUpLikedDeals();
+ // At the end of loadDeals()
+const validKeys = allDealsFlat.map(deal =>
+  `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`
+);
+console.log('✅ Valid Keys from allDealsFlat:', validKeys);
+
+cleanUpLikedDeals(validKeys); // Now it's safe to run
+
 
 	  
   } catch (err) {
