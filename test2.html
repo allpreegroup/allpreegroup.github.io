@@ -1314,12 +1314,15 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const validNames = new Set(allDealsFlat.map(d => d.name));
+  const validNames = allDealsFlat.map(d => d.name.trim().toLowerCase());
+
   let updated = false;
 
   for (let name in liked) {
-    if (!validNames.has(name)) {
-      console.log(`Removing invalid liked deal: ${name}`);
+    const safeName = name.trim().toLowerCase();
+
+    if (!validNames.includes(safeName)) {
+      console.log("Removing invalid liked deal:", name);
       delete liked[name];
       updated = true;
     }
@@ -1327,11 +1330,10 @@ function cleanUpLikedDeals() {
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
-    console.log("Updated likedDeals in localStorage.");
-  } else {
-    console.log("No cleanup needed.");
+    console.log("✅ Updated likedDeals in localStorage.");
   }
 }
+
 
 
 
