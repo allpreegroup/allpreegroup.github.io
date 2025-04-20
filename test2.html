@@ -1114,21 +1114,16 @@ document.getElementById('showLikedBtn').onclick = () => {
 };
 
 
-function cleanUpLikedDeals(validKeys) {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  let changed = false;
-
+function cleanupStaleLikedDeals() {
+  let likedDeals = JSON.parse(localStorage.getItem("likedDeals") || "{}");
+  const newLiked = {};
   for (let key in likedDeals) {
-    if (!validKeys.includes(key)) {
-      delete likedDeals[key];
-      changed = true;
+    if (allDealsFlat.includes(key)) {
+      newLiked[key] = likedDeals[key];
     }
   }
-
-  if (changed) {
-    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-    console.log('🧹 Cleaned up stale liked deals.');
-  }
+  localStorage.setItem("likedDeals", JSON.stringify(newLiked));
+  console.log("🧹 Cleaned up stale liked deals.");
 }
 
 
@@ -1335,13 +1330,24 @@ function cleanUpLikedDeals(validKeys) {
 
      // ✅ Cleanup liked deals that no longer exist
   
- // At the end of loadDeals()
-const validKeys = allDealsFlat.map(deal =>
-  getDealKey(deal)
-);
-console.log('✅ Valid Keys from allDealsFlat:', validKeys);
+ let allDeals = [];
+let allDealsFlat = [];
 
-cleanUpLikedDeals(validKeys); // Now it's safe to run
+Promise.all(sheetUrls.map(url => fetch(url).then(r => r.json())))
+  .then(allResults => {
+    allDeals = allResults.flat();
+    allDealsFlat = allDeals.map(deal => getDealKey(deal));
+    
+    console.log("✅ Valid Keys from allDealsFlat:", allDealsFlat);
+    
+    // Now safe to clean liked deals
+    cleanupStaleLikedDeals();
+    
+    // Then render
+    renderDeals(allDeals);
+  })
+  .catch(error => console.error("❌ Error loading deals:", error));
+
 
 
 	  
