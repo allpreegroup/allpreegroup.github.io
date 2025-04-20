@@ -1091,7 +1091,24 @@ function setupLikeButton(deal) {
     renderLikedDealsGallery();
 
     // ✅ Instantly show a new random deal if we just liked this one and we’re not in liked mode
-   if (!isLikedMode && isNowLiked) {
+   
+	if (!isLikedMode && isNowLiked) {
+  const likedNow = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNamesNow = new Set(Object.keys(likedNow));
+  const unlikedDealsNow = allDeals.filter(d => !likedNamesNow.has(d.name));
+
+  if (unlikedDealsNow.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDealsNow.length);
+  const nextDeal = unlikedDealsNow[randomIndex];
+
+  updatePopupContent(nextDeal); // 🔄 Replaces content without closing popup
+}
+  
+	  /* if (!isLikedMode && isNowLiked) {
   const likedNow = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNamesNow = new Set(Object.keys(likedNow));
   const unlikedDealsNow = allDeals.filter(d => !likedNamesNow.has(d.name));
@@ -1106,7 +1123,7 @@ function setupLikeButton(deal) {
   
   // 🔄 Instead of reopening popup, just update content
   updatePopupContent(nextDeal);
-}
+} */
 
   };
 }
