@@ -1329,35 +1329,6 @@ document.getElementById('showLikedBtn').onclick = () => {
     });
 
      // ✅ Cleanup liked deals that no longer exist
-  
- let allDeals = [];
-let allDealsFlat = [];
-
-Promise.all(sheetUrls.map(url => fetch(url).then(r => r.json())))
-  .then(allResults => {
-    allDeals = allResults.flat();
-    allDealsFlat = allDeals.map(deal => getDealKey(deal));
-
-    console.log("✅ Valid Keys from allDealsFlat:", allDealsFlat);
-
-    // Define and run cleanup only after allDealsFlat is populated
-    function cleanupStaleLikedDeals() {
-      let likedDeals = JSON.parse(localStorage.getItem("likedDeals") || "{}");
-      const newLiked = {};
-      for (let key in likedDeals) {
-        if (allDealsFlat.includes(key)) {
-          newLiked[key] = likedDeals[key];
-        }
-      }
-      localStorage.setItem("likedDeals", JSON.stringify(newLiked));
-      console.log("🧹 Cleaned up stale liked deals.");
-    }
-
-    cleanupStaleLikedDeals();
-  })
-  .catch(err => {
-    console.error("Failed to load deals:", err);
-  });
 
 	  
   } catch (err) {
