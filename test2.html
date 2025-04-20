@@ -883,16 +883,18 @@ function renderLikedDealsGallery() {
            <div class="liked-deal-discount">J$${deal.discount}</div>
          </div>
        `;
- 
-      card.addEventListener('click', () => {
-  isLikedMode = true; // Liked deals swipe mode
-  likedDealKeys = Object.keys(likedDeals);
-  likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
-  openPopup(deal);
-
-  // ✅ Visually activate the liked deals tab
+ function switchToLikedMode() {
+  isLikedMode = true;
   document.getElementById('showLikedBtn')?.classList.add('active');
   document.getElementById('showRandomBtn')?.classList.remove('active');
+}
+    card.addEventListener('click', () => {
+  likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  likedDealKeys = Object.keys(likedDeals);
+  likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
+
+  switchToLikedMode(); // handles tab highlighting + isLikedMode
+  openPopup(deal);     // handles display only
 });
 
        galleryEl.appendChild(card);
@@ -1065,13 +1067,15 @@ document.getElementById('showLikedBtn').onclick = () => {
     // ✅ Call the like button setup after the DOM is updated
     setupLikeButton(currentPopupDeal);
 
-card.addEventListener('click', () => {
-  isLikedMode = false; // We're in All Deals mode now
-  openPopup(deal);
-
-  // ✅ Only switch the tab if we’re not already in liked mode
+function switchToAllDealsMode() {
+  isLikedMode = false;
   document.getElementById('showLikedBtn')?.classList.remove('active');
   document.getElementById('showRandomBtn')?.classList.add('active');
+}
+
+	  card.addEventListener('click', () => {
+  switchToAllDealsMode(); // sets isLikedMode and highlights the tab
+  openPopup(deal);         // opens the popup
 });
 
 	  
