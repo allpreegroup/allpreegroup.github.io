@@ -1103,6 +1103,26 @@ document.getElementById('showLikedBtn').onclick = () => {
   showLikedDealsInPopup();
 };
 
+function cleanUpLikedDeals() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const validNames = new Set(allDealsFlat.map(deal => deal.name)); // assuming allDealsFlat is your master list
+  let changed = false;
+
+  for (const name in likedDeals) {
+    if (!validNames.has(name)) {
+      delete likedDeals[name];
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+    console.log('🧹 Removed outdated liked deals from localStorage');
+  }
+}
+
+
+	
   async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
@@ -1300,6 +1320,9 @@ document.getElementById('showLikedBtn').onclick = () => {
       container.appendChild(brandData.section);
     });
 
+      // ✅ Cleanup liked deals that no longer exist
+    cleanUpLikedDeals();
+	  
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
