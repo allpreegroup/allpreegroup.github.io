@@ -1418,8 +1418,10 @@ function startBrandCountdown(expireDate, elementId) {
   loadDeals();
 
 	// ✅ Cleanup liked deals that no longer exist
-await loadAllSheets(); // your deal-loading logic
- cleanUpLikedDeals(); // only after allDealsFlat is complete
+(async () => {
+  await loadAllSheets();
+  cleanUpLikedDeals();
+})();
 	
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
