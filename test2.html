@@ -844,6 +844,7 @@ let currentPopupDeal = null;    // Currently open deal in the popup
 let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
+let isLikedMode = false;
 
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1061,11 +1062,15 @@ document.getElementById('showLikedBtn').onclick = () => {
     }
 
     // ✅ Toggle swipe mode depending on where popup came from
-if (isLikedMode) {
-  enableSwipeControls();
-} else {
-  disableSwipeControls();
+// Before showing the popup
+if (typeof isLikedMode !== 'undefined') {
+  if (isLikedMode) {
+    enableSwipeControls();  // Only if in liked deals mode
+  } else {
+    disableSwipeControls(); // For normal popups from All Deals
+  }
 }
+
 
     document.getElementById('popup').style.display = 'flex';
 
