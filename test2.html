@@ -1011,7 +1011,37 @@ function setupLikeButton(deal) {
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-  likeBtn.onclick = () => {
+likeBtn.onclick = () => {
+  const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isNowLiked = likeBtn.classList.toggle('liked');
+  likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+  const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+  const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+  const percentOff = original && discount
+    ? Math.round(((original - discount) / original) * 100)
+    : 0;
+
+  if (isNowLiked) {
+    updatedLikedDeals[deal.name] = { ...deal, percentOff };
+  } else {
+    delete updatedLikedDeals[deal.name];
+  }
+
+  localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+  renderLikedDealsGallery();
+
+  // 👉 Only go to next deal if in random mode
+  if (!isLikedMode && isNowLiked) {
+    showRandomDealsInPopup(deal.name);
+  }
+};
+
+
+
+
+	
+/*  likeBtn.onclick = () => {
     const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
     const isNowLiked = likeBtn.classList.toggle('liked');
     likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
@@ -1035,7 +1065,7 @@ function setupLikeButton(deal) {
     if (isNowLiked) {
       showRandomDealsInPopup();
     }
-  };
+  }; */
 }
 
 
@@ -1081,7 +1111,29 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
- function showRandomDealsInPopup() {
+function showRandomDealsInPopup(previousDealName = '') {
+  isLikedMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal =>
+    !likedNames.has(deal.name) && deal.name !== previousDealName
+  );
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
+  openPopup(deal, true);
+}
+
+
+	
+/* function showRandomDealsInPopup() {
   isLikedMode = false;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1097,7 +1149,7 @@ function closePopup() {
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
-} 
+} */
 
 
 	
