@@ -1105,20 +1105,21 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const currentDealNames = allDealsFlat.map(d => d.name);
-  let changed = false;
+  const validNames = new Set(allDealsFlat.map(d => d.name));
+  let updated = false;
 
-  Object.keys(liked).forEach(name => {
-    if (!currentDealNames.includes(name)) {
+  for (let name in liked) {
+    if (!validNames.has(name)) {
       delete liked[name];
-      changed = true;
+      updated = true;
     }
-  });
+  }
 
-  if (changed) {
+  if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
   }
 }
+
 
 
 
