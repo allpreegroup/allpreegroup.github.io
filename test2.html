@@ -1042,6 +1042,23 @@ function closePopup() {
 }
 
 function showRandomDealsInPopup() {
+  const allDeals = dealsData; // Make sure this is your full deals array
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '[]');
+  
+  // If no liked deals, fall back to showing random deals from all
+  const sourceDeals = likedDeals.length > 0
+    ? allDeals.filter(deal => likedDeals.includes(deal.id))
+    : allDeals;
+
+  const shuffledDeals = sourceDeals.sort(() => 0.5 - Math.random());
+  const selectedDeals = shuffledDeals.slice(0, 5); // or however many you want
+
+  renderDealsInPopup(selectedDeals);
+}
+
+
+	
+/* function showRandomDealsInPopup() {
   isLikedMode = false;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1057,7 +1074,7 @@ function showRandomDealsInPopup() {
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
-}
+} */
 
 
 	
