@@ -845,6 +845,10 @@ let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 
+function getDealKey(deal) {
+  return `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+}
+	
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
