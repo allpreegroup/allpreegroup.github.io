@@ -1107,7 +1107,50 @@ function setupLikeButton(deal) {
 
   updatePopupContent(nextDeal); // 🔄 Replaces content without closing popup
 }
-  
+
+function updatePopupContent(deal) {
+  if (!deal) return;
+
+  currentPopupDeal = deal;
+
+  const originalPrice = parseFloat(deal.original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(deal.discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+  const savings = originalPrice - discountPrice;
+
+  const cashbackPercent = 49;
+  const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+  const finalPrice = discountPrice - cashbackAmount;
+
+  document.getElementById('popupImg').src = deal.image;
+  document.getElementById('popupTitle').textContent = deal.name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD $${deal.original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD $${deal.discount}`;
+  document.getElementById('popupDesc').textContent = deal.description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+  document.getElementById('popupCashback').innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+
+  document.getElementById('brandLogo').src = deal.brandLogo;
+  document.getElementById('brandLogo').alt = deal.brandName;
+  document.getElementById('brandName').textContent = deal.brandName;
+
+  const popupTimerEl = document.getElementById('popupTimer');
+  popupTimerEl.textContent = 'Loading...';
+  popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+  const brandInfo = allBrandsData.find(b => b.brand === deal.brandName);
+  if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+  }
+
+  setupLikeButton(deal); // Important to re-wire the like button
+}
+
+
+
+
+	  
 	  /* if (!isLikedMode && isNowLiked) {
   const likedNow = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNamesNow = new Set(Object.keys(likedNow));
