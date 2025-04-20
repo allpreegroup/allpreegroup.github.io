@@ -1031,14 +1031,9 @@ function setupLikeButton(deal) {
     localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
     renderLikedDealsGallery();
 
-    // 👉 Filter random deals if not in liked mode
-    if (!isLikedMode) {
-      const popupContent = document.getElementById('popupContent');
-      if (popupContent) popupContent.style.opacity = 0;
-
-      setTimeout(() => {
-        showRandomDealsInPopup();
-      }, 300); // Wait for fade out
+    // ✅ Instantly show a new random deal if we just liked this one and we’re not in liked mode
+    if (!isLikedMode && isNowLiked) {
+      showRandomDealsInPopup();
     }
   };
 }
