@@ -1004,7 +1004,46 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 //outside 
 
- function setupLikeButton(deal) {
+function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+  if (!likeBtn || !deal || !deal.name) return;
+
+  const dealKey = getDealKey(deal);
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff,
+        _id: dealKey
+      };
+    } else {
+      delete updatedLikedDeals[dealKey];
+    }
+
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery();
+  };
+}
+
+
+	
+/* function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
@@ -1043,7 +1082,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 	  
   };
-} 
+} */
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
