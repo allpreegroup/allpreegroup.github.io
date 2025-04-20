@@ -1004,7 +1004,8 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
-  const dealKey = deal.name;
+  const dealKey = `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
 
@@ -1316,14 +1317,11 @@ document.getElementById('showLikedBtn').onclick = () => {
   }
 }
 
-function cleanUpLikedDeals() {
+function cleanUpLikedDeals() { 
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  console.log('🧾 allDealsFlat:', allDealsFlat);
-  const validIds = new Set(
-    allDealsFlat.map(d =>
-      `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
-    )
-  );
+  const validIds = new Set(allDealsFlat.map(
+    d => `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
+  ));
 
   console.log('✅ Valid IDs from sheets:', [...validIds]);
   console.log('💾 Current likedDeals keys:', Object.keys(liked));
@@ -1331,14 +1329,19 @@ function cleanUpLikedDeals() {
   let updated = false;
 
   for (let key in liked) {
-    const deal = liked[key];
-    const dealId = `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
-    if (!validIds.has(dealId)) {
+    if (!validIds.has(key)) {
       console.log('❌ Removing invalid liked deal:', key);
       delete liked[key];
       updated = true;
     }
   }
+
+  if (updated) {
+    localStorage.setItem('likedDeals', JSON.stringify(liked));
+    console.log('✅ Updated likedDeals in localStorage.');
+  }
+}
+
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
