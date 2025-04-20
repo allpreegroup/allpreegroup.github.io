@@ -1317,8 +1317,9 @@ document.getElementById('showLikedBtn').onclick = () => {
   }
 }
 
-function cleanUpLikedDeals() { 
+function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
   const validIds = new Set(allDealsFlat.map(
     d => `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
   ));
@@ -1329,7 +1330,7 @@ function cleanUpLikedDeals() {
   let updated = false;
 
   for (let key in liked) {
-    if (!validIds.has(key)) {
+    if (!validIds.has(key.toLowerCase())) {
       console.log('❌ Removing invalid liked deal:', key);
       delete liked[key];
       updated = true;
@@ -1341,6 +1342,7 @@ function cleanUpLikedDeals() {
     console.log('✅ Updated likedDeals in localStorage.');
   }
 }
+
 
 
   if (updated) {
