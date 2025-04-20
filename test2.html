@@ -1040,10 +1040,30 @@ function closePopup() {
 
 function showRandomDealsInPopup() {
   isLikedMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
+  openPopup(deal, true);
+}
+
+
+	
+/* function showRandomDealsInPopup() {
+  isLikedMode = false;
   const randomIndex = Math.floor(Math.random() * allDeals.length);
   const deal = allDeals[randomIndex];
   openPopup(deal, true);
-}
+} */
 
 function showLikedDealsInPopup() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
