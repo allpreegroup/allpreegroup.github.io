@@ -1011,7 +1011,8 @@ function setupLikeButton(deal) {
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
-likeBtn.onclick = () => {
+
+  likeBtn.onclick = () => {
   const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isNowLiked = likeBtn.classList.toggle('liked');
   likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
@@ -1031,13 +1032,15 @@ likeBtn.onclick = () => {
   localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
   renderLikedDealsGallery();
 
-  // 👉 Force wait a tiny bit to ensure localStorage is updated
+  // 👉 Only reload next random deal if we're in random mode and just liked
   if (!isLikedMode && isNowLiked) {
-    setTimeout(() => {
-      showRandomDealsInPopup();
-    }, 50); // short delay ensures the deal is filtered out
+    // 🧠 Just open a fresh unliked deal
+    showRandomDealsInPopup();
   }
 };
+
+
+
 
 
 
@@ -1114,15 +1117,15 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
-function showRandomDealsInPopup(previousDealName = '') {
+function showRandomDealsInPopup() {
   isLikedMode = false;
 
+  // ✅ Always fetch latest liked deals
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
 
-  const unlikedDeals = allDeals.filter(deal =>
-    !likedNames.has(deal.name) && deal.name !== previousDealName
-  );
+  // ✅ Filter in-memory allDeals live
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals!");
@@ -1133,6 +1136,7 @@ function showRandomDealsInPopup(previousDealName = '') {
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
 }
+
 
 
 	
