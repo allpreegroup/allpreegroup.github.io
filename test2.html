@@ -1262,14 +1262,17 @@ function cleanUpLikedDeals() {
             openPopup(dealData);
           });
 
-          brandDeals.push({
-            element: dealCard,
-            percentOff,
-            expireDate: row.expireDate
-          });
-
-          // ✅ Only push to allDealsFlat if not liked
-         allDealsFlat.push(dealData);
+          if (!isLiked) {
+  allDealsFlat.push(dealData);
+  brandDeals.push({
+    element: dealCard,
+    percentOff,
+    expireDate: row.expireDate
+  });
+} else {
+  // Liked deals are excluded from the grid, but still stored in allDealsFlat
+  allDealsFlat.push(dealData); // Optional: only needed if used for cleanup
+}
         }
       });
     }
