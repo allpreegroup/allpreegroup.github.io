@@ -888,13 +888,14 @@ function renderLikedDealsGallery() {
   document.getElementById('showLikedBtn')?.classList.add('active');
   document.getElementById('showRandomBtn')?.classList.remove('active');
 }
+
     card.addEventListener('click', () => {
   likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
   likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
 
-  switchToLikedMode(); // handles tab highlighting + isLikedMode
-  openPopup(deal);     // handles display only
+  switchToLikedMode(); // Set mode and tabs
+  openPopup(deal);     // Show the popup
 });
 
        galleryEl.appendChild(card);
