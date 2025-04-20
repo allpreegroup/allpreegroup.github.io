@@ -1117,25 +1117,40 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
+const seenRandomDeals = new Set(); // Session-based memory
+
 function showRandomDealsInPopup() {
   isLikedMode = false;
 
-  // ✅ Always fetch latest liked deals
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
 
-  // ✅ Filter in-memory allDeals live
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+  // Filter only deals that are neither liked nor seen this session
+  let unlikedUnseenDeals = allDeals.filter(deal =>
+    !likedNames.has(deal.name) && !seenRandomDeals.has(deal.name)
+  );
 
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
+  // If all unliked deals have been seen, reset the session list
+  if (unlikedUnseenDeals.length === 0) {
+    seenRandomDeals.clear(); // 🔄 Reset session memory
+    unlikedUnseenDeals = allDeals.filter(deal =>
+      !likedNames.has(deal.name)
+    );
+
+    if (unlikedUnseenDeals.length === 0) {
+      alert("You've liked all the deals!");
+      return;
+    }
   }
 
-  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-  const deal = unlikedDeals[randomIndex];
+  const randomIndex = Math.floor(Math.random() * unlikedUnseenDeals.length);
+  const deal = unlikedUnseenDeals[randomIndex];
+
+  seenRandomDeals.add(deal.name); // ✅ Mark as seen in this session
+
   openPopup(deal, true);
 }
+
 
 
 
