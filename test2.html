@@ -1320,18 +1320,21 @@ document.getElementById('showLikedBtn').onclick = () => {
 function cleanUpLikedDeals() {
   const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
 
-  const validIds = new Set(allDealsFlat.map(
-    d => `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
-  ));
+  // ✅ Match how the keys are saved in localStorage (brandName & name)
+  const validKeys = new Set(
+    allDealsFlat.map(d =>
+      `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
+    )
+  );
 
-  console.log('✅ Valid IDs from sheets:', [...validIds]);
-  console.log('💾 Current likedDeals keys:', Object.keys(liked));
+  console.log("✅ Valid Keys from allDealsFlat:", [...validKeys]);
+  console.log("💾 Current likedDeals keys:", Object.keys(liked));
 
   let updated = false;
 
   for (let key in liked) {
-    if (!validIds.has(key.toLowerCase())) {
-      console.log('❌ Removing invalid liked deal:', key);
+    if (!validKeys.has(key)) {
+      console.log("❌ Removing invalid liked deal:", key);
       delete liked[key];
       updated = true;
     }
@@ -1339,7 +1342,7 @@ function cleanUpLikedDeals() {
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
-    console.log('✅ Updated likedDeals in localStorage.');
+    console.log("✅ Updated likedDeals in localStorage.");
   }
 }
 
