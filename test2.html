@@ -999,7 +999,53 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 }
 
 //outside 
+
 function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+  if (!likeBtn || !deal || !deal.name) return;
+
+  const dealKey = deal.name;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  likeBtn.onclick = () => {
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = { ...deal, percentOff };
+    } else {
+      delete updatedLikedDeals[dealKey];
+    }
+
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    renderLikedDealsGallery();
+
+    // 👉 Filter random deals if not in liked mode
+    if (!isLikedMode) {
+      const popupContent = document.getElementById('popupContent');
+      if (popupContent) popupContent.style.opacity = 0;
+
+      setTimeout(() => {
+        showRandomDealsInPopup();
+      }, 300); // Wait for fade out
+    }
+  };
+}
+
+
+	
+/* function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
@@ -1032,7 +1078,7 @@ function setupLikeButton(deal) {
 
 	  
   };
-} 
+} */
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
