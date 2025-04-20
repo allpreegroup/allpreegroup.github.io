@@ -883,14 +883,22 @@ function renderLikedDealsGallery() {
 
      // Inside renderLikedDealsGallery()
 card.addEventListener('click', () => {
-  isLikedMode = true;
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  likedDealKeys = Object.keys(likedDeals);
+  likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
 
-  // ✅ Switch to Liked tab visually
+  isLikedMode = true;
   document.getElementById('showLikedBtn')?.classList.add('active');
   document.getElementById('showRandomBtn')?.classList.remove('active');
 
   openPopup(deal);
+
+  // Delay attaching swipe listeners until popup fully rendered
+  setTimeout(() => {
+    addPopupSwipeListeners();
+  }, 100); // 100ms is usually enough
 });
+
 
       galleryEl.appendChild(card);
     }
