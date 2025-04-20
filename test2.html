@@ -1004,7 +1004,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
 
-  const dealKey = `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+  const dealKey = `${(dealData.brandName || '').trim().toLowerCase()} & ${(dealData.name || '').trim().toLowerCase()}`;
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
@@ -1112,21 +1112,21 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 function cleanUpLikedDeals(validKeys) {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const updatedLikedDeals = {};
+  let changed = false;
 
-  console.log('💾 Current likedDeals keys:', Object.keys(likedDeals));
-
-  Object.entries(likedDeals).forEach(([key, deal]) => {
-    if (validKeys.includes(key)) {
-      updatedLikedDeals[key] = deal;
-    } else {
-      console.log('❌ Removing invalid liked deal:', key);
+  for (let key in likedDeals) {
+    if (!validKeys.includes(key)) {
+      delete likedDeals[key];
+      changed = true;
     }
-  });
+  }
 
-  localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-  console.log('✅ Updated likedDeals in localStorage.');
+  if (changed) {
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+    console.log('🧹 Cleaned up stale liked deals.');
+  }
 }
+
 
 	
 	
