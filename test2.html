@@ -1000,6 +1000,59 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 //outside 
 
+function updatePopupContent(deal) {
+  if (!deal) return;
+
+  const {
+    image,
+    name,
+    original,
+    discount,
+    description,
+    brandLogo,
+    brandName
+  } = deal;
+
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+  const savings = originalPrice - discountPrice;
+
+  const cashbackPercent = 49;
+  const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+  const finalPrice = discountPrice - cashbackAmount;
+
+  const cashbackEl = document.getElementById('popupCashback');
+  cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+
+  currentPopupDeal = deal;
+
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+  document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+  document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+
+  document.getElementById('brandLogo').src = brandLogo;
+  document.getElementById('brandLogo').alt = brandName;
+  document.getElementById('brandName').textContent = brandName;
+
+  const popupTimerEl = document.getElementById('popupTimer');
+  popupTimerEl.textContent = 'Loading...';
+  popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+  const brandInfo = allBrandsData.find(b => b.brand === brandName);
+  if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+  }
+
+  setupLikeButton(deal); // ✅ re-bind like button to new deal
+}
+
+	
+
 function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) return;
@@ -1032,9 +1085,23 @@ function setupLikeButton(deal) {
     renderLikedDealsGallery();
 
     // ✅ Instantly show a new random deal if we just liked this one and we’re not in liked mode
-    if (!isLikedMode && isNowLiked) {
-      showRandomDealsInPopup();
-    }
+   if (!isLikedMode && isNowLiked) {
+  const likedNow = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNamesNow = new Set(Object.keys(likedNow));
+  const unlikedDealsNow = allDeals.filter(d => !likedNamesNow.has(d.name));
+
+  if (unlikedDealsNow.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDealsNow.length);
+  const nextDeal = unlikedDealsNow[randomIndex];
+  
+  // 🔄 Instead of reopening popup, just update content
+  updatePopupContent(nextDeal);
+}
+
   };
 }
 
