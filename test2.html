@@ -1317,6 +1317,25 @@ document.getElementById('showLikedBtn').onclick = () => {
   }
 }
 
+function cleanUpLikedDeals() {
+  const liked = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+  const validIds = new Set(allDealsFlat.map(
+    d => `${(d.brandName || '').trim().toLowerCase()} & ${(d.name || '').trim().toLowerCase()}`
+  ));
+
+  console.log('✅ Valid IDs from sheets:', [...validIds]);
+  console.log('💾 Current likedDeals keys:', Object.keys(liked));
+
+  let updated = false;
+
+  for (let key in liked) {
+    if (!validIds.has(key.toLowerCase())) {
+      console.log('❌ Removing invalid liked deal:', key);
+      delete liked[key];
+      updated = true;
+    }
+  }
 
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(liked));
