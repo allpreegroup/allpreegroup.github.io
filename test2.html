@@ -1174,9 +1174,232 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
+
+// 🔹 Utility: Parse price safely
+function parsePrice(price) {
+  return parseFloat(price.replace(/,/g, '')) || 0;
+}
+
+// 🔹 Utility: Truncate long names
+function truncateName(name, max = 15) {
+  return name.length > max ? name.slice(0, max) + '...' : name;
+}
+
+// 🔹 Create brand header with countdown
+function createBrandHeader(brand, logo, expireDateStr) {
+  const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+  const header = document.createElement('div');
+  header.className = 'brand';
+  header.innerHTML = `
+    <div class="brand-logo-container">
+      <img src="${logo}" alt="${brand}" />
+    </div>
+    <div>
+      <span class="brand-name">${brand}</span><br>
+      <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+    </div>
+  `;
+
+  // Set countdown or upcoming status
+  const parsedDate = Date.parse(expireDateStr);
+  const el = header.querySelector(`#${timerId}`);
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    if (el) {
+      el.textContent = '⏳ Coming soon';
+      el.classList.add('countdown-upcoming');
+    }
+  } else {
+    startBrandCountdown(expireDateStr, timerId);
+  }
+
+  return { header, timerId };
+}
+
+// 🔹 Create deal card with click logic
+function createDealCard(row, brand, logo, isLiked, brandDeals, allDealsFlat) {
+  const original = parsePrice(row.OriginalPrice);
+  const discount = parsePrice(row.DiscountPrice);
+  const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+  const shortName = truncateName(row.ProductName);
+
+  const dealCard = document.createElement('div');
+  dealCard.className = 'deal';
+  dealCard.innerHTML = `
+    <span class="discount-badge">${percentOff}% OFF</span>
+    <img src="${row.ImageURL}" alt="${row.ProductName}">
+    <div class="deal-content">
+      <div class="deal-title">${shortName}</div>
+      <div class="price">JMD $${row.OriginalPrice}</div>
+      <div class="discount">JMD $${row.DiscountPrice}</div>
+    </div>
+  `;
+
+  const dealData = {
+    image: row.ImageURL,
+    name: row.ProductName,
+    original: row.OriginalPrice,
+    discount: row.DiscountPrice,
+    description: row.Description,
+    brandLogo: logo,
+    brandName: brand
+  };
+
+  dealCard.addEventListener('click', () => {
+    isLikedMode = false;
+    document.getElementById('showRandomBtn')?.classList.add('active');
+    document.getElementById('showLikedBtn')?.classList.remove('active');
+    openPopup(dealData);
+  });
+
+  if (!isLiked) {
+    brandDeals.push({ element: dealCard, percentOff });
+    allDealsFlat.push(dealData);
+  } else {
+    allDealsFlat.push(dealData);
+  }
+}
+
+// 🔹 Create and return a full brand section
+function createBrandSection(name, logo, expireDateStr) {
+  const section = document.createElement('div');
+  section.className = 'brand-section';
+
+  const { header, timerId } = createBrandHeader(name, logo, expireDateStr);
+  const grid = document.createElement('div');
+  grid.className = 'deal-grid';
+  grid.style.display = 'none';
+
+  // Toggle open/close logic
+  header.style.cursor = 'pointer';
+  header.addEventListener('click', () => {
+    const isOpen = grid.style.display === 'grid';
+
+    if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+      currentlyOpenGrid.style.display = 'none';
+    }
+
+    grid.style.display = isOpen ? 'none' : 'grid';
+
+    if (!isOpen) {
+      const headerHeight = 70;
+      const likedDealsSection = document.getElementById('likedDealsSection');
+      const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+      const extraOffset = likedVisible ? 5 : 0;
+      const top = header.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+  });
+
+  section.appendChild(header);
+  section.appendChild(grid);
+  return { section, grid };
+}
+
+// 🔹 Main Deal Loader
+async function loadDeals() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const container = document.getElementById('deals-container');
+  container.innerHTML = '';
+  allBrandsData.length = 0;
+  allDealsFlat.length = 0;
+  currentlyOpenGrid = null;
+
+  try {
+    for (let sheetUrl of sheetUrls) {
+      const res = await fetch(sheetUrl);
+      const rows = await res.json();
+
+      let currentBrand = '', currentLogo = '', brandSection, grid;
+      let brandDeals = [], expireDateStr = '', expireDate;
+
+      rows.forEach(row => {
+        if (row.BrandName && row.BrandLogo) {
+          currentBrand = row.BrandName;
+          currentLogo = row.BrandLogo;
+          expireDateStr = row.ExpiryDate || row.expireDate || '';
+          expireDate = new Date(expireDateStr);
+
+          const brandElements = createBrandSection(currentBrand, currentLogo, expireDateStr);
+          brandSection = brandElements.section;
+          grid = brandElements.grid;
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
+
+          container.appendChild(brandSection);
+        }
+
+        if (row.ProductName && row.ImageURL) {
+          const isLiked = !!likedDeals[row.ProductName];
+          createDealCard(row, currentBrand, currentLogo, isLiked, brandDeals, allDealsFlat);
+        }
+      });
+    }
+
+    allBrandsData.forEach(b => {
+      b.deals.sort((a, b) => b.percentOff - a.percentOff);
+      b.deals.forEach(d => b.grid.appendChild(d.element));
+    });
+
+    allBrandsData.forEach(b => {
+      b.bestDiscount = Math.max(...b.deals.map(d => d.percentOff));
+      b.timeRemaining = b.expireDate ? b.expireDate - new Date() : Infinity;
+    });
+
+    allBrandsData.sort((a, b) => {
+      return b.bestDiscount !== a.bestDiscount
+        ? b.bestDiscount - a.bestDiscount
+        : a.timeRemaining - b.timeRemaining;
+    });
+
+    container.innerHTML = '';
+
+    let likedDealsSection = document.getElementById('likedDealsSection');
+    if (!likedDealsSection) {
+      likedDealsSection = document.createElement('div');
+      likedDealsSection.id = 'likedDealsSection';
+      likedDealsSection.style.display = 'none';
+      likedDealsSection.style.marginBottom = '1rem';
+      likedDealsSection.innerHTML = `<div id="likedDealsGallery" class="likedDealsGallery"></div>`;
+      container.appendChild(likedDealsSection);
+    }
+
+    renderLikedDealsGallery();
+
+    allBrandsData.forEach((b, i) => {
+      if (i === 0) {
+        const badge = document.createElement('div');
+        badge.className = 'top-deal-badge';
+        badge.textContent = '🔥 Hottest Discount';
+        b.section.querySelector('.brand-logo-container').appendChild(badge);
+        b.section.querySelector('.brand').classList.add('top-brand-highlight');
+      }
+
+      container.appendChild(b.section);
+    });
+
+    setTimeout(cleanUpLikedDeals, 3000);
+
+  } catch (err) {
+    console.error('Failed to load deals:', err);
+    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+  }
+}
+
+
+
+	
 	
 
- async function loadDeals() {
+/* async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -1385,7 +1608,7 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-} 
+} */
 
 
 
