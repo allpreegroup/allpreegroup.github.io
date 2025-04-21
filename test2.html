@@ -846,8 +846,11 @@ let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 
 function getDealKey(deal) {
-  return `${(deal.brandName || '').trim().toLowerCase()} & ${(deal.name || '').trim().toLowerCase()}`;
+  return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
+    .replace(/\s+/g, '')      // remove spaces
+    .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
+
 	
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
