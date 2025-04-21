@@ -1185,7 +1185,7 @@ document.getElementById('showLikedBtn').onclick = () => {
   localStorage.setItem('likedDeals', JSON.stringify(cleaned));
 } */
 
-function cleanUpLikedDeals() {
+/* function cleanUpLikedDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   console.log(allDealsFlat.map(getDealKey));
   const validKeys = new Set(allDealsFlat.map(deal => getDealKey(deal)));
@@ -1206,8 +1206,41 @@ console.log("Valid keys:", allDealsFlat.map(getDealKey));
     localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
     renderLikedDealsGallery(); // Optional: refresh UI after cleanup
   }
+} */
+
+function cleanUpLikedDeals() {
+  // Get the liked deals from localStorage
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+  // Collect all the deals from your data source (make sure this is correct)
+  const allDealsFlat = collectAllDeals(); // Make sure this function collects your all deals correctly
+
+  // Log the deal keys and all the deals to check for validity
+  console.log("All deals:", allDealsFlat);
+  console.log("Valid keys:", allDealsFlat.map(getDealKey));
+
+  // Create a Set of valid keys from the deals
+  const validKeys = new Set(allDealsFlat.map(deal => getDealKey(deal)));
+  
+  let updated = false;
+
+  // Check each liked deal and remove if it's not valid
+  Object.keys(likedDeals).forEach(key => {
+    if (!validKeys.has(key)) {
+      console.log('Removing invalid liked deal:', key);
+      delete likedDeals[key];
+      updated = true;
+    }
+  });
+
+  // If updates were made, save the updated likedDeals to localStorage
+  if (updated) {
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+    renderLikedDealsGallery(); // Refresh UI after cleanup (optional)
+  }
 }
 
+	
 
 
  async function loadDeals() {
