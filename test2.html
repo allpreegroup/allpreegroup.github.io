@@ -1171,7 +1171,7 @@ document.getElementById('showLikedBtn').onclick = () => {
 };
 
 
-function cleanupOldLikedDeals(currentDeals) {
+/* function cleanupOldLikedDeals(currentDeals) {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const currentIds = new Set(currentDeals.map(getDealKey));
   const cleaned = {};
@@ -1183,8 +1183,27 @@ function cleanupOldLikedDeals(currentDeals) {
   }
 
   localStorage.setItem('likedDeals', JSON.stringify(cleaned));
-}
+} */
 
+function cleanUpLikedDeals() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+  const validKeys = new Set(allDealsFlat.map(deal => getDealKey(deal)));
+  let updated = false;
+
+  Object.keys(likedDeals).forEach(key => {
+    if (!validKeys.has(key)) {
+      console.log('Removing invalid liked deal:', key);
+      delete likedDeals[key];
+      updated = true;
+    }
+  });
+
+  if (updated) {
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+    renderLikedDealsGallery(); // Optional: refresh UI after cleanup
+  }
+}
 
 
 
@@ -1388,7 +1407,8 @@ function cleanupOldLikedDeals(currentDeals) {
     });
 
      // ✅ Cleanup liked deals that no longer exist
-       cleanupOldLikedDeals(allDealsFromSheets);
+      // cleanupOldLikedDeals(allDealsFromSheets);
+	  cleanUpLikedDeals();
 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
