@@ -1209,22 +1209,19 @@ console.log("Valid keys:", allDealsFlat.map(getDealKey));
 } */
 
 function cleanUpLikedDeals() {
-  // Get the liked deals from localStorage
+  // Retrieve liked deals from localStorage
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
 
-  // Collect all the deals from your data source (make sure this is correct)
-  const allDealsFlat = collectAllDeals(); // Make sure this function collects your all deals correctly
-
-  // Log the deal keys and all the deals to check for validity
-  console.log("All deals:", allDealsFlat);
+  // Log the data for debugging purposes
+  console.log("All deals (flat):", allDealsFlat);
   console.log("Valid keys:", allDealsFlat.map(getDealKey));
 
-  // Create a Set of valid keys from the deals
+  // Create a Set of valid keys from allDealsFlat
   const validKeys = new Set(allDealsFlat.map(deal => getDealKey(deal)));
   
   let updated = false;
 
-  // Check each liked deal and remove if it's not valid
+  // Iterate over the liked deals to check for invalid ones
   Object.keys(likedDeals).forEach(key => {
     if (!validKeys.has(key)) {
       console.log('Removing invalid liked deal:', key);
@@ -1233,12 +1230,13 @@ function cleanUpLikedDeals() {
     }
   });
 
-  // If updates were made, save the updated likedDeals to localStorage
+  // If any updates were made, save the new likedDeals back to localStorage
   if (updated) {
     localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-    renderLikedDealsGallery(); // Refresh UI after cleanup (optional)
+    renderLikedDealsGallery(); // Optional: Refresh the UI after cleanup
   }
 }
+
 
 	
 
