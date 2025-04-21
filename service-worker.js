@@ -1,7 +1,8 @@
-var CACHE_NAME = "offline-v40";
+const CACHE_NAME = "offline-v50";
 
-var preLoad = function () {
-    return caches.open(CACHE_NAME).then(function (cache) {
+// Preload core assets
+const preLoad = () => {
+    return caches.open(CACHE_NAME).then(cache => {
         return cache.addAll([
             "/",
             "/balance/",
@@ -16,47 +17,60 @@ var preLoad = function () {
             "/img/AllPreepwaapp.png",
             "/404.html"
         ]).catch(err => {
-            console.error("Cache error:", err);
+            console.error("Cache preload error:", err);
         });
     });
 };
 
-// Install event: Cache important assets, no unnecessary logs
-self.addEventListener("install", function (event) {
+// Install: Pre-cache core files
+self.addEventListener("install", event => {
     event.waitUntil(preLoad());
-    self.skipWaiting(); // Activate immediately
+    self.skipWaiting();
 });
 
-// Activate event: Clean up old caches, no unnecessary logs
-self.addEventListener("activate", function (event) {
+// Activate: Clear old caches
+self.addEventListener("activate", event => {
     event.waitUntil(
-        caches.keys().then(function (cacheNames) {
+        caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.map(function (cache) {
-                    if (cache !== CACHE_NAME) {
-                        return caches.delete(cache);
+                cacheNames.map(name => {
+                    if (name !== CACHE_NAME) {
+                        return caches.delete(name);
                     }
                 })
             );
         })
     );
-    self.clients.claim(); // Ensure control over open pages
+    self.clients.claim();
 });
 
-// Fetch event: Serve from cache, fallback to network, no pop-ups
-self.addEventListener("fetch", function (event) {
+// Fetch: Network-first for live data, cache-first for others
+self.addEventListener("fetch", event => {
+    const url = new URL(event.request.url);
+
+    // Always fetch from network for live-data or any other dynamic endpoint
+    if (url.pathname === "/deals") {
+        event.respondWith(
+            fetch(event.request)
+                .catch(() => new Response("Live data unavailable offline", {
+                    status: 503,
+                    statusText: "Service Unavailable"
+                }))
+        );
+        return;
+    }
+
+    // Default: Try cache first, fallback to network
     event.respondWith(
-        caches.match(event.request).then(function (cachedResponse) {
-            return cachedResponse || fetch(event.request)
-                .then(function (networkResponse) {
-                    return caches.open(CACHE_NAME).then(function (cache) {
+        caches.match(event.request).then(cached => {
+            return cached || fetch(event.request)
+                .then(networkResponse => {
+                    return caches.open(CACHE_NAME).then(cache => {
                         cache.put(event.request, networkResponse.clone());
                         return networkResponse;
                     });
                 })
-                .catch(function () {
-                    return caches.match("/404.html");
-                });
+                .catch(() => caches.match("/404.html"));
         })
     );
 });
