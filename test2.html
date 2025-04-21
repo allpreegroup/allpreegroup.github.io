@@ -1237,11 +1237,172 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
   }
 }
 
+async function loadDeals() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const container = document.getElementById('deals-container');
+  container.innerHTML = '';
+  allBrandsData.length = 0;
+  allDealsFlat.length = 0;
+  let currentlyOpenGrid = null;
+
+  try {
+    // Fetch all sheets in parallel
+    const sheetPromises = sheetUrls.map(url => fetch(url).then(res => res.json()));
+    const allSheets = await Promise.all(sheetPromises);
+
+    // Process each sheet one by one
+    for (let rows of allSheets) {
+      let currentBrand = '';
+      let currentLogo = '';
+      let brandSection = null;
+      let grid = null;
+      let brandDeals = [];
+      let expireDate = '';
+
+      rows.forEach(row => {
+        if (row.BrandName && row.BrandLogo) {
+          currentBrand = row.BrandName;
+          currentLogo = row.BrandLogo;
+
+          brandSection = document.createElement('div');
+          brandSection.className = 'brand-section';
+
+          const brandDiv = document.createElement('div');
+          brandDiv.className = 'brand';
+          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+          brandDiv.innerHTML = `
+            <div class="brand-logo-container">
+              <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <div>
+              <span class="brand-name">${currentBrand}</span><br>
+              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+            </div>
+          `;
+
+          const expireDateStr = row.ExpiryDate || row.expireDate;
+          const parsedDate = Date.parse(expireDateStr);
+
+          if (isNaN(parsedDate) || parsedDate < Date.now()) {
+            const el = document.getElementById(timerId);
+            if (el) {
+              el.textContent = '⏳ Coming soon';
+              el.classList.add('countdown-upcoming');
+            }
+          } else {
+            startBrandCountdown(expireDateStr, timerId);
+          }
+
+          brandSection.appendChild(brandDiv);
+
+          grid = document.createElement('div');
+          grid.className = 'deal-grid';
+          grid.style.display = 'none';
+
+          brandSection.appendChild(grid);
+          brandDiv.style.cursor = 'pointer';
+
+          brandDiv.addEventListener('click', () => {
+            const isOpen = grid.style.display === 'grid';
+            if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+              currentlyOpenGrid.style.display = 'none';
+            }
+
+            grid.style.display = isOpen ? 'none' : 'grid';
+
+            if (!isOpen) {
+              const headerHeight = 70;
+              const likedDealsSection = document.getElementById('likedDealsSection');
+              const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+              const extraOffset = likedVisible ? 5 : 0;
+              const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+              window.scrollTo({ top, behavior: 'smooth' });
+            }
+
+            currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+          });
+
+          container.appendChild(brandSection);
+
+          if (expireDateStr) {
+            expireDate = new Date(expireDateStr);
+            if (!isNaN(expireDate)) {
+              startBrandCountdown(expireDate, timerId);
+            }
+          }
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
+        }
+
+        if (row.ProductName && row.ImageURL) {
+          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+          const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
+
+          const dealCard = document.createElement('div');
+          dealCard.className = 'deal';
+          dealCard.innerHTML = `
+            <span class="discount-badge">${percentOff}% OFF</span>
+            <img src="${row.ImageURL}" alt="${row.ProductName}">
+            <div class="deal-content">
+              <div class="deal-title">${shortName}</div>
+              <div class="price">JMD $${row.OriginalPrice}</div>
+              <div class="discount">JMD $${row.DiscountPrice}</div>
+            </div>
+          `;
+
+          const dealData = {
+            image: row.ImageURL,
+            name: row.ProductName,
+            original: row.OriginalPrice,
+            discount: row.DiscountPrice,
+            description: row.Description,
+            brandLogo: currentLogo,
+            brandName: currentBrand
+          };
+
+          const isLiked = !!likedDeals[dealData.name];
+
+          dealCard.addEventListener('click', () => {
+            isLikedMode = false;
+            document.getElementById('showRandomBtn')?.classList.add('active');
+            document.getElementById('showLikedBtn')?.classList.remove('active');
+            openPopup(dealData);
+          });
+
+          if (!isLiked) {
+            allDealsFlat.push(dealData);
+            brandDeals.push({
+              element: dealCard,
+              percentOff,
+              expireDate: row.expireDate
+            });
+          } else {
+            allDealsFlat.push(dealData); // Keep for liked gallery and cleanup
+          }
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Error loading deals:', error);
+  }
+}
 
 	
 
 
- async function loadDeals() {
+/* async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -1443,9 +1604,9 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
      // ✅ Cleanup liked deals that no longer exist
       
  cleanUpLikedDeals();
-/* setTimeout(() => {
+ setTimeout(() => {
   cleanUpLikedDeals();
-}, 3000); // wait 3 seconds before cleaning up */
+}, 3000); // wait 3 seconds before cleaning up
 	  
 	 
 	  
@@ -1453,7 +1614,7 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-}
+} */
 	
 function startBrandCountdown(expireDate, elementId) {
   const parsedDate = Date.parse(expireDate);
