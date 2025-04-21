@@ -1169,17 +1169,20 @@ document.getElementById('showLikedBtn').onclick = () => {
 };
 
 
-/* function cleanupStaleLikedDeals() {
-  let likedDeals = JSON.parse(localStorage.getItem("likedDeals") || "{}");
-  const newLiked = {};
-  for (let key in likedDeals) {
-    if (allDealsFlat.includes(key)) {
-      newLiked[key] = likedDeals[key];
+function cleanupOldLikedDeals(currentDeals) {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const currentIds = new Set(currentDeals.map(getDealKey));
+  const cleaned = {};
+
+  for (const id in likedDeals) {
+    if (currentIds.has(id)) {
+      cleaned[id] = likedDeals[id];
     }
   }
-  localStorage.setItem("likedDeals", JSON.stringify(newLiked));
-  console.log("🧹 Cleaned up stale liked deals.");
-} */
+
+  localStorage.setItem('likedDeals', JSON.stringify(cleaned));
+}
+
 
 
 
@@ -1383,7 +1386,7 @@ document.getElementById('showLikedBtn').onclick = () => {
     });
 
      // ✅ Cleanup liked deals that no longer exist
-
+       cleanupOldLikedDeals(allDealsFromSheets);
 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
