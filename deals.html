@@ -844,7 +844,16 @@ let currentPopupDeal = null;    // Currently open deal in the popup
 let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
+let allDealsFromSheets = [];
 
+	
+function getDealKey(deal) {
+  return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
+    .replace(/\s+/g, '')      // remove spaces
+    .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
+}
+
+	
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
@@ -885,7 +894,7 @@ function renderLikedDealsGallery() {
 card.addEventListener('click', () => {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
-  likedDealIndex = likedDealKeys.findIndex(k => k === deal.name);
+ likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
 
   isLikedMode = true;
   document.getElementById('showLikedBtn')?.classList.add('active');
@@ -1000,21 +1009,32 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 //outside 
 
- function setupLikeButton(deal) {
-  const likeBtn = document.getElementById('popupLikeBtn');
-  if (!likeBtn || !deal || !deal.name) return;
 
-  const dealKey = deal.name;
+	
+function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+  if (!likeBtn || !deal || !deal.name) {
+    console.warn('Like button or deal missing:', { likeBtn, deal });
+    return;
+  }
+
+  const dealKey = getDealKey(deal);
+  console.log('Setting up like button for:', deal.name, 'Key:', dealKey);
+
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
 
+  console.log('Is this deal already liked?', isLiked);
   likeBtn.classList.toggle('liked', isLiked);
   likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
 
   likeBtn.onclick = () => {
+    console.log('Like button clicked for:', deal.name);
     const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
     const isNowLiked = likeBtn.classList.toggle('liked');
     likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+    console.log('Deal is now liked?', isNowLiked);
 
     const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
     const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
@@ -1023,17 +1043,25 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
       : 0;
 
     if (isNowLiked) {
-      updatedLikedDeals[dealKey] = { ...deal, percentOff };
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff,
+        _id: dealKey
+      };
+      console.log('Added to liked deals:', updatedLikedDeals[dealKey]);
     } else {
       delete updatedLikedDeals[dealKey];
+      console.log('Removed from liked deals:', dealKey);
     }
 
     localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
-    renderLikedDealsGallery();
+    console.log('Updated localStorage:', updatedLikedDeals);
 
-	  
+    renderLikedDealsGallery();
   };
-} 
+}
+
+
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
@@ -1041,6 +1069,8 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
+
+	
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
@@ -1061,6 +1091,8 @@ function closePopup() {
 } 
 
 
+
+	
 function showLikedDealsInPopup() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
@@ -1076,6 +1108,9 @@ function showLikedDealsInPopup() {
   openPopup(deal, true);
 }
 
+
+
+	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
@@ -1084,6 +1119,9 @@ function goToNextLikedDeal() {
   openPopup(deal, true);
 }
 
+
+
+	
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
@@ -1103,7 +1141,42 @@ document.getElementById('showLikedBtn').onclick = () => {
   showLikedDealsInPopup();
 };
 
-  async function loadDeals() {
+
+	
+
+function cleanUpLikedDeals() {
+  // Retrieve liked deals from localStorage
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+  // Log the data for debugging purposes
+ console.log("🧪 allDealsFlat.length before cleanup:", allDealsFlat.length);
+console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
+
+  // Create a Set of valid keys from allDealsFlat
+  const validKeys = new Set(allDealsFlat.map(deal => getDealKey(deal)));
+  
+  let updated = false;
+
+  // Iterate over the liked deals to check for invalid ones
+  Object.keys(likedDeals).forEach(key => {
+    if (!validKeys.has(key)) {
+      console.log('Removing invalid liked deal:', key);
+      delete likedDeals[key];
+      updated = true;
+    }
+  });
+
+  // If any updates were made, save the new likedDeals back to localStorage
+  if (updated) {
+    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+    renderLikedDealsGallery(); // Optional: Refresh the UI after cleanup
+  }
+}
+
+
+
+	
+ async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -1112,7 +1185,7 @@ document.getElementById('showLikedBtn').onclick = () => {
   let currentlyOpenGrid = null;
 
   try {
-    for (let sheetUrl of sheetUrls) {
+	  for (let sheetUrl of sheetUrls) {
       const res = await fetch(sheetUrl);
       const rows = await res.json();
 
@@ -1235,6 +1308,8 @@ document.getElementById('showLikedBtn').onclick = () => {
             brandName: currentBrand
           };
 
+              const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
+		
           dealCard.addEventListener('click', () => {
             isLikedMode = false;
             document.getElementById('showRandomBtn')?.classList.add('active');
@@ -1242,22 +1317,22 @@ document.getElementById('showLikedBtn').onclick = () => {
             openPopup(dealData);
           });
 
-          brandDeals.push({
-            element: dealCard,
-            percentOff,
-            expireDate: row.expireDate
-          });
-
-          // ✅ Only push to allDealsFlat if not liked
-          const isLiked = !!likedDeals[dealData.name];
           if (!isLiked) {
-            allDealsFlat.push(dealData);
-          }
+  allDealsFlat.push(dealData);
+  brandDeals.push({
+    element: dealCard,
+    percentOff,
+    expireDate: row.expireDate
+  });
+} else {
+  // Liked deals are excluded from the grid, but still stored in allDealsFlat
+  allDealsFlat.push(dealData); // Optional: only needed if used for cleanup
+}
         }
       });
-    }
-
-    allBrandsData.forEach(brandData => {
+    } 
+	  
+  allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
@@ -1300,11 +1375,21 @@ document.getElementById('showLikedBtn').onclick = () => {
       container.appendChild(brandData.section);
     });
 
+// ✅ Cleanup liked deals that no longer exist
+      
+ setTimeout(() => {
+  cleanUpLikedDeals();
+}, 3000); // wait 3 seconds before cleaning up
+	  	 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-}
+} 
+
+
+
+	
 	
 function startBrandCountdown(expireDate, elementId) {
   const parsedDate = Date.parse(expireDate);
@@ -1383,8 +1468,11 @@ function startBrandCountdown(expireDate, elementId) {
       closePopup();
     }
   };
-
+	
   loadDeals();
+
+	
+
 	
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
@@ -1434,8 +1522,8 @@ function startBrandCountdown(expireDate, elementId) {
   }
 }
 
+	}
 
-}
 
 // Call this after your popup is ready
 addPopupSwipeListeners();
