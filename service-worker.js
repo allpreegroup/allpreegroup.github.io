@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v50";
+const CACHE_NAME = "offline-v51";
 
 // Preload core assets
 const preLoad = () => {
@@ -44,23 +44,42 @@ self.addEventListener("activate", event => {
     self.clients.claim();
 });
 
-// Fetch: Network-first for live data, cache-first for others
+// List of specific images to never cache
+const doNotCacheList = [
+    "/img/newp.jpg"
+];
+
+// Domains to always fetch fresh (no caching)
+const neverCacheHosts = [
+    "opensheet.elk.sh",
+    "docs.google.com",
+    "googleapis.com"
+];
+
+// Fetch: Smart caching strategy
 self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
 
-    // Always fetch from network for live-data or any other dynamic endpoint
-    if (url.pathname === "/deals") {
-        event.respondWith(
-            fetch(event.request)
-                .catch(() => new Response("Live data unavailable offline", {
-                    status: 503,
-                    statusText: "Service Unavailable"
-                }))
-        );
+    // Live data: skip cache completely
+    if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
+        event.respondWith(fetch(event.request));
         return;
     }
 
-    // Default: Try cache first, fallback to network
+    // Skip third-party domains (cross-origin)
+    if (url.origin !== self.location.origin || 
+        neverCacheHosts.some(host => url.hostname.includes(host))) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    // Skip caching specific local assets
+    if (doNotCacheList.includes(url.pathname)) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    // Default: Cache-first strategy
     event.respondWith(
         caches.match(event.request).then(cached => {
             return cached || fetch(event.request)
