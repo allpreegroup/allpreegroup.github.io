@@ -1318,22 +1318,25 @@ document.getElementById('showLikedBtn').onclick = () => {
 
       // If the deal is liked, check if it's still available in the current data
       // After fetching and processing rows
-      const validIds = new Set(
-      rows.map(row => row._id?.trim()).filter(Boolean)
-    );
+     // Cleanup: remove liked deals from localStorage that no longer exist in current data
+const validKeys = new Set(
+  allDealsFlat.map(deal => `${deal.brandName} & ${deal.name}`)
+);
 
-      let changed = false;
-      for (const dealKey in likedDeals) {
-      if (!validIds.has(dealKey.trim())) {
-      console.log('🧹 Removing stale liked deal from localStorage:', dealKey);
-      delete likedDeals[dealKey];
-      changed = true;
-    }
-  }
+console.log('✅ Valid deal keys from loaded data:', Array.from(validKeys));
 
-     if (changed) {
-     localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+let changed = false;
+for (const key in likedDeals) {
+  if (!validKeys.has(key)) {
+    console.log('🧹 Removing stale liked deal from localStorage:', key);
+    delete likedDeals[key];
+    changed = true;
   }
+}
+
+if (changed) {
+  localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
+}
 
 
       dealCard.addEventListener('click', () => {
