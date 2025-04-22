@@ -1233,7 +1233,8 @@ function closePopup() {
 	
 	
  function showRandomDealsInPopup() {
-  if (mode) setMode(mode);
+  setMode('random');
+
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
   const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
@@ -1247,13 +1248,14 @@ function closePopup() {
   randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
 
   const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
-  openPopup(deal);
+ openPopup(deal, true);
 }
 
 
 	
 function showLikedDealsInPopup() {
-  if (mode) setMode(mode);
+  setMode('liked');
+ 
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
@@ -1328,6 +1330,7 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 // start
+	
 function showBrandDealsInPopup(brandName) {
   // grab all deals of this brand
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
