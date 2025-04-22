@@ -1503,9 +1503,28 @@ function setMode(mode) {
     expireDate: row.expireDate
   });
 } else {
-  // Liked deals are excluded from the grid, but still stored in allDealsFlat
-  allDealsFlat.push(dealData); // Optional: only needed if used for cleanup
+  allDealsFlat.push(dealData); // Optional: for cleanup
+
+  // ✅ Create card for liked gallery
+  const galleryCard = dealCard.cloneNode(true);
+
+  galleryCard.addEventListener('click', () => {
+    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    likedDealKeys = Object.keys(likedDeals);
+    likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(dealData));
+
+    setMode('liked'); // This handles the active button and flags
+
+    openPopup(dealData);
+
+    setTimeout(() => {
+      addPopupSwipeListeners();
+    }, 100);
+  });
+
+  document.getElementById('likedDealsGallery')?.appendChild(galleryCard);
 }
+
         }
       });
     } 
