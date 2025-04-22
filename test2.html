@@ -1452,15 +1452,23 @@ function setMode(mode) {
 
               const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
 		
-          dealCard.addEventListener('click', () => {
+         dealCard.addEventListener('click', () => {
   setMode('brand');
+
+  // 🔥 Set up the brand mode index like in showBrandDealsInPopup
+  const thisBrand = dealData.brandName;
+
+  brandDealKeys = allDeals
+    .filter(d => d.brandName === thisBrand)
+    .map(getDealKey);
+
+  brandDealIndex = brandDealKeys.findIndex(k => k === getDealKey(dealData));
+
   openPopup(dealData, true, 'brand');
 
-  // ✅ Enable swipe after popup is shown
-  setTimeout(() => {
-    addPopupSwipeListeners();
-  }, 100); // slight delay ensures popup is ready
+  requestAnimationFrame(() => addPopupSwipeListeners());
 });
+
 
 
           if (!isLiked) {
