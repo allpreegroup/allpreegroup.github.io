@@ -1042,7 +1042,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
-
+  setupAddToCartButton(currentPopupDeal);
   
 }
 
@@ -1182,17 +1182,6 @@ function closePopup() {
 }
 
 	
-/* document.getElementById('brandContainer').addEventListener('click', () => {
-  const brand = currentPopupDeal?.brandName;
-  if (!brand) return;
-
-  showBrandDealsInPopup(brand);
-  highlightTab('showBrandTabBtn');
-}); */
-
-
-
-	
 function showBrandDealsInPopup(brandName) {
  isBrandMode = true;	
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
@@ -1207,7 +1196,7 @@ function showBrandDealsInPopup(brandName) {
   brandDealIndex = 0;
 
   // Open first deal
-  openPopup(brandDeals[0], true);
+   openPopup(deal, true);
 }
 
 function goToNextBrandDeal() {
