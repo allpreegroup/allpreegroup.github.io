@@ -817,7 +817,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	    
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
-	    <div id="cartBtnContainer" style="display: none;">
+	   <div id="cartBtnContainer" class="hidden">
 	    <button id="popupAddToCartBtn" class="cart-btn">🛒 Add</button>
 	    </div>
 	   <div id="likeButtonContainer">
@@ -1194,6 +1194,7 @@ function closePopup() {
 
 	
 function showBrandDealsInPopup(brandName) {
+ isBrandMode = true;	
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
@@ -1201,7 +1202,7 @@ function showBrandDealsInPopup(brandName) {
   }
 
   // Store keys and index
-  isBrandMode = true;	 
+  
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
@@ -1233,15 +1234,16 @@ function highlightTab(buttonId) {
 
 
 	
-
+/*
 function showBrandDealsInPopup(brandName) {
+  isBrandMode = true;
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
   if (brandDeals.length === 0) {
     alert("No deals found for this brand.");
     return;
   }
 
-  isBrandMode = true;	 
+ 	 
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
@@ -1262,7 +1264,7 @@ function goToPrevBrandDeal() {
   const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
   openPopup(deal);
 }
-
+*/
 
 
 
