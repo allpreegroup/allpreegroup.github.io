@@ -624,6 +624,20 @@ height: 20%;
   border-radius: 4px;
 }
 
+.cart-btn {
+  background-color: #2d89ef;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.cart-btn:hover {
+  background-color: #1b64c4;
+}
+
 		 
   </style>
   
@@ -794,6 +808,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	    
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
+	    <button id="popupAddToCartBtn" class="cart-btn">🛒 Add</button>
 	   <div id="likeButtonContainer">
   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
 </div>
@@ -1084,6 +1099,47 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
   };
 }
 
+function setupAddToCartButton(deal) {
+  const addToCartBtn = document.getElementById('popupAddToCartBtn');
+  if (!addToCartBtn || !deal || !deal.name) return;
+
+  const brand = deal.brand || 'Unknown';
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const isInCart = cart[brand]?.some(item => item.name === deal.name);
+
+  updateCartBtnState(isInCart);
+
+  addToCartBtn.onclick = () => {
+    const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+    let brandCart = updatedCart[brand] || [];
+
+    if (brandCart.some(item => item.name === deal.name)) {
+      // Remove from cart
+      brandCart = brandCart.filter(item => item.name !== deal.name);
+      updatedCart[brand] = brandCart;
+      addToCartBtn.textContent = '🛒 Add';
+    } else {
+      // Add to cart
+      brandCart.push({
+        name: deal.name,
+        img: deal.img,
+        price: parseFloat(deal.discount?.toString().replace(/,/g, '') || '0')
+      });
+      updatedCart[brand] = brandCart;
+      addToCartBtn.textContent = '❌ Del';
+    }
+
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    showCartIcon();
+  };
+
+  function updateCartBtnState(inCart) {
+    addToCartBtn.textContent = inCart ? '❌ Del' : '🛒 Add';
+  }
+}
+
+
+	
 
 
 function closePopup() {
