@@ -1174,6 +1174,9 @@ function closePopup() {
 } 
 	
 function showLikedDealsInPopup() {
+  isLikedMode = true;
+  isBrandMode = false; // 🔥 Add this!
+
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
 
@@ -1182,11 +1185,11 @@ function showLikedDealsInPopup() {
     return;
   }
 
-  isLikedMode = true;
   likedDealIndex = 0;
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
+
 	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
