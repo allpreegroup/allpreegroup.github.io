@@ -927,7 +927,17 @@ function renderLikedDealsGallery() {
 }
 
  
-
+document.getElementById('brandContainer').addEventListener('click', () => {
+  isBrandMode    = true;
+  isLikedMode    = false;
+  // Highlight the Brand button
+  document.getElementById('showBrandBtn').classList.add('active');
+  document.getElementById('showRandomBtn').classList.remove('active');
+  document.getElementById('showLikedBtn').classList.remove('active');
+  
+  // Kick off Brand Deals view
+  showBrandDealsInPopup(currentPopupDeal.brandName);
+});
 
 	
  function startPopupCountdown(expireDate, el) {
