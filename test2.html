@@ -982,13 +982,29 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
-  document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+  const popupPriceEl = document.getElementById('popupPrice');
+
+if (originalPrice > discountPrice) {
+  popupPriceEl.textContent = `Original Price: JMD $${original}`;
+  popupPriceEl.classList.remove('hidden');
+} else {
+  popupPriceEl.classList.add('hidden');
+}
+
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   const popupBadge = document.getElementById('popupBadge');
   popupBadge.textContent = `${percentOff}% OFF`;
   popupBadge.classList.toggle('hidden', percentOff <= 0);	
-  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
+  const savingsEl = document.getElementById('popupSavings');
+
+if (savings > 0) {
+  savingsEl.textContent = `SAVINGS $${savings.toLocaleString()}`;
+  savingsEl.classList.remove('hidden');
+} else {
+  savingsEl.classList.add('hidden');
+}
+
 
   document.getElementById('brandLogo').src = brandLogo;
   document.getElementById('brandLogo').alt = brandName;
