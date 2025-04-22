@@ -813,7 +813,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	    
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
+	    <div id="cartBtnContainer" style="display: none;">
 	    <button id="popupAddToCartBtn" class="cart-btn">🛒 Add</button>
+	    </div>
 	   <div id="likeButtonContainer">
   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
 </div>
@@ -1104,9 +1106,17 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
   };
 }
 
+	
 function setupAddToCartButton(deal) {
+  const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
-  if (!addToCartBtn || !deal || !deal.name) return;
+
+  if (!isBrandMode || !addToCartBtn || !deal || !deal.name) {
+    if (cartBtnContainer) cartBtnContainer.style.display = 'none';
+    return;
+  }
+
+  cartBtnContainer.style.display = 'block';
 
   const brand = deal.brand || 'Unknown';
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
@@ -1118,22 +1128,21 @@ function setupAddToCartButton(deal) {
     const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
     let brandCart = updatedCart[brand] || [];
 
-    if (brandCart.some(item => item.name === deal.name)) {
-      // Remove from cart
+    const alreadyInCart = brandCart.some(item => item.name === deal.name);
+
+    if (alreadyInCart) {
       brandCart = brandCart.filter(item => item.name !== deal.name);
-      updatedCart[brand] = brandCart;
-      addToCartBtn.textContent = '🛒 Add';
+      updateCartBtnState(false);
     } else {
-      // Add to cart
       brandCart.push({
         name: deal.name,
         img: deal.img,
         price: parseFloat(deal.discount?.toString().replace(/,/g, '') || '0')
       });
-      updatedCart[brand] = brandCart;
-      addToCartBtn.textContent = '❌ Del';
+      updateCartBtnState(true);
     }
 
+    updatedCart[brand] = brandCart;
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     showCartIcon();
   };
