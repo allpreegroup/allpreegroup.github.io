@@ -1261,6 +1261,28 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
+document.getElementById('showLikedBtn').onclick = () => {
+  isLikedMode = true;
+  isBrandMode = false;
+  highlightTab('showLikedBtn');
+  showLikedDealsInPopup();
+};
+
+document.getElementById('showRandomBtn').onclick = () => {
+  isLikedMode = false;
+  isBrandMode = false;
+  highlightTab('showRandomBtn');
+  showRandomDealInPopup();
+};
+
+document.getElementById('showBrandTabBtn').onclick = () => {
+  const brand = currentPopupDeal?.brandName;
+  if (!brand) return;
+  isLikedMode = false;
+  isBrandMode = true;
+  highlightTab('showBrandTabBtn');
+  showBrandDealsInPopup(brand);
+};
 
 	
  async function loadDeals() {
