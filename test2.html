@@ -20,6 +20,11 @@
       margin-top: 20px;
       padding: 20px;
     }
+
+.hidden {
+  display: none !important;
+}
+		 
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -980,7 +985,9 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
-  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  const popupBadge = document.getElementById('popupBadge');
+  popupBadge.textContent = `${percentOff}% OFF`;
+  popupBadge.classList.toggle('hidden', percentOff <= 0);	
   document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
 
   document.getElementById('brandLogo').src = brandLogo;
