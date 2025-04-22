@@ -1194,8 +1194,11 @@ function closePopup() {
   randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
 
   const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
- openPopup(deal, true);
+
+  // FIXED: pass mode as third argument
+  openPopup(deal, true, 'random');
 }
+
 
 function goToNextRandomDeal() {
   if (randomDealKeys.length === 0) return;
