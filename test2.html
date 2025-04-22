@@ -1123,7 +1123,8 @@ function highlightTab(buttonId) {
 	
 	
 function showBrandDealsInPopup(brandName) {
-  // Get all deals for this brand
+  isLikedMode = false;
+	// Get all deals for this brand
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
 
   if (brandDeals.length === 0) {
@@ -1159,6 +1160,7 @@ function goToPrevBrandDeal() {
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
+  isBrandMode = false;	 
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
@@ -1583,6 +1585,8 @@ function startBrandCountdown(expireDate, elementId) {
       // Swipe Up
       if (isLikedMode) {
         goToNextLikedDeal();
+      } else if (isBrandMode) {
+        goToNextBrandDeal();
       } else {
         let next;
         do {
@@ -1590,22 +1594,21 @@ function startBrandCountdown(expireDate, elementId) {
           next = allDealsFlat[randomIndex];
         } while (next.name === currentPopupDeal?.name);
 
-        isLikedMode = false;
-        document.getElementById('showLikedBtn')?.classList.remove('active');
-        document.getElementById('showRandomBtn')?.classList.add('active');
-        
         openPopup(next);
       }
     } else {
       // Swipe Down
       if (isLikedMode) {
         goToPrevLikedDeal();
+      } else if (isBrandMode) {
+        goToPrevBrandDeal();
       } else {
         window.history.back();
       }
     }
   }
 }
+
 
 	}
 
