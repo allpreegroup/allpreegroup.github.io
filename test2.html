@@ -926,20 +926,7 @@ function renderLikedDealsGallery() {
   sectionEl.style.display = 'block';
 }
 
- 
-document.getElementById('brandContainer').addEventListener('click', () => {
-  isBrandMode    = true;
-  isLikedMode    = false;
-  // Highlight the Brand button
-  document.getElementById('showBrandBtn').classList.add('active');
-  document.getElementById('showRandomBtn').classList.remove('active');
-  document.getElementById('showLikedBtn').classList.remove('active');
-  
-  // Kick off Brand Deals view
-  showBrandDealsInPopup(currentPopupDeal.brandName);
-});
-
-	
+ 	
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
@@ -1211,7 +1198,7 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
   }
 }
 
-
+// start
 function showBrandDealsInPopup(brandName) {
   // grab all deals of this brand
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
@@ -1225,7 +1212,6 @@ function showBrandDealsInPopup(brandName) {
   // open first one
   openPopup(brandDeals[0], true);
 }
-
 
 function goToNextBrandDeal() {
   if (!brandDealKeys.length) return;
@@ -1241,6 +1227,37 @@ function goToPrevBrandDeal() {
   openPopup(deal, true);
 }
 
+document.getElementById('brandContainer').addEventListener('click', () => {
+  isBrandMode    = true;
+  isLikedMode    = false;
+  // Highlight the Brand button
+  document.getElementById('showBrandBtn').classList.add('active');
+  document.getElementById('showRandomBtn').classList.remove('active');
+  document.getElementById('showLikedBtn').classList.remove('active');
+  
+  // Kick off Brand Deals view
+  showBrandDealsInPopup(currentPopupDeal.brandName);
+});
+
+document.getElementById('showRandomBtn').onclick = () => {
+  isBrandMode = false;
+  isLikedMode = false;
+  document.getElementById('showRandomBtn').classList.add('active');
+  document.getElementById('showLikedBtn').classList.remove('active');
+  document.getElementById('showBrandBtn').classList.remove('active');
+  showRandomDealsInPopup();
+};
+
+document.getElementById('showLikedBtn').onclick = () => {
+  isBrandMode = false;
+  isLikedMode = true;
+  document.getElementById('showLikedBtn').classList.add('active');
+  document.getElementById('showRandomBtn').classList.remove('active');
+  document.getElementById('showBrandBtn').classList.remove('active');
+  showLikedDealsInPopup();
+};
+
+// end 
 	
 
 	
