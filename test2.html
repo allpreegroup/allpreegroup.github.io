@@ -1643,22 +1643,30 @@ let popupSwipeAttached = false; // Global flag
 
 function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
-  if (!popup || popupSwipeAttached) return;
 
-  let startY = 0;
-  let endY = 0;
-  popupSwipeAttached = true;
+  if (!popup) return;
 
-  function handleTouchStart(e) {
-    if (e.touches.length === 1) {
-      startY = e.touches[0].clientY;
-    }
+  // Prevent duplicate listeners
+  popup.removeEventListener('touchstart', handleTouchStart);
+  popup.removeEventListener('touchend', handleTouchEnd);
+
+  popup.addEventListener('touchstart', handleTouchStart);
+  popup.addEventListener('touchend', handleTouchEnd);
+}
+
+let startY = 0;
+let endY = 0;
+
+function handleTouchStart(e) {
+  if (e.touches.length === 1) {
+    startY = e.touches[0].clientY;
   }
+}
 
-  function handleTouchEnd(e) {
-    endY = e.changedTouches[0].clientY;
-    handleSwipe();
-  }
+function handleTouchEnd(e) {
+  endY = e.changedTouches[0].clientY;
+  handleSwipe();
+}
 
   function handleSwipe() {
     const deltaY = endY - startY;
