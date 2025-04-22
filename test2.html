@@ -1112,7 +1112,68 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
   };
 }
 
-	
+
+function setupAddToCartButton(deal) {
+  const cartBtnContainer = document.getElementById('cartBtnContainer');
+  const addToCartBtn = document.getElementById('popupAddToCartBtn');
+
+  if (typeof isBrandMode === 'undefined' || !isBrandMode) {
+    cartBtnContainer?.classList.add('hidden');
+    return;
+  } else {
+    cartBtnContainer?.classList.remove('hidden');
+  }
+
+  if (!addToCartBtn || !deal || !deal.name) {
+    console.warn('Cart button or deal missing:', { addToCartBtn, deal });
+    return;
+  }
+
+  const brand = deal.brand || 'Unknown';
+  const dealKey = getDealKey(deal); // 👈 this ensures unique ID for this deal
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const brandCart = cart[brand] || [];
+  const isInCart = brandCart.some(item => item.key === dealKey);
+
+  updateCartBtnState(isInCart);
+
+  addToCartBtn.onclick = () => {
+    console.log('Cart button clicked for:', deal.name);
+    const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+    let brandItems = updatedCart[brand] || [];
+    const inCart = brandItems.some(item => item.key === dealKey);
+
+    if (inCart) {
+      // Remove from cart
+      brandItems = brandItems.filter(item => item.key !== dealKey);
+      console.log('Removed from cart:', deal.name);
+    } else {
+      // Add to cart
+      brandItems.push({
+        key: dealKey,
+        name: deal.name,
+        img: deal.img,
+        price: parseFloat(deal.discount?.toString().replace(/,/g, '') || '0')
+      });
+      console.log('Added to cart:', deal.name);
+    }
+
+    updatedCart[brand] = brandItems;
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    updateCartBtnState(!inCart);
+    showCartIcon();
+  };
+
+  function updateCartBtnState(isNowInCart) {
+    addToCartBtn.classList.toggle('in-cart', isNowInCart);
+    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
+  }
+}
+
+
+
+
+/*	
 function setupAddToCartButton(deal) {
   const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
@@ -1170,7 +1231,7 @@ function setupAddToCartButton(deal) {
   }
 }
 
-
+*/
 
 	
 
