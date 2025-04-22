@@ -1188,9 +1188,32 @@ function closePopup() {
 }
 
 
+
+function showRandomDealsInPopup() {
+  isLikedMode = false;
+  isBrandMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
+  openPopup(deal, true);
+} 
+
+
+
+
 	
 	
-  function showRandomDealsInPopup() {
+/*  function showRandomDealsInPopup() {
   setMode('random');
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1226,7 +1249,7 @@ function goToNextRandomDeal() {
 
 function goToPrevRandomDeal() {
   window.history.back(); // or do nothing
-} 
+} */
 
 
 
