@@ -849,7 +849,7 @@ let allDealsFromSheets = [];
 let isBrandMode = false;
 let brandDealIndex = 0;
 let brandDealKeys =[];	
-
+let isSwiping = false;
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -1124,39 +1124,35 @@ function highlightTab(buttonId) {
 
 
 	
-	
-function showBrandDealsInPopup(brandName) {
-  isLikedMode = false;
-	// Get all deals for this brand
-  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
 
+function showBrandDealsInPopup(brandName) {
+  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
   if (brandDeals.length === 0) {
-    alert("No deals found for " + brandName);
+    alert("No deals found for this brand.");
     return;
   }
 
-  brandDealKeys = brandDeals.map(d => getDealKey(d));
+  brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
-  openPopup(brandDeals[0], true, 'brand'); // true = skip animation
-  requestAnimationFrame(() => addPopupSwipeListeners());
+  openPopup(brandDeals[0]);
 }
+
 
 function goToNextBrandDeal() {
   if (!brandDealKeys.length) return;
   brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
-  const key = brandDealKeys[brandDealIndex];
-  const deal = allDealsFlat.find(d => getDealKey(d) === key);
-  openPopup(deal, true, 'brand');
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal);
 }
 
 function goToPrevBrandDeal() {
   if (!brandDealKeys.length) return;
   brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
-  const key = brandDealKeys[brandDealIndex];
-  const deal = allDealsFlat.find(d => getDealKey(d) === key);
-  openPopup(deal, true, 'brand');
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal);
 }
+
 
 
 
@@ -1606,34 +1602,47 @@ function startBrandCountdown(expireDate, elementId) {
   function handleSwipe() {
   const deltaY = endY - startY;
 
-  if (Math.abs(deltaY) > 50) {
-    if (deltaY < 0) {
-      // Swipe Up
-      if (isLikedMode) {
-        goToNextLikedDeal();
-      } else if (isBrandMode) {
-        goToNextBrandDeal();
-      } else {
-        let next;
-        do {
-          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-          next = allDealsFlat[randomIndex];
-        } while (next.name === currentPopupDeal?.name);
+  if (isSwiping || Math.abs(deltaY) <= 50) return;
 
-        openPopup(next);
-      }
+  isSwiping = true;
+
+  if (deltaY < 0) {
+    // Swipe Up
+    if (isLikedMode) {
+      goToNextLikedDeal();
+    } else if (isBrandMode) {
+      goToNextBrandDeal();
     } else {
-      // Swipe Down
-      if (isLikedMode) {
-        goToPrevLikedDeal();
-      } else if (isBrandMode) {
-        goToPrevBrandDeal();
-      } else {
-        window.history.back();
-      }
+      let next;
+      do {
+        const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+        next = allDealsFlat[randomIndex];
+      } while (next.name === currentPopupDeal?.name);
+
+      document.getElementById('showLikedBtn')?.classList.remove('active');
+      document.getElementById('showRandomBtn')?.classList.add('active');
+      isLikedMode = false;
+      isBrandMode = false;
+
+      openPopup(next);
+    }
+  } else {
+    // Swipe Down
+    if (isLikedMode) {
+      goToPrevLikedDeal();
+    } else if (isBrandMode) {
+      goToPrevBrandDeal();
+    } else {
+      window.history.back();
     }
   }
+
+  // Allow next swipe after 300ms
+  setTimeout(() => {
+    isSwiping = false;
+  }, 300);
 }
+
 
 
 	}
