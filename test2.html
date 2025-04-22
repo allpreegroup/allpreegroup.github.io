@@ -976,15 +976,27 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   if (mode) setMode(mode);
 
   // Handle mode-specific keys and indexes for swiping
-  const dealKey = getDealKey(deal);
+  function showRandomDealsInPopup() {
+  setMode('random');
 
-if (isLikedMode) {
-  likedDealIndex = likedDealKeys.indexOf(dealKey);
-} else if (isBrandMode) {
-  brandDealIndex = brandDealKeys.indexOf(dealKey);
-} else if (isRandomMode) {
-  randomDealIndex = randomDealKeys.indexOf(dealKey);
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  randomDealKeys = unlikedDeals.map(deal => getDealKey(deal));
+  randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
+
+  const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
+
+  // FIXED: pass mode as third argument
+  openPopup(deal, true, 'random');
 }
+
 
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
