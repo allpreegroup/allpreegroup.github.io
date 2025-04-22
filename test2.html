@@ -1209,7 +1209,21 @@ function showRandomDealsInPopup() {
 } 
 
 
+function goToNextRandomDeal() {
+  if (randomDealKeys.length === 0) return;
 
+  let next;
+  do {
+    const randomIndex = Math.floor(Math.random() * randomDealKeys.length);
+    next = allDealsFlat.find(d => getDealKey(d) === randomDealKeys[randomIndex]);
+  } while (next?.name === currentPopupDeal?.name);
+
+  openPopup(next);
+}
+
+function goToPrevRandomDeal() {
+  window.history.back(); // or do nothing
+}
 
 	
 	
