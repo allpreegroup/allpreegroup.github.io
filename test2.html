@@ -973,7 +973,90 @@ function renderLikedDealsGallery() {
   const timerInterval = setInterval(updateCountdown, 1000);
 }
 
-function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false, mode = null) {
+  if (mode) setMode(mode);
+
+  // Handle mode-specific keys and indexes for swiping
+  const dealKey = getDealKey({ name, brandName });
+  if (mode === 'liked') {
+    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+    likedDealKeys = Object.keys(likedDeals);
+    likedDealIndex = likedDealKeys.indexOf(dealKey);
+  } else if (mode === 'brand') {
+    brandDealKeys = allDealsFlat.filter(d => d.brandName === brandName).map(getDealKey);
+    brandDealIndex = brandDealKeys.indexOf(dealKey);
+  } else if (mode === 'random') {
+    randomDealKeys = allDealsFlat.map(getDealKey);
+    randomDealIndex = randomDealKeys.indexOf(dealKey);
+  }
+
+  const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+  const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+  const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+  const savings = originalPrice - discountPrice;
+  const cashbackPercent = 49;
+  const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
+  const finalPrice = discountPrice - cashbackAmount;
+
+  const cashbackEl = document.getElementById('popupCashback');
+  cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+
+  document.body.classList.add('noscroll');
+  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+
+  document.getElementById('popupImg').src = image;
+  document.getElementById('popupTitle').textContent = name;
+
+  const popupPriceEl = document.getElementById('popupPrice');
+  if (originalPrice > discountPrice) {
+    popupPriceEl.textContent = `Original Price: JMD $${original}`;
+    popupPriceEl.classList.remove('hidden');
+  } else {
+    popupPriceEl.classList.add('hidden');
+  }
+
+  document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
+  document.getElementById('popupDesc').textContent = description || '';
+
+  const popupBadge = document.getElementById('popupBadge');
+  popupBadge.textContent = `${percentOff}% OFF`;
+  popupBadge.classList.toggle('hidden', percentOff <= 0);
+
+  const savingsEl = document.getElementById('popupSavings');
+  if (savings > 0) {
+    savingsEl.textContent = `SAVINGS $${savings.toLocaleString()}`;
+    savingsEl.classList.remove('hidden');
+  } else {
+    savingsEl.classList.add('hidden');
+  }
+
+  document.getElementById('brandLogo').src = brandLogo;
+  document.getElementById('brandLogo').alt = brandName;
+  document.getElementById('brandName').textContent = brandName;
+
+  const popupTimerEl = document.getElementById('popupTimer');
+  popupTimerEl.textContent = 'Loading...';
+  popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+  const brandInfo = allBrandsData.find(b => b.brand === brandName);
+  if (brandInfo?.expireDate) {
+    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+  }
+
+  const backArrow = document.getElementById('popupBack');
+  backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
+
+  if (!skipHistory) {
+    history.pushState({ popup: true, dealName: name }, '', '');
+  }
+
+  document.getElementById('popup').style.display = 'flex';
+  setupLikeButton(currentPopupDeal);
+}
+
+
+	
+ /* function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
@@ -1026,7 +1109,7 @@ if (savings > 0) {
   }
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
-}
+} */
 
 //outside 
 
