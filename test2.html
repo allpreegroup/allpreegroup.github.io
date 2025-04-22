@@ -20,11 +20,6 @@
       margin-top: 20px;
       padding: 20px;
     }
-
-.hidden {
-  display: none !important;
-}
-		 
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -785,7 +780,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Like Deals</button>
   <button id="showRandomBtn" class="tab-btn active">All Deals</button>
-   <button id="showBrandBtn" class="tab-btn">Brand Deals</button>
 </div>
 	
   <div class="popup-content" id="popupContent">
@@ -847,20 +841,11 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 const allBrandsData = [];       // Holds all data from each brand's sheet
 const allDealsFlat = [];        // Flattened list of all deals across brands
 let currentPopupDeal = null;    // Currently open deal in the popup
+let likedDealIndex = 0;         // Index of current liked deal being viewed
+let likedDealKeys = [];         // Array of liked deal keys
+let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 let allDealsFromSheets = [];
-	
-let isBrandMode    = false;
-let isLikedMode    = false;
-let isRandomMode   = false;
 
-let brandDealKeys  = [];
-let brandDealIndex = 0;
-
-let likedDealKeys  = [];
-let likedDealIndex = 0;
-
-let randomDealKeys = [];
-let randomDealIndex = 0;
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -897,23 +882,21 @@ function renderLikedDealsGallery() {
           <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
         </div>
         <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
-       <span class="liked-discount-badge${percentOff <= 0 ? ' hidden' : ''}">${percentOff}% OFF</span>
+        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
         <div class="liked-deal-content">
           <div class="liked-deal-title">${shortName}</div>
-         ${percentOff > 0 ? `<div class="liked-deal-price">J$${deal.original}</div>` : ''}
+          <div class="liked-deal-price">J$${deal.original}</div>
           <div class="liked-deal-discount">J$${deal.discount}</div>
         </div>
       `;
 
      // Inside renderLikedDealsGallery()
-  
-  card.addEventListener('click', () => {
+card.addEventListener('click', () => {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
  likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
 
-    setMode('liked'); 
-	  
+  isLikedMode = true;
   document.getElementById('showLikedBtn')?.classList.add('active');
   document.getElementById('showRandomBtn')?.classList.remove('active');
 
@@ -922,7 +905,7 @@ function renderLikedDealsGallery() {
   // Delay attaching swipe listeners until popup fully rendered
   setTimeout(() => {
     addPopupSwipeListeners();
-  }, 150); // 100ms is usually enough
+  }, 100); // 100ms is usually enough
 });
 
 
@@ -933,7 +916,10 @@ function renderLikedDealsGallery() {
   sectionEl.style.display = 'block';
 }
 
- 	
+ 
+
+
+	
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
@@ -972,36 +958,12 @@ function renderLikedDealsGallery() {
   const timerInterval = setInterval(updateCountdown, 1000);
 }
 
-function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false, mode = null) {
-  if (mode) setMode(mode);
-
-  // Handle mode-specific keys and indexes for swiping
-  function showRandomDealsInPopup() {
-  setMode('random');
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedNames = new Set(Object.keys(likedDeals));
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
-  }
-
-  randomDealKeys = unlikedDeals.map(deal => getDealKey(deal));
-  randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
-
-  const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
-
-  // FIXED: pass mode as third argument
-  openPopup(deal, true, 'random');
-}
-
-
+function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
   const savings = originalPrice - discountPrice;
+
   const cashbackPercent = 49;
   const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
   const finalPrice = discountPrice - cashbackAmount;
@@ -1010,33 +972,16 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
 
   document.body.classList.add('noscroll');
+
   currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
-
-  const popupPriceEl = document.getElementById('popupPrice');
-  if (originalPrice > discountPrice) {
-    popupPriceEl.textContent = `Original Price: JMD $${original}`;
-    popupPriceEl.classList.remove('hidden');
-  } else {
-    popupPriceEl.classList.add('hidden');
-  }
-
+  document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
-
-  const popupBadge = document.getElementById('popupBadge');
-  popupBadge.textContent = `${percentOff}% OFF`;
-  popupBadge.classList.toggle('hidden', percentOff <= 0);
-
-  const savingsEl = document.getElementById('popupSavings');
-  if (savings > 0) {
-    savingsEl.textContent = `SAVINGS $${savings.toLocaleString()}`;
-    savingsEl.classList.remove('hidden');
-  } else {
-    savingsEl.classList.add('hidden');
-  }
+  document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+  document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
 
   document.getElementById('brandLogo').src = brandLogo;
   document.getElementById('brandLogo').alt = brandName;
@@ -1060,26 +1005,17 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
-
- requestAnimationFrame(() => addPopupSwipeListeners());
 }
-
 
 //outside 
 
+
+	
 function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal missing:', { likeBtn, deal });
     return;
-  }
-
-  // 🔒 Hide the like button if brand mode is active
-  if (isBrandMode) {
-    likeBtn.style.display = 'none';
-    return;
-  } else {
-    likeBtn.style.display = 'inline-block'; // or whatever display you normally use
   }
 
   const dealKey = getDealKey(deal);
@@ -1125,31 +1061,67 @@ function setupLikeButton(deal) {
   };
 }
 
+
+
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
   currentPopupDeal = null;
   document.body.classList.remove('noscroll');
 }
+
+
+	
+	
+ function showRandomDealsInPopup() {
+  isLikedMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
+  openPopup(deal, true);
+} 
+
+
+
 	
 function showLikedDealsInPopup() {
-  setMode('liked');
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
+
   if (likedDealKeys.length === 0) {
     alert("No liked deals yet.");
     return;
   }
+
+  isLikedMode = true;
   likedDealIndex = 0;
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
-}	
+}
+
+
+
+	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
-}	
+}
+
+
+
+	
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
@@ -1157,6 +1129,20 @@ function goToPrevLikedDeal() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
+document.getElementById('showRandomBtn').onclick = () => {
+  document.getElementById('showRandomBtn').classList.add('active');
+  document.getElementById('showLikedBtn').classList.remove('active');
+  showRandomDealsInPopup();
+};
+
+document.getElementById('showLikedBtn').onclick = () => {
+  document.getElementById('showLikedBtn').classList.add('active');
+  document.getElementById('showRandomBtn').classList.remove('active');
+  showLikedDealsInPopup();
+};
+
+
+	
 
 function cleanUpLikedDeals() {
   // Retrieve liked deals from localStorage
@@ -1187,63 +1173,8 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
   }
 }
 
-// start
-	
-function showBrandDealsInPopup(brandName) {
-  // grab all deals of this brand
-  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
-  if (brandDeals.length === 0) {
-    alert("No deals for " + brandName);
-    return;
-  }
-  // prepare keys and index
-  brandDealKeys  = brandDeals.map(d => d.name);
-  brandDealIndex = 0;
-  // open first one
-  openPopup(brandDeals[0], true);
-}
-function goToNextBrandDeal() {
-  if (!brandDealKeys.length) return;
-  brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal, true);
-}
-function goToPrevBrandDeal() {
-  if (!brandDealKeys.length) return;
-  brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal, true);
-}
-	
-document.getElementById('brandContainer').addEventListener('click', () => {
-  setMode('brand');
-  showBrandDealsInPopup(currentPopupDeal.brandName);
-});
 
-document.getElementById('showRandomBtn').onclick = () => {
-  setMode('random');
-  showRandomDealsInPopup();
-};
 
-document.getElementById('showLikedBtn').onclick = () => {
-  setMode('liked');
-  showLikedDealsInPopup();
-};
-
-// end 
-
-function setMode(mode) {
-  isLikedMode = isBrandMode = isRandomMode = false;
-
-  if (mode === 'liked') isLikedMode = true;
-  else if (mode === 'brand') isBrandMode = true;
-  else if (mode === 'random') isRandomMode = true;
-
-  // Update active buttons
-  document.getElementById('showLikedBtn')?.classList.toggle('active', mode === 'liked');
-  document.getElementById('showBrandBtn')?.classList.toggle('active', mode === 'brand');
-  document.getElementById('showRandomBtn')?.classList.toggle('active', mode === 'random');
-}
 	
  async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1358,11 +1289,11 @@ function setMode(mode) {
           const dealCard = document.createElement('div');
           dealCard.className = 'deal';
           dealCard.innerHTML = `
-            <span class="discount-badge${percentOff <= 0 ? ' hidden' : ''}">${percentOff}% OFF</span>
+            <span class="discount-badge">${percentOff}% OFF</span>
             <img src="${row.ImageURL}" alt="${row.ProductName}">
             <div class="deal-content">
               <div class="deal-title">${shortName}</div>
-              ${percentOff > 0 ? `<div class="price">JMD $${row.OriginalPrice}</div>` : ''}
+              <div class="price">JMD $${row.OriginalPrice}</div>
               <div class="discount">JMD $${row.DiscountPrice}</div>
             </div>
           `;
@@ -1379,23 +1310,13 @@ function setMode(mode) {
 
               const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
 		
-         dealCard.addEventListener('click', () => {
-  setMode('brand');
+          dealCard.addEventListener('click', () => {
+            isLikedMode = false;
+            document.getElementById('showRandomBtn')?.classList.add('active');
+            document.getElementById('showLikedBtn')?.classList.remove('active');
+            openPopup(dealData);
+          });
 
-  const thisBrand = dealData.brandName;
-
-  // 🔧 Setup swipe keys and index for brand mode
-  brandDealKeys = allDealsFlat
-    .filter(d => d.brandName === thisBrand)
-    .map(getDealKey);
-
-  brandDealIndex = brandDealKeys.findIndex(k => k === getDealKey(dealData));
-
-  openPopup(dealData, true, 'brand');
-
-  requestAnimationFrame(() => addPopupSwipeListeners());
-});
-		
           if (!isLiked) {
   allDealsFlat.push(dealData);
   brandDeals.push({
@@ -1404,40 +1325,14 @@ function setMode(mode) {
     expireDate: row.expireDate
   });
 } else {
-  allDealsFlat.push(dealData);
-
-// Always add the deal to the brand's grid, even if it's liked
-brandDeals.push({
-  element: dealCard,
-  percentOff,
-  expireDate: row.expireDate
-});
-
-if (isLiked) {
-  // ✅ Create card for liked gallery
-  dealCard.addEventListener('click', () => {
-
-    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-    likedDealKeys = Object.keys(likedDeals);
-    likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(dealData));
-
-    setMode('liked');
-    openPopup(dealData);
-
-    setTimeout(() => {
-      addPopupSwipeListeners();
-    }, 100);
-  });
-
-  document.getElementById('likedDealsGallery')?.appendChild(dealCard);
-
+  // Liked deals are excluded from the grid, but still stored in allDealsFlat
+  allDealsFlat.push(dealData); // Optional: only needed if used for cleanup
 }
-
         }
+      });
     } 
-  	  
-	 
-      allBrandsData.forEach(brandData => {
+	  
+  allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
@@ -1484,13 +1379,17 @@ if (isLiked) {
       
  setTimeout(() => {
   cleanUpLikedDeals();
-}, 5000);
+}, 3000); // wait 3 seconds before cleaning up
 	  	 	  
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
 } 
+
+
+
+	
 	
 function startBrandCountdown(expireDate, elementId) {
   const parsedDate = Date.parse(expireDate);
@@ -1571,74 +1470,63 @@ function startBrandCountdown(expireDate, elementId) {
   };
 	
   loadDeals();
+
 	
-let popupSwipeAttached = false; // Global flag
 
-function addPopupSwipeListeners() {
+	
+	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
+  let startY = 0;
+  let endY = 0;
 
-  if (!popup) return;
+  popup.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+    }
+  });
 
-  // Prevent duplicate listeners
-  popup.removeEventListener('touchstart', handleTouchStart);
-  popup.removeEventListener('touchend', handleTouchEnd);
-
-  popup.addEventListener('touchstart', handleTouchStart);
-  popup.addEventListener('touchend', handleTouchEnd);
-}
-
-let startY = 0;
-let endY = 0;
-
-function handleTouchStart(e) {
-  if (e.touches.length === 1) {
-    startY = e.touches[0].clientY;
-  }
-}
-
-function handleTouchEnd(e) {
-  endY = e.changedTouches[0].clientY;
-  handleSwipe();
-}
+  popup.addEventListener('touchend', (e) => {
+    endY = e.changedTouches[0].clientY;
+    handleSwipe();
+  });
 
   function handleSwipe() {
-    const deltaY = endY - startY;
-    if (Math.abs(deltaY) > 50) {
-      if (deltaY < 0) {
-        // Swipe Up
-        if (isLikedMode) {
-          goToNextLikedDeal();
-        } else if (isBrandMode) {
-          goToNextBrandDeal();
-        } else if (isRandomMode) {
-          goToNextRandomDeal();
-        }
+  const deltaY = endY - startY;
+
+  if (Math.abs(deltaY) > 50) {
+    if (deltaY < 0) {
+      // Swipe Up
+      if (isLikedMode) {
+        goToNextLikedDeal();
       } else {
-        // Swipe Down
-        if (isLikedMode) {
-          goToPrevLikedDeal();
-        } else if (isBrandMode) {
-          goToPrevBrandDeal();
-        } else if (isRandomMode) {
-          goToPrevRandomDeal();
-        } else {
-          window.history.back();
-        }
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        isLikedMode = false;
+        document.getElementById('showLikedBtn')?.classList.remove('active');
+        document.getElementById('showRandomBtn')?.classList.add('active');
+        
+        openPopup(next);
+      }
+    } else {
+      // Swipe Down
+      if (isLikedMode) {
+        goToPrevLikedDeal();
+      } else {
+        window.history.back();
       }
     }
   }
+}
 
-  popup.addEventListener('touchstart', handleTouchStart, { passive: true });
-  popup.addEventListener('touchend', handleTouchEnd, { passive: true });
+	}
 
-  // Optional: Reset flag when popup is closed
-  const popupCloseBtn = document.getElementById('popupCloseBtn');
-  if (popupCloseBtn) {
-    popupCloseBtn.addEventListener('click', () => {
-      popupSwipeAttached = false;
-    });
-  }
-	
+
+// Call this after your popup is ready
+addPopupSwipeListeners();
 </script>
 
 
