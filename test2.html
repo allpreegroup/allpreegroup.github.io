@@ -780,6 +780,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Like Deals</button>
   <button id="showRandomBtn" class="tab-btn active">All Deals</button>
+  <button id="showBrandTabBtn" class="tab-btn">Brand Deals</button>
 </div>
 	
   <div class="popup-content" id="popupContent">
@@ -1069,8 +1070,92 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
+	
+document.getElementById('brandContainer').addEventListener('click', () => {
+  const brand = currentPopupDeal?.brandName;
+  if (!brand) return;
+
+  showBrandDealsInPopup(brand);
+  highlightTab('showBrandTabBtn');
+});
+
+
 
 	
+function showBrandDealsInPopup(brandName) {
+  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+  if (!brandDeals.length) {
+    alert("No deals for " + brandName);
+    return;
+  }
+
+  // Store keys and index
+  brandDealKeys = brandDeals.map(d => d.name);
+  brandDealIndex = 0;
+
+  // Open first deal
+  openPopup(brandDeals[0], true);
+}
+
+function goToNextBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal, true);
+}
+
+function goToPrevBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal, true);
+}
+
+
+function highlightTab(buttonId) {
+  document.querySelectorAll('.tab-switcher .tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.getElementById(buttonId).classList.add('active');
+}
+
+
+	
+	
+function showBrandDealsInPopup(brandName) {
+  // Get all deals for this brand
+  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+
+  if (brandDeals.length === 0) {
+    alert("No deals found for " + brandName);
+    return;
+  }
+
+  brandDealKeys = brandDeals.map(d => getDealKey(d));
+  brandDealIndex = 0;
+
+  openPopup(brandDeals[0], true, 'brand'); // true = skip animation
+  requestAnimationFrame(() => addPopupSwipeListeners());
+}
+
+function goToNextBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
+  const key = brandDealKeys[brandDealIndex];
+  const deal = allDealsFlat.find(d => getDealKey(d) === key);
+  openPopup(deal, true, 'brand');
+}
+
+function goToPrevBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
+  const key = brandDealKeys[brandDealIndex];
+  const deal = allDealsFlat.find(d => getDealKey(d) === key);
+  openPopup(deal, true, 'brand');
+}
+
+
+
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
