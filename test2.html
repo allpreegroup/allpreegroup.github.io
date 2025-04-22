@@ -976,18 +976,15 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   if (mode) setMode(mode);
 
   // Handle mode-specific keys and indexes for swiping
-  const dealKey = getDealKey({ name, brandName });
-  if (mode === 'liked') {
-    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-    likedDealKeys = Object.keys(likedDeals);
-    likedDealIndex = likedDealKeys.indexOf(dealKey);
-  } else if (mode === 'brand') {
-    brandDealKeys = allDealsFlat.filter(d => d.brandName === brandName).map(getDealKey);
-    brandDealIndex = brandDealKeys.indexOf(dealKey);
-  } else if (mode === 'random') {
-    randomDealKeys = allDealsFlat.map(getDealKey);
-    randomDealIndex = randomDealKeys.indexOf(dealKey);
-  }
+  const dealKey = getDealKey(deal);
+
+if (isLikedMode) {
+  likedDealIndex = likedDealKeys.indexOf(dealKey);
+} else if (isBrandMode) {
+  brandDealIndex = brandDealKeys.indexOf(dealKey);
+} else if (isRandomMode) {
+  randomDealIndex = randomDealKeys.indexOf(dealKey);
+}
 
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -1201,22 +1198,21 @@ function closePopup() {
 }
 
 function goToNextRandomDeal() {
-  if (randomDealKeys.length === 0) return;
+  if (randomDealKeys.length === 0) return;
 
-  randomDealIndex = (randomDealIndex + 1) % randomDealKeys.length;
-  const nextKey = randomDealKeys[randomDealIndex];
-  const deal = allDeals.find(d => getDealKey(d) === nextKey);
-  if (deal) openPopup(deal, true);
+  let next;
+  do {
+    const randomIndex = Math.floor(Math.random() * randomDealKeys.length);
+    next = allDealsFlat.find(d => getDealKey(d) === randomDealKeys[randomIndex]);
+  } while (next?.name === currentPopupDeal?.name);
+
+  openPopup(next);
 }
 
 function goToPrevRandomDeal() {
-  if (randomDealKeys.length === 0) return;
-
-  randomDealIndex = (randomDealIndex - 1 + randomDealKeys.length) % randomDealKeys.length;
-  const prevKey = randomDealKeys[randomDealIndex];
-  const deal = allDeals.find(d => getDealKey(d) === prevKey);
-  if (deal) openPopup(deal, true);
+  window.history.back(); // or do nothing
 }
+
 
 
 
@@ -1224,31 +1220,23 @@ function goToPrevRandomDeal() {
 	
 function showLikedDealsInPopup() {
   setMode('liked');
- 
-
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
-
   if (likedDealKeys.length === 0) {
     alert("No liked deals yet.");
     return;
   }
-
   likedDealIndex = 0;
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
-}
-
-
-	
+}	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
-}
-	
+}	
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
@@ -1305,20 +1293,20 @@ function showBrandDealsInPopup(brandName) {
   // open first one
   openPopup(brandDeals[0], true);
 }
-
 function goToNextBrandDeal() {
   if (!brandDealKeys.length) return;
   brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
   const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
   openPopup(deal, true);
 }
-
 function goToPrevBrandDeal() {
   if (!brandDealKeys.length) return;
   brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
   const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
   openPopup(deal, true);
 }
+
+
 	
 document.getElementById('brandContainer').addEventListener('click', () => {
   setMode('brand');
