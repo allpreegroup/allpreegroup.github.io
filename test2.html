@@ -624,7 +624,11 @@ height: 20%;
   border-radius: 4px;
 }
 
-.cart-btn {
+#cartBtnContainer.hidden {
+  display: none !important;
+}
+
+#popupAddToCartBtn {
   font-size: 2rem;
   background: none;
   border: none;
@@ -636,12 +640,12 @@ height: 20%;
   color: black;
   z-index: 10;
 }
-		 
-.cart-btn.liked {
-  color: red;
+
+#popupAddToCartBtn.in-cart {
+  color: green;
   transform: scale(1.2);
 }
-		 
+	 
 
 		 
   </style>
@@ -1113,46 +1117,59 @@ function setupAddToCartButton(deal) {
   const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
 
-  if (!isBrandMode || !addToCartBtn || !deal || !deal.name) {
-    if (cartBtnContainer) cartBtnContainer.style.display = 'none';
+  // Only show in brand mode
+  if (typeof isBrandMode === 'undefined' || !isBrandMode) {
+    cartBtnContainer?.classList.add('hidden');
+    return;
+  } else {
+    cartBtnContainer?.classList.remove('hidden');
+  }
+
+  if (!addToCartBtn || !deal || !deal.name) {
+    console.warn('Cart button or deal missing:', { addToCartBtn, deal });
     return;
   }
 
-  cartBtnContainer.style.display = 'block';
-
   const brand = deal.brand || 'Unknown';
+  const dealName = deal.name;
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const isInCart = cart[brand]?.some(item => item.name === deal.name);
+  const brandCart = cart[brand] || [];
+  const isInCart = brandCart.some(item => item.name === dealName);
 
   updateCartBtnState(isInCart);
 
   addToCartBtn.onclick = () => {
+    console.log('Cart button clicked for:', dealName);
     const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-    let brandCart = updatedCart[brand] || [];
+    let brandItems = updatedCart[brand] || [];
+    const inCart = brandItems.some(item => item.name === dealName);
 
-    const alreadyInCart = brandCart.some(item => item.name === deal.name);
-
-    if (alreadyInCart) {
-      brandCart = brandCart.filter(item => item.name !== deal.name);
-      updateCartBtnState(false);
+    if (inCart) {
+      // Remove from cart
+      brandItems = brandItems.filter(item => item.name !== dealName);
+      console.log('Removed from cart:', dealName);
     } else {
-      brandCart.push({
+      // Add to cart
+      brandItems.push({
         name: deal.name,
         img: deal.img,
         price: parseFloat(deal.discount?.toString().replace(/,/g, '') || '0')
       });
-      updateCartBtnState(true);
+      console.log('Added to cart:', deal.name);
     }
 
-    updatedCart[brand] = brandCart;
+    updatedCart[brand] = brandItems;
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    updateCartBtnState(!inCart);
     showCartIcon();
   };
 
-  function updateCartBtnState(inCart) {
-    addToCartBtn.textContent = inCart ? '❌ Del' : '🛒 Add';
+  function updateCartBtnState(isNowInCart) {
+    addToCartBtn.classList.toggle('in-cart', isNowInCart);
+    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
   }
 }
+
 
 
 	
