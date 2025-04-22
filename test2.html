@@ -1034,9 +1034,66 @@ if (savings > 0) {
 
 //outside 
 
+function setupLikeButton(deal) {
+  const likeBtn = document.getElementById('popupLikeBtn');
+  if (!likeBtn || !deal || !deal.name) {
+    console.warn('Like button or deal missing:', { likeBtn, deal });
+    return;
+  }
+
+  // 🔒 Hide the like button if brand mode is active
+  if (isBrandMode) {
+    likeBtn.style.display = 'none';
+    return;
+  } else {
+    likeBtn.style.display = 'inline-block'; // or whatever display you normally use
+  }
+
+  const dealKey = getDealKey(deal);
+  console.log('Setting up like button for:', deal.name, 'Key:', dealKey);
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const isLiked = !!likedDeals[dealKey];
+
+  console.log('Is this deal already liked?', isLiked);
+  likeBtn.classList.toggle('liked', isLiked);
+  likeBtn.textContent = isLiked ? '❤️ Liked' : '🤍 Like';
+
+  likeBtn.onclick = () => {
+    console.log('Like button clicked for:', deal.name);
+    const updatedLikedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+
+    const isNowLiked = likeBtn.classList.toggle('liked');
+    likeBtn.textContent = isNowLiked ? '❤️ Liked' : '🤍 Like';
+    console.log('Deal is now liked?', isNowLiked);
+
+    const original = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
+    const discount = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const percentOff = original && discount
+      ? Math.round(((original - discount) / original) * 100)
+      : 0;
+
+    if (isNowLiked) {
+      updatedLikedDeals[dealKey] = {
+        ...deal,
+        percentOff,
+        _id: dealKey
+      };
+      console.log('Added to liked deals:', updatedLikedDeals[dealKey]);
+    } else {
+      delete updatedLikedDeals[dealKey];
+      console.log('Removed from liked deals:', dealKey);
+    }
+
+    localStorage.setItem('likedDeals', JSON.stringify(updatedLikedDeals));
+    console.log('Updated localStorage:', updatedLikedDeals);
+
+    renderLikedDealsGallery();
+  };
+}
 
 	
-function setupLikeButton(deal) {
+/* function setupLikeButton(deal) {
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal missing:', { likeBtn, deal });
@@ -1084,7 +1141,7 @@ function setupLikeButton(deal) {
 
     renderLikedDealsGallery();
   };
-}
+} */
 
 
 
@@ -1099,6 +1156,7 @@ function closePopup() {
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
+  isBrandMode = false; // ADD THIS	 
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
@@ -1114,9 +1172,6 @@ function closePopup() {
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
 } 
-
-
-
 	
 function showLikedDealsInPopup() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1132,9 +1187,6 @@ function showLikedDealsInPopup() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
-
-
-
 	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
@@ -1143,9 +1195,6 @@ function goToNextLikedDeal() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
-
-
-
 	
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
