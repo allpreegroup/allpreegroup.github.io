@@ -847,14 +847,20 @@ loadSheetUrls(); // Call this function to initialize and load the URLs
 const allBrandsData = [];       // Holds all data from each brand's sheet
 const allDealsFlat = [];        // Flattened list of all deals across brands
 let currentPopupDeal = null;    // Currently open deal in the popup
-let likedDealIndex = 0;         // Index of current liked deal being viewed
-let likedDealKeys = [];         // Array of liked deal keys
-let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 let allDealsFromSheets = [];
+	
 let isBrandMode    = false;
+let isLikedMode    = false;
+let isRandomMode   = false;
+
 let brandDealKeys  = [];
 let brandDealIndex = 0;
 
+let likedDealKeys  = [];
+let likedDealIndex = 0;
+
+let randomDealKeys = [];
+let randomDealIndex = 0;
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -972,29 +978,22 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
   const savings = originalPrice - discountPrice;
-
   const cashbackPercent = 49;
   const cashbackAmount = Math.round(discountPrice * cashbackPercent / 100);
   const finalPrice = discountPrice - cashbackAmount;
-
   const cashbackEl = document.getElementById('popupCashback');
   cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
-
   document.body.classList.add('noscroll');
-
   currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
-
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
   const popupPriceEl = document.getElementById('popupPrice');
-
 if (originalPrice > discountPrice) {
   popupPriceEl.textContent = `Original Price: JMD $${original}`;
   popupPriceEl.classList.remove('hidden');
 } else {
   popupPriceEl.classList.add('hidden');
 }
-
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
   document.getElementById('popupDesc').textContent = description || '';
   const popupBadge = document.getElementById('popupBadge');
@@ -1008,8 +1007,6 @@ if (savings > 0) {
 } else {
   savingsEl.classList.add('hidden');
 }
-
-
   document.getElementById('brandLogo').src = brandLogo;
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
@@ -1022,14 +1019,11 @@ if (savings > 0) {
   if (brandInfo?.expireDate) {
     startPopupCountdown(brandInfo.expireDate, popupTimerEl);
   }
-
   const backArrow = document.getElementById('popupBack');
   backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
-
   if (!skipHistory) {
     history.pushState({ popup: true, dealName: name }, '', '');
   }
-
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
 }
@@ -1157,27 +1151,28 @@ function closePopup() {
 	
 	
  function showRandomDealsInPopup() {
-  isLikedMode = false;
-  isBrandMode = false; // ADD THIS	 
+  setMode('random');
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
-
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals!");
     return;
   }
 
-  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-  const deal = unlikedDeals[randomIndex];
-  openPopup(deal, true);
-} 
+  randomDealKeys = unlikedDeals.map(deal => getDealKey(deal));
+  randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
+
+  const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
+  openPopup(deal);
+}
+
+
 	
 function showLikedDealsInPopup() {
-  isLikedMode = true;
-  isBrandMode = false; // 🔥 Add this!
+  setMode('liked');
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
@@ -1191,6 +1186,7 @@ function showLikedDealsInPopup() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
+
 
 	
 function goToNextLikedDeal() {
@@ -1208,16 +1204,14 @@ function goToPrevLikedDeal() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
-document.getElementById('showRandomBtn').onclick = () => {
-  document.getElementById('showRandomBtn').classList.add('active');
-  document.getElementById('showLikedBtn').classList.remove('active');
-  showRandomDealsInPopup();
+document.getElementById('showLikedBtn').onclick = () => {
+  setMode('liked');
+  showLikedDealsInPopup();
 };
 
-document.getElementById('showLikedBtn').onclick = () => {
-  document.getElementById('showLikedBtn').classList.add('active');
-  document.getElementById('showRandomBtn').classList.remove('active');
-  showLikedDealsInPopup();
+document.getElementById('showRandomBtn').onclick = () => {
+  setMode('random');
+  showRandomDealsInPopup();
 };
 
 
@@ -1280,40 +1274,42 @@ function goToPrevBrandDeal() {
   const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
   openPopup(deal, true);
 }
-
+	
 document.getElementById('brandContainer').addEventListener('click', () => {
-  isBrandMode    = true;
-  isLikedMode    = false;
-  // Highlight the Brand button
-  document.getElementById('showBrandBtn').classList.add('active');
-  document.getElementById('showRandomBtn').classList.remove('active');
-  document.getElementById('showLikedBtn').classList.remove('active');
-  
-  // Kick off Brand Deals view
+  setMode('brand');
   showBrandDealsInPopup(currentPopupDeal.brandName);
 });
 
 document.getElementById('showRandomBtn').onclick = () => {
-  isBrandMode = false;
-  isLikedMode = false;
-  document.getElementById('showRandomBtn').classList.add('active');
-  document.getElementById('showLikedBtn').classList.remove('active');
-  document.getElementById('showBrandBtn').classList.remove('active');
+  setMode('random');
   showRandomDealsInPopup();
 };
 
 document.getElementById('showLikedBtn').onclick = () => {
-  isBrandMode = false;
-  isLikedMode = true;
-  document.getElementById('showLikedBtn').classList.add('active');
-  document.getElementById('showRandomBtn').classList.remove('active');
-  document.getElementById('showBrandBtn').classList.remove('active');
+  setMode('liked');
   showLikedDealsInPopup();
 };
+
 
 // end 
 	
 
+function setMode(mode) {
+  isLikedMode = isBrandMode = isRandomMode = false;
+
+  if (mode === 'liked') isLikedMode = true;
+  else if (mode === 'brand') isBrandMode = true;
+  else if (mode === 'random') isRandomMode = true;
+
+  // Update active buttons
+  document.getElementById('showLikedBtn')?.classList.toggle('active', mode === 'liked');
+  document.getElementById('showBrandBtn')?.classList.toggle('active', mode === 'brand');
+  document.getElementById('showRandomBtn')?.classList.toggle('active', mode === 'random');
+}
+
+
+
+	
 	
  async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -1640,20 +1636,8 @@ function handleSwipe() {
         goToNextLikedDeal();
       } else if (isBrandMode) {
         goToNextBrandDeal();
-      } else {
-        let next;
-        do {
-          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-          next = allDealsFlat[randomIndex];
-        } while (next.name === currentPopupDeal?.name);
-
-        isLikedMode = false;
-        isBrandMode = false;
-        document.getElementById('showLikedBtn')?.classList.remove('active');
-        document.getElementById('showBrandBtn')?.classList.remove('active');
-        document.getElementById('showRandomBtn')?.classList.add('active');
-
-        openPopup(next);
+      } else if (isRandomMode) {
+        goToNextRandomDeal();
       }
     } else {
       // Swipe Down
@@ -1661,12 +1645,15 @@ function handleSwipe() {
         goToPrevLikedDeal();
       } else if (isBrandMode) {
         goToPrevBrandDeal();
+      } else if (isRandomMode) {
+        goToPrevRandomDeal();
       } else {
         window.history.back();
       }
     }
   }
 }
+
 
 
 		
