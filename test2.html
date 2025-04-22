@@ -1233,8 +1233,7 @@ function closePopup() {
 	
 	
  function showRandomDealsInPopup() {
-  setMode('random');
-
+  if (mode) setMode(mode);
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
   const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
@@ -1254,7 +1253,7 @@ function closePopup() {
 
 	
 function showLikedDealsInPopup() {
-  setMode('liked');
+  if (mode) setMode(mode);
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
