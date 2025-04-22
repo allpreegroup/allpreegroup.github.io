@@ -1452,13 +1452,22 @@ function setMode(mode) {
 
               const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
 		
-        dealCard.addEventListener('click', () => {
-            isLikedMode = false;
-	    isRandomMode = false;
-            document.getElementById('showRandomBtn')?.classList.add('active');
-            document.getElementById('showLikedBtn')?.classList.remove('active');
-            openPopup(dealData);
-          });
+         dealCard.addEventListener('click', () => {
+  setMode('brand');
+
+  const thisBrand = dealData.brandName;
+
+  // 🔧 Setup swipe keys and index for brand mode
+  brandDealKeys = allDeals
+    .filter(d => d.brandName === thisBrand)
+    .map(getDealKey);
+
+  brandDealIndex = brandDealKeys.findIndex(k => k === getDealKey(dealData));
+
+  openPopup(dealData, true, 'brand');
+
+  requestAnimationFrame(() => addPopupSwipeListeners());
+});
 
 
 
