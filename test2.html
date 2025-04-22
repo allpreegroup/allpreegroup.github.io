@@ -785,6 +785,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Like Deals</button>
   <button id="showRandomBtn" class="tab-btn active">All Deals</button>
+   <button id="showBrandBtn" class="tab-btn">Brand Deals</button>
 </div>
 	
   <div class="popup-content" id="popupContent">
@@ -850,6 +851,9 @@ let likedDealIndex = 0;         // Index of current liked deal being viewed
 let likedDealKeys = [];         // Array of liked deal keys
 let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
 let allDealsFromSheets = [];
+let isBrandMode    = false;
+let brandDealKeys  = [];
+let brandDealIndex = 0;
 
 	
 function getDealKey(deal) {
@@ -896,7 +900,8 @@ function renderLikedDealsGallery() {
       `;
 
      // Inside renderLikedDealsGallery()
-card.addEventListener('click', () => {
+  
+  card.addEventListener('click', () => {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
  likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
@@ -1197,6 +1202,36 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
+function showBrandDealsInPopup(brandName) {
+  // grab all deals of this brand
+  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+  if (brandDeals.length === 0) {
+    alert("No deals for " + brandName);
+    return;
+  }
+  // prepare keys and index
+  brandDealKeys  = brandDeals.map(d => d.name);
+  brandDealIndex = 0;
+  // open first one
+  openPopup(brandDeals[0], true);
+}
+
+
+function goToNextBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal, true);
+}
+
+function goToPrevBrandDeal() {
+  if (!brandDealKeys.length) return;
+  brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
+  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
+  openPopup(deal, true);
+}
+
+	
 
 	
  async function loadDeals() {
@@ -1513,7 +1548,48 @@ function startBrandCountdown(expireDate, elementId) {
     handleSwipe();
   });
 
-  function handleSwipe() {
+
+function handleSwipe() {
+  const deltaY = endY - startY;
+
+  if (Math.abs(deltaY) > 50) {
+    if (deltaY < 0) {
+      // Swipe Up
+      if (isLikedMode) {
+        goToNextLikedDeal();
+      } else if (isBrandMode) {
+        goToNextBrandDeal();
+      } else {
+        let next;
+        do {
+          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
+          next = allDealsFlat[randomIndex];
+        } while (next.name === currentPopupDeal?.name);
+
+        isLikedMode = false;
+        isBrandMode = false;
+        document.getElementById('showLikedBtn')?.classList.remove('active');
+        document.getElementById('showBrandBtn')?.classList.remove('active');
+        document.getElementById('showRandomBtn')?.classList.add('active');
+
+        openPopup(next);
+      }
+    } else {
+      // Swipe Down
+      if (isLikedMode) {
+        goToPrevLikedDeal();
+      } else if (isBrandMode) {
+        goToPrevBrandDeal();
+      } else {
+        window.history.back();
+      }
+    }
+  }
+}
+
+
+		
+  /* function handleSwipe() {
   const deltaY = endY - startY;
 
   if (Math.abs(deltaY) > 50) {
@@ -1543,7 +1619,7 @@ function startBrandCountdown(expireDate, elementId) {
       }
     }
   }
-}
+} */
 
 	}
 
