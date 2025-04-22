@@ -1453,11 +1453,9 @@ function setMode(mode) {
               const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
 		
           dealCard.addEventListener('click', () => {
-            isLikedMode = false;
-            document.getElementById('showRandomBtn')?.classList.add('active');
-            document.getElementById('showLikedBtn')?.classList.remove('active');
-            openPopup(dealData);
-          });
+  setMode('brand');
+  openPopup(dealData, true, 'brand'); // 👈 Pass the mode!
+});
 
           if (!isLiked) {
   allDealsFlat.push(dealData);
