@@ -1189,85 +1189,7 @@ function closePopup() {
 
 
 
-function showRandomDealsInPopup() {
-  isLikedMode = false;
-  isBrandMode = false;
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedNames = new Set(Object.keys(likedDeals));
-
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-  const deal = unlikedDeals[randomIndex];
-  openPopup(deal, true);
-} 
-
-
-function goToNextRandomDeal() {
-  if (randomDealKeys.length === 0) return;
-
-  let next;
-  do {
-    const randomIndex = Math.floor(Math.random() * randomDealKeys.length);
-    next = allDealsFlat.find(d => getDealKey(d) === randomDealKeys[randomIndex]);
-  } while (next?.name === currentPopupDeal?.name);
-
-  openPopup(next);
-}
-
-function goToPrevRandomDeal() {
-  window.history.back(); // or do nothing
-}
-
 	
-	
-/*  function showRandomDealsInPopup() {
-  setMode('random');
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedNames = new Set(Object.keys(likedDeals));
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(getDealKey(deal)));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
-  }
-
-  randomDealKeys = unlikedDeals.map(deal => getDealKey(deal));
-  randomDealIndex = Math.floor(Math.random() * randomDealKeys.length);
-
-  const deal = allDeals.find(d => getDealKey(d) === randomDealKeys[randomDealIndex]);
-
-  // FIXED: pass mode as third argument
-  openPopup(deal, true, 'random');
-}
-
-
-function goToNextRandomDeal() {
-  if (randomDealKeys.length === 0) return;
-
-  let next;
-  do {
-    const randomIndex = Math.floor(Math.random() * randomDealKeys.length);
-    next = allDealsFlat.find(d => getDealKey(d) === randomDealKeys[randomIndex]);
-  } while (next?.name === currentPopupDeal?.name);
-
-  openPopup(next);
-}
-
-function goToPrevRandomDeal() {
-  window.history.back(); // or do nothing
-} */
-
-
-
-
 	
 	
 function showLikedDealsInPopup() {
@@ -1713,7 +1635,7 @@ function startBrandCountdown(expireDate, elementId) {
 	
 
 	
-	let popupSwipeAttached = false; // Global flag
+let popupSwipeAttached = false; // Global flag
 
 function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
