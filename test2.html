@@ -1454,8 +1454,14 @@ function setMode(mode) {
 		
           dealCard.addEventListener('click', () => {
   setMode('brand');
-  openPopup(dealData, true, 'brand'); // 👈 Pass the mode!
+  openPopup(dealData, true, 'brand');
+
+  // ✅ Enable swipe after popup is shown
+  setTimeout(() => {
+    addPopupSwipeListeners();
+  }, 100); // slight delay ensures popup is ready
 });
+
 
           if (!isLiked) {
   allDealsFlat.push(dealData);
