@@ -26,6 +26,10 @@
     
     }
 
+	.hidden {
+  display: none;
+}	 
+
 .noscroll {
   overflow: hidden;
   height: 100vh;
@@ -790,7 +794,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 	    
       <button id="popupBack" class="popup-back-arrow"></button> 
       <img id="popupImg" src="" alt="Product">
-	   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
+	   <div id="likeButtonContainer">
+  <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
+</div>
+
     </div>
     <div class="popup-body">
       <div class="popup-title" id="popupTitle"></div>
@@ -1016,6 +1023,18 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
 	
 function setupLikeButton(deal) {
+
+const likeContainer = document.getElementById('likeButtonContainer');
+
+// Hide like button in brand mode
+if (typeof isBrandMode !== 'undefined' && isBrandMode) {
+  likeContainer?.classList.add('hidden');
+  return;
+} else {
+  likeContainer?.classList.remove('hidden');
+}
+
+	
   const likeBtn = document.getElementById('popupLikeBtn');
   if (!likeBtn || !deal || !deal.name) {
     console.warn('Like button or deal missing:', { likeBtn, deal });
