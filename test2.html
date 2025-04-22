@@ -922,7 +922,7 @@ function renderLikedDealsGallery() {
   // Delay attaching swipe listeners until popup fully rendered
   setTimeout(() => {
     addPopupSwipeListeners();
-  }, 100); // 100ms is usually enough
+  }, 150); // 100ms is usually enough
 });
 
 
@@ -1051,6 +1051,8 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
+
+ requestAnimationFrame(() => addPopupSwipeListeners());
 }
 
 
@@ -1671,91 +1673,66 @@ function startBrandCountdown(expireDate, elementId) {
 	
 
 	
-	function addPopupSwipeListeners() {
+	let popupSwipeAttached = false; // Global flag
+
+function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
+  if (!popup || popupSwipeAttached) return;
+
   let startY = 0;
   let endY = 0;
+  popupSwipeAttached = true;
 
-  popup.addEventListener('touchstart', (e) => {
+  function handleTouchStart(e) {
     if (e.touches.length === 1) {
       startY = e.touches[0].clientY;
     }
-  });
+  }
 
-  popup.addEventListener('touchend', (e) => {
+  function handleTouchEnd(e) {
     endY = e.changedTouches[0].clientY;
     handleSwipe();
-  });
+  }
 
-
-function handleSwipe() {
-  const deltaY = endY - startY;
-
-  if (Math.abs(deltaY) > 50) {
-    if (deltaY < 0) {
-      // Swipe Up
-      if (isLikedMode) {
-        goToNextLikedDeal();
-      } else if (isBrandMode) {
-        goToNextBrandDeal();
-      } else if (isRandomMode) {
-        goToNextRandomDeal();
-      }
-    } else {
-      // Swipe Down
-      if (isLikedMode) {
-        goToPrevLikedDeal();
-      } else if (isBrandMode) {
-        goToPrevBrandDeal();
-      } else if (isRandomMode) {
-        goToPrevRandomDeal();
+  function handleSwipe() {
+    const deltaY = endY - startY;
+    if (Math.abs(deltaY) > 50) {
+      if (deltaY < 0) {
+        // Swipe Up
+        if (isLikedMode) {
+          goToNextLikedDeal();
+        } else if (isBrandMode) {
+          goToNextBrandDeal();
+        } else if (isRandomMode) {
+          goToNextRandomDeal();
+        }
       } else {
-        window.history.back();
+        // Swipe Down
+        if (isLikedMode) {
+          goToPrevLikedDeal();
+        } else if (isBrandMode) {
+          goToPrevBrandDeal();
+        } else if (isRandomMode) {
+          goToPrevRandomDeal();
+        } else {
+          window.history.back();
+        }
       }
     }
+  }
+
+  popup.addEventListener('touchstart', handleTouchStart, { passive: true });
+  popup.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+  // Optional: Reset flag when popup is closed
+  const popupCloseBtn = document.getElementById('popupCloseBtn');
+  if (popupCloseBtn) {
+    popupCloseBtn.addEventListener('click', () => {
+      popupSwipeAttached = false;
+    });
   }
 }
 
-
-
-		
-  /* function handleSwipe() {
-  const deltaY = endY - startY;
-
-  if (Math.abs(deltaY) > 50) {
-    if (deltaY < 0) {
-      // Swipe Up
-      if (isLikedMode) {
-        goToNextLikedDeal();
-      } else {
-        let next;
-        do {
-          const randomIndex = Math.floor(Math.random() * allDealsFlat.length);
-          next = allDealsFlat[randomIndex];
-        } while (next.name === currentPopupDeal?.name);
-
-        isLikedMode = false;
-        document.getElementById('showLikedBtn')?.classList.remove('active');
-        document.getElementById('showRandomBtn')?.classList.add('active');
-        
-        openPopup(next);
-      }
-    } else {
-      // Swipe Down
-      if (isLikedMode) {
-        goToPrevLikedDeal();
-      } else {
-        window.history.back();
-      }
-    }
-  }
-} */
-
-	}
-
-
-// Call this after your popup is ready
-addPopupSwipeListeners();
 </script>
 
 
