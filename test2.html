@@ -973,11 +973,15 @@ if (!document.getElementById('cart-icon-container')) {
     openCartPopup();
   };
 	// ✅ Ensure the count is updated after icon exists
-  updateCartCount(getTotalCartItems());
+  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  updateCartCount(getTotalCartItems());
+ const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
 });
 
 	
@@ -1006,7 +1010,9 @@ function addToCart(item) {
   }
   existingCart[item.brand].push(item);
   localStorage.setItem('cartItems', JSON.stringify(existingCart));
-  updateCartCount(getTotalCartItems());
+  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
 }
 
 function getTotalCartItems() {
@@ -1089,7 +1095,9 @@ function clearBrandCart(brandKey) {
   const cart = JSON.parse(localStorage.getItem('cartItems')) || {};
   delete cart[brandKey];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems());
+ const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
   openCartPopup();
 }
 
@@ -1098,7 +1106,9 @@ function handleBrandLocation(brandKey) {
 }
 
 // Initialize count on page load
-updateCartCount(getTotalCartItems());
+const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
 
 
 function clearBrandCart(brand) {
@@ -1195,7 +1205,9 @@ function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems());
+  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
   openCartPopup(); // Refresh popup
 }
 
@@ -1549,7 +1561,8 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     updateCartBtnState(!inCart);
     showCartIcon();
 	  console.log('New cart total:', getTotalCartItems());
-    const count = Object.values(updatedCart).reduce((sum, items) => sum + items.length, 0);
+   const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
+const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
 updateCartCount(count);
 
   };
