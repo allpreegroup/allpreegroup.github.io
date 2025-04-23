@@ -1903,35 +1903,27 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
 
 
 function setupAddToCartButton(deal) {
-  const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
-
-  // Only show in brand mode
-  if (typeof isBrandMode === 'undefined' || !isBrandMode) {
-    cartBtnContainer?.classList.add('hidden');
-    return;
-  } else {
-    cartBtnContainer?.classList.remove('hidden');
-  }
-
   if (!addToCartBtn || !deal || !deal.name) {
     console.warn('Cart button or deal missing:', { addToCartBtn, deal });
     return;
   }
 
-  // Ensure brand is a string, not an HTML element
   let brandName = deal.brand || 'Unknown';
   if (typeof brandName !== 'string' && brandName?.textContent) {
     brandName = brandName.textContent;
   }
-
   const brand = brandName.trim();
   const dealKey = getDealKey(deal);
+
+  console.log('Setting up cart button for:', deal.name, 'Key:', dealKey);
+
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const brandCart = cart[brand] || [];
   const isInCart = brandCart.some(item => item._id === dealKey);
 
-  updateCartBtnState(isInCart);
+  addToCartBtn.classList.toggle('in-cart', isInCart);
+  addToCartBtn.textContent = isInCart ? '❌ Del' : '🛒 Add';
 
   addToCartBtn.onclick = () => {
     console.log('Cart button clicked for:', deal.name);
@@ -1939,12 +1931,9 @@ function setupAddToCartButton(deal) {
     const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
     let brandItems = updatedCart[brand] || [];
     const itemIndex = brandItems.findIndex(item => item._id === dealKey);
-    const inCart = itemIndex !== -1;
+    const isNowInCart = itemIndex === -1;
 
-    if (inCart) {
-      brandItems.splice(itemIndex, 1);
-      console.log('Removed from cart:', deal.name);
-    } else {
+    if (isNowInCart) {
       const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
       brandItems.push({
         _id: dealKey,
@@ -1953,18 +1942,19 @@ function setupAddToCartButton(deal) {
         price
       });
       console.log('Added to cart:', deal.name);
+    } else {
+      brandItems.splice(itemIndex, 1);
+      console.log('Removed from cart:', deal.name);
     }
 
     updatedCart[brand] = brandItems;
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    updateCartBtnState(!inCart);
-    showCartIcon();
-  };
 
-  function updateCartBtnState(isNowInCart) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
     addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
-  }
+
+    showCartIcon();
+  };
 }
 
 
