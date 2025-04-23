@@ -970,6 +970,7 @@ function initCartIcon() {
     `;
     document.body.appendChild(cartIconContainer);
     document.getElementById('cart-icon').onclick = openCartPopup;
+    updateCartCount(getTotalCartItems());
   }
 }
 
@@ -996,6 +997,7 @@ function addToCart(item) {
   cart[item.brand].push(item);
   localStorage.setItem('cartItems', JSON.stringify(cart));
   updateCartCount(getTotalCartItems());
+  openCartPopup();
 }
 
 function clearBrandCart(brand) {
@@ -1376,9 +1378,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     updateCartBtnState(!inCart);
     showCartIcon();
-	  const totalItems = Object.values(updatedCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(totalItems);
-
+    updateCartCount(getTotalCartItems());
   };
 
   function updateCartBtnState(isNowInCart) {
