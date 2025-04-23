@@ -1377,7 +1377,6 @@ function closeSavedListsPopup() {
 	
 
 ////////// START	
-
 function renderLikedDealsGallery() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
@@ -1401,18 +1400,18 @@ function renderLikedDealsGallery() {
       const brandLogo = deal.brandLogo || '';
       const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
 
-      card.innerHTML = 
+      card.innerHTML = `
         <div class="liked-deal-brand">
           <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
         </div>
         <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
-        ${percentOff ? <span class="liked-discount-badge">${percentOff}% OFF </span> : ''}
+        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
         <div class="liked-deal-content">
           <div class="liked-deal-title">${shortName}</div>
           <div class="liked-deal-price">J$${deal.original}</div>
           <div class="liked-deal-discount">J$${deal.discount}</div>
         </div>
-      ;
+      `;
 
     
   card.addEventListener('click', () => {
@@ -1439,6 +1438,7 @@ function renderLikedDealsGallery() {
 
   sectionEl.style.display = 'block';
 }
+
 	
  /////////// END
 
