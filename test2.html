@@ -2072,7 +2072,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     return;
   }
 
-  const brand = brandName || '';
+  const brand = typeof deal.brand === 'string' ? deal.brand.trim() : (deal.brand?.textContent?.trim() || 'Unknown');
   const dealKey = getDealKey(deal);
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const brandCart = cart[brand] || [];
