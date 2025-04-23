@@ -1560,10 +1560,8 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     updateCartBtnState(!inCart);
     showCartIcon();
-	  console.log('New cart total:', getTotalCartItems());
-   const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
+	  const totalItems = Object.values(updatedCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(totalItems);
 
   };
 
