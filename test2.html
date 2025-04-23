@@ -1005,7 +1005,10 @@ function clearBrandCart(brand) {
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
   updateCartCount(getTotalCartItems());
-  openCartPopup();
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
+  }
 }
 
 function openBrandLocation(brand) {
