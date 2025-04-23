@@ -966,99 +966,183 @@ function renderCartIconForBrand(brandKey) {
   badge.style.display = items.length > 0 ? 'inline-block' : 'none';
 }
 
-// Step 2: Show cart popup with product info, subtotal, tax, and total
+// Step 2: Cart popup logic
+function openCartPopup(brandKey) {
+  // Remove existing popup if open
+  const existingPopup = document.getElementById('cart-popup');
+  if (existingPopup) existingPopup.remove();
+
+  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const items = cartItems[brandKey] || [];
+
+  const popup = document.createElement('div');
+  popup.id = 'cart-popup';
+  popup.style.position = 'fixed';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.background = '#fff';
+  popup.style.padding = '20px';
+  popup.style.border = '1px solid #ccc';
+  popup.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+  popup.style.zIndex = '1000';
+  popup.style.maxWidth = '300px';
+  popup.style.maxHeight = '80vh';
+  popup.style.overflowY = 'auto';
+  popup.style.borderRadius = '12px';
+
+  let total = 0;
+
+  const title = document.createElement('h3');
+  title.textContent = 'Your Cart';
+  popup.appendChild(title);
+
+  if (items.length === 0) {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.textContent = 'No items in cart';
+    popup.appendChild(emptyMsg);
+  } else {
+    items.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.style.display = 'flex';
+      itemDiv.style.alignItems = 'center';
+      itemDiv.style.marginBottom = '10px';
+
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.style.width = '40px';
+      img.style.height = '40px';
+      img.style.objectFit = 'cover';
+      img.style.marginRight = '10px';
+      img.style.borderRadius = '6px';
+
+      const name = document.createElement('span');
+      name.textContent = item.name;
+      name.style.flex = '1';
+
+      const price = document.createElement('strong');
+      price.textContent = `J$${item.discount}`;
+
+      itemDiv.appendChild(img);
+      itemDiv.appendChild(name);
+      itemDiv.appendChild(price);
+
+      popup.appendChild(itemDiv);
+
+      total += parseFloat(item.discount || 0);
+    });
+
+    const tax = total * 0.15;
+    const grandTotal = total + tax;
+
+    const totalDiv = document.createElement('div');
+    totalDiv.innerHTML = `<hr><strong>Total: J$${total.toFixed(2)}</strong><br><strong>+ 15% Tax: J$${tax.toFixed(2)}</strong><br><strong>Grand Total: J$${grandTotal.toFixed(2)}</strong>`;
+    totalDiv.style.marginTop = '10px';
+    popup.appendChild(totalDiv);
+
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = 'Clear Cart';
+    clearBtn.style.marginTop = '10px';
+    clearBtn.style.background = '#d9534f';
+    clearBtn.style.color = 'white';
+    clearBtn.style.border = 'none';
+    clearBtn.style.padding = '8px 12px';
+    clearBtn.style.borderRadius = '4px';
+    clearBtn.style.cursor = 'pointer';
+    clearBtn.onclick = () => {
+      delete cartItems[brandKey];
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      popup.remove();
+      renderCartIconForBrand(brandKey);
+    };
+
+    popup.appendChild(clearBtn);
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Close';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '10px';
+  closeBtn.style.right = '10px';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.border = 'none';
+  closeBtn.style.fontSize = '16px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => popup.remove();
+  popup.appendChild(closeBtn);
+
+  document.body.appendChild(popup);
+}
+
 function openCartPopup(brandKey) {
   const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}')[brandKey] || [];
 
-  // Create overlay
-  const overlay = document.createElement('div');
-  overlay.className = 'cart-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100%';
-  overlay.style.height = '100%';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
-  overlay.style.zIndex = 1000;
+  // Create or select popup
+  let popup = document.getElementById('cart-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'cart-popup';
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.background = '#fff';
+    popup.style.border = '1px solid #ccc';
+    popup.style.padding = '20px';
+    popup.style.zIndex = '9999';
+    popup.style.maxWidth = '90%';
+    popup.style.maxHeight = '80%';
+    popup.style.overflowY = 'auto';
+    popup.style.borderRadius = '10px';
+    popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
 
-  // Create popup
-  const popup = document.createElement('div');
-  popup.className = 'cart-popup';
-  popup.style.background = '#fff';
-  popup.style.padding = '20px';
-  popup.style.borderRadius = '10px';
-  popup.style.maxWidth = '90%';
-  popup.style.maxHeight = '80%';
-  popup.style.overflowY = 'auto';
+    document.body.appendChild(popup);
+  }
 
-  const title = document.createElement('h2');
-  title.textContent = `Cart for ${brandKey}`;
-  popup.appendChild(title);
-
+  // Render items
+  let html = `<h3>Cart Items</h3>`;
   let subtotal = 0;
 
-  cartItems.forEach(item => {
-    const itemRow = document.createElement('div');
-    itemRow.style.display = 'flex';
-    itemRow.style.alignItems = 'center';
-    itemRow.style.marginBottom = '10px';
-
-    const img = document.createElement('img');
-    img.src = item.image;
-    img.alt = item.name;
-    img.style.width = '50px';
-    img.style.height = '50px';
-    img.style.objectFit = 'cover';
-    img.style.marginRight = '10px';
-
-    const info = document.createElement('div');
-    info.innerHTML = `<strong>${item.name}</strong><br>J$${item.discount}`;
-
-    itemRow.appendChild(img);
-    itemRow.appendChild(info);
-    popup.appendChild(itemRow);
-
-    subtotal += parseFloat(item.discount);
-  });
+  if (cartItems.length === 0) {
+    html += `<p>Your cart is empty.</p>`;
+  } else {
+    cartItems.forEach(item => {
+      const price = parseFloat(item.discount || item.original || 0);
+      subtotal += price;
+      html += `
+        <div style="margin-bottom: 10px; display: flex; align-items: center;">
+          <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+          <div>
+            <div><strong>${item.name}</strong></div>
+            <div>J$${price.toFixed(2)}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
 
   const tax = subtotal * 0.15;
   const total = subtotal + tax;
 
-  const summary = document.createElement('div');
-  summary.innerHTML = `
+  html += `
+    <hr>
     <p><strong>Subtotal:</strong> J$${subtotal.toFixed(2)}</p>
     <p><strong>Tax (15%):</strong> J$${tax.toFixed(2)}</p>
     <p><strong>Total:</strong> J$${total.toFixed(2)}</p>
+    <button onclick="clearCart('${brandKey}')" style="background:red;color:white;padding:8px 12px;border:none;border-radius:5px;cursor:pointer;">Clear Cart</button>
+    <button onclick="document.getElementById('cart-popup').remove()" style="margin-left:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer;">Close</button>
   `;
-  popup.appendChild(summary);
 
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear Cart';
-  clearBtn.style.marginTop = '10px';
-  clearBtn.onclick = () => {
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
-    delete cartItems[brandKey];
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    overlay.remove();
-    renderCartIconForBrand(brandKey);
-  };
-  popup.appendChild(clearBtn);
-
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = 'Close';
-  closeBtn.style.marginTop = '10px';
-  closeBtn.style.marginLeft = '10px';
-  closeBtn.onclick = () => overlay.remove();
-  popup.appendChild(closeBtn);
-
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
+  popup.innerHTML = html;
 }
 
-
+function clearCart(brandKey) {
+  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  delete cartItems[brandKey];
+  localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  document.getElementById('cart-popup')?.remove();
+  renderCartIconForBrand(brandKey);
+}
 
  
 
