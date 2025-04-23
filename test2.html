@@ -1324,6 +1324,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
 }
 
 	
+ 	
  function setupAddToCartButton(deal) {
   const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
@@ -1357,29 +1358,29 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     const inCart = itemIndex !== -1;
 
     if (inCart) {
-  brandItems.splice(itemIndex, 1);
-  console.log('Removed from cart:', deal.name);
-} else {
-  const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-  const item = {
-    _id: dealKey,
-    brand: deal.brandName,
-    brandimg: deal.brandLogo,
-    name: deal.name,
-    img: deal.img || deal.image || '',
-    price
-  };
-  addToCart(item); // ✅ this also updates the cart count
-}
+      brandItems.splice(itemIndex, 1);
+      console.log('Removed from cart:', deal.name);
+	    console.log('test:', deal.brand, deal.brandimg);
+    } else {
+      const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+      brandItems.push({
+        _id: dealKey,
+      brand: deal.brandName,
+   brandimg: deal.brandLogo,	
+       name: deal.name,
+        img: deal.img || deal.image || '',
+        price
+      });
+      console.log('Added to cart:', deal.name);
+    }
 
-updatedCart[brand] = brandItems;
-localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-updateCartBtnState(!inCart);
-showCartIcon();
-
-   
+    updatedCart[brand] = brandItems;
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    updateCartBtnState(!inCart);
+    showCartIcon();
+    addToCart(item); // ✅ this also updates the cart count
   };
-  
+
   function updateCartBtnState(isNowInCart) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
     addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
