@@ -1190,13 +1190,29 @@ document.body.appendChild(backdrop);
         brandSection.appendChild(itemDiv);
       });
 
-      const actionRow = document.createElement('div');
-      actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
-      actionRow.innerHTML = `
-        <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Clear</button>
-        <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
-      `;
-      brandSection.appendChild(actionRow);
+     // Calculate totals
+const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
+const tax = subtotal * 0.15;
+const grandTotal = subtotal + tax;
+
+// Totals section
+const totalsDiv = document.createElement('div');
+totalsDiv.style = 'margin-top: 10px; margin-bottom: 10px; font-size: 14px;';
+totalsDiv.innerHTML = `
+  <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><strong>JMD ${subtotal.toFixed(2)}</strong></div>
+  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>JMD ${tax.toFixed(2)}</strong></div>
+  <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><strong style="color: green;">JMD ${grandTotal.toFixed(2)}</strong></div>
+`;
+brandSection.appendChild(totalsDiv);
+
+// Buttons row
+const actionRow = document.createElement('div');
+actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
+actionRow.innerHTML = `
+  <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Clear</button>
+  <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
+`;
+brandSection.appendChild(actionRow);
 
       popup.appendChild(brandSection);
     });
