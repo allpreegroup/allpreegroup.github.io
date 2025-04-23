@@ -934,6 +934,9 @@ function getDealKey(deal) {
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
   updateCartCount(getTotalCartItems());
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
 });
 
 function initCartIcon() {
@@ -971,7 +974,9 @@ function initCartIcon() {
     document.body.appendChild(cartIconContainer);
     document.getElementById('cart-icon').onclick = openCartPopup;
     updateCartCount(getTotalCartItems());
-    updateCartCount(count)
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
   }
 }
 
@@ -998,7 +1003,9 @@ function addToCart(item) {
   cart[item.brand].push(item);
   localStorage.setItem('cartItems', JSON.stringify(cart));
   updateCartCount(getTotalCartItems());
-  openCartPopup();
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
 }
 
 function clearBrandCart(brand) {
@@ -1259,7 +1266,9 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   setupLikeButton(currentPopupDeal);
   setupAddToCartButton(currentPopupDeal);
    updateCartCount(getTotalCartItems());
-   updateCartCount(count)
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
 }
 
 //outside 
@@ -1382,7 +1391,10 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     updateCartBtnState(!inCart);
     showCartIcon();
-    updateCartCount(getTotalCartItems());
+   updateCartCount(getTotalCartItems());
+   const popup = document.getElementById('cart-popup');
+  if (popup && popup.style.display === 'block') {
+    openCartPopup();
   };
 
   function updateCartBtnState(isNowInCart) {
