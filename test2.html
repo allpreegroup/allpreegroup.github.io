@@ -1901,67 +1901,8 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
   };
 }
 
-
-function setupAddToCartButton(deal) {
-  const addToCartBtn = document.getElementById('popupAddToCartBtn');
-  if (!addToCartBtn || !deal || !deal.name) {
-    console.warn('Cart button or deal missing:', { addToCartBtn, deal });
-    return;
-  }
-
-  let brandName = deal.brand || 'Unknown';
-  if (typeof brandName !== 'string' && brandName?.textContent) {
-    brandName = brandName.textContent;
-  }
-  const brand = brandName.trim();
-  const dealKey = getDealKey(deal);
-
-  console.log('Setting up cart button for:', deal.name, 'Key:', dealKey);
-
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const brandCart = cart[brand] || [];
-  const isInCart = brandCart.some(item => item._id === dealKey);
-
-  addToCartBtn.classList.toggle('in-cart', isInCart);
-  addToCartBtn.textContent = isInCart ? '❌ Del' : '🛒 Add';
-
-  addToCartBtn.onclick = () => {
-    console.log('Cart button clicked for:', deal.name);
-
-    const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-    let brandItems = updatedCart[brand] || [];
-    const itemIndex = brandItems.findIndex(item => item._id === dealKey);
-    const isNowInCart = itemIndex === -1;
-
-    if (isNowInCart) {
-      const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-      brandItems.push({
-        _id: dealKey,
-        name: deal.name,
-        img: deal.img || deal.image || '',
-        price
-      });
-      console.log('Added to cart:', deal.name);
-    } else {
-      brandItems.splice(itemIndex, 1);
-      console.log('Removed from cart:', deal.name);
-    }
-
-    updatedCart[brand] = brandItems;
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-
-    addToCartBtn.classList.toggle('in-cart', isNowInCart);
-    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
-
-    showCartIcon();
-  };
-}
-
-
-
-
 	
-/* function setupAddToCartButton(deal) {
+ function setupAddToCartButton(deal) {
   const cartBtnContainer = document.getElementById('cartBtnContainer');
   const addToCartBtn = document.getElementById('popupAddToCartBtn');
 
@@ -2000,7 +1941,9 @@ function setupAddToCartButton(deal) {
       const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
       brandItems.push({
         _id: dealKey,
-        name: deal.name,
+      brand: deal.brandName,
+   brandimg: deal.brandLogo,	
+       name: deal.name,
         img: deal.img || deal.image || '',
         price
       });
@@ -2017,7 +1960,7 @@ function setupAddToCartButton(deal) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
     addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
   }
-} */
+} 
 
 
 function closePopup() {
