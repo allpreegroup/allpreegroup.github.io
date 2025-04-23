@@ -664,6 +664,21 @@ height: 20%;
   font-size: 12px;
   padding: 2px 6px;
 }
+#cart-icon-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+#cart-icon {
+  font-size: 24px;
+  background: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
 
 		 
   </style>
@@ -910,393 +925,199 @@ function getDealKey(deal) {
 /////// Start
 	
 function renderLikedDealsGallery(brandKey, deals) {
-  // Placeholder — real function will be added later
+  // Placeholder — actual logic to render liked deals goes here
 }
 
-// Step 1: Always show the cart icon above the liked deals gallery (per brand)
-
+// Render cart icon above the liked gallery for a specific brand
 function renderCartIconForBrand(brandKey) {
-  const cartContainerId = `brand-cart-container-${brandKey}`;
-  let cartContainer = document.getElementById(cartContainerId);
+  const containerId = `brand-cart-container-${brandKey}`;
+  let container = document.getElementById(containerId);
 
-  if (!cartContainer) {
-    cartContainer = document.createElement('div');
-    cartContainer.id = cartContainerId;
-    cartContainer.className = 'brand-cart-container';
-    cartContainer.style.position = 'relative';
-    cartContainer.style.position = 'absolute';
-cartContainer.style.top = '10px';
-cartContainer.style.right = '10px';
-cartContainer.style.zIndex = '9999';
-
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    container.className = 'brand-cart-container';
+    Object.assign(container.style, {
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      zIndex: '9999',
+    });
 
     const cartBtn = document.createElement('button');
     cartBtn.className = 'brand-cart-btn';
     cartBtn.textContent = '🛒';
-    cartBtn.style.fontSize = '24px';
-    cartBtn.style.position = 'relative';
-    cartBtn.style.background = 'transparent';
-    cartBtn.style.border = 'none';
-    cartBtn.style.cursor = 'pointer';
+    Object.assign(cartBtn.style, {
+      fontSize: '24px',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      position: 'relative',
+    });
 
-    // Badge
     const badge = document.createElement('span');
     badge.className = 'cart-badge';
-    badge.style.position = 'absolute';
-    badge.style.top = '-6px';
-    badge.style.right = '-6px';
-    badge.style.background = 'red';
-    badge.style.color = 'white';
-    badge.style.borderRadius = '50%';
-    badge.style.padding = '2px 6px';
-    badge.style.fontSize = '12px';
-    badge.style.display = 'none';
+    Object.assign(badge.style, {
+      position: 'absolute',
+      top: '-6px',
+      right: '-6px',
+      background: 'red',
+      color: 'white',
+      borderRadius: '50%',
+      padding: '2px 6px',
+      fontSize: '12px',
+      display: 'none',
+    });
 
     cartBtn.appendChild(badge);
-    cartContainer.appendChild(cartBtn);
+    cartBtn.onclick = () => openCartPopup(brandKey);
+    container.appendChild(cartBtn);
 
-    const likedSection = document.querySelector(`#liked-gallery-${brandKey}`);
-    if (likedSection && likedSection.parentNode) {
-      likedSection.parentNode.insertBefore(cartContainer, likedSection);
+    const likedGallery = document.querySelector(`#liked-gallery-${brandKey}`);
+    if (likedGallery?.parentNode) {
+      likedGallery.parentNode.insertBefore(container, likedGallery);
     }
-
-    cartBtn.onclick = () => {
-      openCartPopup(brandKey);
-    };
   }
 
-  // Update badge count
+  updateCartBadge(brandKey);
+}
+
+// Update cart badge count
+function updateCartBadge(brandKey) {
   const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const items = cartItems[brandKey] || [];
-  const badge = cartContainer.querySelector('.cart-badge');
-  badge.textContent = items.length;
-  badge.style.display = items.length > 0 ? 'inline-block' : 'none';
+  const badge = document.querySelector(`#brand-cart-container-${brandKey} .cart-badge`);
+  if (badge) {
+    badge.textContent = items.length;
+    badge.style.display = items.length > 0 ? 'inline-block' : 'none';
+  }
 }
 
-// Step 2: Cart popup logic
-function openCartPopup(brandKey) {
-  // Remove existing popup if open
-  const existingPopup = document.getElementById('cart-popup');
-  if (existingPopup) existingPopup.remove();
-
-  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const items = cartItems[brandKey] || [];
-
-  const popup = document.createElement('div');
-  popup.id = 'cart-popup';
-  popup.style.position = 'fixed';
-  popup.style.top = '50%';
-  popup.style.left = '50%';
-  popup.style.transform = 'translate(-50%, -50%)';
-  popup.style.background = '#fff';
-  popup.style.padding = '20px';
-  popup.style.border = '1px solid #ccc';
-  popup.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-  popup.style.zIndex = '1000';
-  popup.style.maxWidth = '300px';
-  popup.style.maxHeight = '80vh';
-  popup.style.overflowY = 'auto';
-  popup.style.borderRadius = '12px';
-
-  let total = 0;
-
-  const title = document.createElement('h3');
-  title.textContent = 'Your Cart';
-  popup.appendChild(title);
-
-  if (items.length === 0) {
-    const emptyMsg = document.createElement('p');
-    emptyMsg.textContent = 'No items in cart';
-    popup.appendChild(emptyMsg);
-  } else {
-    items.forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.style.display = 'flex';
-      itemDiv.style.alignItems = 'center';
-      itemDiv.style.marginBottom = '10px';
-
-      const img = document.createElement('img');
-      img.src = item.image;
-      img.style.width = '40px';
-      img.style.height = '40px';
-      img.style.objectFit = 'cover';
-      img.style.marginRight = '10px';
-      img.style.borderRadius = '6px';
-
-      const name = document.createElement('span');
-      name.textContent = item.name;
-      name.style.flex = '1';
-
-      const price = document.createElement('strong');
-      price.textContent = `J$${item.discount}`;
-
-      itemDiv.appendChild(img);
-      itemDiv.appendChild(name);
-      itemDiv.appendChild(price);
-
-      popup.appendChild(itemDiv);
-
-      total += parseFloat(item.discount || 0);
-    });
-
-    const tax = total * 0.15;
-    const grandTotal = total + tax;
-
-    const totalDiv = document.createElement('div');
-    totalDiv.innerHTML = `<hr><strong>Total: J$${total.toFixed(2)}</strong><br><strong>+ 15% Tax: J$${tax.toFixed(2)}</strong><br><strong>Grand Total: J$${grandTotal.toFixed(2)}</strong>`;
-    totalDiv.style.marginTop = '10px';
-    popup.appendChild(totalDiv);
-
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'Clear Cart';
-    clearBtn.style.marginTop = '10px';
-    clearBtn.style.background = '#d9534f';
-    clearBtn.style.color = 'white';
-    clearBtn.style.border = 'none';
-    clearBtn.style.padding = '8px 12px';
-    clearBtn.style.borderRadius = '4px';
-    clearBtn.style.cursor = 'pointer';
-    clearBtn.onclick = () => {
-      delete cartItems[brandKey];
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-      popup.remove();
-      renderCartIconForBrand(brandKey);
-    };
-
-    popup.appendChild(clearBtn);
-  }
-
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = 'Close';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '10px';
-  closeBtn.style.right = '10px';
-  closeBtn.style.background = 'transparent';
-  closeBtn.style.border = 'none';
-  closeBtn.style.fontSize = '16px';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.onclick = () => popup.remove();
-  popup.appendChild(closeBtn);
-
-  document.body.appendChild(popup);
-}
-
-function openCartPopup(brandKey) {
-  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}')[brandKey] || [];
-
-  // Create or select popup
-  let popup = document.getElementById('cart-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'cart-popup';
-    popup.style.position = 'fixed';
-    popup.style.top = '50%';
-    popup.style.left = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    popup.style.background = '#fff';
-    popup.style.border = '1px solid #ccc';
-    popup.style.padding = '20px';
-    popup.style.zIndex = '9999';
-    popup.style.maxWidth = '90%';
-    popup.style.maxHeight = '80%';
-    popup.style.overflowY = 'auto';
-    popup.style.borderRadius = '10px';
-    popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
-
-    document.body.appendChild(popup);
-  }
-
-  // Render items
-  let html = `<h3>Cart Items</h3>`;
-  let subtotal = 0;
-
-  if (cartItems.length === 0) {
-    html += `<p>Your cart is empty.</p>`;
-  } else {
-    cartItems.forEach(item => {
-      const price = parseFloat(item.discount || item.original || 0);
-      subtotal += price;
-      html += `
-        <div style="margin-bottom: 10px; display: flex; align-items: center;">
-          <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
-          <div>
-            <div><strong>${item.name}</strong></div>
-            <div>J$${price.toFixed(2)}</div>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
-
-  html += `
-    <hr>
-    <p><strong>Subtotal:</strong> J$${subtotal.toFixed(2)}</p>
-    <p><strong>Tax (15%):</strong> J$${tax.toFixed(2)}</p>
-    <p><strong>Total:</strong> J$${total.toFixed(2)}</p>
-    <button onclick="clearCart('${brandKey}')" style="background:red;color:white;padding:8px 12px;border:none;border-radius:5px;cursor:pointer;">Clear Cart</button>
-    <button onclick="document.getElementById('cart-popup').remove()" style="margin-left:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer;">Close</button>
-  `;
-
-  popup.innerHTML = html;
-}
-
+// Clear cart for a brand
 function clearCart(brandKey) {
   const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cartItems[brandKey];
   localStorage.setItem('cartItems', JSON.stringify(cartItems));
   document.getElementById('cart-popup')?.remove();
-  renderCartIconForBrand(brandKey);
+  updateCartBadge(brandKey);
 }
 
- 
+// Open cart popup for a specific brand
 function openCartPopup(brandKey) {
-  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const items = cartItems[brandKey] || [];
+  const cartData = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const items = cartData[brandKey] || [];
 
   if (items.length === 0) {
     alert('Your cart is empty.');
     return;
   }
 
-  // Remove any existing popup
-  const existing = document.getElementById('cart-popup');
-  if (existing) existing.remove();
+  document.getElementById('cart-popup')?.remove();
 
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.id = 'cart-popup';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0, 0, 0, 0.6)';
-  overlay.style.zIndex = 9999;
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    background: 'rgba(0, 0, 0, 0.6)',
+    zIndex: '9999',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  });
 
-  // Create popup box
-  const box = document.createElement('div');
-  box.style.background = '#fff';
-  box.style.padding = '20px';
-  box.style.borderRadius = '12px';
-  box.style.width = '90%';
-  box.style.maxWidth = '400px';
-  box.style.maxHeight = '80vh';
-  box.style.overflowY = 'auto';
-  box.style.position = 'relative';
+  const popup = document.createElement('div');
+  Object.assign(popup.style, {
+    background: '#fff',
+    padding: '20px',
+    borderRadius: '12px',
+    width: '90%',
+    maxWidth: '400px',
+    maxHeight: '80vh',
+    overflowY: 'auto',
+    position: 'relative',
+  });
 
-  // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '✖';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '10px';
-  closeBtn.style.right = '10px';
-  closeBtn.style.border = 'none';
-  closeBtn.style.background = 'transparent';
-  closeBtn.style.fontSize = '16px';
-  closeBtn.style.cursor = 'pointer';
+  Object.assign(closeBtn.style, {
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    border: 'none',
+    background: 'transparent',
+    fontSize: '16px',
+    cursor: 'pointer',
+  });
   closeBtn.onclick = () => overlay.remove();
+  popup.appendChild(closeBtn);
 
-  box.appendChild(closeBtn);
+  const title = document.createElement('h3');
+  title.textContent = 'Your Cart';
+  popup.appendChild(title);
 
-  // Cart items
   let subtotal = 0;
   items.forEach(item => {
+    const itemPrice = parseFloat(item.discount || 0);
+    subtotal += itemPrice;
+
     const itemDiv = document.createElement('div');
     itemDiv.style.display = 'flex';
     itemDiv.style.alignItems = 'center';
     itemDiv.style.marginBottom = '10px';
 
     const img = document.createElement('img');
-    img.src = item.image || '';
-    img.alt = item.name;
-    img.style.width = '50px';
-    img.style.height = '50px';
-    img.style.objectFit = 'cover';
-    img.style.marginRight = '10px';
-    img.style.borderRadius = '8px';
+    img.src = item.image;
+    Object.assign(img.style, {
+      width: '50px',
+      height: '50px',
+      objectFit: 'cover',
+      marginRight: '10px',
+      borderRadius: '6px',
+    });
 
-    const name = document.createElement('div');
-    name.textContent = item.name;
-    name.style.flex = '1';
-
-    const price = parseFloat(item.discount?.toString().replace(/,/g, '') || '0');
-    subtotal += price;
-
-    const priceTag = document.createElement('div');
-    priceTag.textContent = `JMD ${price.toLocaleString()}`;
-    priceTag.style.fontWeight = 'bold';
+    const info = document.createElement('div');
+    info.innerHTML = `<strong>${item.name}</strong><br>J$${itemPrice.toFixed(2)}`;
 
     itemDiv.appendChild(img);
-    itemDiv.appendChild(name);
-    itemDiv.appendChild(priceTag);
-    box.appendChild(itemDiv);
+    itemDiv.appendChild(info);
+    popup.appendChild(itemDiv);
   });
 
-  // Total + Tax
   const tax = subtotal * 0.15;
   const total = subtotal + tax;
 
-  const totals = document.createElement('div');
-  totals.innerHTML = `
-    <hr style="margin: 10px 0;">
-    <p><strong>Subtotal:</strong> JMD ${subtotal.toLocaleString()}</p>
-    <p><strong>Tax (15%):</strong> JMD ${tax.toLocaleString()}</p>
-    <p><strong>Total:</strong> JMD ${total.toLocaleString()}</p>
+  const totalsDiv = document.createElement('div');
+  totalsDiv.innerHTML = `
+    <hr>
+    <strong>Subtotal:</strong> J$${subtotal.toFixed(2)}<br>
+    <strong>Tax (15%):</strong> J$${tax.toFixed(2)}<br>
+    <strong>Total:</strong> J$${total.toFixed(2)}
   `;
-  box.appendChild(totals);
+  totalsDiv.style.marginTop = '10px';
+  popup.appendChild(totalsDiv);
 
-  // Clear button
   const clearBtn = document.createElement('button');
-  clearBtn.textContent = '🗑️ Clear Cart';
-  clearBtn.style.background = '#e53935';
-  clearBtn.style.color = '#fff';
-  clearBtn.style.border = 'none';
-  clearBtn.style.padding = '10px 15px';
-  clearBtn.style.marginTop = '10px';
-  clearBtn.style.borderRadius = '8px';
-  clearBtn.style.cursor = 'pointer';
-  clearBtn.onclick = () => {
-    delete cartItems[brandKey];
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    overlay.remove();
-    // Optionally refresh badge:
-    updateCartIconBadge(brandKey);
-  };
+  clearBtn.textContent = 'Clear Cart';
+  Object.assign(clearBtn.style, {
+    background: '#d9534f',
+    color: 'white',
+    border: 'none',
+    padding: '8px 12px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    marginTop: '15px',
+  });
+  clearBtn.onclick = () => clearCart(brandKey);
+  popup.appendChild(clearBtn);
 
-  box.appendChild(clearBtn);
-
-  overlay.appendChild(box);
+  overlay.appendChild(popup);
   document.body.appendChild(overlay);
 }
-//////////// END
 
-/////////// START
-if (!document.getElementById('cart-icon-container')) {
-  const cartIconContainer = document.createElement('div');
-  cartIconContainer.id = 'cart-icon-container';
-  cartIconContainer.innerHTML = `
-    <div id="cart-icon" style="
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      font-size: 24px;
-      background: white;
-      border-radius: 50%;
-      padding: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      cursor: pointer;
-    ">🛒</div>
-  `;
-  document.body.appendChild(cartIconContainer);
-}
-////////// END
 
 
 
