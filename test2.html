@@ -1190,20 +1190,24 @@ document.body.appendChild(backdrop);
         brandSection.appendChild(itemDiv);
       });
 
-     // Calculate totals
+    // Calculate totals
 const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
 const tax = subtotal * 0.15;
 const grandTotal = subtotal + tax;
+
+// Format numbers as currency
+const formatCurrency = (amount) => `JMD ${amount.toLocaleString('en-JM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Totals section
 const totalsDiv = document.createElement('div');
 totalsDiv.style = 'margin-top: 10px; margin-bottom: 10px; font-size: 14px;';
 totalsDiv.innerHTML = `
-  <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><strong>JMD ${subtotal.toFixed(2)}</strong></div>
-  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>JMD ${tax.toFixed(2)}</strong></div>
-  <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><strong style="color: green;">JMD ${grandTotal.toFixed(2)}</strong></div>
+  <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><strong>${formatCurrency(subtotal)}</strong></div>
+  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div>
+  <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><strong style="color: green;">${formatCurrency(grandTotal)}</strong></div>
 `;
 brandSection.appendChild(totalsDiv);
+
 
 // Buttons row
 const actionRow = document.createElement('div');
