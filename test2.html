@@ -1260,7 +1260,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
   setupAddToCartButton(currentPopupDeal);
-  updateCartCount(getTotalCartItems());
+  updateCartCount(getTotalCartItems(currentPopupDeal));
     openCartPopup();
 }
 //outside 
@@ -1363,28 +1363,26 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     const inCart = itemIndex !== -1;
 
     if (inCart) {
-      brandItems.splice(itemIndex, 1);
-      console.log('Removed from cart:', deal.name);
-	    console.log('test:', deal.brand, deal.brandimg);
-    } else {
-      const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
-      brandItems.push({
-        _id: dealKey,
-      brand: deal.brandName,
-   brandimg: deal.brandLogo,	
-       name: deal.name,
-        img: deal.img || deal.image || '',
-        price
-      });
-      console.log('Added to cart:', deal.name);
-    }
+  brandItems.splice(itemIndex, 1);
+  console.log('Removed from cart:', deal.name);
+} else {
+  const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+  const item = {
+    _id: dealKey,
+    brand: deal.brandName,
+    brandimg: deal.brandLogo,
+    name: deal.name,
+    img: deal.img || deal.image || '',
+    price
+  };
+  addToCart(item); // ✅ this also updates the cart count
+}
 
-    updatedCart[brand] = brandItems;
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    updateCartBtnState(!inCart);
-    showCartIcon();
-   updateCartCount(getTotalCartItems());
- 
+updatedCart[brand] = brandItems;
+localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+updateCartBtnState(!inCart);
+showCartIcon();
+
    
   };
   
