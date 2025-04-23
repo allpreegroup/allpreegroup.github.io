@@ -966,6 +966,99 @@ function renderCartIconForBrand(brandKey) {
   badge.style.display = items.length > 0 ? 'inline-block' : 'none';
 }
 
+// Step 2: Show cart popup with product info, subtotal, tax, and total
+function openCartPopup(brandKey) {
+  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}')[brandKey] || [];
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'cart-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+  overlay.style.zIndex = 1000;
+
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'cart-popup';
+  popup.style.background = '#fff';
+  popup.style.padding = '20px';
+  popup.style.borderRadius = '10px';
+  popup.style.maxWidth = '90%';
+  popup.style.maxHeight = '80%';
+  popup.style.overflowY = 'auto';
+
+  const title = document.createElement('h2');
+  title.textContent = `Cart for ${brandKey}`;
+  popup.appendChild(title);
+
+  let subtotal = 0;
+
+  cartItems.forEach(item => {
+    const itemRow = document.createElement('div');
+    itemRow.style.display = 'flex';
+    itemRow.style.alignItems = 'center';
+    itemRow.style.marginBottom = '10px';
+
+    const img = document.createElement('img');
+    img.src = item.image;
+    img.alt = item.name;
+    img.style.width = '50px';
+    img.style.height = '50px';
+    img.style.objectFit = 'cover';
+    img.style.marginRight = '10px';
+
+    const info = document.createElement('div');
+    info.innerHTML = `<strong>${item.name}</strong><br>J$${item.discount}`;
+
+    itemRow.appendChild(img);
+    itemRow.appendChild(info);
+    popup.appendChild(itemRow);
+
+    subtotal += parseFloat(item.discount);
+  });
+
+  const tax = subtotal * 0.15;
+  const total = subtotal + tax;
+
+  const summary = document.createElement('div');
+  summary.innerHTML = `
+    <p><strong>Subtotal:</strong> J$${subtotal.toFixed(2)}</p>
+    <p><strong>Tax (15%):</strong> J$${tax.toFixed(2)}</p>
+    <p><strong>Total:</strong> J$${total.toFixed(2)}</p>
+  `;
+  popup.appendChild(summary);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear Cart';
+  clearBtn.style.marginTop = '10px';
+  clearBtn.onclick = () => {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
+    delete cartItems[brandKey];
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    overlay.remove();
+    renderCartIconForBrand(brandKey);
+  };
+  popup.appendChild(clearBtn);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Close';
+  closeBtn.style.marginTop = '10px';
+  closeBtn.style.marginLeft = '10px';
+  closeBtn.onclick = () => overlay.remove();
+  popup.appendChild(closeBtn);
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+}
+
+
 
  
 
