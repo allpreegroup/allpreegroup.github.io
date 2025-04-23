@@ -1478,25 +1478,46 @@ function openCartPopup(brandKey) {
 }
 */
 /////////// START
- if (!document.getElementById('cart-icon-container')) {
-   const cartIconContainer = document.createElement('div');
-   cartIconContainer.id = 'cart-icon-container';
-   cartIconContainer.innerHTML = `
-     <div id="cart-icon" style="
-       position: fixed;
-       top: 80px;
-       right: 10px;
-       z-index: 1000;
-       font-size: 24px;
-       background: white;
-       border-radius: 50%;
-       padding: 10px;
-       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-       cursor: pointer;
-     ">🛒</div>
-   `;
-   document.body.appendChild(cartIconContainer);
- }
+if (!document.getElementById('cart-icon-container')) {
+  const cartIconContainer = document.createElement('div');
+  cartIconContainer.id = 'cart-icon-container';
+  cartIconContainer.innerHTML = `
+    <div id="cart-icon" style="
+      position: fixed;
+      top: 80px;
+      right: 10px;
+      z-index: 1000;
+      font-size: 24px;
+      background: white;
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+    ">
+      🛒
+      <span id="cart-count" style="
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(50%, -50%);
+        background: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        display: none;
+      ">0</span>
+    </div>
+  `;
+  document.body.appendChild(cartIconContainer);
+
+  // Attach click handler
+  document.getElementById('cart-icon').onclick = () => {
+    openCartPopup('global'); // Or pass a default brandKey, or modify to show combined cart
+  };
+}
+
+// Update badge count
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
   if (countEl) {
@@ -1504,6 +1525,7 @@ function updateCartCount(count) {
     countEl.style.display = count > 0 ? 'inline-block' : 'none';
   }
 }
+
 	
  ////////// END
  
