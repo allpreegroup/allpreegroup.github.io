@@ -1045,6 +1045,135 @@ card.addEventListener('click', () => {
   const timerInterval = setInterval(updateCountdown, 1000);
 }
 
+
+function openCartPopup(brandKey) {
+  const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const items = cartItems[brandKey] || [];
+
+  if (items.length === 0) {
+    alert('Your cart is empty.');
+    return;
+  }
+
+  // Remove any existing popup
+  const existing = document.getElementById('cart-popup');
+  if (existing) existing.remove();
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'cart-popup';
+  overlay.style.position = 'fixed';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0, 0, 0, 0.6)';
+  overlay.style.zIndex = 9999;
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+
+  // Create popup box
+  const box = document.createElement('div');
+  box.style.background = '#fff';
+  box.style.padding = '20px';
+  box.style.borderRadius = '12px';
+  box.style.width = '90%';
+  box.style.maxWidth = '400px';
+  box.style.maxHeight = '80vh';
+  box.style.overflowY = 'auto';
+  box.style.position = 'relative';
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '10px';
+  closeBtn.style.right = '10px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.fontSize = '16px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => overlay.remove();
+
+  box.appendChild(closeBtn);
+
+  // Cart items
+  let subtotal = 0;
+  items.forEach(item => {
+    const itemDiv = document.createElement('div');
+    itemDiv.style.display = 'flex';
+    itemDiv.style.alignItems = 'center';
+    itemDiv.style.marginBottom = '10px';
+
+    const img = document.createElement('img');
+    img.src = item.image || '';
+    img.alt = item.name;
+    img.style.width = '50px';
+    img.style.height = '50px';
+    img.style.objectFit = 'cover';
+    img.style.marginRight = '10px';
+    img.style.borderRadius = '8px';
+
+    const name = document.createElement('div');
+    name.textContent = item.name;
+    name.style.flex = '1';
+
+    const price = parseFloat(item.discount?.toString().replace(/,/g, '') || '0');
+    subtotal += price;
+
+    const priceTag = document.createElement('div');
+    priceTag.textContent = `JMD ${price.toLocaleString()}`;
+    priceTag.style.fontWeight = 'bold';
+
+    itemDiv.appendChild(img);
+    itemDiv.appendChild(name);
+    itemDiv.appendChild(priceTag);
+    box.appendChild(itemDiv);
+  });
+
+  // Total + Tax
+  const tax = subtotal * 0.15;
+  const total = subtotal + tax;
+
+  const totals = document.createElement('div');
+  totals.innerHTML = `
+    <hr style="margin: 10px 0;">
+    <p><strong>Subtotal:</strong> JMD ${subtotal.toLocaleString()}</p>
+    <p><strong>Tax (15%):</strong> JMD ${tax.toLocaleString()}</p>
+    <p><strong>Total:</strong> JMD ${total.toLocaleString()}</p>
+  `;
+  box.appendChild(totals);
+
+  // Clear button
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = '🗑️ Clear Cart';
+  clearBtn.style.background = '#e53935';
+  clearBtn.style.color = '#fff';
+  clearBtn.style.border = 'none';
+  clearBtn.style.padding = '10px 15px';
+  clearBtn.style.marginTop = '10px';
+  clearBtn.style.borderRadius = '8px';
+  clearBtn.style.cursor = 'pointer';
+  clearBtn.onclick = () => {
+    delete cartItems[brandKey];
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    overlay.remove();
+    // Optionally refresh badge:
+    updateCartIconBadge(brandKey);
+  };
+
+  box.appendChild(clearBtn);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+
+
+
+
+	
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -1793,122 +1922,7 @@ function startBrandCountdown(expireDate, elementId) {
   };
 	
   loadDeals();
-
-
-
-function createCartPopup() {
-  const existing = document.getElementById('cartPopup');
-  if (existing) return;
-
-  const popup = document.createElement('div');
-  popup.id = 'cartPopup';
-  popup.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden';
-  popup.style.zIndex = '99999';
-
-  const inner = document.createElement('div');
-  inner.className = 'bg-white rounded-xl p-4 max-w-md w-full max-h-[90vh] overflow-auto relative';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '✖';
-  closeBtn.className = 'absolute top-2 right-2 text-lg';
-  closeBtn.onclick = () => popup.classList.add('hidden');
-
-  const title = document.createElement('h2');
-  title.textContent = 'Cart Items';
-  title.className = 'text-xl mb-4';
-
-  const list = document.createElement('div');
-  list.id = 'cartItemList';
-  list.className = 'space-y-3';
-
-  const summary = document.createElement('div');
-  summary.id = 'cartSummary';
-  summary.className = 'mt-4 font-bold';
-
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear Cart';
-  clearBtn.className = 'bg-red-600 text-white px-4 py-2 rounded mt-4';
-  clearBtn.onclick = () => {
-    const brand = localStorage.getItem('activeBrand');
-    const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-    delete cart[brand];
-    localStorage.setItem('cartItems', JSON.stringify(cart));
-    updateCartPopup();
-    showCartIcon();
-  };
-
-  inner.appendChild(closeBtn);
-  inner.appendChild(title);
-  inner.appendChild(list);
-  inner.appendChild(summary);
-  inner.appendChild(clearBtn);
-  popup.appendChild(inner);
-  document.body.appendChild(popup);
-}
-function showCartPopup() {
-  const popup = document.getElementById('cartPopup');
-  if (!popup) return;
-
-  const brand = localStorage.getItem('activeBrand');
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const items = cart[brand] || [];
-
-  const list = document.getElementById('cartItemList');
-  list.innerHTML = '';
-
-  let total = 0;
-
-  items.forEach(item => {
-    const row = document.createElement('div');
-    row.className = 'flex items-center gap-2 border-b pb-2';
-
-    const img = document.createElement('img');
-    img.src = item.img || '';
-    img.alt = item.name;
-    img.className = 'w-12 h-12 object-cover rounded';
-
-    const name = document.createElement('div');
-    name.textContent = item.name;
-    name.className = 'flex-1';
-
-    const price = document.createElement('div');
-    price.textContent = `$${parseFloat(item.discount || 0).toFixed(2)}`;
-    total += parseFloat(item.discount || 0);
-
-    row.appendChild(img);
-    row.appendChild(name);
-    row.appendChild(price);
-    list.appendChild(row);
-  });
-
-  const tax = total * 0.15;
-  const grandTotal = total + tax;
-
-  const summary = document.getElementById('cartSummary');
-  summary.innerHTML = `
-    Subtotal: $${total.toFixed(2)}<br>
-    Tax (15%): $${tax.toFixed(2)}<br>
-    <strong>Total: $${grandTotal.toFixed(2)}</strong>
-  `;
-
-  popup.classList.remove('hidden');
-}
-
-function showCartIcon() {
-  const brand = localStorage.getItem('activeBrand');
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const count = cart[brand]?.length || 0;
-
-  const bubble = document.getElementById('cartCountBubble');
-  if (bubble) {
-    bubble.textContent = count;
-    bubble.classList.toggle('hidden', count === 0);
-  }
-}
-
-	
-
-	
+		
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
   let startY = 0;
@@ -1976,12 +1990,6 @@ function showCartIcon() {
 
 // Call this after your popup is ready
 addPopupSwipeListeners();
-
-
-	
-createCartPopup();
-
-
 	
 </script>
 
