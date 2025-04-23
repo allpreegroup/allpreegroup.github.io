@@ -931,12 +931,6 @@ function getDealKey(deal) {
 
 /////// Start
 
-/////////// START
-// === Cart Icon Setup ===
-
-
-// === Cart Icon Setup ===
-
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
   updateCartCount(getTotalCartItems());
@@ -1008,9 +1002,12 @@ function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems());
-  openCartPopup();
+  refreshCartCount();
+
+  // Slight delay ensures count is visually updated before rebuild
+  setTimeout(openCartPopup, 50);
 }
+
 
 function openBrandLocation(brand) {
   const locations = {
@@ -1022,6 +1019,7 @@ function openBrandLocation(brand) {
 }
 
 function openCartPopup() {
+  refreshCartCount(); // Ensure up-to-date count
   let popup = document.getElementById('cart-popup');
   if (!popup) {
     popup = document.createElement('div');
@@ -1093,61 +1091,6 @@ function openCartPopup() {
 
   popup.style.display = 'block';
 }
-
-
-
-
-	
-	
-/* function openCartPopup() {
-  const popup = document.getElementById('cartPopup');
-  if (!popup) return;
-
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const brandKeys = Object.keys(cart);
-  popup.innerHTML = '';
-
-  if (brandKeys.length === 0) {
-    popup.innerHTML = '<p>Your cart is empty.</p>';
-    popup.style.display = 'block';
-    return;
-  }
-
-  brandKeys.forEach(brand => {
-    const items = cart[brand];
-    if (!items || items.length === 0) return;
-
-    const brandWrapper = document.createElement('div');
-    brandWrapper.style.borderBottom = '1px solid #eee';
-    brandWrapper.style.marginBottom = '12px';
-    brandWrapper.innerHTML = `
-      <h3 style="margin: 0 0 8px 0;">${brand}</h3>
-      <button style="margin-right: 8px;" onclick="clearBrandCart('${brand}')">Clear</button>
-      <button onclick="openBrandLocation('${brand}')">Location</button>
-    `;
-
-    items.forEach(item => {
-      const itemEl = document.createElement('div');
-      itemEl.style.display = 'flex';
-      itemEl.style.alignItems = 'center';
-      itemEl.style.margin = '8px 0';
-      itemEl.innerHTML = `
-        <img src="${item.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 10px;" />
-        <div>
-          <div style="font-weight: bold;">${item.name}</div>
-          <div style="color: green;">JMD ${item.price}</div>
-        </div>
-      `;
-      brandWrapper.appendChild(itemEl);
-    });
-
-    popup.appendChild(brandWrapper);
-  });
-
-  popup.style.display = 'block';
-} */
-
-
 	
  ////////// END
  
