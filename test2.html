@@ -936,190 +936,86 @@ function getDealKey(deal) {
 
 
 // === Cart Icon Setup ===
-if (!document.getElementById('cart-icon-container')) {
-  const cartIconContainer = document.createElement('div');
-  cartIconContainer.id = 'cart-icon-container';
-  cartIconContainer.innerHTML = `
-    <div id="cart-icon" style="
-      position: fixed;
-      top: 80px;
-      right: 10px;
-      z-index: 1000;
-      font-size: 15px;
-      background: white;
-      border-radius: 50%;
-      padding: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      cursor: pointer;
-    ">
-      🛒
-      <span id="cart-count" style="
-        position: absolute;
-        top: 0;
-        right: 0;
-        transform: translate(50%, -50%);
-        background: red;
-        color: white;
-        border-radius: 50%;
-        padding: 2px 6px;
-        font-size: 12px;
-        display: none;
-      ">0</span>
-    </div>
-  `;
-  document.body.appendChild(cartIconContainer);
-
-  document.getElementById('cart-icon').onclick = () => {
-    openCartPopup();
-  };
-	// ✅ Ensure the count is updated after icon exists
-  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
-}
-
+<script>
 document.addEventListener('DOMContentLoaded', () => {
- const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
+  initCartIcon();
+  updateCartCount(getTotalCartItems());
 });
 
-	
+function initCartIcon() {
+  if (!document.getElementById('cart-icon-container')) {
+    const cartIconContainer = document.createElement('div');
+    cartIconContainer.id = 'cart-icon-container';
+    cartIconContainer.innerHTML = `
+      <div id="cart-icon" style="
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        z-index: 1000;
+        font-size: 15px;
+        background: white;
+        border-radius: 50%;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        cursor: pointer;
+      ">
+        🛒
+        <span id="cart-count" style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          transform: translate(50%, -50%);
+          background: red;
+          color: white;
+          border-radius: 50%;
+          padding: 2px 6px;
+          font-size: 12px;
+          display: none;
+        ">0</span>
+      </div>
+    `;
+    document.body.appendChild(cartIconContainer);
+    document.getElementById('cart-icon').onclick = openCartPopup;
+  }
+}
+
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
   const tabCountEl = document.getElementById('cartCount');
-
   if (countEl) {
     countEl.textContent = count;
     countEl.style.display = count > 0 ? 'inline-block' : 'none';
   }
-
   if (tabCountEl) {
     tabCountEl.textContent = count;
   }
 }
 
-
+function getTotalCartItems() {
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  return Object.values(cart).reduce((sum, items) => sum + items.length, 0);
+}
 
 function addToCart(item) {
-  const existingCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-  if (!existingCart[item.brand]) {
-    existingCart[item.brand] = [];
-  }
-  existingCart[item.brand].push(item);
-  localStorage.setItem('cartItems', JSON.stringify(existingCart));
-  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
-}
-
-function getTotalCartItems() {
-  const cart = JSON.parse(localStorage.getItem('cartItems')) || {};
-  console.log('🛒 Cart contents in getTotalCartItems:', cart);
-  return Object.values(cart).reduce((total, items) => total + items.length, 0);
-}
-
-
-function openCartPopup() {
-  let popup = document.getElementById('cart-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'cart-popup';
-    popup.style = `
-      position: fixed;
-      top: 120px;
-      right: 10px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      width: 320px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 1001;
-    `;
-    document.body.appendChild(popup);
-  }
-
-  const cart = JSON.parse(localStorage.getItem('cartItems')) || {};
-  popup.innerHTML = '';
-
-  const brandKeys = Object.keys(cart);
-  if (brandKeys.length === 0) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 No items in the cart.</div>`;
-    return;
-  }
-
-  brandKeys.forEach(brandKey => {
-    const items = cart[brandKey];
-    if (!items || items.length === 0) return;
-
-    const brandLogo = items[0].brandimg || '';
-
-    const brandSection = document.createElement('div');
-    brandSection.style = 'border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;';
-
-    brandSection.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${brandLogo}" alt="${brandKey}" style="width: 30px; height: 30px; object-fit: contain;">
-          <strong>${brandKey}</strong>
-        </div>
-        <div style="display: flex; gap: 6px;">
-          <button onclick="clearBrandCart('${brandKey}')" style="background: red; color: white; border: none; padding: 2px 6px; border-radius: 4px;">Clear</button>
-          <button onclick="handleBrandLocation('${brandKey}')" style="background: #555; color: white; border: none; padding: 2px 6px; border-radius: 4px;">Location</button>
-        </div>
-      </div>
-    `;
-
-    items.forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.style = 'margin: 5px 0; display: flex; gap: 10px; align-items: center;';
-      itemDiv.innerHTML = `
-        <img src="${item.img}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover;">
-        <div style="flex: 1;">
-          <div style="font-size: 14px;">${item.name}</div>
-          <div style="font-weight: bold;">$${item.price}</div>
-        </div>
-      `;
-      brandSection.appendChild(itemDiv);
-    });
-
-    popup.appendChild(brandSection);
-  });
-}
-
-function clearBrandCart(brandKey) {
-  const cart = JSON.parse(localStorage.getItem('cartItems')) || {};
-  delete cart[brandKey];
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  if (!cart[item.brand]) cart[item.brand] = [];
+  cart[item.brand].push(item);
   localStorage.setItem('cartItems', JSON.stringify(cart));
- const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
-  openCartPopup();
+  updateCartCount(getTotalCartItems());
 }
-
-function handleBrandLocation(brandKey) {
-  alert(`Location for ${brandKey} coming soon!`);
-}
-
-// Initialize count on page load
-const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
-
 
 function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  openCartPopup(); // Refresh popup
+  updateCartCount(getTotalCartItems());
+  openCartPopup();
 }
 
 function openBrandLocation(brand) {
   const locations = {
     'Maxie Department Store': 'https://www.google.com/maps?q=Maxie+Cross+Roads'
-    // Add more brands as needed
+    // Add more brands here
   };
   const url = locations[brand] || 'https://www.google.com/maps';
   window.open(url, '_blank');
@@ -1162,7 +1058,6 @@ function openCartPopup() {
     const brandLogo = items[0].brandimg || '';
     const brandSection = document.createElement('div');
     brandSection.style = 'border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 10px;';
-
     brandSection.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1198,25 +1093,8 @@ function openCartPopup() {
 
   popup.style.display = 'block';
 }
+</script>
 
-function clearBrandCart(brand) {
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  delete cart[brand];
-  localStorage.setItem('cartItems', JSON.stringify(cart));
-  const currentCart = JSON.parse(localStorage.getItem('cartItems')) || {};
-const count = Object.values(currentCart).reduce((sum, items) => sum + items.length, 0);
-updateCartCount(count);
-  openCartPopup(); // Refresh popup
-}
-
-function openBrandLocation(brand) {
-  const locations = {
-    'Maxie Department Store': 'https://www.google.com/maps?q=Maxie+Cross+Roads'
-    // Add more brand locations here
-  };
-  const url = locations[brand] || 'https://www.google.com/maps';
-  window.open(url, '_blank');
-}
 
 
 	
