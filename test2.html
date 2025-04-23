@@ -884,6 +884,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div> 
 
 
+<div id="cartPopup" style="display: none; position: fixed; top: 60px; right: 10px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 10000; padding: 16px;"></div>
+
+
 <script>
 	let sheetUrls = [];
 
@@ -1606,7 +1609,70 @@ updateCartCount(getTotalCartItems());
  ////////// END
  
 
+function clearBrandCart(brand) {
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  delete cart[brand];
+  localStorage.setItem('cartItems', JSON.stringify(cart));
+  openCartPopup(); // Refresh popup
+}
 
+function openBrandLocation(brand) {
+  const locations = {
+    'Maxie Department Store': 'https://www.google.com/maps?q=Maxie+Cross+Roads'
+    // Add more brands as needed
+  };
+  const url = locations[brand] || 'https://www.google.com/maps';
+  window.open(url, '_blank');
+}
+
+	
+function openCartPopup() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const brandKeys = Object.keys(cart);
+  popup.innerHTML = '';
+
+  if (brandKeys.length === 0) {
+    popup.innerHTML = '<p>Your cart is empty.</p>';
+    popup.style.display = 'block';
+    return;
+  }
+
+  brandKeys.forEach(brand => {
+    const items = cart[brand];
+    if (!items || items.length === 0) return;
+
+    const brandWrapper = document.createElement('div');
+    brandWrapper.style.borderBottom = '1px solid #eee';
+    brandWrapper.style.marginBottom = '12px';
+    brandWrapper.innerHTML = `
+      <h3 style="margin: 0 0 8px 0;">${brand}</h3>
+      <button style="margin-right: 8px;" onclick="clearBrandCart('${brand}')">Clear</button>
+      <button onclick="openBrandLocation('${brand}')">Location</button>
+    `;
+
+    items.forEach(item => {
+      const itemEl = document.createElement('div');
+      itemEl.style.display = 'flex';
+      itemEl.style.alignItems = 'center';
+      itemEl.style.margin = '8px 0';
+      itemEl.innerHTML = `
+        <img src="${item.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; margin-right: 10px;" />
+        <div>
+          <div style="font-weight: bold;">${item.name}</div>
+          <div style="color: green;">JMD ${item.price}</div>
+        </div>
+      `;
+      brandWrapper.appendChild(itemEl);
+    });
+
+    popup.appendChild(brandWrapper);
+  });
+
+  popup.style.display = 'block';
+}
 
 	
 
