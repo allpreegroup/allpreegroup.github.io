@@ -1061,10 +1061,28 @@ function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems()); 
-    openCartPopup();
-  
+  updateCartCount(getTotalCartItems());
+
+  const popup = document.getElementById('cart-popup');
+  if (!popup) return;
+
+  // Remove the brand section directly
+  const brandSections = popup.querySelectorAll('strong');
+  brandSections.forEach(strong => {
+    if (strong.textContent.trim() === brand) {
+      const section = strong.closest('div[style*="border-bottom"]');
+      if (section) section.remove();
+    }
+  });
+
+  // If nothing left in cart, show empty message
+  const remainingCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const hasItems = Object.values(remainingCart).some(arr => arr.length > 0);
+  if (!hasItems) {
+    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
+  }
 }
+
 
 function openBrandLocation(brand) {
   const locations = {
@@ -1079,45 +1097,46 @@ function openCartPopup() {
   // Prevent duplicate backdrop
   if (document.getElementById('cart-backdrop')) return;
 
-  // Create backdrop
-  const backdrop = document.createElement('div');
-  backdrop.id = 'cart-backdrop';
-  backdrop.style = `
-    position: fixed;
-    top: 0;
-    gap: 20px;
-    left: 0;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.3);
-    z-index: 10000;
-  `;
-  backdrop.addEventListener('click', (e) => {
-    if (e.target === backdrop) closeCartPopup();
-  });
+ // Create backdrop
+const backdrop = document.createElement('div');
+backdrop.id = 'cart-backdrop';
+backdrop.style = `
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+`;
+backdrop.addEventListener('click', (e) => {
+  if (e.target === backdrop) closeCartPopup();
+});
 
-  // Create or get popup
-  let popup = document.getElementById('cart-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'cart-popup';
-    popup.style = `
-      position: relative;
-      top: 0px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      max-width: 500px;
-      width: 90%;
-      height: 90%;
-      max-height: 500px;
-      overflow-y: auto;
-      justify-content: center;
-    `;
-  }
+// Create or get popup
+let popup = document.getElementById('cart-popup');
+if (!popup) {
+  popup = document.createElement('div');
+  popup.id = 'cart-popup';
+  popup.style = `
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    width: 90%;
+    max-width: 500px;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  `;
+}
+
+// Add popup to backdrop and backdrop to body
+backdrop.appendChild(popup);
+document.body.appendChild(backdrop);
 
   // Clear and rebuild cart content
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
