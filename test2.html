@@ -1002,6 +1002,7 @@ function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
+  updateCartCount(getTotalCartItems());
   openCartPopup();
 }
 
