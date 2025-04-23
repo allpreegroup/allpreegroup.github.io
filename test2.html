@@ -907,13 +907,11 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-
+/////// Start
+	
 function renderLikedDealsGallery(brandKey, deals) {
   // Placeholder — real function will be added later
 }
-
-
-	
 
 // Step 1: Always show the cart icon above the liked deals gallery (per brand)
 
@@ -1154,48 +1152,6 @@ function clearCart(brandKey) {
 }
 
  
-
-
-	
- function startPopupCountdown(expireDate, el) {
-  if (!el || !expireDate) return;
-
-  const parsedDate = Date.parse(expireDate);
-
-  // If date is invalid or already expired
-  if (isNaN(parsedDate) || parsedDate < Date.now()) {
-    el.textContent = "⏳ Coming soon";
-    el.classList.add("countdown-upcoming");
-    return;
-  }
-
-  function updateCountdown() {
-    const now = new Date();
-    const endTime = new Date(parsedDate);
-    const diff = endTime - now;
-
-    if (diff <= 0) {
-      el.textContent = "❌ Deal expired";
-      el.classList.add("countdown-ended");
-      clearInterval(timerInterval);
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-
-    el.textContent = `⏳ ${timeStr}`;
-  }
-
-  updateCountdown();
-  const timerInterval = setInterval(updateCountdown, 1000);
-}
-
-
 function openCartPopup(brandKey) {
   const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const items = cartItems[brandKey] || [];
@@ -1318,9 +1274,139 @@ function openCartPopup(brandKey) {
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
+//////////// END
+
+/////////// START
+if (!document.getElementById('cart-icon-container')) {
+  const cartIconContainer = document.createElement('div');
+  cartIconContainer.id = 'cart-icon-container';
+  cartIconContainer.innerHTML = `
+    <div id="cart-icon" style="
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      font-size: 24px;
+      background: white;
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+    ">🛒</div>
+  `;
+  document.body.appendChild(cartIconContainer);
+}
+////////// END
 
 
 
+	
+
+////////// START	
+function renderLikedDealsGallery() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const galleryEl = document.getElementById('likedDealsGallery');
+  const sectionEl = document.getElementById('likedDealsSection');
+
+  galleryEl.innerHTML = ''; // Clear previous content
+  const likedKeys = Object.keys(likedDeals);
+
+  if (likedKeys.length === 0) {
+    sectionEl.style.display = 'none'; // Hide section if no liked deals
+    return;
+  }
+
+  likedKeys.forEach(key => {
+    const deal = likedDeals[key];
+    if (deal && deal.name && deal.image && deal.original) {
+      const card = document.createElement('div');
+      card.className = 'deal liked';
+
+      const percentOff = deal.percentOff || 0;
+      const brandLogo = deal.brandLogo || '';
+      const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
+
+      card.innerHTML = `
+        <div class="liked-deal-brand">
+          <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
+        </div>
+        <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
+        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
+        <div class="liked-deal-content">
+          <div class="liked-deal-title">${shortName}</div>
+          <div class="liked-deal-price">J$${deal.original}</div>
+          <div class="liked-deal-discount">J$${deal.discount}</div>
+        </div>
+      `;
+
+    
+  card.addEventListener('click', () => {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  likedDealKeys = Object.keys(likedDeals);
+ likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
+
+  isLikedMode = true;
+  document.getElementById('showLikedBtn')?.classList.add('active');
+  document.getElementById('showRandomBtn')?.classList.remove('active');
+
+  openPopup(deal);
+
+  // Delay attaching swipe listeners until popup fully rendered
+  setTimeout(() => {
+    addPopupSwipeListeners();
+  }, 100); // 100ms is usually enough
+});
+
+
+      galleryEl.appendChild(card);
+    }
+  });
+
+  sectionEl.style.display = 'block';
+}
+
+ /////////// END
+
+	
+
+	
+ function startPopupCountdown(expireDate, el) {
+  if (!el || !expireDate) return;
+
+  const parsedDate = Date.parse(expireDate);
+
+  // If date is invalid or already expired
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = "⏳ Coming soon";
+    el.classList.add("countdown-upcoming");
+    return;
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const endTime = new Date(parsedDate);
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      el.textContent = "❌ Deal expired";
+      el.classList.add("countdown-ended");
+      clearInterval(timerInterval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+
+    el.textContent = `⏳ ${timeStr}`;
+  }
+
+  updateCountdown();
+  const timerInterval = setInterval(updateCountdown, 1000);
+}
 
 
 	
