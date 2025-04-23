@@ -975,10 +975,8 @@ function initCartIcon() {
     document.body.appendChild(cartIconContainer);
     document.getElementById('cart-icon').onclick = openCartPopup;
     updateCartCount(getTotalCartItems());
-   const popup = document.getElementById('cart-popup');
-  if (popup && popup.style.display === 'block') {
     openCartPopup();
-  }
+  
 }
 
 function updateCartCount(count) {
@@ -1003,22 +1001,17 @@ function addToCart(item) {
   if (!cart[item.brand]) cart[item.brand] = [];
   cart[item.brand].push(item);
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems());
-   const popup = document.getElementById('cart-popup');
-  if (popup && popup.style.display === 'block') {
-    openCartPopup();
-}
+ updateCartCount(getTotalCartItems());
+   
 }
 
 function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
   localStorage.setItem('cartItems', JSON.stringify(cart));
-  updateCartCount(getTotalCartItems());
-   const popup = document.getElementById('cart-popup');
-  if (popup && popup.style.display === 'block') {
+  updateCartCount(getTotalCartItems()); 
     openCartPopup();
-  }
+  
 }
 
 function openBrandLocation(brand) {
@@ -1267,11 +1260,8 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
   setupAddToCartButton(currentPopupDeal);
-   updateCartCount(getTotalCartItems());
-   const popup = document.getElementById('cart-popup');
-  if (popup && popup.style.display === 'block') {
+  updateCartCount(getTotalCartItems());
     openCartPopup();
-}
 }
 //outside 
 
@@ -1394,11 +1384,10 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     updateCartBtnState(!inCart);
     showCartIcon();
    updateCartCount(getTotalCartItems());
-   const popup = document.getElementById('cart-popup');
-  if (popup && popup.style.display === 'block') {
-    openCartPopup();
+ 
+   
   };
-  }
+  
   function updateCartBtnState(isNowInCart) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
     addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
