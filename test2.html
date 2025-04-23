@@ -798,6 +798,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="col-md-6 home-txt1"> <br><br>
 			 
 	
+	<div id="cartIconWrapper" class="relative">
+  <button onclick="showCartPopup()" class="text-2xl">🛒</button>
+  <span id="cartCountBubble" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1 hidden">0</span>
+</div>
 			 
   <div id="deals-container">Loading deals...</div>
 
@@ -889,6 +893,8 @@ function getDealKey(deal) {
     .replace(/\s+/g, '')      // remove spaces
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
+
+
 
 	
 function renderLikedDealsGallery() {
@@ -1744,6 +1750,118 @@ function startBrandCountdown(expireDate, elementId) {
 	
   loadDeals();
 
+
+
+function createCartPopup() {
+  const existing = document.getElementById('cartPopup');
+  if (existing) return;
+
+  const popup = document.createElement('div');
+  popup.id = 'cartPopup';
+  popup.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden';
+  popup.style.zIndex = '99999';
+
+  const inner = document.createElement('div');
+  inner.className = 'bg-white rounded-xl p-4 max-w-md w-full max-h-[90vh] overflow-auto relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✖';
+  closeBtn.className = 'absolute top-2 right-2 text-lg';
+  closeBtn.onclick = () => popup.classList.add('hidden');
+
+  const title = document.createElement('h2');
+  title.textContent = 'Cart Items';
+  title.className = 'text-xl mb-4';
+
+  const list = document.createElement('div');
+  list.id = 'cartItemList';
+  list.className = 'space-y-3';
+
+  const summary = document.createElement('div');
+  summary.id = 'cartSummary';
+  summary.className = 'mt-4 font-bold';
+
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear Cart';
+  clearBtn.className = 'bg-red-600 text-white px-4 py-2 rounded mt-4';
+  clearBtn.onclick = () => {
+    const brand = localStorage.getItem('activeBrand');
+    const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+    delete cart[brand];
+    localStorage.setItem('cartItems', JSON.stringify(cart));
+    updateCartPopup();
+    showCartIcon();
+  };
+
+  inner.appendChild(closeBtn);
+  inner.appendChild(title);
+  inner.appendChild(list);
+  inner.appendChild(summary);
+  inner.appendChild(clearBtn);
+  popup.appendChild(inner);
+  document.body.appendChild(popup);
+}
+function showCartPopup() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+
+  const brand = localStorage.getItem('activeBrand');
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const items = cart[brand] || [];
+
+  const list = document.getElementById('cartItemList');
+  list.innerHTML = '';
+
+  let total = 0;
+
+  items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-2 border-b pb-2';
+
+    const img = document.createElement('img');
+    img.src = item.img || '';
+    img.alt = item.name;
+    img.className = 'w-12 h-12 object-cover rounded';
+
+    const name = document.createElement('div');
+    name.textContent = item.name;
+    name.className = 'flex-1';
+
+    const price = document.createElement('div');
+    price.textContent = `$${parseFloat(item.discount || 0).toFixed(2)}`;
+    total += parseFloat(item.discount || 0);
+
+    row.appendChild(img);
+    row.appendChild(name);
+    row.appendChild(price);
+    list.appendChild(row);
+  });
+
+  const tax = total * 0.15;
+  const grandTotal = total + tax;
+
+  const summary = document.getElementById('cartSummary');
+  summary.innerHTML = `
+    Subtotal: $${total.toFixed(2)}<br>
+    Tax (15%): $${tax.toFixed(2)}<br>
+    <strong>Total: $${grandTotal.toFixed(2)}</strong>
+  `;
+
+  popup.classList.remove('hidden');
+}
+
+function showCartIcon() {
+  const brand = localStorage.getItem('activeBrand');
+  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const count = cart[brand]?.length || 0;
+
+  const bubble = document.getElementById('cartCountBubble');
+  if (bubble) {
+    bubble.textContent = count;
+    bubble.classList.toggle('hidden', count === 0);
+  }
+}
+
 	
 
 	
@@ -1814,6 +1932,13 @@ function startBrandCountdown(expireDate, elementId) {
 
 // Call this after your popup is ready
 addPopupSwipeListeners();
+
+
+	
+createCartPopup();
+
+
+	
 </script>
 
 
