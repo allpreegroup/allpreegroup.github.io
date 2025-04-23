@@ -976,11 +976,18 @@ if (!document.getElementById('cart-icon-container')) {
 
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
+  const tabCountEl = document.getElementById('cartCount');
+
   if (countEl) {
     countEl.textContent = count;
     countEl.style.display = count > 0 ? 'inline-block' : 'none';
   }
+
+  if (tabCountEl) {
+    tabCountEl.textContent = count;
+  }
 }
+
 
 function addToCart(item) {
   const existingCart = JSON.parse(localStorage.getItem('cartItems')) || {};
@@ -1405,6 +1412,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popup').style.display = 'flex';
   setupLikeButton(currentPopupDeal);
   setupAddToCartButton(currentPopupDeal);
+  updatePopupCartCount();
   
 }
 
@@ -1528,6 +1536,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
     updateCartBtnState(!inCart);
     showCartIcon();
+    updatePopupCartCount();  
   };
 
   function updateCartBtnState(isNowInCart) {
