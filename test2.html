@@ -909,13 +909,16 @@ function getDealKey(deal) {
 
 
 function renderCartIconForBrand(brandKey) {
+  // Create the cart container
   const cartContainer = document.createElement('div');
   cartContainer.className = 'brand-cart-container';
   cartContainer.style.position = 'relative';
   cartContainer.style.display = 'inline-block';
   cartContainer.style.marginBottom = '10px';
   cartContainer.style.marginLeft = '10px';
+  cartContainer.style.zIndex = '1000'; // Ensure it's always on top
 
+  // Create the cart button
   const cartBtn = document.createElement('button');
   cartBtn.className = 'brand-cart-btn';
   cartBtn.textContent = '🛒';
@@ -925,11 +928,11 @@ function renderCartIconForBrand(brandKey) {
   cartBtn.style.border = 'none';
   cartBtn.style.cursor = 'pointer';
 
-  // Load cart items for this brand
+  // Load cart items
   const cartItems = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const items = cartItems[brandKey] || [];
 
-  // Badge
+  // Add badge if there are items
   const badge = document.createElement('span');
   badge.className = 'cart-badge';
   badge.textContent = items.length;
@@ -946,80 +949,29 @@ function renderCartIconForBrand(brandKey) {
   cartBtn.appendChild(badge);
   cartContainer.appendChild(cartBtn);
 
-  // Append above liked deals gallery
-  const likedSection = document.querySelector(`#liked-gallery-${brandKey}`);
-  if (likedSection) {
-    likedSection.parentNode.insertBefore(cartContainer, likedSection);
+  // Insert cart above the liked gallery section
+  let likedSection = document.getElementById('likedDealsSection');
+
+  // If it doesn't exist yet, create it dynamically
+  if (!likedSection) {
+    likedSection = document.createElement('div');
+    likedSection.id = 'likedDealsSection';
+    likedSection.style.marginTop = '20px';
+    document.body.appendChild(likedSection);
   }
 
-  // Open cart popup on click
+  // Prevent multiple cart icons
+  const existingCart = likedSection.querySelector('.brand-cart-container');
+  if (existingCart) existingCart.remove();
+
+  likedSection.insertBefore(cartContainer, likedSection.firstChild);
+
+  // Handle click to open popup
   cartBtn.onclick = () => {
     openCartPopup(brandKey);
   };
 }
 
-	
-function renderLikedDealsGallery() {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const galleryEl = document.getElementById('likedDealsGallery');
-  const sectionEl = document.getElementById('likedDealsSection');
-
-  galleryEl.innerHTML = ''; // Clear previous content
-  const likedKeys = Object.keys(likedDeals);
-
-  if (likedKeys.length === 0) {
-    sectionEl.style.display = 'none'; // Hide section if no liked deals
-    return;
-  }
-
-  likedKeys.forEach(key => {
-    const deal = likedDeals[key];
-    if (deal && deal.name && deal.image && deal.original) {
-      const card = document.createElement('div');
-      card.className = 'deal liked';
-
-      const percentOff = deal.percentOff || 0;
-      const brandLogo = deal.brandLogo || '';
-      const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
-
-      card.innerHTML = `
-        <div class="liked-deal-brand">
-          <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
-        </div>
-        <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
-        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
-        <div class="liked-deal-content">
-          <div class="liked-deal-title">${shortName}</div>
-          <div class="liked-deal-price">J$${deal.original}</div>
-          <div class="liked-deal-discount">J$${deal.discount}</div>
-        </div>
-      `;
-
-     // Inside renderLikedDealsGallery()
-card.addEventListener('click', () => {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  likedDealKeys = Object.keys(likedDeals);
- likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
-
-  isLikedMode = true;
-  document.getElementById('showLikedBtn')?.classList.add('active');
-  document.getElementById('showRandomBtn')?.classList.remove('active');
-
-  openPopup(deal);
-
-  // Delay attaching swipe listeners until popup fully rendered
-  setTimeout(() => {
-    addPopupSwipeListeners();
-  }, 100); // 100ms is usually enough
-});
-
-
-      galleryEl.appendChild(card);
-    }
-  });
-
-  sectionEl.style.display = 'block';
-}
 
  
 
