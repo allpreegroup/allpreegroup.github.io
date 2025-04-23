@@ -1214,6 +1214,7 @@ const actionRow = document.createElement('div');
 actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
 actionRow.innerHTML = `
   <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Clear</button>
+  <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Save Shopping List</button>
   <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
 `;
 brandSection.appendChild(actionRow);
@@ -1234,82 +1235,6 @@ function closeCartPopup() {
   document.body.style.overflow = ''; // re-enable scroll
 }
 
-
-
-	
-/* function openCartPopup() {
- 
-  let popup = document.getElementById('cart-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'cart-popup';
-    popup.style = `
-      position: fixed;
-      top: 120px;
-      right: 10px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      width: 320px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 10000;
-    `;
-    document.body.appendChild(popup);
-  }
-
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const brandKeys = Object.keys(cart);
-  popup.innerHTML = '';
-
-  if (brandKeys.length === 0) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
-    return;
-  }
-
-  brandKeys.forEach(brand => {
-    const items = cart[brand];
-    if (!items || items.length === 0) return;
-
-    const brandLogo = items[0].brandimg || '';
-    const brandSection = document.createElement('div');
-    brandSection.style = 'border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 10px;';
-    brandSection.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${brandLogo}" alt="${brand}" style="width: 30px; height: 30px; object-fit: contain;">
-          <strong>${brand}</strong>
-        </div>
-      </div>
-    `;
-
-    items.forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.style = 'display: flex; gap: 10px; align-items: center; margin-bottom: 6px;';
-      itemDiv.innerHTML = `
-        <img src="${item.img}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
-        <div style="flex: 1;">
-          <div style="font-size: 14px;">${item.name}</div>
-          <div style="font-weight: bold; color: green;">JMD ${item.price}</div>
-        </div>
-      `;
-      brandSection.appendChild(itemDiv);
-    });
-
-    const actionRow = document.createElement('div');
-    actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
-    actionRow.innerHTML = `
-      <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Clear</button>
-      <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
-    `;
-    brandSection.appendChild(actionRow);
-
-    popup.appendChild(brandSection);
-  });
-
-  popup.style.display = 'block';
-} */
 	
  ////////// END
  
