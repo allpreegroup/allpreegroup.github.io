@@ -1919,7 +1919,7 @@ function setupAddToCartButton(deal) {
     return;
   }
 
-  const brand = deal.brand || 'Unknown';
+  const brand = brandName || '';
   const dealKey = getDealKey(deal);
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const brandCart = cart[brand] || [];
@@ -1959,72 +1959,6 @@ function setupAddToCartButton(deal) {
     addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
   }
 }
-
-
-
-
-
-/*	
-function setupAddToCartButton(deal) {
-  const cartBtnContainer = document.getElementById('cartBtnContainer');
-  const addToCartBtn = document.getElementById('popupAddToCartBtn');
-
-  // Only show in brand mode
-  if (typeof isBrandMode === 'undefined' || !isBrandMode) {
-    cartBtnContainer?.classList.add('hidden');
-    return;
-  } else {
-    cartBtnContainer?.classList.remove('hidden');
-  }
-
-  if (!addToCartBtn || !deal || !deal.name) {
-    console.warn('Cart button or deal missing:', { addToCartBtn, deal });
-    return;
-  }
-
-  const brand = deal.brand || 'Unknown';
-  const dealName = deal.name;
-  const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-  const brandCart = cart[brand] || [];
-  const isInCart = brandCart.some(item => item.name === dealName);
-
-  updateCartBtnState(isInCart);
-
-  addToCartBtn.onclick = () => {
-    console.log('Cart button clicked for:', dealName);
-    const updatedCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
-    let brandItems = updatedCart[brand] || [];
-    const inCart = brandItems.some(item => item.name === dealName);
-
-    if (inCart) {
-      // Remove from cart
-      brandItems = brandItems.filter(item => item.name !== dealName);
-      console.log('Removed from cart:', dealName);
-    } else {
-      // Add to cart
-      brandItems.push({
-        name: deal.name,
-        img: deal.img,
-        price: parseFloat(deal.discount?.toString().replace(/,/g, '') || '0')
-      });
-      console.log('Added to cart:', deal.name);
-    }
-
-    updatedCart[brand] = brandItems;
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    updateCartBtnState(!inCart);
-    showCartIcon();
-  };
-
-  function updateCartBtnState(isNowInCart) {
-    addToCartBtn.classList.toggle('in-cart', isNowInCart);
-    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
-  }
-}
-
-*/
-
-	
 
 
 function closePopup() {
