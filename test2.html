@@ -1478,6 +1478,7 @@ function openCartPopup(brandKey) {
 }
 */
 /////////// START
+// === Cart Icon Setup ===
 if (!document.getElementById('cart-icon-container')) {
   const cartIconContainer = document.createElement('div');
   cartIconContainer.id = 'cart-icon-container';
@@ -1511,13 +1512,11 @@ if (!document.getElementById('cart-icon-container')) {
   `;
   document.body.appendChild(cartIconContainer);
 
-  // Attach click handler
   document.getElementById('cart-icon').onclick = () => {
-    openCartPopup('global'); // Or pass a default brandKey, or modify to show combined cart
+    openCartPopup();
   };
 }
 
-// Update badge count
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
   if (countEl) {
@@ -1525,6 +1524,83 @@ function updateCartCount(count) {
     countEl.style.display = count > 0 ? 'inline-block' : 'none';
   }
 }
+
+function addToCart(item) {
+  const existingCart = JSON.parse(localStorage.getItem('cart')) || {};
+  if (!existingCart[item.brandKey]) {
+    existingCart[item.brandKey] = [];
+  }
+  existingCart[item.brandKey].push(item);
+  localStorage.setItem('cart', JSON.stringify(existingCart));
+  updateCartCount(getTotalCartItems());
+}
+
+function getTotalCartItems() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  return Object.values(cart).reduce((total, items) => total + items.length, 0);
+}
+
+function openCartPopup() {
+  let popup = document.getElementById('cart-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'cart-popup';
+    popup.style = `
+      position: fixed;
+      top: 120px;
+      right: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1001;
+    `;
+    document.body.appendChild(popup);
+  }
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  popup.innerHTML = '';
+
+  Object.keys(cart).forEach(brandKey => {
+    const items = cart[brandKey];
+    const brandSection = document.createElement('div');
+    brandSection.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <strong>${brandKey}</strong>
+        <button onclick="clearBrandCart('${brandKey}')" style="background: red; color: white; border: none; padding: 2px 6px; border-radius: 4px;">Clear</button>
+      </div>
+    `;
+
+    items.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.style = 'margin: 5px 0; display: flex; gap: 10px; align-items: center;';
+      itemDiv.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover;">
+        <div style="flex: 1;">
+          <div style="font-size: 14px;">${item.name}</div>
+          <div style="font-weight: bold;">$${item.price}</div>
+        </div>
+      `;
+      brandSection.appendChild(itemDiv);
+    });
+
+    popup.appendChild(brandSection);
+  });
+}
+
+function clearBrandCart(brandKey) {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  delete cart[brandKey];
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount(getTotalCartItems());
+  openCartPopup();
+}
+
+// Initialize count on page load
+updateCartCount(getTotalCartItems());
 
 	
  ////////// END
