@@ -1549,7 +1549,9 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
     updateCartBtnState(!inCart);
     showCartIcon();
 	  console.log('New cart total:', getTotalCartItems());
-    updateCartCount(getTotalCartItems());  
+    const count = Object.values(updatedCart).reduce((sum, items) => sum + items.length, 0);
+updateCartCount(count);
+
   };
 
   function updateCartBtnState(isNowInCart) {
