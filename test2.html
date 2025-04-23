@@ -1421,6 +1421,76 @@ function renderLikedDealsGallery() {
         margin: 10px auto;
         display: block;
         background: #28a745;
+function renderLikedDealsGallery() {
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const galleryEl = document.getElementById('likedDealsGallery');
+  const sectionEl = document.getElementById('likedDealsSection');
+
+  galleryEl.innerHTML = ''; // Clear previous content
+  const likedKeys = Object.keys(likedDeals);
+
+  if (likedKeys.length === 0) {
+    sectionEl.style.display = 'none'; // Hide section if no liked deals
+    return;
+  }
+
+  likedKeys.forEach(key => {
+    const deal = likedDeals[key];
+    if (deal && deal.name && deal.image && deal.original) {
+      const card = document.createElement('div');
+      card.className = 'deal liked';
+
+      const percentOff = deal.percentOff || 0;
+      const brandLogo = deal.brandLogo || '';
+      const shortName = deal.name.length > 20 ? deal.name.substring(0, 20) + '...' : deal.name;
+
+      card.innerHTML = `
+        <div class="liked-deal-brand">
+          <img src="${brandLogo}" alt="Brand Logo" class="liked-deal-brand-img">
+        </div>
+        <img src="${deal.image}" class="liked-deal-card-img" alt="${deal.name}">
+        ${percentOff ? `<span class="liked-discount-badge">${percentOff}% OFF </span>` : ''}
+        <div class="liked-deal-content">
+          <div class="liked-deal-title">${shortName}</div>
+          <div class="liked-deal-price">J$${deal.original}</div>
+          <div class="liked-deal-discount">J$${deal.discount}</div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+        likedDealKeys = Object.keys(likedDeals);
+        likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
+
+        isLikedMode = true;
+        document.getElementById('showLikedBtn')?.classList.add('active');
+        document.getElementById('showRandomBtn')?.classList.remove('active');
+
+        openPopup(deal);
+
+        // Delay attaching swipe listeners until popup fully rendered
+        setTimeout(() => {
+          addPopupSwipeListeners();
+        }, 100);
+      });
+
+      galleryEl.appendChild(card);
+    }
+  });
+
+  // Check for saved shopping lists
+  const savedLists = JSON.parse(localStorage.getItem('savedShoppingLists') || '[]');
+  const existingBtn = document.getElementById('viewSavedListsBtn');
+
+  if (savedLists.length > 0) {
+    if (!existingBtn) {
+      const button = document.createElement('button');
+      button.id = 'viewSavedListsBtn';
+      button.onclick = openSavedListsPopup;
+      button.style = `
+        margin: 10px auto;
+        display: block;
+        background: #28a745;
         color: white;
         padding: 10px 16px;
         border-radius: 6px;
@@ -1435,6 +1505,7 @@ function renderLikedDealsGallery() {
 
   sectionEl.style.display = 'block';
 }
+
 
  /////////// END
 
