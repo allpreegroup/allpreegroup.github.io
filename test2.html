@@ -1782,7 +1782,6 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 	
 
 	
-	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
@@ -1791,11 +1790,18 @@ async function loadDeals() {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  const fetchPromises = sheetUrls.map(async (sheetUrl) => {
-    try {
-      const res = await fetch(sheetUrl);
-      const rows = await res.json();
+  const allResponses = await Promise.all(
+    sheetUrls.map(url => fetch(url).then(res => res.json()).catch(err => ({ error: err })))
+  );
 
+  for (let i = 0; i < allResponses.length; i++) {
+    const rows = allResponses[i];
+    if (rows.error) {
+      console.warn(`Skipping sheet due to error: ${sheetUrls[i]}`, rows.error);
+      continue;
+    }
+
+    try {
       let currentBrand = '';
       let currentLogo = '';
       let brandSection = null;
@@ -1826,8 +1832,8 @@ async function loadDeals() {
               </div>
             `;
 
-            const expiryStr = row.ExpiryDate || row.expireDate;
-            const parsedDate = Date.parse(expiryStr);
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            const parsedDate = Date.parse(expireDateStr);
 
             if (isNaN(parsedDate) || parsedDate < Date.now()) {
               const el = document.getElementById(timerId);
@@ -1836,7 +1842,7 @@ async function loadDeals() {
                 el.classList.add('countdown-upcoming');
               }
             } else {
-              startBrandCountdown(expiryStr, timerId);
+              startBrandCountdown(expireDateStr, timerId);
             }
 
             brandSection.appendChild(brandDiv);
@@ -1870,10 +1876,10 @@ async function loadDeals() {
 
             container.appendChild(brandSection);
 
-            if (expiryStr) {
-              expireDate = new Date(expiryStr);
+            if (expireDateStr) {
+              expireDate = new Date(expireDateStr);
               if (!isNaN(expireDate)) {
-                startBrandCountdown(expiryStr, timerId);
+                startBrandCountdown(expireDate, timerId);
               }
             }
 
@@ -1925,13 +1931,15 @@ async function loadDeals() {
               openPopup(dealData);
             });
 
-            allDealsFlat.push(dealData);
             if (!isLiked) {
+              allDealsFlat.push(dealData);
               brandDeals.push({
                 element: dealCard,
                 percentOff,
-                expireDate: expiryStr
+                expireDate: row.expireDate
               });
+            } else {
+              allDealsFlat.push(dealData);
             }
           }
         } catch (rowErr) {
@@ -1939,11 +1947,9 @@ async function loadDeals() {
         }
       });
     } catch (sheetErr) {
-      console.warn(`Skipping sheet due to error: ${sheetUrl}`, sheetErr);
+      console.warn(`Error processing sheet at ${sheetUrls[i]}`, sheetErr);
     }
-  });
-
-  await Promise.all(fetchPromises);
+  }
 
   allBrandsData.forEach(brandData => {
     brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
