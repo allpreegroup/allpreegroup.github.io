@@ -1671,7 +1671,11 @@ function showBrandDealsInPopup(brandName) {
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
-  const deal = brandDeals[0]; // Get the first deal from the brand
+  const currentKey = getDealKey(currentPopupDeal);
+const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
+brandDealIndex = startIndex !== -1 ? startIndex : 0;
+const deal = brandDeals[brandDealIndex];
+
   openPopup(deal, true); // Skip history push
 }
 
