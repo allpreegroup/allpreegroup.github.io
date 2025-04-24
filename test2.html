@@ -1857,10 +1857,21 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           brandSection.appendChild(grid);
           brandDiv.style.cursor = 'pointer';
 
+          let hasRendered = false;
+
           brandDiv.addEventListener('click', () => {
             const isOpen = grid.style.display === 'grid';
+
             if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
               currentlyOpenGrid.style.display = 'none';
+            }
+
+            if (!hasRendered) {
+              requestIdleCallback(() => {
+                brandDeals.sort((a, b) => b.percentOff - a.percentOff);
+                brandDeals.forEach(d => grid.appendChild(d.element));
+                hasRendered = true;
+              });
             }
 
             grid.style.display = isOpen ? 'none' : 'grid';
@@ -1933,24 +1944,18 @@ document.getElementById('showBrandTabBtn').onclick = () => {
             openPopup(dealData);
           });
 
+          allDealsFlat.push(dealData);
+
           if (!isLiked) {
-            allDealsFlat.push(dealData);
             brandDeals.push({
               element: dealCard,
               percentOff,
               expireDate: row.expireDate
             });
-          } else {
-            allDealsFlat.push(dealData);
           }
         }
       });
     }
-
-    allBrandsData.forEach(brandData => {
-      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-      brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-    });
 
     allBrandsData.forEach(brandData => {
       brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
