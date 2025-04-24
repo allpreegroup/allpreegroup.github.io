@@ -1699,7 +1699,7 @@ function highlightTab(buttonId) {
   document.getElementById(buttonId).classList.add('active');
 }
 	
- function showRandomDealsInPopup() {
+/* function showRandomDealsInPopup() {
   isLikedMode = false;
   isBrandMode = false;	 
 
@@ -1716,8 +1716,36 @@ function highlightTab(buttonId) {
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
-} 
+} */
 
+
+
+
+function showRandomDealsInPopup() {
+  isLikedMode = false;
+  isBrandMode = false;
+
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedNames = new Set(Object.keys(likedDeals));
+
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+
+  if (unlikedDeals.length === 0) {
+    alert("You've liked all the deals!");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
+  const deal = unlikedDeals[randomIndex];
+
+  currentPopupDeal = deal; // make sure like button setup gets proper context
+  openPopup(deal, true);
+
+  // force show like button in case it was hidden in brand/cart mode
+  document.getElementById('likeBtn').style.display = 'block';
+}
+
+	
 
 
 	
