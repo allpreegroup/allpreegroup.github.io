@@ -1086,11 +1086,36 @@ function clearBrandCart(brand) {
   }
 }
 	
-function openBrandLocation(brand) {
-  // Check if the brand exists in the brandLocations object
-  const url = brandLocations[brand] || 'https://www.google.com/maps';  // Default URL if brand not found
-  window.open(url, '_blank');
+async function openBrandLocation(brand) {
+  if (!brandLocations || !brandLocations[brand]) {
+    window.open('https://www.google.com/maps', '_blank');
+    return;
+  }
+
+  const dest = brandLocations[brand]; // Example: "18.225278,-78.132861"
+
+  // Get user's current location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        const mapUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${dest}`;
+        window.open(mapUrl, '_blank');
+      },
+      (error) => {
+        // If user blocks location, just open destination
+        const fallbackUrl = `https://www.google.com/maps?q=${dest}`;
+        window.open(fallbackUrl, '_blank');
+      }
+    );
+  } else {
+    // Geolocation not supported
+    const fallbackUrl = `https://www.google.com/maps?q=${dest}`;
+    window.open(fallbackUrl, '_blank');
+  }
 }
+
 
 
 async function loadBrandLocations() {
