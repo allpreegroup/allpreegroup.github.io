@@ -1780,6 +1780,35 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 };
 
 	
+
+	
+// Function to load deals based on the horizontal scroll position
+function loadMoreDeals(brandDeals, grid) {
+  const alreadyLoaded = grid.children.length;
+  const moreDeals = brandDeals.slice(alreadyLoaded, alreadyLoaded + 10); // Load next 10 deals
+
+  if (moreDeals.length === 0) {
+    console.log('No more deals to load.');
+    return; // No more deals to load
+  }
+
+  console.log(`Loading more deals: ${moreDeals.length} deals`);
+  moreDeals.forEach(deal => {
+    grid.appendChild(deal.element);
+  });
+}
+
+// Scroll event listener to trigger lazy loading on horizontal scroll
+window.addEventListener('scroll', () => {
+  const scrollRight = window.innerWidth + window.scrollX >= document.body.scrollWidth - 100; // 100px buffer before right edge
+
+  if (scrollRight) {
+    console.log('Scrolled near the right edge, loading more deals...');
+    loadMoreDeals(currentBrandDeals, currentGrid); // Ensure you're using the correct brand and grid data
+  }
+});
+
+// Function to load the deals dynamically
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
@@ -1833,7 +1862,7 @@ async function loadDeals() {
               el.classList.add('countdown-upcoming');
             }
           } else {
-            startBrandCountdown(expireDateStr, timerId); // Calls the corrected countdown function
+            startBrandCountdown(expireDateStr, timerId);
           }
 
           brandSection.appendChild(brandDiv);
@@ -1939,7 +1968,10 @@ async function loadDeals() {
 
       // Add scroll event listener for lazy-loading
       window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        const scrollRight = window.innerWidth + window.scrollX >= document.body.scrollWidth - 100; // 100px buffer before right edge
+
+        if (scrollRight) {
+          console.log('Scrolled near the right edge, loading more deals...');
           loadMoreDeals(brandDeals, grid);
         }
       });
@@ -1998,17 +2030,6 @@ async function loadDeals() {
   }
 }
 
-// Lazy load more deals when scrolling
-function loadMoreDeals(brandDeals, grid) {
-  const alreadyLoaded = grid.children.length;
-  const moreDeals = brandDeals.slice(alreadyLoaded, alreadyLoaded + 10); // Load next 10 deals
-
-  if (moreDeals.length === 0) return; // No more deals to load
-
-  moreDeals.forEach(deal => {
-    grid.appendChild(deal.element);
-  });
-}
 
 
 
