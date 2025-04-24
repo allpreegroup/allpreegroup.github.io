@@ -1858,20 +1858,10 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           brandDiv.style.cursor = 'pointer';
 
           let hasRendered = false;
-
           brandDiv.addEventListener('click', () => {
             const isOpen = grid.style.display === 'grid';
-
             if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
               currentlyOpenGrid.style.display = 'none';
-            }
-
-            if (!hasRendered) {
-              requestIdleCallback(() => {
-                brandDeals.sort((a, b) => b.percentOff - a.percentOff);
-                brandDeals.forEach(d => grid.appendChild(d.element));
-                hasRendered = true;
-              });
             }
 
             grid.style.display = isOpen ? 'none' : 'grid';
@@ -1883,6 +1873,35 @@ document.getElementById('showBrandTabBtn').onclick = () => {
               const extraOffset = likedVisible ? 5 : 0;
               const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
               window.scrollTo({ top, behavior: 'smooth' });
+            }
+
+            if (!hasRendered) {
+              requestIdleCallback(() => {
+                brandDeals.sort((a, b) => b.percentOff - a.percentOff);
+
+                brandDeals.forEach(d => {
+                  const dealCard = document.createElement('div');
+                  dealCard.className = 'deal';
+                  dealCard.innerHTML = `
+                    <span class="discount-badge">${d.percentOff}% OFF</span>
+                    <img src="${d.image}" alt="${d.name}">
+                    <div class="deal-content">
+                      <div class="deal-title">${d.shortName}</div>
+                      <div class="price">JMD $${d.original}</div>
+                      <div class="discount">JMD $${d.discount}</div>
+                    </div>
+                  `;
+                  dealCard.addEventListener('click', () => {
+                    isLikedMode = false;
+                    document.getElementById('showRandomBtn')?.classList.add('active');
+                    document.getElementById('showLikedBtn')?.classList.remove('active');
+                    openPopup(d);
+                  });
+                  grid.appendChild(dealCard);
+                });
+
+                hasRendered = true;
+              });
             }
 
             currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
@@ -1911,47 +1930,24 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           const original = parseFloat(row.OriginalPrice?.replace(/,/g, '')) || 0;
           const discount = parseFloat(row.DiscountPrice?.replace(/,/g, '')) || 0;
           const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-          const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
-
-          const dealCard = document.createElement('div');
-          dealCard.className = 'deal';
-          dealCard.innerHTML = `
-            <span class="discount-badge">${percentOff}% OFF</span>
-            <img src="${row.ImageURL}" alt="${row.ProductName}">
-            <div class="deal-content">
-              <div class="deal-title">${shortName}</div>
-              <div class="price">JMD $${row.OriginalPrice}</div>
-              <div class="discount">JMD $${row.DiscountPrice}</div>
-            </div>
-          `;
 
           const dealData = {
             image: row.ImageURL,
             name: row.ProductName,
+            shortName: row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName,
             original: row.OriginalPrice,
             discount: row.DiscountPrice,
             description: row.Description,
             brandLogo: currentLogo,
-            brandName: currentBrand
+            brandName: currentBrand,
+            percentOff
           };
 
           const isLiked = !!likedDeals[dealData.name];
-
-          dealCard.addEventListener('click', () => {
-            isLikedMode = false;
-            document.getElementById('showRandomBtn')?.classList.add('active');
-            document.getElementById('showLikedBtn')?.classList.remove('active');
-            openPopup(dealData);
-          });
-
           allDealsFlat.push(dealData);
 
           if (!isLiked) {
-            brandDeals.push({
-              element: dealCard,
-              percentOff,
-              expireDate: row.expireDate
-            });
+            brandDeals.push(dealData);
           }
         }
       });
@@ -2000,6 +1996,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
 }
+
 
 
 
