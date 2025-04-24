@@ -944,6 +944,9 @@ let brandDealIndex = 0;
 let brandDealKeys =[];	
 let isSwiping = false;
 let brandLocations = {};
+let israndomMode = false;	
+let randomDealIndex = 0;
+let randomDealKeys = []; // you probably already have this filled elsewhere	
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -1702,8 +1705,11 @@ function highlightTab(buttonId) {
   });
   document.getElementById(buttonId).classList.add('active');
 }
+
 	
-/* function showRandomDealsInPopup() {
+	
+ function showRandomDealsInPopup() {
+  isRandomMode = true; // Set this before calling openPopup	 
   isLikedMode = false;
   isBrandMode = false;	 
 
@@ -1719,13 +1725,19 @@ function highlightTab(buttonId) {
 
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
+
+const currentKey = getDealKey(currentPopupDeal);
+const startIndex = randomDeals.findIndex(d => getDealKey(d) === currentKey);
+randomDealIndex = startIndex !== -1 ? startIndex : 0;
+const deal = randomDeals[randomDealIndex];
+	 
   openPopup(deal, true);
-} */
+} 
 
 
 
 
-function showRandomDealsInPopup() {
+ /* function showRandomDealsInPopup() {
   isLikedMode = false;
   isBrandMode = false;
 
@@ -1747,7 +1759,7 @@ function showRandomDealsInPopup() {
 
   // force show like button in case it was hidden in brand/cart mode
   document.getElementById('likeBtn').style.display = 'block';
-}
+} */
 
 	
 
@@ -1762,11 +1774,18 @@ function showLikedDealsInPopup() {
     return;
   }
 
+  isRandomMode = false;
   isBrandMode = false;
   isLikedMode = true;
-  likedDealIndex = 0;
-  const deal = likedDeals[likedDealKeys[likedDealIndex]];
-  openPopup(deal, true);
+
+
+const currentKey = getDealKey(currentPopupDeal); // Get the current deal's key
+const startIndex = likedDealKeys.findIndex(key => key === currentKey); // Find its index in likedDealKeys
+likedDealIndex = startIndex !== -1 ? startIndex : 0; // If found, start from there; otherwise, start from index 0
+const deal = likedDeals[likedDealKeys[likedDealIndex]]; // Get the deal based on that index
+ikedDeals[likedDealKeys[likedDealIndex]];
+  
+	openPopup(deal, true);
 }
 
 
