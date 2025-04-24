@@ -1782,7 +1782,8 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 	
 
 	
-	async function loadDeals() {
+	
+async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -1790,30 +1791,32 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  const sheetPromises = sheetUrls.map(url =>
-    fetch(url)
-      .then(res => res.json())
-      .catch(err => {
-        console.warn(`Skipping sheet due to error: ${url}`, err);
-        return null;
-      })
-  );
+  const sheetFetches = sheetUrls.map(async (sheetUrl) => {
+    try {
+      const res = await fetch(sheetUrl);
+      const rows = await res.json();
+      return { rows, sheetUrl };
+    } catch (sheetErr) {
+      console.warn(`Skipping sheet due to error: ${sheetUrl}`, sheetErr);
+      return null;
+    }
+  });
 
-  try {
-    const allResults = await Promise.allSettled(sheetPromises);
+  const allSheetData = await Promise.all(sheetFetches);
 
-    for (const result of allResults) {
-      const rows = result.status === 'fulfilled' ? result.value : null;
-      if (!rows || !Array.isArray(rows)) continue;
+  for (let sheetData of allSheetData) {
+    if (!sheetData) continue;
+    const { rows, sheetUrl } = sheetData;
 
-      let currentBrand = '';
-      let currentLogo = '';
-      let brandSection = null;
-      let grid = null;
-      let brandDeals = [];
-      let expireDate = '';
+    let currentBrand = '';
+    let currentLogo = '';
+    let brandSection = null;
+    let grid = null;
+    let brandDeals = [];
+    let expireDate = '';
 
-      rows.forEach(row => {
+    rows.forEach(row => {
+      try {
         if (row.BrandName && row.BrandLogo) {
           currentBrand = row.BrandName;
           currentLogo = row.BrandLogo;
@@ -1857,21 +1860,10 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           brandSection.appendChild(grid);
           brandDiv.style.cursor = 'pointer';
 
-          let hasRendered = false;
-
           brandDiv.addEventListener('click', () => {
             const isOpen = grid.style.display === 'grid';
-
             if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
               currentlyOpenGrid.style.display = 'none';
-            }
-
-            if (!hasRendered) {
-              requestIdleCallback(() => {
-                brandDeals.sort((a, b) => b.percentOff - a.percentOff);
-                brandDeals.forEach(d => grid.appendChild(d.element));
-                hasRendered = true;
-              });
             }
 
             grid.style.display = isOpen ? 'none' : 'grid';
@@ -1890,6 +1882,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 
           container.appendChild(brandSection);
 
+          const expireDateStr = row.ExpiryDate || row.expireDate;
           if (expireDateStr) {
             expireDate = new Date(expireDateStr);
             if (!isNaN(expireDate)) {
@@ -1907,10 +1900,11 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           });
         }
 
-        if (row.ProductName && row.ImageURL) {
-          const original = parseFloat(row.OriginalPrice?.replace(/,/g, '')) || 0;
-          const discount = parseFloat(row.DiscountPrice?.replace(/,/g, '')) || 0;
+        if (row.ProductName && row.ImageURL && row.OriginalPrice && row.DiscountPrice) {
+          const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+          const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
           const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
           const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
 
           const dealCard = document.createElement('div');
@@ -1944,63 +1938,70 @@ document.getElementById('showBrandTabBtn').onclick = () => {
             openPopup(dealData);
           });
 
-          allDealsFlat.push(dealData);
-
           if (!isLiked) {
+            allDealsFlat.push(dealData);
             brandDeals.push({
               element: dealCard,
               percentOff,
               expireDate: row.expireDate
             });
+          } else {
+            allDealsFlat.push(dealData);
           }
         }
-      });
-    }
-
-    allBrandsData.forEach(brandData => {
-      brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-      brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
-    });
-
-    allBrandsData.sort((a, b) => {
-      if (b.bestDiscount !== a.bestDiscount) return b.bestDiscount - a.bestDiscount;
-      return a.timeRemaining - b.timeRemaining;
-    });
-
-    container.innerHTML = '';
-
-    let likedDealsSection = document.getElementById('likedDealsSection');
-    if (!likedDealsSection) {
-      likedDealsSection = document.createElement('div');
-      likedDealsSection.id = 'likedDealsSection';
-      likedDealsSection.style.display = 'none';
-      likedDealsSection.style.marginBottom = '1rem';
-      likedDealsSection.innerHTML = `<div id="likedDealsGallery" class="likedDealsGallery"></div>`;
-      container.appendChild(likedDealsSection);
-    }
-
-    renderLikedDealsGallery();
-
-    allBrandsData.forEach((brandData, index) => {
-      if (index === 0) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Discount';
-        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+      } catch (rowErr) {
+        console.warn(`Skipped row due to missing or invalid fields:`, rowErr);
       }
-      container.appendChild(brandData.section);
     });
-
-    setTimeout(() => {
-      cleanUpLikedDeals();
-    }, 3000);
-  } catch (err) {
-    console.error('Failed to load deals:', err);
-    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-}
 
+  allBrandsData.forEach(brandData => {
+    brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+    brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+  });
+
+  allBrandsData.forEach(brandData => {
+    brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+    brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+  });
+
+  allBrandsData.sort((a, b) => {
+    if (b.bestDiscount !== a.bestDiscount) {
+      return b.bestDiscount - a.bestDiscount;
+    }
+    return a.timeRemaining - b.timeRemaining;
+  });
+
+  container.innerHTML = '';
+
+  let likedDealsSection = document.getElementById('likedDealsSection');
+  if (!likedDealsSection) {
+    likedDealsSection = document.createElement('div');
+    likedDealsSection.id = 'likedDealsSection';
+    likedDealsSection.style.display = 'none';
+    likedDealsSection.style.marginBottom = '1rem';
+    likedDealsSection.innerHTML = `<div id="likedDealsGallery" class="likedDealsGallery"></div>`;
+    container.appendChild(likedDealsSection);
+  }
+
+  renderLikedDealsGallery();
+
+  allBrandsData.forEach((brandData, index) => {
+    if (index === 0) {
+      const badge = document.createElement('div');
+      badge.className = 'top-deal-badge';
+      badge.textContent = '🔥 Hottest Discount';
+      brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+      brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
+    }
+
+    container.appendChild(brandData.section);
+  });
+
+  setTimeout(() => {
+    cleanUpLikedDeals();
+  }, 3000);
+}
 
 
 
