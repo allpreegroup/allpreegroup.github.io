@@ -1780,7 +1780,6 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 };
 
 	
-
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
@@ -1809,90 +1808,83 @@ async function loadDeals() {
 
       rows.forEach(row => {
         try {
-          // Check for missing data in each row
-          if (row.BrandName && row.BrandLogo) {
-            currentBrand = row.BrandName;
-            currentLogo = row.BrandLogo;
+          // Ensure necessary fields are present before proceeding
+          if (!row.BrandName || !row.BrandLogo) return; // Skip if no BrandName or BrandLogo
 
-            brandSection = document.createElement('div');
-            brandSection.className = 'brand-section';
+          currentBrand = row.BrandName;
+          currentLogo = row.BrandLogo;
 
-            const brandDiv = document.createElement('div');
-            brandDiv.className = 'brand';
-            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+          brandSection = document.createElement('div');
+          brandSection.className = 'brand-section';
 
-            brandDiv.innerHTML = `
-              <div class="brand-logo-container">
-                <img src="${currentLogo}" alt="${currentBrand}" />
-              </div>
-              <div>
-                <span class="brand-name">${currentBrand}</span><br>
-                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
-              </div>
-            `;
+          const brandDiv = document.createElement('div');
+          brandDiv.className = 'brand';
+          const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-            const expireDateStr = row.ExpiryDate || row.expireDate;
-            const parsedDate = Date.parse(expireDateStr);
+          brandDiv.innerHTML = `
+            <div class="brand-logo-container">
+              <img src="${currentLogo}" alt="${currentBrand}" />
+            </div>
+            <div>
+              <span class="brand-name">${currentBrand}</span><br>
+              <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+            </div>
+          `;
 
-            if (isNaN(parsedDate) || parsedDate < Date.now()) {
-              const el = document.getElementById(timerId);
-              if (el) {
-                el.textContent = '⏳ Coming soon';
-                el.classList.add('countdown-upcoming');
-              }
-            } else {
-              startBrandCountdown(expireDateStr, timerId);
+          const expireDateStr = row.ExpiryDate || row.expireDate;
+          const parsedDate = Date.parse(expireDateStr);
+
+          if (isNaN(parsedDate) || parsedDate < Date.now()) {
+            const el = document.getElementById(timerId);
+            if (el) {
+              el.textContent = '⏳ Coming soon';
+              el.classList.add('countdown-upcoming');
             }
-
-            brandSection.appendChild(brandDiv);
-
-            grid = document.createElement('div');
-            grid.className = 'deal-grid';
-            grid.style.display = 'none';
-
-            brandSection.appendChild(grid);
-            brandDiv.style.cursor = 'pointer';
-
-            brandDiv.addEventListener('click', () => {
-              const isOpen = grid.style.display === 'grid';
-              if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
-                currentlyOpenGrid.style.display = 'none';
-              }
-
-              grid.style.display = isOpen ? 'none' : 'grid';
-
-              if (!isOpen) {
-                const headerHeight = 70;
-                const likedDealsSection = document.getElementById('likedDealsSection');
-                const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
-                const extraOffset = likedVisible ? 5 : 0;
-                const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
-                window.scrollTo({ top, behavior: 'smooth' });
-              }
-
-              currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
-            });
-
-            container.appendChild(brandSection);
-
-            if (expireDateStr) {
-              expireDate = new Date(expireDateStr);
-              if (!isNaN(expireDate)) {
-                startBrandCountdown(expireDate, timerId);
-              }
-            }
-
-            allBrandsData.push({
-              brand: currentBrand,
-              logo: currentLogo,
-              expireDate,
-              section: brandSection,
-              grid,
-              deals: brandDeals
-            });
+          } else {
+            startBrandCountdown(expireDateStr, timerId);
           }
 
-          // Deal processing - Check for missing deal data
+          brandSection.appendChild(brandDiv);
+
+          grid = document.createElement('div');
+          grid.className = 'deal-grid';
+          grid.style.display = 'none';
+
+          brandSection.appendChild(grid);
+          brandDiv.style.cursor = 'pointer';
+
+          brandDiv.addEventListener('click', () => {
+            const isOpen = grid.style.display === 'grid';
+            if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+              currentlyOpenGrid.style.display = 'none';
+            }
+
+            grid.style.display = isOpen ? 'none' : 'grid';
+
+            if (!isOpen) {
+              const headerHeight = 70;
+              const likedDealsSection = document.getElementById('likedDealsSection');
+              const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+              const extraOffset = likedVisible ? 5 : 0;
+              const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+              window.scrollTo({ top, behavior: 'smooth' });
+            }
+
+            currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+          });
+
+          container.appendChild(brandSection);
+
+          allBrandsData.push({
+            brand: currentBrand,
+            logo: currentLogo,
+            expireDate,
+            section: brandSection,
+            grid,
+            deals: brandDeals
+          });
+
+          // Process deals for this brand
           if (row.ProductName && row.ImageURL) {
             const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
             const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
@@ -1922,7 +1914,7 @@ async function loadDeals() {
               brandName: currentBrand
             };
 
-            const isLiked = !!likedDeals[dealData.name]; // Check if the deal is liked
+            const isLiked = !!likedDeals[dealData.name];
 
             dealCard.addEventListener('click', () => {
               isLikedMode = false;
@@ -1939,9 +1931,10 @@ async function loadDeals() {
                 expireDate: row.expireDate
               });
             } else {
-              allDealsFlat.push(dealData); // Optional: needed for cleanup later
+              allDealsFlat.push(dealData);
             }
           }
+
         } catch (error) {
           console.error('Error processing row:', error);
         }
@@ -2001,7 +1994,6 @@ async function loadDeals() {
       container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
     }
 }
-
 
 
 
