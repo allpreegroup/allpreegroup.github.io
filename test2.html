@@ -1105,45 +1105,69 @@ async function showCartWithLocations() {
 
 
 
+let lastKnownLocation = null;
+let isNavigating = false;
+
 function openBrandLocation(brand) {
   // Check if we're already navigating
   if (isNavigating) return;
 
-  isNavigating = true; // Set the flag to prevent multiple redirects
+  isNavigating = true; // Prevent multiple redirects
 
   const dest = brandLocations[brand];
 
   if (!dest || dest.trim() === "") {
     alert("No location set for this brand yet.");
-    isNavigating = false; // Reset the flag
+    isNavigating = false;
     return;
   }
 
-  const openInSameTab = (originCoords) => {
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`;
-    window.location.href = url; // Open in same tab
-  };
+  // Show a loader or toast before starting navigation
+  showLoader("Fetching location...");
 
-  // Stop any previous redirects before starting a new one
-  window.stop(); 
+  // Fallback timeout in case geolocation takes too long (e.g., 5 seconds)
+  const geoTimeout = setTimeout(() => {
+    // If we still don't have a location, proceed with the destination only
+    navigateToLocation(dest);
+  }, 5000); // 5 seconds timeout
 
+  // Try to get the current location
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
-        openInSameTab(origin);
-        isNavigating = false; // Reset the flag after navigation
+        // Clear the timeout if location was found
+        clearTimeout(geoTimeout);
+
+        lastKnownLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
+        navigateToLocation(dest, lastKnownLocation);
       },
       (err) => {
-        // If user denies location or it fails
-        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-        isNavigating = false; // Reset the flag after navigation
+        // Clear the timeout if there's an error
+        clearTimeout(geoTimeout);
+
+        // Proceed without current location if there's an error
+        navigateToLocation(dest);
       }
     );
   } else {
-    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-    isNavigating = false; // Reset the flag after navigation
+    // If geolocation is not available, proceed with the destination
+    navigateToLocation(dest);
   }
+}
+
+function navigateToLocation(dest, originCoords = null) {
+  // Redirect to Google Maps with or without the current location
+  const url = originCoords
+    ? `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+
+  window.location.href = url;
+  isNavigating = false; // Reset the flag
+}
+
+function showLoader(message) {
+  // Show a loader or toast message to the user
+  console.log(message); // Placeholder for your actual loader or toast implementation
 }
 
 	
