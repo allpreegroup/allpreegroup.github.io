@@ -1651,43 +1651,6 @@ function highlightTab(buttonId) {
   });
   document.getElementById(buttonId).classList.add('active');
 }
-
-
-	
-/*
-function showBrandDealsInPopup(brandName) {
-  isBrandMode = true;
-  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
-  if (brandDeals.length === 0) {
-    alert("No deals found for this brand.");
-    return;
-  }
-
- 	 
-  brandDealKeys = brandDeals.map(d => d.name);
-  brandDealIndex = 0;
-
-  openPopup(brandDeals[0]);
-}
-
-
-function goToNextBrandDeal() {
-  if (!brandDealKeys.length) return;
-  brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal);
-}
-
-function goToPrevBrandDeal() {
-  if (!brandDealKeys.length) return;
-  brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal);
-}
-*/
-
-
-
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
@@ -1817,16 +1780,17 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 };
 
 	
- async function loadDeals() {
+async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
   allBrandsData.length = 0;
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
+  let dealsLimit = 10; // Initial number of deals to load
 
   try {
-	  for (let sheetUrl of sheetUrls) {
+    for (let sheetUrl of sheetUrls) {
       const res = await fetch(sheetUrl);
       const rows = await res.json();
 
@@ -1949,8 +1913,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
             brandName: currentBrand
           };
 
-              const isLiked = !!likedDeals[dealData.name]; // <- ✅ Define this here
-		
+          const isLiked = !!likedDeals[dealData.name]; // Check if the deal is liked
           dealCard.addEventListener('click', () => {
             isLikedMode = false;
             document.getElementById('showRandomBtn')?.classList.add('active');
@@ -1959,21 +1922,31 @@ document.getElementById('showBrandTabBtn').onclick = () => {
           });
 
           if (!isLiked) {
-  allDealsFlat.push(dealData);
-  brandDeals.push({
-    element: dealCard,
-    percentOff,
-    expireDate: row.expireDate
-  });
-} else {
-  // Liked deals are excluded from the grid, but still stored in allDealsFlat
-  allDealsFlat.push(dealData); // Optional: only needed if used for cleanup
-}
+            allDealsFlat.push(dealData);
+            brandDeals.push({
+              element: dealCard,
+              percentOff,
+              expireDate: row.expireDate
+            });
+          } else {
+            allDealsFlat.push(dealData); // Optional: needed for cleanup later
+          }
         }
       });
-    } 
-	  
-  allBrandsData.forEach(brandData => {
+
+      // Load the first 'dealsLimit' deals for each brand
+      brandDeals.slice(0, dealsLimit).forEach(deal => grid.appendChild(deal.element));
+
+      // Add scroll event listener for lazy-loading
+      window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+          loadMoreDeals(brandDeals, grid);
+        }
+      });
+    }
+
+    // Sorting and display logic for all deals
+    allBrandsData.forEach(brandData => {
       brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
       brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
     });
@@ -1990,8 +1963,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
       return a.timeRemaining - b.timeRemaining;
     });
 
- container.innerHTML = '';
-
+    container.innerHTML = '';
     let likedDealsSection = document.getElementById('likedDealsSection');
     if (!likedDealsSection) {
       likedDealsSection = document.createElement('div');
@@ -2014,19 +1986,30 @@ document.getElementById('showBrandTabBtn').onclick = () => {
       }
 
       container.appendChild(brandData.section);
-    }); 
+    });
 
-// ✅ Cleanup liked deals that no longer exist
-      
- setTimeout(() => {
-  cleanUpLikedDeals();
-}, 3000); // wait 3 seconds before cleaning up
-	  	 	  
+    // Clean up liked deals that no longer exist
+    setTimeout(() => {
+      cleanUpLikedDeals();
+    }, 3000); // wait 3 seconds before cleaning up
   } catch (err) {
     console.error('Failed to load deals:', err);
     container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
   }
-} 
+}
+
+// Lazy load more deals when scrolling
+function loadMoreDeals(brandDeals, grid) {
+  const alreadyLoaded = grid.children.length;
+  const moreDeals = brandDeals.slice(alreadyLoaded, alreadyLoaded + 10); // Load next 10 deals
+
+  if (moreDeals.length === 0) return; // No more deals to load
+
+  moreDeals.forEach(deal => {
+    grid.appendChild(deal.element);
+  });
+}
+
 
 
 
