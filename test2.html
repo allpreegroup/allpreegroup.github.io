@@ -1801,30 +1801,23 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
-function afterPopupContentChangeFromSwiper() {
+function afterPopupContentChangeFromSwiper(force = false) {
   const swiper = document.querySelector('.popupSwiper')?.swiper;
   if (!swiper) return;
 
-  // Grab the active slide
   const activeSlide = swiper.slides[swiper.activeIndex];
   const dealJson = activeSlide?.getAttribute('data-deal');
   if (!dealJson) return;
 
-  // Parse the deal data from the slide attribute
   const deal = JSON.parse(dealJson);
-  currentPopupDeal = deal; // Update the current deal
-  
-  // Safely setup the like and add-to-cart buttons for the current deal
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      setupLikeButton(deal);
-      setupAddToCartButton(deal);
-    }, 0);
-  });
+
+  if (force || !currentPopupDeal || getDealKey(currentPopupDeal) !== getDealKey(deal)) {
+    currentPopupDeal = deal;
+  }
+
+  setupLikeButton(deal);
+  setupAddToCartButton(deal);
 }
-
-
-
 
 	
 document.getElementById('showLikedBtn').onclick = () => {
@@ -1833,8 +1826,11 @@ document.getElementById('showLikedBtn').onclick = () => {
   highlightTab('showLikedBtn');
   showLikedDealsInPopup();
 
-  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
-};
+    // Force re-setup of buttons, even if same deal is still showing
+  setTimeout(() => {
+  afterPopupContentChangeFromSwiper(true);
+}, 200);
+
 
 document.getElementById('showRandomBtn').onclick = () => {
   isLikedMode = false;
@@ -1842,8 +1838,11 @@ document.getElementById('showRandomBtn').onclick = () => {
   highlightTab('showRandomBtn');
   showRandomDealInPopup();
 
-  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
-};
+    // Force re-setup of buttons, even if same deal is still showing
+  setTimeout(() => {
+  afterPopupContentChangeFromSwiper(true);
+}, 200);
+
 
 document.getElementById('showBrandTabBtn').onclick = () => {
   const brand = currentPopupDeal?.brandName;
@@ -1853,12 +1852,16 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   highlightTab('showBrandTabBtn');
   showBrandDealsInPopup(brand);
 
-  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
-};
+    // Force re-setup of buttons, even if same deal is still showing
+  setTimeout(() => {
+  afterPopupContentChangeFromSwiper(true);
+}, 200);
 
 
 	
 
+
+	
 	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
