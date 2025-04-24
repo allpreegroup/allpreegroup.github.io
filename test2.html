@@ -964,8 +964,8 @@ function initCartIcon() {
     cartIconContainer.innerHTML = `
       <div id="cart-icon" style="
         position: fixed;
-        top: 80px;
-        right: 10px;
+        top: 70px;
+        right: 20px;
         z-index: 1000;
         font-size: 15px;
         background: white;
@@ -1271,41 +1271,6 @@ function saveShoppingList(brand) {
     alert(`Shopping list for ${brand} saved!`);
   }
 }
-
-
-function insertSavedListsButton() {
-  const target = document.getElementById('likedDealsGallery');
-  if (!target) {
-    console.warn('Liked gallery container not found.');
-    return;
-  }
-
-  const existingBtn = document.getElementById('viewSavedListsBtn');
-  if (existingBtn) return; // Avoid inserting duplicate
-
-  const button = document.createElement('button');
-  button.id = 'viewSavedListsBtn';
-  button.textContent = '📝 View Saved Shopping Lists';
-  button.style = `
-    margin: 10px auto;
-    display: block;
-    background: #28a745;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-  `;
-  button.onclick = openSavedListsPopup;
-
-  target.parentNode.insertBefore(button, target); // Insert above the liked gallery
-}
-
-document.addEventListener('DOMContentLoaded', insertSavedListsButton);
-
-	
-
 	
 function openSavedListsPopup() {
   // Backdrop
@@ -1372,10 +1337,7 @@ function openSavedListsPopup() {
 
 function closeSavedListsPopup() {
   document.getElementById('saved-lists-backdrop')?.remove();
-}
-
-
-	
+}	
 
 ////////// START	
 function renderLikedDealsGallery() {
