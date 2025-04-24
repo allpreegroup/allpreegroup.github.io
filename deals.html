@@ -1085,33 +1085,6 @@ function clearBrandCart(brand) {
 }
 
 
-function openBrandLocation(brand) {
-  const dest = brandLocations[brand];
-
-  if (!dest) {
-    window.open('https://www.google.com/maps', '_blank');
-    return;
-  }
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
-        const mapUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}`;
-        window.open(mapUrl, '_blank');
-      },
-      () => {
-        // Geolocation failed, fallback to destination only
-        window.open(`https://www.google.com/maps?q=${dest}`, '_blank');
-      }
-    );
-  } else {
-    window.open(`https://www.google.com/maps?q=${dest}`, '_blank');
-  }
-}
-
-
-
 
 async function loadBrandLocations() {
   try {
@@ -1127,6 +1100,37 @@ async function showCartWithLocations() {
   openCartPopup();             // then show the cart popup
 }
 
+
+
+function openBrandLocation(brand) {
+  const dest = brandLocations[brand];
+
+  if (!dest) {
+    alert("Location not available for this brand.");
+    return;
+  }
+
+  const openInSameTab = (originCoords) => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`;
+    window.location.href = url; // Open in same tab
+  };
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
+        openInSameTab(origin);
+      },
+      (err) => {
+        // If user denies location or it fails
+        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+      }
+    );
+  } else {
+    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+  }
+}
+	
 	
 
 function openCartPopup() {
