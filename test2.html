@@ -1801,11 +1801,21 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
+function afterPopupContentChange(deal) {
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      setupLikeButton(deal);
+      setupAddToCartButton(deal);
+    }, 0);
+  });
+}	
+
 document.getElementById('showLikedBtn').onclick = () => {
   isLikedMode = true;
   isBrandMode = false;
   highlightTab('showLikedBtn');
   showLikedDealsInPopup();
+  afterPopupContentChange(deal);
 };
 
 document.getElementById('showRandomBtn').onclick = () => {
@@ -1813,6 +1823,7 @@ document.getElementById('showRandomBtn').onclick = () => {
   isBrandMode = false;
   highlightTab('showRandomBtn');
   showRandomDealInPopup();
+  afterPopupContentChange(deal);
 };
 
 document.getElementById('showBrandTabBtn').onclick = () => {
@@ -1822,6 +1833,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   isBrandMode = true;
   highlightTab('showBrandTabBtn');
   showBrandDealsInPopup(brand);
+  afterPopupContentChange(deal);
 };
 
 	
