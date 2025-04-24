@@ -849,7 +849,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  			<div class="center">
                  <div class="col-md-6 home-txt1"> <br><br>
 			 
-		 
+		<button onclick="openSavedListsPopup()" style="margin: 10px auto; display: block; background: #28a745; color: white; padding: 10px 16px; border-radius: 6px; border: none;">📝 View Saved Shopping Lists</button>
+ 
   <div id="deals-container">Loading deals...</div>
 
  <!-- Popup Overlay -->
@@ -2027,62 +2028,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
       return a.timeRemaining - b.timeRemaining;
     });
 
-     container.innerHTML = '';
-
-// Check for saved shopping lists in localStorage
-const savedLists = JSON.parse(localStorage.getItem('savedShoppingLists') || '[]');
-const hasSavedLists = Array.isArray(savedLists) && savedLists.length > 0;
-
-let likedDealsSection = document.getElementById('likedDealsSection');
-if (!likedDealsSection) {
-  
-  // Only insert the button if there are saved shopping lists
-  if (hasSavedLists) {
-    const savedListsButton = document.createElement('button');
-    savedListsButton.id = 'viewSavedListsBtn';
-    savedListsButton.textContent = '📝 View Saved Shopping Lists';
-    savedListsButton.style = `
-      margin: 10px auto;
-      display: block;
-      background: #28a745;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 6px;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    `;
-    savedListsButton.setAttribute('aria-label', 'View your saved shopping lists');
-    savedListsButton.onclick = openSavedListsPopup;
-    container.appendChild(savedListsButton); // Add button before the gallery
-  }
-
-  // Then create the liked deals section
-  likedDealsSection = document.createElement('div');
-  likedDealsSection.id = 'likedDealsSection';
-  likedDealsSection.style.display = 'none';
-  likedDealsSection.style.marginBottom = '1rem';
-  likedDealsSection.innerHTML = `<div id="likedDealsGallery" class="likedDealsGallery"></div>`;
-  container.appendChild(likedDealsSection);
-}
-
-renderLikedDealsGallery();
-
-allBrandsData.forEach((brandData, index) => {
-  if (index === 0) {
-    const badge = document.createElement('div');
-    badge.className = 'top-deal-badge';
-    badge.textContent = '🔥 Hottest Discount';
-    brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-    brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
-  }
-
-  container.appendChild(brandData.section);
-});
-
-
-	  
-  /*  container.innerHTML = '';
+ container.innerHTML = '';
 
     let likedDealsSection = document.getElementById('likedDealsSection');
     if (!likedDealsSection) {
@@ -2106,7 +2052,7 @@ allBrandsData.forEach((brandData, index) => {
       }
 
       container.appendChild(brandData.section);
-    }); */
+    }); 
 
 // ✅ Cleanup liked deals that no longer exist
       
