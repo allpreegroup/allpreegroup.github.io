@@ -858,7 +858,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Likes</button>
-  <button id="showRandomBtn" class="tab-btn">Deals</button>
+  <button id="showRandomBtn" class="tab-btn active">Deals</button>
   <button id="showBrandTabBtn" class="tab-btn">Store</button>
  <button id="cartBtn" class="tab-btn">
   <span class="cart-icon2">🛒</span>
@@ -943,11 +943,7 @@ let isBrandMode = false;
 let brandDealIndex = 0;
 let brandDealKeys =[];	
 let isSwiping = false;
-let brandLocations = {};
-let israndomMode = false;	
-let randomDealIndex = 0;
-let randomDealKeys = []; // you probably already have this filled elsewhere
-let isNavigating = false;
+let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -955,7 +951,6 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-	
 /////// Start
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1090,9 +1085,9 @@ function clearBrandCart(brand) {
   }
 }
 
-	
 
- async function loadBrandLocations() {
+
+async function loadBrandLocations() {
   try {
     const res = await fetch('brandLocations.json');
     brandLocations = await res.json();
@@ -1105,6 +1100,7 @@ async function showCartWithLocations() {
   await loadBrandLocations();  // wait for the locations to load
   openCartPopup();             // then show the cart popup
 }
+
 
 
 
@@ -1149,7 +1145,6 @@ function openBrandLocation(brand) {
     isNavigating = false; // Reset the flag after navigation
   }
 }
-
 
 	
 	
@@ -1676,8 +1671,6 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
-	
-
 
 function showBrandDealsInPopup(brandName) {
   isBrandMode = true; // Set this before calling openPopup
@@ -1698,7 +1691,6 @@ const deal = brandDeals[brandDealIndex];
   openPopup(deal, true); // Skip history push
 }
 
-	
 
 function goToNextBrandDeal() {
   if (!brandDealKeys.length) return;
@@ -1721,11 +1713,8 @@ function highlightTab(buttonId) {
   });
   document.getElementById(buttonId).classList.add('active');
 }
-
-	
 	
  function showRandomDealsInPopup() {
-  isRandomMode = true; // Set this before calling openPopup	 
   isLikedMode = false;
   isBrandMode = false;	 
 
@@ -1741,43 +1730,9 @@ function highlightTab(buttonId) {
 
   const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
   const deal = unlikedDeals[randomIndex];
-
-const currentKey = getDealKey(currentPopupDeal);
-const startIndex = randomDeals.findIndex(d => getDealKey(d) === currentKey);
-randomDealIndex = startIndex !== -1 ? startIndex : 0;
-// const deal = randomDeals[randomDealIndex];
-	 
   openPopup(deal, true);
 } 
 
-
-
-
- /* function showRandomDealsInPopup() {
-  isLikedMode = false;
-  isBrandMode = false;
-
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const likedNames = new Set(Object.keys(likedDeals));
-
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
-
-  if (unlikedDeals.length === 0) {
-    alert("You've liked all the deals!");
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * unlikedDeals.length);
-  const deal = unlikedDeals[randomIndex];
-
-  currentPopupDeal = deal; // make sure like button setup gets proper context
-  openPopup(deal, true);
-
-  // force show like button in case it was hidden in brand/cart mode
-  document.getElementById('likeBtn').style.display = 'block';
-} */
-
-	
 
 
 	
@@ -1790,12 +1745,11 @@ function showLikedDealsInPopup() {
     return;
   }
 
-  isRandomMode = false;
   isBrandMode = false;
   isLikedMode = true;
- likedDealIndex = 0;
-  
-	openPopup(deal, true);
+  likedDealIndex = 0;
+  const deal = likedDeals[likedDealKeys[likedDealIndex]];
+  openPopup(deal, true);
 }
 
 
@@ -1864,49 +1818,20 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
-function afterPopupContentChangeFromSwiper(force = false) {
-  const swiper = document.querySelector('.popupSwiper')?.swiper;
-  if (!swiper) return;
-
-  const activeSlide = swiper.slides[swiper.activeIndex];
-  const dealJson = activeSlide?.getAttribute('data-deal');
-  if (!dealJson) return;
-
-  const deal = JSON.parse(dealJson);
-
-  if (force || !currentPopupDeal || getDealKey(currentPopupDeal) !== getDealKey(deal)) {
-    currentPopupDeal = deal;
-  }
-
-  setupLikeButton(deal);
-  setupAddToCartButton(deal);
-}
-
-	
 document.getElementById('showLikedBtn').onclick = () => {
   isLikedMode = true;
   isBrandMode = false;
   highlightTab('showLikedBtn');
   showLikedDealsInPopup();
-
-    // Force re-setup of buttons, even if same deal is still showing
-  setTimeout(() => {
-  afterPopupContentChangeFromSwiper(true);
-}, 200);
-	}
+};
 
 document.getElementById('showRandomBtn').onclick = () => {
   isLikedMode = false;
   isBrandMode = false;
   highlightTab('showRandomBtn');
   showRandomDealInPopup();
+};
 
-    // Force re-setup of buttons, even if same deal is still showing
-  setTimeout(() => {
-  afterPopupContentChangeFromSwiper(true);
-}, 200);
-
-}
 document.getElementById('showBrandTabBtn').onclick = () => {
   const brand = currentPopupDeal?.brandName;
   if (!brand) return;
@@ -1914,18 +1839,12 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   isBrandMode = true;
   highlightTab('showBrandTabBtn');
   showBrandDealsInPopup(brand);
-
-    // Force re-setup of buttons, even if same deal is still showing
-  setTimeout(() => {
-  afterPopupContentChangeFromSwiper(true);
-}, 200);
-
-}
-	
-
+};
 
 	
+
 	
+		
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
@@ -2142,6 +2061,7 @@ async function loadDeals() {
     cleanUpLikedDeals();
   }, 3000);
 }
+
 
 
 
