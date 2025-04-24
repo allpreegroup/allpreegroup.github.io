@@ -946,7 +946,8 @@ let isSwiping = false;
 let brandLocations = {};
 let israndomMode = false;	
 let randomDealIndex = 0;
-let randomDealKeys = []; // you probably already have this filled elsewhere	
+let randomDealKeys = []; // you probably already have this filled elsewhere
+let isNavigating = false;
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -1107,11 +1108,18 @@ async function showCartWithLocations() {
 
 
 
+
 function openBrandLocation(brand) {
+  // Check if we're already navigating
+  if (isNavigating) return;
+
+  isNavigating = true; // Set the flag to prevent multiple redirects
+
   const dest = brandLocations[brand];
 
-  if (!dest) {
-    alert("Location not available for this brand.");
+  if (!dest || dest.trim() === "") {
+    alert("No location set for this brand yet.");
+    isNavigating = false; // Reset the flag
     return;
   }
 
@@ -1120,21 +1128,29 @@ function openBrandLocation(brand) {
     window.location.href = url; // Open in same tab
   };
 
+  // Stop any previous redirects before starting a new one
+  window.stop(); 
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
         openInSameTab(origin);
+        isNavigating = false; // Reset the flag after navigation
       },
       (err) => {
         // If user denies location or it fails
         window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+        isNavigating = false; // Reset the flag after navigation
       }
     );
   } else {
     window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+    isNavigating = false; // Reset the flag after navigation
   }
 }
+
+
 	
 	
 
