@@ -1653,23 +1653,26 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
-	
+
 function showBrandDealsInPopup(brandName) {
- isBrandMode = true;	
+  isBrandMode = true; // Set this before calling openPopup
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
     return;
   }
 
-  // Store keys and index
-  
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
-  // Open first deal
-   openPopup(deal, true);
+  const currentKey = getDealKey(currentPopupDeal);
+const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
+brandDealIndex = startIndex !== -1 ? startIndex : 0;
+const deal = brandDeals[brandDealIndex];
+
+  openPopup(deal, true); // Skip history push
 }
+
 
 function goToNextBrandDeal() {
   if (!brandDealKeys.length) return;
