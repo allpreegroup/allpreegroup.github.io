@@ -1830,7 +1830,11 @@ async function loadDeals() {
           const parsedDate = Date.parse(expireDateStr);
 
           if (isNaN(parsedDate) || parsedDate < Date.now()) {
-            document.getElementById(timerId).textContent = '⏳ Coming soon';
+           const timerEl = brandDiv.querySelector(`#${timerId}`);
+if (timerEl) {
+  timerEl.textContent = '⏳ Coming soon';
+}
+
           } else {
             startBrandCountdown(expireDateStr, timerId);
           }
