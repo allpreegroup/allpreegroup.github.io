@@ -1801,21 +1801,39 @@ console.log("🧪 allDealsFlat keys:", allDealsFlat.map(getDealKey));
 }
 
 
-function afterPopupContentChange(deal) {
+function afterPopupContentChangeFromSwiper() {
+  const swiper = document.querySelector('.popupSwiper')?.swiper;
+  if (!swiper) return;
+
+  // Grab the active slide
+  const activeSlide = swiper.slides[swiper.activeIndex];
+  const dealJson = activeSlide?.getAttribute('data-deal');
+  if (!dealJson) return;
+
+  // Parse the deal data from the slide attribute
+  const deal = JSON.parse(dealJson);
+  currentPopupDeal = deal; // Update the current deal
+  
+  // Safely setup the like and add-to-cart buttons for the current deal
   requestAnimationFrame(() => {
     setTimeout(() => {
       setupLikeButton(deal);
       setupAddToCartButton(deal);
     }, 0);
   });
-}	
+}
 
+
+
+
+	
 document.getElementById('showLikedBtn').onclick = () => {
   isLikedMode = true;
   isBrandMode = false;
   highlightTab('showLikedBtn');
   showLikedDealsInPopup();
-  setTimeout(() => afterPopupContentChange(currentPopupDeal), 30);
+
+  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
 };
 
 document.getElementById('showRandomBtn').onclick = () => {
@@ -1823,7 +1841,8 @@ document.getElementById('showRandomBtn').onclick = () => {
   isBrandMode = false;
   highlightTab('showRandomBtn');
   showRandomDealInPopup();
-  setTimeout(() => afterPopupContentChange(currentPopupDeal), 30);
+
+  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
 };
 
 document.getElementById('showBrandTabBtn').onclick = () => {
@@ -1833,7 +1852,8 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   isBrandMode = true;
   highlightTab('showBrandTabBtn');
   showBrandDealsInPopup(brand);
-  setTimeout(() => afterPopupContentChange(currentPopupDeal), 30);
+
+  setTimeout(() => afterPopupContentChangeFromSwiper(), 50);
 };
 
 
