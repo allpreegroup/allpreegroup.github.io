@@ -1954,9 +1954,11 @@ document.getElementById('showBrandTabBtn').onclick = () => {
       });
     }
 
-    // Sort all the deals and append them to the grid when the brand is opened
+    // Safeguard: ensure `brandDeals` exists before sorting
     allBrandsData.forEach(brandData => {
-      brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+      if (brandData.deals && Array.isArray(brandData.deals)) {
+        brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
+      }
     });
 
     allBrandsData.forEach(brandData => {
@@ -1997,6 +1999,15 @@ document.getElementById('showBrandTabBtn').onclick = () => {
     });
 
     setTimeout(() => {
+      cleanUpLikedDeals();
+    }, 3000);
+
+  } catch (err) {
+    console.error('Failed to load deals:', err);
+    container.innerHTML = 'Failed to load deals. Please check the sheet URLs.';
+  }
+}
+
       cleanUpLikedDeals();
     }, 3000);
 
