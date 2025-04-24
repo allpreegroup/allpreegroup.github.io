@@ -1782,7 +1782,8 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 	
 
 	
-	async function loadDeals() {
+		
+async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
@@ -1790,11 +1791,18 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  for (let sheetUrl of sheetUrls) {
-    try {
-      const res = await fetch(sheetUrl);
-      const rows = await res.json();
+  const allResponses = await Promise.all(
+    sheetUrls.map(url => fetch(url).then(res => res.json()).catch(err => ({ error: err })))
+  );
 
+  for (let i = 0; i < allResponses.length; i++) {
+    const rows = allResponses[i];
+    if (rows.error) {
+      console.warn(`Skipping sheet due to error: ${sheetUrls[i]}`, rows.error);
+      continue;
+    }
+
+    try {
       let currentBrand = '';
       let currentLogo = '';
       let brandSection = null;
@@ -1940,7 +1948,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
         }
       });
     } catch (sheetErr) {
-      console.warn(`Skipping sheet due to error: ${sheetUrl}`, sheetErr);
+      console.warn(`Error processing sheet at ${sheetUrls[i]}`, sheetErr);
     }
   }
 
@@ -1991,6 +1999,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
     cleanUpLikedDeals();
   }, 3000);
 }
+
 
 
 
