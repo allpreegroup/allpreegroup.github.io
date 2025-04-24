@@ -1098,6 +1098,12 @@ async function loadBrandLocations() {
     console.error('Failed to load brand locations:', err);
   }
 }
+
+async function showCartWithLocations() {
+  await loadBrandLocations();  // wait for the locations to load
+  openCartPopup();             // then show the cart popup
+}
+
 	
 
 function openCartPopup() {
@@ -1105,7 +1111,7 @@ function openCartPopup() {
   if (document.getElementById('cart-backdrop')) return;
 
 	// Load brand locations first
-  await loadBrandLocations();
+  showCartWithLocations();
 	
  // Create backdrop
 const backdrop = document.createElement('div');
