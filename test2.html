@@ -950,6 +950,11 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
+let brandLocations = {};
+
+
+
+	
 /////// Start
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1085,13 +1090,13 @@ function clearBrandCart(brand) {
 }
 
 
-function openBrandLocation(brand) {
-  const locations = {
-    'Maxie Department Store': 'https://www.google.com/maps?q=Maxie+Cross+Roads'
-    // Add more brands here
-  };
-  const url = locations[brand] || 'https://www.google.com/maps';
-  window.open(url, '_blank');
+async function loadBrandLocations() {
+  try {
+    const res = await fetch('brandLocations.json');
+    brandLocations = await res.json();
+  } catch (err) {
+    console.error('Failed to load brand locations:', err);
+  }
 }
 	
 
@@ -1099,6 +1104,9 @@ function openCartPopup() {
   // Prevent duplicate backdrop
   if (document.getElementById('cart-backdrop')) return;
 
+	// Load brand locations first
+  await loadBrandLocations();
+	
  // Create backdrop
 const backdrop = document.createElement('div');
 backdrop.id = 'cart-backdrop';
@@ -1217,7 +1225,7 @@ actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8p
 actionRow.innerHTML = `
   <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Clear</button>
   <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Save Shopping List</button>
-  <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
+  <button onclick="loadBrandLocations('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
 `;
 brandSection.appendChild(actionRow);
 
