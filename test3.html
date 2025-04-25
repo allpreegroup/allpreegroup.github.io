@@ -5,27 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gift Card Top-up</title>
   <style>
-    /* General styling */
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f7fb;
       color: #333;
       padding: 20px;
     }
+
     .hidden {
       display: none;
     }
 
-    /* Step 1: Top-up selection */
     .topup-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
       gap: 2rem;
       margin-top: 2rem;
     }
     .topup-card {
       max-width: 500px;
-      width: 80%; /* 80% of container width */
+      width: 80%;
       margin: 0 auto;
       display: flex;
       justify-content: center;
@@ -54,7 +53,6 @@
       color: #1f2937;
     }
 
-    /* Button Styling */
     #next-step {
       width: 80%;
       max-width: 500px;
@@ -73,12 +71,12 @@
       background-color: #1d4ed8;
     }
 
-    /* Step 2: Payment Info */
     .step2-content {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     .topup-summary {
       padding: 1.5rem;
       background-color: #f9fafb;
@@ -169,10 +167,13 @@
     const fee = total * 0.10;
     const grandTotal = Math.round(total + tax + fee);
 
-    summary.innerHTML = `Selected: ${selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ")}<br>
-      15% Tax: JMD ${tax.toLocaleString()}<br>
-      10% Cashback Activation Fee: JMD ${fee.toLocaleString()}<br>
-      <strong>Total: JMD ${grandTotal.toLocaleString()}</strong>`;
+    summary.innerHTML = `
+      <h4 class="text-lg font-semibold">Summary:</h4>
+      <p>Selected: ${selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ")}</p>
+      <p>15% Tax: JMD ${tax.toLocaleString()}</p>
+      <p>10% Cashback Activation Fee: JMD ${fee.toLocaleString()}</p>
+      <p><strong>Total: JMD ${grandTotal.toLocaleString()}</strong></p>
+    `;
 
     nextStepBtn.classList.remove("hidden");
   }
