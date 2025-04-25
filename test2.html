@@ -1105,7 +1105,63 @@ async function showCartWithLocations() {
 
 
 
+// Save the user's location and set expiration for 6 hours
+function saveLocationFor6Hours(pos) {
+  const locationData = {
+    coords: `${pos.coords.latitude},${pos.coords.longitude}`,
+    timestamp: Date.now() // Timestamp for expiration
+  };
 
+  localStorage.setItem('userLocation', JSON.stringify(locationData));
+
+  // Set a timeout to delete the saved location after 6 hours
+  setTimeout(() => {
+    localStorage.removeItem('userLocation');
+    alert("Your saved location has expired. Please update your location.");
+  }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+}
+
+// Check if the saved location is still valid
+function getSavedLocation() {
+  const savedLocation = JSON.parse(localStorage.getItem('userLocation'));
+
+  if (!savedLocation) return null;
+
+  // Check if the location is expired
+  const isExpired = Date.now() - savedLocation.timestamp > 6 * 60 * 60 * 1000;
+
+  if (isExpired) {
+    localStorage.removeItem('userLocation');
+    return null;
+  }
+
+  return savedLocation.coords;
+}
+
+
+function showUpdateLocationButton() {
+  const updateButton = document.createElement('button');
+  updateButton.innerText = "Update My Location 🔄";
+  updateButton.onclick = () => updateLocation();
+  document.body.appendChild(updateButton); // Add button to the page
+}
+
+function updateLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        saveLocationFor6Hours(pos); // Save updated location
+        alert("Location updated successfully.");
+      },
+      (err) => {
+        alert("Could not retrieve your location.");
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by your browser.");
+  }
+}
+	
 
 
 
@@ -1132,27 +1188,38 @@ function openBrandLocation(brand) {
     navigateToLocation(dest);
   }, 5000); // 5 seconds timeout
 
-  // Try to get the current location
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        // Clear the timeout if location was found
-        clearTimeout(geoTimeout);
+  // Get saved location if available
+  const savedLocation = getSavedLocation();
 
-        lastKnownLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
-        navigateToLocation(dest, lastKnownLocation);
-      },
-      (err) => {
-        // Clear the timeout if there's an error
-        clearTimeout(geoTimeout);
-
-        // Proceed without current location if there's an error
-        navigateToLocation(dest);
-      }
-    );
+  if (savedLocation) {
+    // Use the saved location if available
+    navigateToLocation(dest, savedLocation);
+    clearTimeout(geoTimeout); // Clear timeout as location is available
+    isNavigating = false;
   } else {
-    // If geolocation is not available, proceed with the destination
-    navigateToLocation(dest);
+    // If no saved location, request geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          // Save the location and navigate
+          saveLocationFor6Hours(pos);
+          navigateToLocation(dest, `${pos.coords.latitude},${pos.coords.longitude}`);
+          clearTimeout(geoTimeout);
+          isNavigating = false;
+        },
+        (err) => {
+          // If user denies location or it fails
+          clearTimeout(geoTimeout);
+          alert("Could not retrieve your location.");
+          navigateToLocation(dest); // Proceed without current location
+          isNavigating = false;
+        }
+      );
+    } else {
+      // If geolocation is not available, proceed with the destination
+      navigateToLocation(dest);
+      isNavigating = false;
+    }
   }
 }
 
@@ -1163,12 +1230,6 @@ function navigateToLocation(dest, originCoords = null) {
     : `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
 
   window.location.href = url;
-  isNavigating = false; // Reset the flag
-}
-
-function showLoader(message) {
-  // Show a loader or toast message to the user
-  console.log(message); // Placeholder for your actual loader or toast implementation
 }
 
 	
@@ -1303,6 +1364,20 @@ actionRow.innerHTML = `
   <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Save Shopping List</button>
   <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
 `;
+
+// Add the action row to the brand section
+brandSection.appendChild(actionRow);
+
+// Create the link for location update
+const updateLocationLink = document.createElement('a');
+updateLocationLink.href = '#';
+updateLocationLink.innerText = 'Update My Location 🔄';
+updateLocationLink.style = 'display: block; text-align: center; margin-top: 10px; color: #007bff; text-decoration: none;';
+updateLocationLink.onclick = () => updateLocation();
+
+// Add the link below the action row
+brandSection.appendChild(updateLocationLink);
+	    
 brandSection.appendChild(actionRow);
 
       popup.appendChild(brandSection);
