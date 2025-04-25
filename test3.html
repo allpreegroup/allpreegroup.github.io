@@ -364,15 +364,21 @@
   });
 
   // WhatsApp Button Click (send message)
-  sendWhatsappBtn.addEventListener("click", () => {
-    // Send message with the current grand total
-    const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
-    sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+sendWhatsappBtn.addEventListener("click", () => {
+  // Send message with the current grand total
+  const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
+  sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
-    // Show the Top-Up button again after clicking WhatsApp
-    topUpBtn.classList.remove("hidden"); // Make sure top-up button reappears
-    saveStep(""); // Optionally clear the current step
-  });
+  // Show the Top-Up button again
+  topUpBtn.classList.remove("hidden");
+
+  // Hide Step 3
+  step3.classList.add("hidden");
+
+  // Optionally clear the saved step
+  saveStep("");
+});
+
 </script>
 
 </body>
