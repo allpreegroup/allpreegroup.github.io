@@ -1,221 +1,190 @@
-<style>
-/* Hidden class to hide the Step 2 section */
-.hidden {
-  display: none;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gift Card Top-up</title>
+  <style>
+    /* General styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fb;
+      color: #333;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
 
-  
-/* Step 1 - Choose Top-up Amount(s) */
-/* Professional Card Styling for Top-ups */
-.topup-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid with a minimum card width */
-  gap: 2rem;
-  margin-top: 2rem;
-}
+    /* Step 1: Top-up selection */
+    .topup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .topup-card {
+      max-width: 500px;
+      width: 80%; /* 80% of container width */
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .topup-card:hover {
+      background-color: #f3f4f6;
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+    .topup-option.selected .topup-card {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+    .topup-label {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
 
-.topup-card {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
-  border: 1px solid #e5e7eb; /* Light border for a cleaner look */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+    /* Button Styling */
+    #next-step, #calculate-total {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    #next-step:hover, #calculate-total:hover {
+      background-color: #1d4ed8;
+    }
 
-.topup-card:hover {
-  background-color: #f3f4f6;
-  transform: translateY(-5px); /* Subtle lift effect */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
-}
+    /* Step 2: Payment Info */
+    .step2-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .topup-summary {
+      padding: 1.5rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 1.5rem;
+      width: 80%;
+      max-width: 500px;
+    }
+    .topup-summary p {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
 
-.topup-option.selected .topup-card {
-  background-color: #3b82f6; /* Professional blue */
-  color: white;
-  border-color: #2563eb;
-}
+<div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg">
+  <!-- Step 1: Amount Selection -->
+  <div id="step1" class="space-y-8">
+    <h2 class="text-3xl font-semibold text-gray-900">Step 1: Choose Top-up Amount(s)</h2>
+    <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to calculate the total.</p>
 
-.topup-label {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-#calculate-total {
-  width: 100%;
-  background-color: #2563eb;
-  color: white;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 1.25rem;
-}
-
-#calculate-total:hover {
-  background-color: #1d4ed8;
-}
-
-
- /* Step 2 - Payment Info & WhatsApp Send Section */
-.step2-container {
-  space-y: 2rem;
-}
-
-.step2-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.step2-description {
-  font-size: 1.125rem;
-  color: #4b5563;
-}
-
-.payment-details-card {
-  background-color: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.payment-label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.grand-total {
-  font-weight: 600;
-  font-size: 1.25rem;
-  color: #2563eb;
-}
-
-.input-fields-container {
-  space-y: 1.5rem;
-}
-
-.input-field {
-  width: 100%;
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 1.125rem;
-  transition: all 0.3s ease;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.whatsapp-btn {
-  display: block;
-  text-align: center;
-  background-color: #16a34a;
-  color: white;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  margin-top: 2rem;
-}
-
-.whatsapp-btn:hover {
-  background-color: #15803d;
-}
-
-.whatsapp-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
-}
-
-</style>
-
-<!-- Step 1: Choose Top-up Amount(s) -->
-<!-- Step 1: Choose Top-up Amount(s) -->
-<div id="step1" class="space-y-8">
-  <h2 class="text-3xl font-semibold text-gray-900">Step 1: Choose Top-up Amount(s)</h2>
-  <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to calculate the total.</p>
-
-  <!-- Grid for top-up options -->
-  <div id="topup-grid" class="topup-grid">
-    <div class="topup-option" data-amount="10000">
-      <div class="topup-card">
-        <span class="topup-label">JMD 10,000</span>
+    <div class="topup-grid" id="topup-grid">
+      <div class="topup-option" data-amount="10000">
+        <div class="topup-card">
+          <span class="topup-label">JMD 10,000</span>
+        </div>
+      </div>
+      <div class="topup-option" data-amount="15000">
+        <div class="topup-card">
+          <span class="topup-label">JMD 15,000</span>
+        </div>
+      </div>
+      <div class="topup-option" data-amount="20000">
+        <div class="topup-card">
+          <span class="topup-label">JMD 20,000</span>
+        </div>
       </div>
     </div>
-    <div class="topup-option" data-amount="15000">
-      <div class="topup-card">
-        <span class="topup-label">JMD 15,000</span>
-      </div>
-    </div>
-    <div class="topup-option" data-amount="20000">
-      <div class="topup-card">
-        <span class="topup-label">JMD 20,000</span>
-      </div>
-    </div>
+
+    <button id="calculate-total" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">Calculate Total</button>
+    <div id="summary" class="mt-4 text-sm text-gray-600"></div>
+
+    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6 hidden">Next Step</button>
   </div>
 
-  <button id="calculate-total" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">Calculate Total</button>
-  <div id="summary" class="mt-4 text-sm text-gray-600"></div>
+  <!-- Step 2: Payment Info & WhatsApp Send -->
+  <div id="step2" class="space-y-8 hidden step2-content">
+    <h2 class="text-3xl font-semibold text-gray-900">Step 2: Send Payment & Details</h2>
+    <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>
+    <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
+      <p><strong class="text-gray-800">Bank:</strong> NCB</p>
+      <p><strong class="text-gray-800">Account Name:</strong> Allpree Limited</p>
+      <p><strong class="text-gray-800">Account Number:</strong> 123456789</p>
+      <p><strong class="text-gray-800">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="font-semibold text-xl text-blue-600"></span></p>
+    </div>
+
+    <p class="text-lg text-gray-700 mt-4">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
+
+    <div class="space-y-6">
+      <input type="text" id="fullname" placeholder="Full Name" class="w-full p-4 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+      <input type="text" id="idcode" placeholder="Your ID Code" class="w-full p-4 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+      <input type="text" id="bankused" placeholder="Your Bank Name" class="w-full p-4 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+      <input type="date" id="datesent" class="w-full p-4 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+    </div>
+
+    <a id="send-whatsapp" class="block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8" target="_blank">Send via WhatsApp</a>
+  </div>
 </div>
-
-
-
-<!-- Step 2: Payment Info & WhatsApp Send -->
-<div id="step2" class="step2-container hidden">
-  <h2 class="step2-title">Step 2: Send Payment & Details</h2>
-  <p class="step2-description">Send the total amount to the following bank details:</p>
-  
-  <div class="payment-details-card">
-    <p><strong class="payment-label">Bank:</strong> NCB</p>
-    <p><strong class="payment-label">Account Name:</strong> Allpree Limited</p>
-    <p><strong class="payment-label">Account Number:</strong> 123456789</p>
-    <p><strong class="payment-label">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="grand-total"></span></p>
-  </div>
-
-  <p class="step2-description">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
-
-  <div class="input-fields-container">
-    <input type="text" id="fullname" placeholder="Full Name" class="input-field" />
-    <input type="text" id="idcode" placeholder="Your ID Code" class="input-field" />
-    <input type="text" id="bankused" placeholder="Your Bank Name" class="input-field" />
-    <input type="date" id="datesent" class="input-field" />
-  </div>
-
-  <a id="send-whatsapp" class="whatsapp-btn" target="_blank">Send via WhatsApp</a>
-</div>
-
-
-
 
 <script>
-const topupGrid = document.getElementById("topup-grid");
-const summary = document.getElementById("summary");
-const step2 = document.getElementById("step2");
-const grandTotalDisplay = document.getElementById("grand-total");
-const sendWhatsapp = document.getElementById("send-whatsapp");
+  const select = document.getElementById("topup-grid");
+  const summary = document.getElementById("summary");
+  const step2 = document.getElementById("step2");
+  const nextStepBtn = document.getElementById("next-step");
 
-let selectedTopups = [];
+  let selectedTopups = [];
 
-function formatCurrency(num) {
-  return "JMD " + num.toLocaleString();
-}
+  function calculateTotals() {
+    const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
-// Handle click event for selecting top-up amounts
-topupGrid.addEventListener("click", (e) => {
-  if (e.target.closest(".topup-option")) {
+    if (total > 45000) {
+      summary.textContent = "Total cannot exceed JMD 45,000.";
+      nextStepBtn.classList.add("hidden");
+      return;
+    }
+
+    const tax = total * 0.15;
+    const fee = total * 0.10;
+    const grandTotal = Math.round(total + tax + fee);
+
+    summary.innerHTML = `Selected: ${selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ")}<br>
+      15% Tax: JMD ${tax.toLocaleString()}<br>
+      10% Cashback Activation Fee: JMD ${fee.toLocaleString()}<br>
+      <strong>Total: JMD ${grandTotal.toLocaleString()}</strong>`;
+
+    nextStepBtn.classList.remove("hidden");
+  }
+
+  // Handle click event for selecting top-up amounts
+  select.addEventListener("click", (e) => {
     const option = e.target.closest(".topup-option");
+    if (!option) return;
+
     const amount = parseInt(option.getAttribute("data-amount"));
-    
-    // Toggle selection
+
     if (selectedTopups.includes(amount)) {
       selectedTopups = selectedTopups.filter(val => val !== amount);
       option.classList.remove("selected");
@@ -224,49 +193,15 @@ topupGrid.addEventListener("click", (e) => {
       option.classList.add("selected");
     }
 
-    // Update summary when a top-up is selected
     calculateTotals();
-  }
-});
+  });
 
-function calculateTotals() {
-  const total = selectedTopups.reduce((sum, val) => sum + val, 0);
-
-  if (total > 45000) {
-    summary.textContent = "Total cannot exceed JMD 45,000.";
-    step2.classList.add("hidden");
-    return;
-  }
-
-  const tax = total * 0.15;
-  const fee = total * 0.10;
-  const grandTotal = Math.round(total + tax + fee);
-
-  summary.innerHTML = `Selected: ${selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ")}<br>
-    15% Tax: ${formatCurrency(tax)}<br>
-    10% Cashback Activation Fee: ${formatCurrency(fee)}<br>
-    <strong>Total: ${formatCurrency(grandTotal)}</strong>`;
-
-  grandTotalDisplay.textContent = formatCurrency(grandTotal);
-
-  // Reveal Step 2 after Step 1 is complete
-  step2.classList.remove("hidden");
-
-  sendWhatsapp.onclick = () => {
-    const fullName = document.getElementById("fullname").value;
-    const idCode = document.getElementById("idcode").value;
-    const bankUsed = document.getElementById("bankused").value;
-    const dateSent = document.getElementById("datesent").value;
-    const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
-
-    const message = `Hi, I'd like to complete my gift card top-up.%0A\nTop-up Combination: ${comboText}%0A\nTotal Sent: ${formatCurrency(grandTotal)}%0A\nID Code: ${idCode}%0A\nFull Name: ${fullName}%0A\nBank Used: ${bankUsed}%0A\nTransaction Date: ${dateSent}%0A\n\nPlease find attached my payment screenshot.`;
-
-    sendWhatsapp.href = `https://wa.me/18761234567?text=${encodeURIComponent(message)}`;
-  };
-}
-
-document.getElementById("calculate-total").addEventListener("click", calculateTotals);
-
-
-
+  // Go to the next step when clicking the "Next Step" button
+  nextStepBtn.addEventListener("click", () => {
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+  });
 </script>
+
+</body>
+</html>
