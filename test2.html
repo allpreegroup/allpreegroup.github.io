@@ -1150,6 +1150,7 @@ function updateLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+	console.log("Got position:", pos); // Debug
         saveLocationFor6Hours(pos); // Save updated location
         alert("Location updated successfully.");
       },
@@ -1186,14 +1187,14 @@ function openBrandLocation(brand) {
   const geoTimeout = setTimeout(() => {
     // If we still don't have a location, proceed with the destination only
     navigateToLocation(dest);
-  }, 5000); // 5 seconds timeout
+  }, 10000); // 5 seconds timeout
 
   // Get saved location if available
   const savedLocation = getSavedLocation();
 
   if (savedLocation) {
     // Use the saved location if available
-    navigateToLocation(dest, savedLocation);
+    navigateToLocation(dest, savedLocation.coords);
     clearTimeout(geoTimeout); // Clear timeout as location is available
     isNavigating = false;
   } else {
