@@ -953,7 +953,7 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-/////// Start
+/////// ////////// START
 
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
@@ -994,19 +994,15 @@ function initCartIcon() {
     `;
     document.body.appendChild(cartIconContainer);
     document.getElementById('cart-icon').onclick = openCartPopup;
-    updateCartCount(getTotalCartItems());
-   
+    updateCartCount(getTotalCartItems()); 
   
 }
 }
-
 
 document.getElementById('cartBtn').addEventListener('click', (e) => {
   e.stopPropagation(); // Prevents closing the current popup
   openCartPopup();
 });
-
-	
 	
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
@@ -1060,7 +1056,6 @@ function addToCart(deal) {
   return !inCart; // return new state: true if added, false if removed
 }
 
-
 function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
@@ -1087,8 +1082,6 @@ function clearBrandCart(brand) {
   }
 }
 
-
-
 async function loadBrandLocations() {
   try {
     const res = await fetch('brandLocations.json');
@@ -1099,108 +1092,40 @@ async function loadBrandLocations() {
 }
 
 async function showCartWithLocations() {
-  await loadBrandLocations();  // wait for the locations to load
-  openCartPopup();             // then show the cart popup
+  await loadBrandLocations();  // Wait for the locations to load
+  openCartPopup();             // Then show the cart popup
 }
 
+// Function to calculate the distance between two locations (in meters)
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
 
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-// Save the user's location and set expiration for 6 hours
-function saveLocationFor6Hours(pos) {
-  const locationData = {
-    coords: `${pos.coords.latitude},${pos.coords.longitude}`,
-    timestamp: Date.now() // Timestamp for expiration
-  };
-
-  localStorage.setItem('userLocation', JSON.stringify(locationData));
-
-  // Set a timeout to delete the saved location after 6 hours
-  setTimeout(() => {
-    localStorage.removeItem('userLocation');
-    alert("Your saved location has expired. Please update your location.");
-  }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+  return R * c; // Distance in meters
 }
 
-// Check if the saved location is still valid
-function getSavedLocation() {
-  const savedLocation = JSON.parse(localStorage.getItem('userLocation'));
-
-  if (!savedLocation) return null;
-
-  // Check if the location is expired
-  const isExpired = Date.now() - savedLocation.timestamp > 6 * 60 * 60 * 1000;
-
-  if (isExpired) {
-    localStorage.removeItem('userLocation');
-    return null;
-  }
-
-  return savedLocation.coords;
+// Check if user has moved more than 500 meters from saved location
+function hasMovedSignificantly(savedLocation, currentLocation) {
+  if (!savedLocation) return true; // If no saved location, treat it as moved
+  const [savedLat, savedLon] = savedLocation.split(',').map(Number);
+  const [currentLat, currentLon] = currentLocation.split(',').map(Number);
+  const distance = getDistance(savedLat, savedLon, currentLat, currentLon);
+  return distance > 500; // 500 meters
 }
 
-
-function showLoader(message) {
-  const loader = document.createElement('div');
-  loader.id = 'loader';
-  loader.style = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    font-size: 18px;
-    border-radius: 8px;
-    z-index: 9999;
-  `;
-  loader.innerText = message;
-
-  document.body.appendChild(loader);
-}
-
-function hideLoader() {
-  const loader = document.getElementById('loader');
-  if (loader) {
-    loader.remove();
-  }
-}
-
-
-	
-
-function showUpdateLocationButton() {
-  const updateButton = document.createElement('button');
-  updateButton.innerText = "Update My Location 🔄";
-  updateButton.onclick = () => updateLocation();
-  document.body.appendChild(updateButton); // Add button to the page
-}
-
-function updateLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-	console.log("Got position:", pos); // Debug
-        saveLocationFor6Hours(pos); // Save updated location
-        alert("Location updated successfully.");
-      },
-      (err) => {
-        alert("Could not retrieve your location.");
-      }
-    );
-  } else {
-    alert("Geolocation is not supported by your browser.");
-  }
-}
-	
-
-
-
-function openBrandLocation(brand) {
-  // Check if we're already navigating
+async function openBrandLocation(brand) {
+  // Prevent multiple redirects
   if (isNavigating) return;
 
-  isNavigating = true; // Prevent multiple redirects
+  isNavigating = true; // Set flag to prevent duplicate navigation
 
   const dest = brandLocations[brand];
 
@@ -1210,47 +1135,41 @@ function openBrandLocation(brand) {
     return;
   }
 
-  // Show a loader or toast before starting navigation
-  showLoader("Fetching location...");
-
-  // Fallback timeout in case geolocation takes too long (e.g., 5 seconds)
-  const geoTimeout = setTimeout(() => {
-    // If we still don't have a location, proceed with the destination only
-    navigateToLocation(dest);
-  }, 10000); // 5 seconds timeout
-
-  // Get saved location if available
+  // Get the saved location
   const savedLocation = getSavedLocation();
 
-  if (savedLocation) {
-    // Use the saved location if available
-    navigateToLocation(dest, savedLocation.coords);
-    clearTimeout(geoTimeout); // Clear timeout as location is available
-    isNavigating = false;
-  } else {
-    // If no saved location, request geolocation
+  // If there's no saved location or the user has moved significantly, fetch the current location
+  if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // Save the location and navigate
-          saveLocationFor6Hours(pos);
-          navigateToLocation(dest, `${pos.coords.latitude},${pos.coords.longitude}`);
-          clearTimeout(geoTimeout);
+          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+          // Save the new location if it's different from the saved one
+          if (hasMovedSignificantly(savedLocation, currentCoords)) {
+            saveLocationFor6Hours(pos); // Update saved location
+            alert("Location updated successfully.");
+          }
+
+          // Redirect the user to the brand's location using the current or updated coordinates
+          navigateToLocation(dest, currentCoords);
           isNavigating = false;
         },
         (err) => {
-          // If user denies location or it fails
-          clearTimeout(geoTimeout);
           alert("Could not retrieve your location.");
-          navigateToLocation(dest); // Proceed without current location
+          navigateToLocation(dest); // Proceed without location
           isNavigating = false;
         }
       );
     } else {
-      // If geolocation is not available, proceed with the destination
-      navigateToLocation(dest);
+      alert("Geolocation is not supported by your browser.");
+      navigateToLocation(dest); // Proceed without location
       isNavigating = false;
     }
+  } else {
+    // If no update needed, use the saved location for navigation
+    navigateToLocation(dest, savedLocation);
+    isNavigating = false;
   }
 }
 
@@ -1262,12 +1181,7 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
-
 	
-	
-
-	
-
 function openCartPopup() {
   // Prevent duplicate backdrop
   if (document.getElementById('cart-backdrop')) return;
@@ -1386,7 +1300,6 @@ totalsDiv.innerHTML = `
 `;
 brandSection.appendChild(totalsDiv);
 
-
 // Buttons row
 const actionRow = document.createElement('div');
 actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
@@ -1396,19 +1309,6 @@ actionRow.innerHTML = `
   <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
 `;
 
-// Add the action row to the brand section
-brandSection.appendChild(actionRow);
-
-// Create the link for location update
-const updateLocationLink = document.createElement('a');
-updateLocationLink.href = '#';
-updateLocationLink.innerText = 'Update My Location 🔄';
-updateLocationLink.style = 'display: block; text-align: center; margin-top: 10px; color: #007bff; text-decoration: none;';
-updateLocationLink.onclick = () => updateLocation();
-
-// Add the link below the action row
-brandSection.appendChild(updateLocationLink);
-	    
 brandSection.appendChild(actionRow);
 
       popup.appendChild(brandSection);
