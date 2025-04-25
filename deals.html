@@ -943,6 +943,10 @@ let isBrandMode = false;
 let brandDealIndex = 0;
 let brandDealKeys =[];	
 let isSwiping = false;
+let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
+let lastKnownLocation = null;
+let userLocation = null;
+
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -950,7 +954,7 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-/////// Start
+/////// ////////// START
 
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
@@ -991,19 +995,15 @@ function initCartIcon() {
     `;
     document.body.appendChild(cartIconContainer);
     document.getElementById('cart-icon').onclick = openCartPopup;
-    updateCartCount(getTotalCartItems());
-   
+    updateCartCount(getTotalCartItems()); 
   
 }
 }
-
 
 document.getElementById('cartBtn').addEventListener('click', (e) => {
   e.stopPropagation(); // Prevents closing the current popup
   openCartPopup();
 });
-
-	
 	
 function updateCartCount(count) {
   const countEl = document.getElementById('cart-count');
@@ -1057,7 +1057,6 @@ function addToCart(deal) {
   return !inCart; // return new state: true if added, false if removed
 }
 
-
 function clearBrandCart(brand) {
   const cart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   delete cart[brand];
@@ -1084,6 +1083,13 @@ function clearBrandCart(brand) {
   }
 }
 
+	function saveLocation(coords) {
+  localStorage.setItem('userLocation', coords);
+}
+
+	function getSavedLocation() {
+  return localStorage.getItem('userLocation');
+}
 
 
 async function loadBrandLocations() {
@@ -1096,45 +1102,98 @@ async function loadBrandLocations() {
 }
 
 async function showCartWithLocations() {
-  await loadBrandLocations();  // wait for the locations to load
-  openCartPopup();             // then show the cart popup
+  await loadBrandLocations();  // Wait for the locations to load
+  openCartPopup();             // Then show the cart popup
 }
 
+// Function to calculate the distance between two locations (in meters)
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
 
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-function openBrandLocation(brand) {
+  return R * c; // Distance in meters
+}
+
+// Check if user has moved more than 500 meters from saved location
+function hasMovedSignificantly(savedLocation, currentLocation) {
+  if (!savedLocation) return true; // If no saved location, treat it as moved
+  const [savedLat, savedLon] = savedLocation.split(',').map(Number);
+  const [currentLat, currentLon] = currentLocation.split(',').map(Number);
+  const distance = getDistance(savedLat, savedLon, currentLat, currentLon);
+  return distance > 500; // 500 meters
+}
+
+async function openBrandLocation(brand) {
+  // Prevent multiple redirects
+  if (isNavigating) return;
+
+  isNavigating = true; // Set flag to prevent duplicate navigation
+
   const dest = brandLocations[brand];
 
-  if (!dest) {
-    alert("Location not available for this brand.");
+  if (!dest || dest.trim() === "") {
+    alert("No location set for this brand yet.");
+    isNavigating = false;
     return;
   }
 
-  const openInSameTab = (originCoords) => {
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`;
-    window.location.href = url; // Open in same tab
-  };
+  // Get the saved location
+  const savedLocation = getSavedLocation();
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const origin = `${pos.coords.latitude},${pos.coords.longitude}`;
-        openInSameTab(origin);
-      },
-      (err) => {
-        // If user denies location or it fails
-        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-      }
-    );
+  // If there's no saved location or the user has moved significantly, fetch the current location
+  if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+          // Save the new location if it's different from the saved one
+          if (hasMovedSignificantly(savedLocation, currentCoords)) {
+  userLocation = currentCoords;
+  saveLocation(currentCoords); // Update saved location
+  alert("Location updated successfully.");
+}
+
+
+          // Redirect the user to the brand's location using the current or updated coordinates
+          navigateToLocation(dest, currentCoords);
+          isNavigating = false;
+        },
+        (err) => {
+          alert("Could not retrieve your location.");
+          navigateToLocation(dest); // Proceed without location
+          isNavigating = false;
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+      navigateToLocation(dest); // Proceed without location
+      isNavigating = false;
+    }
   } else {
-    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+    // If no update needed, use the saved location for navigation
+    navigateToLocation(dest, savedLocation);
+    isNavigating = false;
   }
 }
-	
-	
 
-	
+function navigateToLocation(dest, originCoords = null) {
+  // Redirect to Google Maps with or without the current location
+  const url = originCoords
+    ? `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
 
+  window.location.href = url;
+}
+	
 function openCartPopup() {
   // Prevent duplicate backdrop
   if (document.getElementById('cart-backdrop')) return;
@@ -1253,7 +1312,6 @@ totalsDiv.innerHTML = `
 `;
 brandSection.appendChild(totalsDiv);
 
-
 // Buttons row
 const actionRow = document.createElement('div');
 actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px;';
@@ -1262,6 +1320,7 @@ actionRow.innerHTML = `
   <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Save Shopping List</button>
   <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Location</button>
 `;
+
 brandSection.appendChild(actionRow);
 
       popup.appendChild(brandSection);
