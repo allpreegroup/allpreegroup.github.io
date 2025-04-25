@@ -75,54 +75,45 @@
   color: #4b5563;
 }
 
-  /* styles.css */
-
-/* Step 2 Payment Container */
-.payment-container {
+ /* Step 2 - Payment Info & WhatsApp Send Section */
+.step2-container {
   space-y: 2rem;
 }
 
-/* Title for step 2 */
-.step-title {
+.step2-title {
   font-size: 2rem;
   font-weight: 600;
   color: #1f2937;
 }
 
-/* Description text for step 2 */
-.step-description {
+.step2-description {
   font-size: 1.125rem;
   color: #4b5563;
 }
 
-/* Payment info container */
-.payment-info {
+.payment-details-card {
   background-color: #f9fafb;
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Text styling for payment info */
-.text-info {
+.payment-label {
   font-weight: 600;
   color: #374151;
 }
 
-/* Grand total text */
 .grand-total {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.25rem;
   color: #2563eb;
 }
 
-/* Form container for input fields */
-.form-container {
+.input-fields-container {
   space-y: 1.5rem;
 }
 
-/* Input field styling */
-.form-input {
+.input-field {
   width: 100%;
   padding: 1rem;
   border: 2px solid #e5e7eb;
@@ -132,13 +123,12 @@
   transition: all 0.3s ease;
 }
 
-.form-input:focus {
+.input-field:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
-/* WhatsApp button styling */
 .whatsapp-btn {
   display: block;
   text-align: center;
@@ -157,8 +147,8 @@
 
 .whatsapp-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(22, 163, 74
-
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
+}
 
 </style>
 
@@ -181,28 +171,30 @@
 </div>
 
  <!-- Step 2: Payment Info & WhatsApp Send -->
-<div id="step2" class="payment-container hidden">
-  <h2 class="step-title">Step 2: Send Payment & Details</h2>
-  <p class="step-description">Send the total amount to the following bank details:</p>
+<!-- Step 2: Payment Info & WhatsApp Send -->
+<div id="step2" class="step2-container hidden">
+  <h2 class="step2-title">Step 2: Send Payment & Details</h2>
+  <p class="step2-description">Send the total amount to the following bank details:</p>
   
-  <div class="payment-info">
-    <p><strong class="text-info">Bank:</strong> NCB</p>
-    <p><strong class="text-info">Account Name:</strong> Allpree Limited</p>
-    <p><strong class="text-info">Account Number:</strong> 123456789</p>
-    <p><strong class="text-info">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="grand-total"></span></p>
+  <div class="payment-details-card">
+    <p><strong class="payment-label">Bank:</strong> NCB</p>
+    <p><strong class="payment-label">Account Name:</strong> Allpree Limited</p>
+    <p><strong class="payment-label">Account Number:</strong> 123456789</p>
+    <p><strong class="payment-label">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="grand-total"></span></p>
   </div>
 
-  <p class="step-description mt-4">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
+  <p class="step2-description">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
 
-  <div class="form-container">
-    <input type="text" id="fullname" placeholder="Full Name" class="form-input" />
-    <input type="text" id="idcode" placeholder="Your ID Code" class="form-input" />
-    <input type="text" id="bankused" placeholder="Your Bank Name" class="form-input" />
-    <input type="date" id="datesent" class="form-input" />
+  <div class="input-fields-container">
+    <input type="text" id="fullname" placeholder="Full Name" class="input-field" />
+    <input type="text" id="idcode" placeholder="Your ID Code" class="input-field" />
+    <input type="text" id="bankused" placeholder="Your Bank Name" class="input-field" />
+    <input type="date" id="datesent" class="input-field" />
   </div>
 
   <a id="send-whatsapp" class="whatsapp-btn" target="_blank">Send via WhatsApp</a>
 </div>
+
 
 
 <script>
@@ -254,4 +246,5 @@ function calculateTotals() {
 }
 
 document.getElementById("calculate-total").addEventListener("click", calculateTotals);
+
 </script>
