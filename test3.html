@@ -122,7 +122,7 @@
   </div>
 
   <!-- Step 2: Payment Info & WhatsApp Send -->
-  <div id="step2" class="space-y-8 hidden content hidden">
+  <div id="step2" class="space-y-8 content hidden">
     <h2 class="text-3xl font-semibold text-gray-900">Step 2: Send Payment & Details</h2>
     <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>
     <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
@@ -147,73 +147,72 @@
 
 <script>
   // Hide Step 2 initially
-  
+  // Hide Step 2 initially (done via HTML with class "hidden")
 
-  const select = document.getElementById("topup-grid");
-  const summary = document.getElementById("summary");
-  const nextStepBtn = document.getElementById("next-step");
+const select = document.getElementById("topup-grid");
+const summary = document.getElementById("summary");
+const nextStepBtn = document.getElementById("next-step");
 
-  let selectedTopups = [];
+let selectedTopups = [];
 
-  function calculateTotals() {
-    const total = selectedTopups.reduce((sum, val) => sum + val, 0);
+function calculateTotals() {
+  const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
-    if (total === 0) {
-  summary.innerHTML = "";
-  
-  return;
-}
-
-if (total > 45000) {
-  summary.textContent = "Total cannot exceed JMD 45,000.";
-
-  console.log(step2); // To check if it's being correctly selected
-
-  return;
-}
-
-
-    const tax = total * 0.15;
-    const fee = total * 0.10;
-    const grandTotal = Math.round(total + tax + fee);
-
- summary.innerHTML = `
-  <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-  <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
-  <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
-  <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
-`;
-
-
-step2.classList.remove("hidden");
-console.log(step2); // To check if it's being correctly selected
-
-    
+  if (total === 0) {
+    summary.innerHTML = "";
+    return;
   }
 
-  // Handle click event for selecting top-up amounts
-  select.addEventListener("click", (e) => {
-    const option = e.target.closest(".topup-option");
-    if (!option) return;
+  if (total > 45000) {
+    summary.textContent = "Total cannot exceed JMD 45,000.";
+    return;
+  }
 
-    const amount = parseInt(option.getAttribute("data-amount"));
+  const tax = total * 0.15;
+  const fee = total * 0.10;
+  const grandTotal = Math.round(total + tax + fee);
 
-    if (selectedTopups.includes(amount)) {
-      selectedTopups = selectedTopups.filter(val => val !== amount);
-      option.classList.remove("selected");
-    } else {
-      selectedTopups.push(amount);
-      option.classList.add("selected");
-    }
+  summary.innerHTML = `
+    <h4 class="text-lg font-semibold mb-2">Summary:</h4>
+    <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
+  `;
+}
 
-    calculateTotals();
-  });
+// Handle click event for selecting top-up amounts
+select.addEventListener("click", (e) => {
+  const option = e.target.closest(".topup-option");
+  if (!option) return;
 
-  // Go to the next step when clicking the "Next Step" button
-  nextStepBtn.addEventListener("click", () => {
-    document.getElementById("step1").classList.add("hidden");
-    document.getElementById("step2").classList.remove("hidden");
-  });
+  const amount = parseInt(option.getAttribute("data-amount"));
+
+  if (selectedTopups.includes(amount)) {
+    selectedTopups = selectedTopups.filter(val => val !== amount);
+    option.classList.remove("selected");
+  } else {
+    selectedTopups.push(amount);
+    option.classList.add("selected");
+  }
+
+  calculateTotals();
+});
+
+// Go to the next step when clicking the "Next Step" button
+nextStepBtn.addEventListener("click", () => {
+  // Only show Step 2 if everything is valid (no error in total)
+  const total = selectedTopups.reduce((sum, val) => sum + val, 0);
+
+  if (total > 45000) {
+    summary.textContent = "Total cannot exceed JMD 45,000.";
+    return;
+  }
+
+  // Hide Step 1 and show Step 2
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+});
+
 </script>
 
 </body>
