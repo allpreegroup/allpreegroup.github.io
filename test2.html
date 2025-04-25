@@ -944,6 +944,8 @@ let brandDealIndex = 0;
 let brandDealKeys =[];	
 let isSwiping = false;
 let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
+let lastKnownLocation = null;
+
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -1105,8 +1107,7 @@ async function showCartWithLocations() {
 
 
 
-let lastKnownLocation = null;
-let isNavigating = false;
+
 
 function openBrandLocation(brand) {
   // Check if we're already navigating
