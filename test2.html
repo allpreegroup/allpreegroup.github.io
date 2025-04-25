@@ -945,6 +945,7 @@ let brandDealKeys =[];
 let isSwiping = false;
 let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
 let lastKnownLocation = null;
+let userLocation = null;
 
 	
 function getDealKey(deal) {
@@ -1082,6 +1083,15 @@ function clearBrandCart(brand) {
   }
 }
 
+	function saveLocation(coords) {
+  localStorage.setItem('userLocation', coords);
+}
+
+	function getSavedLocation() {
+  return localStorage.getItem('userLocation');
+}
+
+
 async function loadBrandLocations() {
   try {
     const res = await fetch('brandLocations.json');
@@ -1147,9 +1157,11 @@ async function openBrandLocation(brand) {
 
           // Save the new location if it's different from the saved one
           if (hasMovedSignificantly(savedLocation, currentCoords)) {
-            saveLocationFor6Hours(pos); // Update saved location
-            alert("Location updated successfully.");
-          }
+  userLocation = currentCoords;
+  saveLocation(currentCoords); // Update saved location
+  alert("Location updated successfully.");
+}
+
 
           // Redirect the user to the brand's location using the current or updated coordinates
           navigateToLocation(dest, currentCoords);
