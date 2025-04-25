@@ -254,6 +254,7 @@
   const summary = document.getElementById("summary");
   const nextStepBtn = document.getElementById("next-step");
   const toggleBtn = document.getElementById("toggle-form-btn");
+  const sendWhatsappBtn = document.getElementById("send-whatsapp"); // Correcting the variable name here
   const formAndSend = document.getElementById("step3");
   const step1 = document.getElementById("step1");
   const step2 = document.getElementById("step2");
@@ -261,6 +262,7 @@
 
   let selectedTopups = [];
 
+  // Function to calculate totals
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
@@ -292,11 +294,44 @@
     nextStepBtn.style.display = "block";
   }
 
+  // Store current step in localStorage
+  function saveStep(step) {
+    localStorage.setItem("currentStep", step);
+  }
+
+  // Retrieve and restore the step when the page reloads
+  function restoreStep() {
+    const step = localStorage.getItem("currentStep");
+    if (step) {
+      if (step === "step1") {
+        topUpBtn.classList.add("hidden");
+        step1.classList.remove("hidden");
+      } else if (step === "step2") {
+        topUpBtn.classList.add("hidden");
+        step1.classList.add("hidden");
+        step2.classList.remove("hidden");
+      } else if (step === "step3") {
+        topUpBtn.classList.add("hidden");
+        step1.classList.add("hidden");
+        step2.classList.add("hidden");
+        step3.classList.remove("hidden");
+      }
+    }
+  }
+
+  // Initialize on page load
+  window.addEventListener("load", () => {
+    restoreStep();
+  });
+
+  // Top-up Button Click
   topUpBtn.addEventListener("click", () => {
     topUpBtn.classList.add("hidden");
     step1.classList.remove("hidden");
+    saveStep("step1");
   });
 
+  // Top-up Options Click
   select.addEventListener("click", (e) => {
     if (!e.target.closest(".topup-option")) return;
 
@@ -314,23 +349,27 @@
     calculateTotals();
   });
 
+  // Next Step Button Click (to step 2)
   nextStepBtn.addEventListener("click", () => {
     step1.classList.add("hidden");
     step2.classList.remove("hidden");
+    saveStep("step2");
   });
 
+  // Toggle Button Click (to step 3)
   toggleBtn.addEventListener("click", () => {
     step2.classList.add("hidden");
     step3.classList.remove("hidden");
+    saveStep("step3");
   });
 
+  // WhatsApp Button Click (send message)
   sendWhatsappBtn.addEventListener("click", () => {
-    // You can replace with the actual WhatsApp link to send message
     const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
     sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
   });
-
 </script>
+
 </body>
 </html>
 
