@@ -261,6 +261,10 @@
 
   let selectedTopups = [];
 
+  function formatCurrency(amount) {
+    return `JMD ${amount.toLocaleString()}`;
+  }
+
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
@@ -372,10 +376,18 @@
   });
 
   sendWhatsappBtn.addEventListener("click", () => {
-    const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
-    sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const fullName = document.getElementById("fullname").value.trim();
+    const idCode = document.getElementById("idcode").value.trim();
+    const bankUsed = document.getElementById("bankused").value.trim();
+    const dateSent = document.getElementById("datesent").value.trim();
 
-    // Reset everything
+    const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
+    const grandTotalText = document.getElementById("grand-total").textContent.replace(/,/g, "");
+
+    const message = `Hi, I'd like to complete my gift card top-up.%0A\nTop-up Combination: ${comboText}%0A\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}%0A\nID Code: ${idCode}%0A\nFull Name: ${fullName}%0A\nBank Used: ${bankUsed}%0A\nTransaction Date: ${dateSent}%0A\n\nPlease find attached my payment screenshot.`;
+
+    sendWhatsappBtn.href = `https://wa.me/18761234567?text=${encodeURIComponent(message)}`;
+
     selectedTopups = [];
     localStorage.removeItem("selectedTopups");
     localStorage.removeItem("currentStep");
@@ -394,6 +406,7 @@
     topUpBtn.classList.remove("hidden");
   });
 </script>
+
 
 </body>
 </html>
