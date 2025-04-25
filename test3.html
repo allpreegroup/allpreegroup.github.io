@@ -254,15 +254,13 @@
   const summary = document.getElementById("summary");
   const nextStepBtn = document.getElementById("next-step");
   const toggleBtn = document.getElementById("toggle-form-btn");
-  const sendWhatsappBtn = document.getElementById("send-whatsapp"); // Corrected variable name
-  const formAndSend = document.getElementById("step3");
+  const sendWhatsappBtn = document.getElementById("send-whatsapp");
   const step1 = document.getElementById("step1");
   const step2 = document.getElementById("step2");
   const step3 = document.getElementById("step3");
 
   let selectedTopups = [];
 
-  // Function to calculate totals
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
@@ -290,48 +288,59 @@
       <div style="display: flex; justify-content: space-between;"><span>Grand Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
     `;
     document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
-
     nextStepBtn.style.display = "block";
   }
 
-  // Store current step in localStorage
   function saveStep(step) {
     localStorage.setItem("currentStep", step);
   }
 
-  // Retrieve and restore the step when the page reloads
   function restoreStep() {
     const step = localStorage.getItem("currentStep");
-    if (step) {
-      if (step === "step1") {
-        topUpBtn.classList.add("hidden");
-        step1.classList.remove("hidden");
-      } else if (step === "step2") {
-        topUpBtn.classList.add("hidden");
-        step1.classList.add("hidden");
-        step2.classList.remove("hidden");
-      } else if (step === "step3") {
-        topUpBtn.classList.add("hidden");
-        step1.classList.add("hidden");
-        step2.classList.add("hidden");
-        step3.classList.remove("hidden");
-      }
+    if (step === "step1") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.remove("hidden");
+    } else if (step === "step2") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.add("hidden");
+      step2.classList.remove("hidden");
+    } else if (step === "step3") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.add("hidden");
+      step2.classList.add("hidden");
+      step3.classList.remove("hidden");
     }
   }
 
-  // Initialize on page load
+  function restoreTopups() {
+    const savedTopups = JSON.parse(localStorage.getItem("selectedTopups") || "[]");
+    if (Array.isArray(savedTopups)) {
+      selectedTopups = savedTopups;
+
+      document.querySelectorAll(".topup-option").forEach((el) => {
+        const amount = parseInt(el.dataset.amount);
+        if (selectedTopups.includes(amount)) {
+          el.classList.add("selected");
+        } else {
+          el.classList.remove("selected");
+        }
+      });
+
+      calculateTotals();
+    }
+  }
+
   window.addEventListener("load", () => {
     restoreStep();
+    restoreTopups();
   });
 
-  // Top-up Button Click (Starts the process)
   topUpBtn.addEventListener("click", () => {
-    topUpBtn.classList.add("hidden"); // Hide top-up button when flow starts
+    topUpBtn.classList.add("hidden");
     step1.classList.remove("hidden");
     saveStep("step1");
   });
 
-  // Top-up Options Click
   select.addEventListener("click", (e) => {
     if (!e.target.closest(".topup-option")) return;
 
@@ -346,39 +355,44 @@
       option.classList.add("selected");
     }
 
+    localStorage.setItem("selectedTopups", JSON.stringify(selectedTopups));
     calculateTotals();
   });
 
-  // Next Step Button Click (to step 2)
   nextStepBtn.addEventListener("click", () => {
     step1.classList.add("hidden");
     step2.classList.remove("hidden");
     saveStep("step2");
   });
 
-  // Toggle Button Click (to step 3)
   toggleBtn.addEventListener("click", () => {
     step2.classList.add("hidden");
     step3.classList.remove("hidden");
     saveStep("step3");
   });
 
-  // WhatsApp Button Click (send message)
-sendWhatsappBtn.addEventListener("click", () => {
-  // Send message with the current grand total
-  const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
-  sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  sendWhatsappBtn.addEventListener("click", () => {
+    const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
+    sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
-  // Show the Top-Up button again
-  topUpBtn.classList.remove("hidden");
+    // Reset everything
+    selectedTopups = [];
+    localStorage.removeItem("selectedTopups");
+    localStorage.removeItem("currentStep");
 
-  // Hide Step 3
-  step3.classList.add("hidden");
+    document.querySelectorAll(".topup-option").forEach((el) => {
+      el.classList.remove("selected");
+    });
 
-  // Optionally clear the saved step
-  saveStep("");
-});
+    summary.innerHTML = "";
+    document.getElementById("grand-total").textContent = "";
+    nextStepBtn.style.display = "none";
 
+    step1.classList.add("hidden");
+    step2.classList.add("hidden");
+    step3.classList.add("hidden");
+    topUpBtn.classList.remove("hidden");
+  });
 </script>
 
 </body>
