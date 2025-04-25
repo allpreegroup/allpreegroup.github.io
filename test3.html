@@ -166,6 +166,12 @@
 <body>
 
  <div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content"> 
+
+<!-- Top Up Button (Initial Button to Start Process) -->
+<button id="topup-btn" class="bg-blue-600 text-white p-2 rounded">
+  Top Up
+</button>
+   
   <!-- Step 1: Amount Selection -->
   <div id="step1" class="space-y-8 ">
     <h2 class="text-3xl font-semibold text-gray-900">Choose Top-up Amount(s)</h2>
@@ -231,23 +237,72 @@
  </div>
  
 <script>
+  const topUpBtn = document.getElementById("topup-btn");
+  const resetBtn = document.getElementById("reset-process");
   const select = document.getElementById("topup-grid");
   const summary = document.getElementById("summary");
   const nextStepBtn = document.getElementById("next-step");
+  const toggleBtn = document.getElementById("toggle-form-btn");
+  const formAndSend = document.getElementById("form-and-send");
+  const step1 = document.getElementById("step1");
+  const step2 = document.getElementById("step2");
+  const sendWhatsappBtn = document.getElementById("send-whatsapp");
+
   let selectedTopups = [];
+
+  // ----------------------------
+  // Persistent Step Tracker
+  // ----------------------------
+  function goToStep(step) {
+    localStorage.setItem("currentStep", step);
+    step1.classList.add("hidden");
+    step2.classList.add("hidden");
+    formAndSend.classList.add("hidden");
+
+    if (step === "step1") {
+      step1.classList.remove("hidden");
+      topUpBtn.classList.remove("hidden");
+    } else if (step === "step2") {
+      step2.classList.remove("hidden");
+      topUpBtn.classList.add("hidden");
+    } else if (step === "step3") {
+      formAndSend.classList.remove("hidden");
+      topUpBtn.classList.remove("hidden"); // allow restarting from here
+    }
+  }
+
+  // On page load, resume step from localStorage
+  window.addEventListener("load", () => {
+    const currentStep = localStorage.getItem("currentStep") || "step1";
+    goToStep(currentStep);
+  });
+
+  // Reset Process Button
+  resetBtn.addEventListener("click", () => {
+    localStorage.removeItem("currentStep");
+    location.reload();
+  });
+
+  // ----------------------------
+  // Top Up Logic
+  // ----------------------------
+  topUpBtn.addEventListener("click", () => {
+    goToStep("step1");
+    topUpBtn.classList.add("hidden");
+  });
 
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
     if (total === 0) {
       summary.innerHTML = "";
-      nextStepBtn.style.display = "none"; // Hide the "next-step" button if no top-ups selected
+      nextStepBtn.style.display = "none";
       return;
     }
 
     if (total > 45000) {
       summary.textContent = "Total cannot exceed JMD 45,000.";
-      nextStepBtn.style.display = "none"; // Hide the button if the total exceeds the limit
+      nextStepBtn.style.display = "none";
       return;
     }
 
@@ -262,10 +317,9 @@
       <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
     `;
 
-    nextStepBtn.style.display = "block"; // Show the "next-step" button when valid amount is selected
+    nextStepBtn.style.display = "block";
   }
 
-  // Handle click event for selecting top-up amounts
   select.addEventListener("click", (e) => {
     const option = e.target.closest(".topup-option");
     if (!option) return;
@@ -283,23 +337,23 @@
     calculateTotals();
   });
 
-
-
-  const toggleBtn = document.getElementById("toggle-form-btn");
-const formAndSend = document.getElementById("form-and-send");
-const step2 = document.getElementById("step2");
-
-toggleBtn.addEventListener("click", () => {
-  formAndSend.classList.remove("hidden"); // show form + WhatsApp button
-  step2.classList.add("hidden");          // hide Step 2
-});
-
-  // Go to the next step when clicking the "Next Step" button
+  // Move from Step 1 → Step 2
   nextStepBtn.addEventListener("click", () => {
-    document.getElementById("step1").classList.add("hidden");
-    document.getElementById("step2").classList.remove("hidden");
+    goToStep("step2");
+  });
+
+  // Move from Step 2 → Step 3 (form)
+  toggleBtn.addEventListener("click", () => {
+    goToStep("step3");
+  });
+
+  // After WhatsApp sent → Show top up button again
+  sendWhatsappBtn.addEventListener("click", () => {
+    topUpBtn.classList.remove("hidden");
+    localStorage.removeItem("currentStep"); // Optional: clear step after complete
   });
 </script>
+
 
 </body>
 </html>
