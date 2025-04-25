@@ -158,11 +158,18 @@
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
-    if (total > 45000) {
-      summary.textContent = "Total cannot exceed JMD 45,000.";
-      nextStepBtn.classList.add("hidden");
-      return;
-    }
+    if (total === 0) {
+  summary.innerHTML = "";
+  nextStepBtn.classList.add("hidden");
+  return;
+}
+
+if (total > 45000) {
+  summary.textContent = "Total cannot exceed JMD 45,000.";
+  nextStepBtn.classList.add("hidden");
+  return;
+}
+
 
     const tax = total * 0.15;
     const fee = total * 0.10;
