@@ -1,4 +1,10 @@
 <style>
+/* Hidden class to hide the Step 2 section */
+.hidden {
+  display: none;
+}
+
+  
 /* styles.css */
 
 /* Container for the top-up section */
@@ -170,7 +176,7 @@
   </div>
 </div>
 
- <!-- Step 2: Payment Info & WhatsApp Send -->
+
 <!-- Step 2: Payment Info & WhatsApp Send -->
 <div id="step2" class="step2-container hidden">
   <h2 class="step2-title">Step 2: Send Payment & Details</h2>
@@ -197,6 +203,7 @@
 
 
 
+
 <script>
 const select = document.getElementById("amount-select");
 const summary = document.getElementById("summary");
@@ -216,7 +223,7 @@ function calculateTotals() {
 
   if (total > 45000) {
     summary.textContent = "Total cannot exceed JMD 45,000.";
-    step2.classList.add("hidden");
+    step2.classList.add("hidden"); // Ensure Step 2 stays hidden if total exceeds limit
     return;
   }
 
@@ -230,6 +237,8 @@ function calculateTotals() {
     <strong>Total: ${formatCurrency(grandTotal)}</strong>`;
 
   grandTotalDisplay.textContent = formatCurrency(grandTotal);
+
+  // Reveal Step 2 after Step 1 is complete
   step2.classList.remove("hidden");
 
   sendWhatsapp.onclick = () => {
@@ -246,5 +255,6 @@ function calculateTotals() {
 }
 
 document.getElementById("calculate-total").addEventListener("click", calculateTotals);
+
 
 </script>
