@@ -5,81 +5,56 @@
 }
 
   
-/* styles.css */
+/* Step 1 - Choose Top-up Amount(s) */
+.topup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
 
-/* Container for the top-up section */
-.topup-container {
-  max-width: 3xl;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-  background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.topup-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9fafb;
+  padding: 1.5rem;
   border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Step container */
-.step-container {
-  space-y: 2rem;
+.topup-card:hover {
+  background-color: #e2e8f0;
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
-/* Title for the step */
-.step-title {
-  font-size: 2rem;
+.topup-option.selected .topup-card {
+  background-color: #2563eb;
+  color: white;
+}
+
+.topup-label {
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
 }
 
-/* Description text */
-.step-description {
-  font-size: 1.125rem;
-  color: #4b5563;
-}
-
-/* Select dropdown */
-.amount-select {
+#calculate-total {
   width: 100%;
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 1.125rem;
-  transition: all 0.3s ease;
-}
-
-.amount-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-/* Button styling */
-.calculate-btn {
-  width: 100%;
-  padding: 1rem 1.5rem;
   background-color: #2563eb;
   color: white;
-  font-size: 1.125rem;
+  padding: 1rem;
   border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  margin-top: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.calculate-btn:hover {
+#calculate-total:hover {
   background-color: #1d4ed8;
 }
 
-.calculate-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
-}
-
-/* Summary text */
-.summary {
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: #4b5563;
-}
 
  /* Step 2 - Payment Info & WhatsApp Send Section */
 .step2-container {
@@ -159,20 +134,27 @@
 </style>
 
 <!-- Step 1: Choose Top-up Amount(s) -->
+<!-- Step 1: Choose Top-up Amount(s) -->
 <div id="step1" class="space-y-8">
   <h2 class="text-3xl font-semibold text-gray-900">Step 1: Choose Top-up Amount(s)</h2>
   <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to calculate the total.</p>
 
-  <!-- Grid style for the top-up options -->
+  <!-- Grid for top-up options -->
   <div id="topup-grid" class="topup-grid">
     <div class="topup-option" data-amount="10000">
-      <span class="topup-label">JMD 10,000</span>
+      <div class="topup-card">
+        <span class="topup-label">JMD 10,000</span>
+      </div>
     </div>
     <div class="topup-option" data-amount="15000">
-      <span class="topup-label">JMD 15,000</span>
+      <div class="topup-card">
+        <span class="topup-label">JMD 15,000</span>
+      </div>
     </div>
     <div class="topup-option" data-amount="20000">
-      <span class="topup-label">JMD 20,000</span>
+      <div class="topup-card">
+        <span class="topup-label">JMD 20,000</span>
+      </div>
     </div>
   </div>
 
@@ -210,7 +192,7 @@
 
 
 <script>
-const select = document.getElementById("amount-select");
+const topupGrid = document.getElementById("topup-grid");
 const summary = document.getElementById("summary");
 const step2 = document.getElementById("step2");
 const grandTotalDisplay = document.getElementById("grand-total");
@@ -222,13 +204,32 @@ function formatCurrency(num) {
   return "JMD " + num.toLocaleString();
 }
 
+// Handle click event for selecting top-up amounts
+topupGrid.addEventListener("click", (e) => {
+  if (e.target.closest(".topup-option")) {
+    const option = e.target.closest(".topup-option");
+    const amount = parseInt(option.getAttribute("data-amount"));
+    
+    // Toggle selection
+    if (selectedTopups.includes(amount)) {
+      selectedTopups = selectedTopups.filter(val => val !== amount);
+      option.classList.remove("selected");
+    } else {
+      selectedTopups.push(amount);
+      option.classList.add("selected");
+    }
+
+    // Update summary when a top-up is selected
+    calculateTotals();
+  }
+});
+
 function calculateTotals() {
-  selectedTopups = Array.from(select.selectedOptions).map(o => parseInt(o.value));
   const total = selectedTopups.reduce((sum, val) => sum + val, 0);
 
   if (total > 45000) {
     summary.textContent = "Total cannot exceed JMD 45,000.";
-    step2.classList.add("hidden"); // Ensure Step 2 stays hidden if total exceeds limit
+    step2.classList.add("hidden");
     return;
   }
 
@@ -260,6 +261,7 @@ function calculateTotals() {
 }
 
 document.getElementById("calculate-total").addEventListener("click", calculateTotals);
+
 
 
 </script>
