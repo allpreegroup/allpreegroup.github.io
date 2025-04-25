@@ -80,5 +80,53 @@
 </style>
 
 <script>
-// Your previous JavaScript code goes here
+const select = document.getElementById("amount-select");
+const summary = document.getElementById("summary");
+const step2 = document.getElementById("step2");
+const grandTotalDisplay = document.getElementById("grand-total");
+const sendWhatsapp = document.getElementById("send-whatsapp");
+
+let selectedTopups = [];
+
+function formatCurrency(num) {
+  return "JMD " + num.toLocaleString();
+}
+
+function calculateTotals() {
+  selectedTopups = Array.from(select.selectedOptions).map(o => parseInt(o.value));
+  const total = selectedTopups.reduce((sum, val) => sum + val, 0);
+
+  if (total > 45000) {
+    summary.textContent = "Total cannot exceed JMD 45,000.";
+    step2.classList.add("hidden");
+    return;
+  }
+
+  const tax = total * 0.15;
+  const fee = total * 0.10;
+  const grandTotal = Math.round(total + tax + fee);
+
+  summary.innerHTML = `Selected: ${selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ")}<br>
+    15% Tax: ${formatCurrency(tax)}<br>
+    10% Cashback Activation Fee: ${formatCurrency(fee)}<br>
+    <strong>Total: ${formatCurrency(grandTotal)}</strong>`;
+
+  grandTotalDisplay.textContent = formatCurrency(grandTotal);
+  step2.classList.remove("hidden");
+
+  sendWhatsapp.onclick = () => {
+    const fullName = document.getElementById("fullname").value;
+    const idCode = document.getElementById("idcode").value;
+    const bankUsed = document.getElementById("bankused").value;
+    const dateSent = document.getElementById("datesent").value;
+    const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
+
+    const message = `Hi, I'd like to complete my gift card top-up.%0A\nTop-up Combination: ${comboText}%0A\nTotal Sent: ${formatCurrency(grandTotal)}%0A\nID Code: ${idCode}%0A\nFull Name: ${fullName}%0A\nBank Used: ${bankUsed}%0A\nTransaction Date: ${dateSent}%0A\n\nPlease find attached my payment screenshot.`;
+
+    sendWhatsapp.href = `https://wa.me/18761234567?text=${encodeURIComponent(message)}`;
+  };
+}
+
+document.getElementById("calculate-total").addEventListener("click", calculateTotals);
 </script>
+
