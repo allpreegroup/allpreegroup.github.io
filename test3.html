@@ -254,7 +254,7 @@
   const summary = document.getElementById("summary");
   const nextStepBtn = document.getElementById("next-step");
   const toggleBtn = document.getElementById("toggle-form-btn");
-  const sendWhatsappBtn = document.getElementById("send-whatsapp"); // Correcting the variable name here
+  const sendWhatsappBtn = document.getElementById("send-whatsapp"); // Corrected variable name
   const formAndSend = document.getElementById("step3");
   const step1 = document.getElementById("step1");
   const step2 = document.getElementById("step2");
@@ -324,9 +324,9 @@
     restoreStep();
   });
 
-  // Top-up Button Click
+  // Top-up Button Click (Starts the process)
   topUpBtn.addEventListener("click", () => {
-    topUpBtn.classList.add("hidden");
+    topUpBtn.classList.add("hidden"); // Hide top-up button when flow starts
     step1.classList.remove("hidden");
     saveStep("step1");
   });
@@ -365,8 +365,13 @@
 
   // WhatsApp Button Click (send message)
   sendWhatsappBtn.addEventListener("click", () => {
+    // Send message with the current grand total
     const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
     sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    // Show the Top-Up button again after clicking WhatsApp
+    topUpBtn.classList.remove("hidden"); // Make sure top-up button reappears
+    saveStep(""); // Optionally clear the current step
   });
 </script>
 
