@@ -216,12 +216,15 @@
 
   <!-- Step 2: Payment Info -->
   <div id="step2" class="space-y-8 hidden">
-    <h2 class="text-3xl font-semibold text-gray-900">Step 2: Send Payment & Details</h2>
+    <h2 class="text-3xl font-semibold text-gray-900">Send Payment</h2>
     <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>
     <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
-      <p><strong class="text-gray-800">Bank:</strong> NCB</p>
-      <p><strong class="text-gray-800">Account Name:</strong> Allpree Limited</p>
-      <p><strong class="text-gray-800">Account Number:</strong> 123456789</p>
+      <p><strong class="text-gray-800">Bank Name:</strong> Bank of Nova Scotia Jamaica</p>
+      <p><strong class="text-gray-800">Account Number:</strong> 000603575</p>
+       <p><strong class="text-gray-800">Branch:</strong> Savanna-la-Mar</p>
+      <p><strong class="text-gray-800">Branch Code:</strong> 00265</p>
+       <p><strong class="text-gray-800">Account Type:</strong> JMD</p>   
+      <p><strong class="text-gray-800">Account Name:</strong> Garen Thoms</p>
       <p><strong class="text-gray-800">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="font-semibold text-xl text-blue-600"></span></p>
     </div>
 
@@ -238,6 +241,7 @@
     <div class="input-group">
       <input type="text" id="fullname" placeholder="Full Name" />
       <input type="text" id="idcode" placeholder="Your ID Code" />
+      <input type="text" id="idtran" placeholder="Payment Trabsaction ID" />
       <input type="text" id="bankused" placeholder="Your Bank Name" />
       <input type="date" id="datesent" />
     </div>
@@ -378,13 +382,14 @@
   sendWhatsappBtn.addEventListener("click", () => {
     const fullName = document.getElementById("fullname").value.trim();
     const idCode = document.getElementById("idcode").value.trim();
+    const idCode = document.getElementById("idtran").value.trim();
     const bankUsed = document.getElementById("bankused").value.trim();
     const dateSent = document.getElementById("datesent").value.trim();
 
     const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
     const grandTotalText = document.getElementById("grand-total").textContent.replace(/,/g, "");
 
-    const message = `I'd like to complete my gift card top-up.\n\nTop-up Combination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\nPlease find attached my payment screenshot.`;
+    const message = `I'd like to complete my gift card top-up.\n\nTop-up Combination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nTransaction ID: ${idtran}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\n*Note:* Please find attached before sending msg \n\nHere is my payment screenshot.`;
 
     sendWhatsappBtn.href = `https://api.whatsapp.com/send?phone=18762042132&text=${encodeURIComponent(message)}`;
 
