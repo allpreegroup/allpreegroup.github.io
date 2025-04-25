@@ -17,7 +17,6 @@
     }
 
     .content {
-     
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -86,80 +85,53 @@
       background-color: #f9fafb;
       border-radius: 0.5rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-     
       margin-top: 0.5rem;
-    
-    }
-    .topup-summary p {
-      margin-bottom: 0.5rem;
     }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-      align-items: center;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.3s, box-shadow 0.3s;
-  font-size: 1rem;
-}
-
-.input-group input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-}
-    /* WhatsApp Button */
-#send-whatsapp {
-  display: block;
-  text-align: center;
-  background-color: #16a34a; /* Tailwind's green-600 */
-  color: white;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, box-shadow 0.3s;
-  margin-top: 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-#send-whatsapp:hover {
-  background-color: #15803d; /* Tailwind's green-700 */
-
-}
-  #toggle-form-btn {
-      width: 80%;
-      max-width: 500px;
-      margin: 0 auto;
+    .input-group {
+      display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      display: block;
-      background-color: #2563eb;
-      color: white;
-      padding: 1rem;
-      display: flex;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1.25rem;
+      gap: 1.5rem;
       margin-top: 1.5rem;
-     
-    }
-    #next-step:hover {
-      background-color: #1d4ed8;
     }
 
+    .input-group input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-size: 1rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* WhatsApp Button */
+    #send-whatsapp {
+      display: block;
+      text-align: center;
+      background-color: #16a34a; /* Tailwind's green-600 */
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      margin-top: 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    #send-whatsapp:hover {
+      background-color: #15803d; /* Tailwind's green-700 */
+    }
 
     #topup-btn {
       width: 80%;
@@ -177,12 +149,10 @@
       transition: background-color 0.3s;
       font-size: 1.25rem;
       margin-top: 1.5rem;
-     
     }
-    #next-step:hover {
+    #topup-btn:hover {
       background-color: #1d4ed8;
     }
-    
   </style>
 </head>
 <body>
@@ -191,11 +161,11 @@
 <button id="topup-btn" class="bg-blue-600 text-white p-2 rounded">
   Top Up
 </button>
-  
- <div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content"> 
+
+<div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content">
 
   <!-- Step 1: Amount Selection -->
-  <div id="step1" class="space-y-8 ">
+  <div id="step1" class="space-y-8">
     <h2 class="text-3xl font-semibold text-gray-900">Choose Top-up Amount(s)</h2>
     <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to calculate the total.</p>
 
@@ -219,10 +189,11 @@
 
     <div id="summary" class="topup-summary mt-4 text-sm text-gray-600"></div>
 
-    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6 ">Checkout</button>
+    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">Proceed to Payment</button>
   </div>
-  <!-- Step 2: Payment Info & WhatsApp Send -->
-  <div id="step2" class="space-y-8 content hidden">
+
+  <!-- Step 2: Payment Info -->
+  <div id="step2" class="space-y-8 hidden">
     <h2 class="text-3xl font-semibold text-gray-900">Step 2: Send Payment & Details</h2>
     <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>
     <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
@@ -234,84 +205,39 @@
 
     <p class="text-lg text-gray-700 mt-4">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
 
-  
-<!-- Payment Confirmation Button -->
-<button id="toggle-form-btn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">
-  I’ve Sent the Payment
-</button>
-</div>
-<!-- Hidden Form + WhatsApp Link -->
-<div id="form-and-send" class="hidden">
-  <div class="input-group">
-    <input type="text" id="fullname" placeholder="Full Name" />
-    <input type="text" id="idcode" placeholder="Your ID Code" />
-    <input type="text" id="bankused" placeholder="Your Bank Name" />
-    <input type="date" id="datesent" />
+    <!-- Payment Confirmation Button -->
+    <button id="toggle-form-btn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">
+      I’ve Sent the Payment
+    </button>
   </div>
-  <a id="send-whatsapp" target="_blank" class="block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8">
-    Send via WhatsApp
-  </a>
+
+  <!-- Step 3: WhatsApp Form + Send -->
+  <div id="step3" class="hidden">
+    <div class="input-group">
+      <input type="text" id="fullname" placeholder="Full Name" />
+      <input type="text" id="idcode" placeholder="Your ID Code" />
+      <input type="text" id="bankused" placeholder="Your Bank Name" />
+      <input type="date" id="datesent" />
+    </div>
+    <a id="send-whatsapp" href="#" target="_blank" class="block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8">
+      Send via WhatsApp
+    </a>
+  </div>
+
 </div>
 
-
-
-   
- </div>
- 
 <script>
   const topUpBtn = document.getElementById("topup-btn");
-  const resetBtn = document.getElementById("reset-process");
   const select = document.getElementById("topup-grid");
   const summary = document.getElementById("summary");
   const nextStepBtn = document.getElementById("next-step");
   const toggleBtn = document.getElementById("toggle-form-btn");
-  const formAndSend = document.getElementById("form-and-send");
+  const formAndSend = document.getElementById("step3");
   const step1 = document.getElementById("step1");
   const step2 = document.getElementById("step2");
-  const sendWhatsappBtn = document.getElementById("send-whatsapp");
+  const step3 = document.getElementById("step3");
 
   let selectedTopups = [];
-
-  // ----------------------------
-  // Persistent Step Tracker
-  // ----------------------------
-  function goToStep(step) {
-    localStorage.setItem("currentStep", step);
-    step1.classList.add("hidden");
-    step2.classList.add("hidden");
-    formAndSend.classList.add("hidden");
-
-    if (step === "step1") {
-      step1.classList.remove("hidden");
-      topUpBtn.classList.remove("hidden");
-    } else if (step === "step2") {
-      step2.classList.remove("hidden");
-      topUpBtn.classList.add("hidden");
-    } else if (step === "step3") {
-      formAndSend.classList.remove("hidden");
-      topUpBtn.classList.remove("hidden"); // allow restarting from here
-    }
-  }
-
-  // On page load, resume step from localStorage
-  window.addEventListener("load", () => {
-    const currentStep = localStorage.getItem("currentStep") || "step1";
-    goToStep(currentStep);
-  });
-
-  // Reset Process Button
-  resetBtn.addEventListener("click", () => {
-    localStorage.removeItem("currentStep");
-    location.reload();
-  });
-
-  // ----------------------------
-  // Top Up Logic
-  // ----------------------------
-  topUpBtn.addEventListener("click", () => {
-    goToStep("step1");
-    topUpBtn.classList.add("hidden");
-  });
 
   function calculateTotals() {
     const total = selectedTopups.reduce((sum, val) => sum + val, 0);
@@ -336,20 +262,27 @@
       <h4 class="text-lg font-semibold mb-2">Summary:</h4>
       <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
       <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Total:</span><span>JMD ${total.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Grand Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
     `;
+    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
 
     nextStepBtn.style.display = "block";
   }
 
-  select.addEventListener("click", (e) => {
-    const option = e.target.closest(".topup-option");
-    if (!option) return;
+  topUpBtn.addEventListener("click", () => {
+    topUpBtn.classList.add("hidden");
+    step1.classList.remove("hidden");
+  });
 
-    const amount = parseInt(option.getAttribute("data-amount"));
+  select.addEventListener("click", (e) => {
+    if (!e.target.closest(".topup-option")) return;
+
+    const amount = parseInt(e.target.closest(".topup-option").dataset.amount);
+    const option = e.target.closest(".topup-option");
 
     if (selectedTopups.includes(amount)) {
-      selectedTopups = selectedTopups.filter(val => val !== amount);
+      selectedTopups = selectedTopups.filter((topup) => topup !== amount);
       option.classList.remove("selected");
     } else {
       selectedTopups.push(amount);
@@ -359,23 +292,23 @@
     calculateTotals();
   });
 
-  // Move from Step 1 → Step 2
   nextStepBtn.addEventListener("click", () => {
-    goToStep("step2");
+    step1.classList.add("hidden");
+    step2.classList.remove("hidden");
   });
 
-  // Move from Step 2 → Step 3 (form)
   toggleBtn.addEventListener("click", () => {
-    goToStep("step3");
+    step2.classList.add("hidden");
+    step3.classList.remove("hidden");
   });
 
-  // After WhatsApp sent → Show top up button again
   sendWhatsappBtn.addEventListener("click", () => {
-    topUpBtn.classList.remove("hidden");
-    localStorage.removeItem("currentStep"); // Optional: clear step after complete
+    // You can replace with the actual WhatsApp link to send message
+    const message = `I have completed my payment! Total: JMD ${document.getElementById("grand-total").textContent}`;
+    sendWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
   });
+
 </script>
-
-
 </body>
 </html>
+
