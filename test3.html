@@ -183,13 +183,18 @@
 
     <p class="text-lg text-gray-700 mt-4">After making the payment, kindly fill out the form below and submit to complete your transaction.</p>
 
-    <div class="input-group">
+   <!-- Payment Confirmation Button -->
+<button id="toggle-form-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
+  I’ve Sent the Payment
+</button>
+
+<!-- Hidden Input Form -->
+<div id="form-container" class="input-group hidden">
   <input type="text" id="fullname" placeholder="Full Name" />
   <input type="text" id="idcode" placeholder="Your ID Code" />
   <input type="text" id="bankused" placeholder="Your Bank Name" />
   <input type="date" id="datesent" />
 </div>
-
    <a id="send-whatsapp" target="_blank">Send via WhatsApp</a>
   </div>
  </div>
@@ -246,6 +251,21 @@
 
     calculateTotals();
   });
+
+  const toggleBtn = document.getElementById("toggle-form-btn");
+const formContainer = document.getElementById("form-container");
+
+toggleBtn.addEventListener("click", () => {
+  formContainer.classList.toggle("hidden");
+});
+  const toggleBtn = document.getElementById("toggle-form-btn");
+const formContainer = document.getElementById("form-container");
+const step2 = document.getElementById("step2");
+
+toggleBtn.addEventListener("click", () => {
+  formContainer.classList.remove("hidden");
+  step2.classList.add("hidden");
+});
 
   // Go to the next step when clicking the "Next Step" button
   nextStepBtn.addEventListener("click", () => {
