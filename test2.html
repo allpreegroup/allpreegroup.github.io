@@ -1139,6 +1139,36 @@ function getSavedLocation() {
 }
 
 
+function showLoader(message) {
+  const loader = document.createElement('div');
+  loader.id = 'loader';
+  loader.style = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 18px;
+    border-radius: 8px;
+    z-index: 9999;
+  `;
+  loader.innerText = message;
+
+  document.body.appendChild(loader);
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.remove();
+  }
+}
+
+
+	
+
 function showUpdateLocationButton() {
   const updateButton = document.createElement('button');
   updateButton.innerText = "Update My Location 🔄";
