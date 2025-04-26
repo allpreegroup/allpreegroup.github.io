@@ -973,7 +973,7 @@ function initFavoriteBrandIcon() {
         top: 68px;
         left: 25px;
         z-index: 1000;
-        font-size: 15px;
+        font-size: 20px;
         background: white;
         border-radius: 50%;
         padding: 12px;
@@ -1094,13 +1094,13 @@ function openFavoriteBrandPopup() {
     popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
   } else {
     const brandCarousel = document.createElement('div');
-    brandCarousel.style = 'display: flex; gap: 10px; overflow-x: scroll; padding: 10px; scroll-snap-type: x mandatory;';
+    brandCarousel.style = 'display: flex; flex-direction: column; gap: 10px; overflow-y: scroll; max-height: 70vh; padding: 10px;';
 
     // Add each brand as a card
     brands.forEach(brand => {
       const brandCard = document.createElement('div');
       brandCard.style = `
-        min-width: 150px;
+        width: 100%;
         text-align: center;
         padding: 20px;
         border: 1px solid #ddd;
@@ -1108,7 +1108,6 @@ function openFavoriteBrandPopup() {
         cursor: pointer;
         background-color: #f8f8f8;
         transition: all 0.3s;
-        scroll-snap-align: start;
       `;
       brandCard.innerHTML = `<strong>${brand}</strong>`;
 
