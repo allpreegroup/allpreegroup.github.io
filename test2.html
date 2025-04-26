@@ -981,18 +981,6 @@ function initFavoriteBrandIcon() {
         cursor: pointer;
       ">
         ❤️
-        <span id="favorite-brand-count" style="
-          position: absolute;
-          top: -2px;
-          right: -2px;
-          transform: translate(50%, -50%);
-          background: red;
-          color: white;
-          border-radius: 50%;
-          padding: 4px 8px;
-          font-size: 14px;
-          display: none;
-        ">0</span>
       </div>
     `;
     document.body.appendChild(favoriteBrandIconContainer);
@@ -1153,23 +1141,6 @@ function openFavoriteBrandPopup() {
     popup.appendChild(brandCarousel);
   }
 
-  // Add close button and append popup to backdrop
-  const closeButton = document.createElement('button');
-  closeButton.textContent = 'Close';
-  closeButton.onclick = closeFavoriteBrandPopup;
-  closeButton.style = `
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 20px;
-    display: block;
-    width: 100%;
-  `;
-  popup.appendChild(closeButton);
-
   backdrop.appendChild(popup);
   document.body.appendChild(backdrop);
 }
@@ -1199,6 +1170,7 @@ function closeFavoriteBrandPopup() {
   if (backdrop) backdrop.remove();
   document.body.style.overflow = ''; // Re-enable page scroll
 }
+
 
 
 
