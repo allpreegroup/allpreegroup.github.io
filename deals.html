@@ -956,6 +956,31 @@ function getDealKey(deal) {
 
 /////// ////////// START
 
+refreshButtonContainer.innerHTML = `
+  <div id="refresh-button" style="
+    position: fixed;
+    top: 140px; /* lower than cart icon */
+    left: 25px;
+    z-index: 1000;
+    font-size: 18px;
+    background: white;
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+    text-align: center;
+  ">
+    🔄
+  </div>
+`;
+
+// Make it refresh the page on click
+document.getElementById('refresh-button').addEventListener('click', function() {
+  location.reload();
+});
+
+
+	
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
   updateCartCount(getTotalCartItems());
