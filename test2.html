@@ -2172,8 +2172,17 @@ async function loadDeals() {
                 window.scrollTo({ top, behavior: 'smooth' });
               }
 
-              currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+             currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
             });
+
+            container.appendChild(brandSection);
+
+            if (expireDateStr) {
+              expireDate = new Date(expireDateStr);
+              if (!isNaN(expireDate)) {
+                startBrandCountdown(expireDate, timerId);
+              }
+            }
 
             // Add the brand to the data list
             allBrandsData.push({
