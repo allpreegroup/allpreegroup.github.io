@@ -973,7 +973,7 @@ function initFavoriteBrandIcon() {
         top: 68px;
         left: 25px;
         z-index: 1000;
-        font-size: 20px;
+        font-size: 15px;
         background: white;
         border-radius: 50%;
         padding: 12px;
@@ -1044,8 +1044,10 @@ function showFavoriteBrandIcon() {
 }
 
 function openFavoriteBrandPopup() {
+  // Prevent duplicate backdrop
   if (document.getElementById('favorite-brand-backdrop')) return;
 
+  // Create backdrop
   const backdrop = document.createElement('div');
   backdrop.id = 'favorite-brand-backdrop';
   backdrop.style = `
@@ -1065,12 +1067,14 @@ function openFavoriteBrandPopup() {
     if (e.target === backdrop) closeFavoriteBrandPopup();
   });
 
+  // Create popup
   let popup = document.getElementById('favorite-brand-popup');
   if (!popup) {
     popup = document.createElement('div');
     popup.id = 'favorite-brand-popup';
     popup.style = `
       background: #fff;
+      border: 1px solid #ccc;
       border-radius: 10px;
       padding: 20px;
       width: 90%;
@@ -1082,44 +1086,56 @@ function openFavoriteBrandPopup() {
     `;
   }
 
-  const brands = ['Brand A', 'Brand B', 'Brand C', 'Brand D']; // Example brand list
+  // Add swipeable brand content dynamically from allBrandsData
+  const brands = allBrandsData.map(brand => brand.brand);  // Extract brand names
   popup.innerHTML = '';
 
-  const brandCarousel = document.createElement('div');
-  brandCarousel.style = 'display: flex; gap: 10px; overflow-x: scroll; padding: 10px; scroll-snap-type: x mandatory;';
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.style = 'display: flex; gap: 10px; overflow-x: scroll; padding: 10px; scroll-snap-type: x mandatory;';
 
-  brands.forEach(brand => {
-    const brandCard = document.createElement('div');
-    brandCard.style = `
-      min-width: 150px;
-      text-align: center;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #f8f8f8;
-      transition: background-color 0.3s, transform 0.3s;
-      scroll-snap-align: start;
-    `;
-    brandCard.innerHTML = `<strong>${brand}</strong>`;
+    // Add each brand as a card
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.style = `
+        min-width: 150px;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        transition: all 0.3s;
+        scroll-snap-align: start;
+      `;
+      brandCard.innerHTML = `<strong>${brand}</strong>`;
 
-    brandCard.onmouseover = () => {
-      brandCard.style.transform = 'scale(1.05)';
-      brandCard.style.backgroundColor = '#f0f0f0';
-    };
+      // Click event to select brand
+      brandCard.onclick = () => {
+        selectFavoriteBrand(brand, brandCard);
+      };
 
-    brandCard.onmouseout = () => {
-      brandCard.style.transform = 'scale(1)';
-      brandCard.style.backgroundColor = '#f8f8f8';
-    };
+      // Hover effect
+      brandCard.onmouseover = () => {
+        brandCard.style.transform = 'scale(1.05)';
+        brandCard.style.backgroundColor = '#f0f0f0';
+      };
 
-    brandCard.onclick = () => selectFavoriteBrand(brand, brandCard);
+      brandCard.onmouseout = () => {
+        brandCard.style.transform = 'scale(1)';
+        brandCard.style.backgroundColor = '#f8f8f8';
+      };
 
-    brandCarousel.appendChild(brandCard);
-  });
+      // Add brand card to carousel
+      brandCarousel.appendChild(brandCard);
+    });
 
-  popup.appendChild(brandCarousel);
+    popup.appendChild(brandCarousel);
+  }
 
+  // Add close button and append popup to backdrop
   const closeButton = document.createElement('button');
   closeButton.textContent = 'Close';
   closeButton.onclick = closeFavoriteBrandPopup;
@@ -1140,21 +1156,23 @@ function openFavoriteBrandPopup() {
   document.body.appendChild(backdrop);
 }
 
+// Select a brand and highlight it visually
 function selectFavoriteBrand(brand, brandCard) {
   console.log(`Selected favorite brand: ${brand}`);
 
-  // Reset the selection
+  // Reset previous selections
   const allBrandCards = document.querySelectorAll('#favorite-brand-popup div');
   allBrandCards.forEach(card => {
     card.style.border = '1px solid #ddd';
     card.style.backgroundColor = '#f8f8f8';
   });
 
-  // Highlight the selected brand
+  // Highlight selected brand
   brandCard.style.border = '2px solid #ff4d4d';
   brandCard.style.backgroundColor = '#ffe6e6';
 
-  localStorage.setItem('selectedFavoriteBrand', brand); // Save the selected brand
+  // Save selected brand to localStorage
+  localStorage.setItem('selectedFavoriteBrand', brand);
   closeFavoriteBrandPopup();
 }
 
@@ -1163,6 +1181,7 @@ function closeFavoriteBrandPopup() {
   if (backdrop) backdrop.remove();
   document.body.style.overflow = ''; // Re-enable page scroll
 }
+
 
 
 ///////  ///////// END	
