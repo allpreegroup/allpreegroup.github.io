@@ -53,25 +53,27 @@
 }
 		 
 .favorite-brand-highlight {
-  border: 3px solid var(--highlight-border-color, gold);
+  --highlight-border-color: gold;
+  --highlight-glow-color: gold;
+  --highlight-glow-pulse-color: orange;
+  
+  border: 3px solid var(--highlight-border-color);
   border-radius: 12px;
   animation: glowPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 10px var(--highlight-glow-color, gold);
   padding-left: 50px;
   padding-right: 50px;
 }
 
+/* Simpler keyframes, just animate a custom shadow */
 @keyframes glowPulse {
-  0% {
-    box-shadow: 0 0 10px var(--highlight-glow-color, gold);
+  0%, 100% {
+    box-shadow: 0 0 10px var(--highlight-glow-color);
   }
   50% {
-    box-shadow: 0 0 20px var(--highlight-glow-pulse-color, orange);
-  }
-  100% {
-    box-shadow: 0 0 10px var(--highlight-glow-color, gold);
+    box-shadow: 0 0 20px var(--highlight-glow-pulse-color);
   }
 }
+
 
 		 
 .top-deal-badge {
@@ -2387,19 +2389,18 @@ if (favoriteBrandData) {
   favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
 
   // Apply the favorite color
-  if (favoriteBrandData.themeColor || favoriteBrandData.secondaryColor) {
+ if (favoriteBrandData.secondaryColor) {
   const brandElement = favoriteBrandData.section.querySelector('.brand');
   brandElement.classList.add('favorite-brand-highlight');
 
-  const secondaryColor = favoriteBrandData.secondaryColor?.trim() || '#000';
+  const secondaryColor = favoriteBrandData.secondaryColor.trim();
 
-  // Use secondaryColor everywhere
+  // Set all dynamic glow colors
   brandElement.style.setProperty('--highlight-border-color', secondaryColor);
   brandElement.style.setProperty('--highlight-glow-color', secondaryColor);
-
-  const pulseColor = toSemiTransparent(secondaryColor, 0.5);
-  brandElement.style.setProperty('--highlight-glow-pulse-color', pulseColor);
+  brandElement.style.setProperty('--highlight-glow-pulse-color', toSemiTransparent(secondaryColor, 0.5));
 }
+
 
 
     // Auto-open the favorite brand grid
