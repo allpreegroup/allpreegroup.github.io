@@ -2214,12 +2214,78 @@ function closePopup() {
   document.body.classList.remove('noscroll');
 }
 
+function resetTabsToNormal() {
+  // Reset the active tab to the "random" deals tab
+  highlightTab('showRandomTabBtn');  // Assumes 'showRandomTabBtn' is the button for the random tab
+  isBrandMode = false;  // Reset brand mode
+  isLikedMode = false;  // Reset liked mode
+
+  // Optionally, reset any other state or UI changes that were specific to the popup
+  document.body.classList.remove('noscroll');  // Allow scrolling again after popup close
+  // Hide the popup
+  document.getElementById('popup').style.display = 'none';
+
+  // Optionally clear any other custom settings (e.g., reset any custom button styles or selected elements)
+  // Example: reset the popup content (optional)
+  document.getElementById('popupImg').src = '';
+  document.getElementById('popupTitle').textContent = '';
+  document.getElementById('popupPrice').textContent = '';
+  document.getElementById('popupDiscount').textContent = '';
+  document.getElementById('popupDesc').textContent = '';
+  document.getElementById('popupBadge').textContent = '';
+  document.getElementById('popupSavings').textContent = '';
+  document.getElementById('popupTimer').textContent = '';
+}
+
+// Assuming there's a close button with the ID 'popupCloseBtn'
+document.getElementById('popupCloseBtn').addEventListener('click', function() {
+  // Reset tabs to normal when the popup is closed
+  resetTabsToNormal();
+});
+
+// You can also handle the 'back' button if you're using history navigation
+window.onpopstate = function(event) {
+  if (event.state && event.state.popup) {
+    resetTabsToNormal();
+  }
+};
+	
+function highlightTab(tabId) {
+  // Reset the styles for all tabs
+  const tabs = document.querySelectorAll('.tab-button');  // Assuming all tab buttons have class 'tab-button'
+  tabs.forEach(tab => tab.classList.remove('active'));  // Remove active class
+
+  // Add the active class to the selected tab
+  const selectedTab = document.getElementById(tabId);
+  if (selectedTab) {
+    selectedTab.classList.add('active');  // Add active class
+  }
+}
+
+
+	
+	
+dealCard.addEventListener('click', () => {
+  const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
+
+  if (brandData && brandData.isFavorite) {
+    // If it's the favorite brand, show only deals for that brand
+    showBrandDealsInPopup(brandData.brand);
+  } else {
+    // For non-favorite brands, show random deals or the default behavior
+    openPopup(dealData);
+  }
+});
+
 
 function showBrandDealsInPopup(brandName) {
-  isBrandMode = true; // Set this before calling openPopup
-  highlightTab('showBrandTabBtn'); // Highlight brand tab
-	
+  isBrandMode = true;  // Set this before calling openPopup
+  isLikedMode = false;  // Disable liked mode (random deals)
+  highlightTab('showBrandTabBtn');  // Highlight the "Brand" tab
+
+  // Filter all deals to get the selected brand's deals
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
     return;
@@ -2228,13 +2294,16 @@ function showBrandDealsInPopup(brandName) {
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
+  // Check if the current deal is from this brand to maintain position
   const currentKey = getDealKey(currentPopupDeal);
-const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
-brandDealIndex = startIndex !== -1 ? startIndex : 0;
-const deal = brandDeals[brandDealIndex];
+  const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
+  brandDealIndex = startIndex !== -1 ? startIndex : 0;
 
-  openPopup(deal, true); // Skip history push
-}
+  const deal = brandDeals[brandDealIndex];
+
+  // Show only brand deals in the "Brand" tab
+  openPopup(deal, true);  // Skip history push
+}	
 
 
 function goToNextBrandDeal() {
