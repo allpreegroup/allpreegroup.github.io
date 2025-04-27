@@ -2071,7 +2071,12 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popupTitle').textContent = name;
   document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
-  document.getElementById('popupDesc').textContent = description || '';
+	
+//  document.getElementById('popupDesc').textContent = description || '';
+ // Set the formatted description using innerHTML
+  const popupDesc = document.getElementById('popupDesc');
+  popupDesc.innerHTML = formatDescription(description) || ''; 
+	
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
   document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
 
@@ -2459,6 +2464,20 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   showBrandDealsInPopup(brand);
 };
 
+
+// Process the deal description to preserve line breaks and paragraphs
+function formatDescription(description) {
+  if (!description) return '';
+
+  // Replace newlines with <br> to preserve line breaks
+  description = description.replace(/\n/g, '<br>');
+
+  // Optional: Replace multiple consecutive newlines with <p> tags for paragraphs
+  description = description.replace(/(\n\n+)/g, '</p><p>');
+
+  return description;
+}
+	
 	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
