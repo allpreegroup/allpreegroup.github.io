@@ -304,7 +304,7 @@ height: 60px;
   width: 50%;
   justify-content: center;
   background: black;
-  margin-top: -100px; /* or try -10px if you want to pull it up */	
+  margin-top: -90px; /* or try -10px if you want to pull it up */	
   padding: 5px 0;
 }
 
@@ -981,6 +981,28 @@ function getDealKey(deal) {
     .replace(/\s+/g, '')      // remove spaces
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
+
+const refreshButton = document.createElement('div');
+refreshButton.id = 'refresh-button';
+refreshButton.style = `
+  position: fixed;
+  bottom: 5px;
+  right: 25px;
+  z-index: 1000;
+  font-size: 15px;
+  background: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+  text-align: center;
+`;
+refreshButton.innerHTML = `🔄`;
+document.body.appendChild(refreshButton);
+
+refreshButton.addEventListener('click', function() {
+  location.reload();
+});
 
 
 
