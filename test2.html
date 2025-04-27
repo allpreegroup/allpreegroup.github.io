@@ -2170,6 +2170,8 @@ async function loadDeals() {
     try {
       let currentBrand = '';
       let currentLogo = '';
+      let currentPrimaryColor = '';
+      let currentSecondaryColor = '';
       let brandSection = null;
       let grid = null;
       let brandDeals = [];
@@ -2181,6 +2183,8 @@ async function loadDeals() {
           if (row.BrandName && row.BrandLogo) {
             currentBrand = row.BrandName;
             currentLogo = row.BrandLogo;
+	    currentPrimaryColor = row.PrimaryColor || '#ffcc00'; // fallback
+            currentSecondaryColor = row.SecondaryColor || '#000'; // fallback
 
             // Check if the brand is marked as the favorite
             isFavorite = currentBrand === favoriteBrand;
@@ -2261,8 +2265,9 @@ async function loadDeals() {
               section: brandSection,
               grid,
               deals: brandDeals,
-              themeColor: row.BrandColor, // Add the theme color from the sheet
-              isFavorite // Track if this brand is the user's favorite
+              primaryColor: currentPrimaryColor,
+              secondaryColor: currentSecondaryColor,
+              isFavorite
             });
           }
 
