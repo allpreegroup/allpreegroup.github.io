@@ -2624,17 +2624,24 @@ async function loadDeals() {
             }); */
 
 		dealCard.addEventListener('click', () => {
+  if (!dealData) {
+    console.error("dealData is missing or null");
+    return;  // Exit if dealData is not available
+  }
+
   isLikedMode = false;
   document.getElementById('showRandomBtn')?.classList.add('active');
   document.getElementById('showLikedBtn')?.classList.remove('active');
-  
-  // Check if the current deal belongs to the favorite brand
-  if (currentBrand === favoriteBrand) {
-    showBrandDealsInPopup(currentBrand); // Open the brand-specific popup for the favorite brand
+
+  // Check if the clicked deal belongs to the favorite brand
+  const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
+  if (brandData && brandData.isFavorite) {
+    showBrandDealsInPopup(brandData.brand);  // Open the popup for this brand's deals
   } else {
-    openPopup(dealData); // Open the regular popup for non-favorite brand deals
+    openPopup(dealData);  // Open the regular deal popup for non-favorite brands
   }
-});  
+});
+
 
             if (!isLiked) {
               allDealsFlat.push(dealData);
