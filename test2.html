@@ -2217,6 +2217,8 @@ function closePopup() {
 
 function showBrandDealsInPopup(brandName) {
   isBrandMode = true; // Set this before calling openPopup
+  highlightTab('showBrandTabBtn'); // Highlight brand tab
+	
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
@@ -2256,10 +2258,14 @@ function highlightTab(buttonId) {
   });
   document.getElementById(buttonId).classList.add('active');
 }
+
 	
  function showRandomDealsInPopup() {
   isLikedMode = false;
   isBrandMode = false;	 
+
+  // Reset tab highlighting before opening the popup
+  highlightTab('showRandomBtn');
 
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
