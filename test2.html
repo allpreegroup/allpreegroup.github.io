@@ -2633,14 +2633,23 @@ async function loadDeals() {
   document.getElementById('showRandomBtn')?.classList.add('active');
   document.getElementById('showLikedBtn')?.classList.remove('active');
 
-  // Check if the clicked deal belongs to the favorite brand
+  // Find the brand data for the current deal
   const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
-  if (brandData && brandData.isFavorite) {
-    showBrandDealsInPopup(brandData.brand);  // Open the popup for this brand's deals
+
+  if (brandData) {
+    if (brandData.isFavorite) {
+      // If the brand is a favorite, show its deals in the brand tab
+      showBrandDealsInPopup(brandData.brand);
+    } else {
+      // Otherwise, open the regular deal popup
+      openPopup(dealData);
+    }
   } else {
-    openPopup(dealData);  // Open the regular deal popup for non-favorite brands
+    // In case brandData is missing, just open the regular popup
+    openPopup(dealData);
   }
 });
+
 
 
             if (!isLiked) {
