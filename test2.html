@@ -1564,6 +1564,16 @@ async function openBrandLocation(brand) {
   }
 } */
 
+function handleLocationClick(coordinates) {
+  if (!coordinates) {
+    alert("Sorry, this location is not available yet.");
+    return;
+  }
+  closeLocationPopup(); // auto-close the popup first
+  navigateToLocation(coordinates);
+}
+
+	
 async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
@@ -1639,8 +1649,10 @@ function showLocationPopup(brandLocations) {
 
   const origin = getSavedLocation();
   for (const [name, coords] of Object.entries(brandLocations)) {
-    optionsHtml += `
-      <button onclick="navigateToLocation('${coords}', '${origin}'); closeLocationPopup();" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+  if (!coords) continue; // Skip if no coordinates
+
+  optionsHtml += `
+    <button onclick="navigateToLocation('${coords}', '${origin}'); closeLocationPopup();" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
     `;
   }
 
