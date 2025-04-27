@@ -2632,12 +2632,25 @@ async function loadDeals() {
 
             const isLiked = !!likedDeals[dealData.name];
 
-            dealCard.addEventListener('click', () => {
+          /*  dealCard.addEventListener('click', () => {
               isLikedMode = false;
               document.getElementById('showRandomBtn')?.classList.add('active');
               document.getElementById('showLikedBtn')?.classList.remove('active');
               openPopup(dealData);
-            });
+            }); */
+
+		dealCard.addEventListener('click', () => {
+  isLikedMode = false;
+  document.getElementById('showRandomBtn')?.classList.add('active');
+  document.getElementById('showLikedBtn')?.classList.remove('active');
+  
+  // Check if the current deal belongs to the favorite brand
+  if (currentBrand === favoriteBrand) {
+    showBrandDealsInPopup(currentBrand); // Open the brand-specific popup for the favorite brand
+  } else {
+    openPopup(dealData); // Open the regular popup for non-favorite brand deals
+  }
+});  
 
             if (!isLiked) {
               allDealsFlat.push(dealData);
