@@ -36,8 +36,8 @@
 }
 
 .favorite-brand-badge {
-    background-color: #ffcc00;
-    color: #fff;
+    
+    color: #000;
      font-weight: bold;
   padding: 2px 10px;
   border-radius: 20px;
@@ -2360,20 +2360,32 @@ async function loadDeals() {
   renderLikedDealsGallery();
 
   // Handle favorite brand first
-  const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
-  if (favoriteBrandData) {
-    // Apply favorite brand specific styles
-    const favBadge = document.createElement('div');
-    favBadge.className = 'favorite-brand-badge';
-    favBadge.textContent = '⭐ Your Favorite Brand';
-    favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
+const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
+if (favoriteBrandData) {
+  // Apply favorite brand specific styles
+  const favBadge = document.createElement('div');
+  favBadge.className = 'favorite-brand-badge';
+  favBadge.textContent = '⭐ Your Favorite Brand';
 
-    // Apply the favorite color
-    if (favoriteBrandData.themeColor) {
-      favoriteBrandData.section.querySelector('.brand').classList.add('favorite-brand-highlight');
-      favoriteBrandData.section.style.border = `2px solid ${favoriteBrandData.themeColor}`;
-      favoriteBrandData.section.style.boxShadow = `0 0 10px ${favoriteBrandData.themeColor}88`; // 50% opacity
-    }
+  // Apply the brand's color if available
+  const primaryColor = favoriteBrandData.primaryColor || '#ffcc00';  // Use default if not available
+  const secondaryColor = favoriteBrandData.secondaryColor || '#000'; // Use default white if not available
+
+  // Apply dynamic colors
+  favBadge.style.backgroundColor = primaryColor;  // Background = Primary Color
+  favBadge.style.color = secondaryColor;  // Text = Secondary Color
+
+  // Append the badge to the logo container
+  favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
+
+  // Apply the favorite color
+  if (favoriteBrandData.themeColor) {
+    favoriteBrandData.section.querySelector('.brand').classList.add('favorite-brand-highlight');
+    favoriteBrandData.section.style.border = `2px solid ${favoriteBrandData.themeColor}`;
+    favoriteBrandData.section.style.boxShadow = `0 0 10px ${favoriteBrandData.themeColor}88`; // 50% opacity
+  }
+}
+
 
     // Auto-open the favorite brand grid
     favoriteBrandData.grid.style.display = 'grid';
