@@ -53,26 +53,13 @@
 }
 		 
 .favorite-brand-highlight {
-  --highlight-border-color: gold;
-  --highlight-glow-color: gold;
-  --highlight-glow-pulse-color: orange;
-  
+  --highlight-border-color: gold; /* Default fallback */
   border: 3px solid var(--highlight-border-color);
   border-radius: 12px;
-  animation: glowPulse 2s ease-in-out infinite;
   padding-left: 50px;
   padding-right: 50px;
 }
 
-/* Simpler keyframes, just animate a custom shadow */
-@keyframes glowPulse {
-  0%, 100% {
-    box-shadow: 0 0 10px var(--highlight-glow-color);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--highlight-glow-pulse-color);
-  }
-}
 
 
 		 
@@ -2378,13 +2365,10 @@ if (favoriteBrandData) {
 
   // Apply the brand's color if available
   const primaryColor = favoriteBrandData.primaryColor?.trim() || '#ffcc00';
-  
-  
 
   // Apply dynamic colors
   favBadge.style.backgroundColor = primaryColor;  // Background = Primary Color
  
-
   // Append the badge to the logo container
   favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
 
@@ -2395,11 +2379,30 @@ if (favoriteBrandData) {
 
   const secondaryColor = favoriteBrandData.secondaryColor.trim();
 
-  // Set all dynamic glow colors
+  // Set the border color
   brandElement.style.setProperty('--highlight-border-color', secondaryColor);
-  brandElement.style.setProperty('--highlight-glow-color', secondaryColor);
-  brandElement.style.setProperty('--highlight-glow-pulse-color', toSemiTransparent(secondaryColor, 0.5));
+  
+  // Now, calculate the pulse color (50% lighter version of secondaryColor)
+  const pulseColor = toSemiTransparent(secondaryColor, 0.5);
+
+  // Start animating the glow effect with JavaScript
+  let pulseActive = true;
+  let pulseInterval = setInterval(() => {
+    if (pulseActive) {
+      brandElement.style.boxShadow = `0 0 10px ${secondaryColor}`;
+    } else {
+      brandElement.style.boxShadow = `0 0 20px ${pulseColor}`;
+    }
+    pulseActive = !pulseActive; // Toggle pulse
+  }, 1000); // Toggle every second
+
+  // Stop after a certain time, for example after 10 seconds
+  setTimeout(() => {
+    clearInterval(pulseInterval); // Stop the pulse effect
+    brandElement.style.boxShadow = ''; // Reset box-shadow
+  }, 10000); // 10 seconds
 }
+
 
 
 
