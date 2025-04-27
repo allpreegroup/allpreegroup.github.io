@@ -2368,8 +2368,13 @@ if (favoriteBrandData) {
   favBadge.textContent = '⭐ Your Favorite Brand';
 
   // Apply the brand's color if available
-  const primaryColor = favoriteBrandData.primaryColor || '#ffcc00';  // Use default if not available
-  const secondaryColor = favoriteBrandData.secondaryColor || '#000'; // Use default white if not available
+ if (favoriteBrandData) {
+  const primaryColor = favoriteBrandData.primaryColor?.trim() || '#ffcc00';
+  const secondaryColor = favoriteBrandData.secondaryColor?.trim() || '#000';
+  
+  element.style.backgroundColor = primaryColor;
+  element.style.color = secondaryColor;
+}
 
   // Apply dynamic colors
   favBadge.style.backgroundColor = primaryColor;  // Background = Primary Color
