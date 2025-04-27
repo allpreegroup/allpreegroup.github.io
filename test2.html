@@ -2466,7 +2466,7 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 
 
 // Process the deal description to preserve line breaks and paragraphs
-function formatDescription(description) {
+/* function formatDescription(description) {
   if (!description) return '';
 
   // Replace newlines with <br> to preserve line breaks
@@ -2476,7 +2476,27 @@ function formatDescription(description) {
   description = description.replace(/(\n\n+)/g, '</p><p>');
 
   return description;
+} */
+
+function formatDescription(description) {
+  if (!description) return '';
+
+  // First, replace multiple consecutive newlines with <p> tags for paragraphs
+  description = description.replace(/(\n\n+)/g, '</p><p>');
+
+  // Then, remove single newlines by replacing them with a space
+  description = description.replace(/\n/g, ' ').trim();
+
+  // Optionally, replace multiple spaces with a single space
+  description = description.replace(/\s+/g, ' ');
+
+  // Wrap the description with <p> tags if there is content
+  return '<p>' + description + '</p>';
 }
+
+
+
+
 	
 	
 async function loadDeals() {
