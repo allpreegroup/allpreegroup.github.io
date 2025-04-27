@@ -2483,21 +2483,26 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 function formatDescription(description) {
   if (!description) return '';
 
-  // Replace bold markers (e.g., **Sale**) with <strong> tags for bold text
-  description = description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Trim leading and trailing whitespace to prevent empty <p> tags
+  description = description.trim();
+
+  // Optional: Add bold formatting (you can customize the logic here)
+  // Example: Make any text that starts with "Important" bold
+  description = description.replace(/^(Important.*)/g, '<b>$1</b>');
+
+  // Replace newlines with <br> to preserve line breaks
+  description = description.replace(/\n/g, '<br>');
 
   // Replace multiple consecutive newlines with <p> tags for paragraphs
   description = description.replace(/(\n\n+)/g, '</p><p>');
 
-  // Remove single newlines by replacing them with a space
-  description = description.replace(/\n/g, ' ').trim();
+  // Optionally wrap the description in <p> tags to start and end
+  description = `<p>${description}</p>`;
 
-  // Optionally, replace multiple spaces with a single space
-  description = description.replace(/\s+/g, ' ');
-
-  // Wrap the description with <p> tags if there is content
-  return '<p>' + description + '</p>';
+  return description;
 }
+
+
 
 
 
