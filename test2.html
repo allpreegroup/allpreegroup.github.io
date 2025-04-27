@@ -2382,26 +2382,21 @@ if (favoriteBrandData) {
   // Set the border color
   brandElement.style.setProperty('--highlight-border-color', secondaryColor);
   
-  // Now, calculate the pulse color (50% lighter version of secondaryColor)
-  const pulseColor = toSemiTransparent(secondaryColor, 0.5);
+  // Calculate the pulse color (50% lighter version of secondaryColor)
+  const pulseColor = toSemiTransparent(secondaryColor, 0.4);
 
   // Start animating the glow effect with JavaScript
   let pulseActive = true;
-  let pulseInterval = setInterval(() => {
+  setInterval(() => {
     if (pulseActive) {
-      brandElement.style.boxShadow = `0 0 10px ${secondaryColor}`;
+      brandElement.style.boxShadow = `0 0 10px ${secondaryColor}`;  // Apply regular secondary color glow
     } else {
-      brandElement.style.boxShadow = `0 0 20px ${pulseColor}`;
+      brandElement.style.boxShadow = `0 0 20px ${pulseColor}`;  // Apply 50% lighter pulse color glow
     }
     pulseActive = !pulseActive; // Toggle pulse
   }, 1000); // Toggle every second
-
-  // Stop after a certain time, for example after 10 seconds
-  setTimeout(() => {
-    clearInterval(pulseInterval); // Stop the pulse effect
-    brandElement.style.boxShadow = ''; // Reset box-shadow
-  }, 10000); // 10 seconds
 }
+
 
 
 
