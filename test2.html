@@ -2481,10 +2481,13 @@ document.getElementById('showBrandTabBtn').onclick = () => {
 function formatDescription(description) {
   if (!description) return '';
 
-  // First, replace multiple consecutive newlines with <p> tags for paragraphs
+  // Replace bold markers (e.g., **Sale**) with <strong> tags for bold text
+  description = description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Replace multiple consecutive newlines with <p> tags for paragraphs
   description = description.replace(/(\n\n+)/g, '</p><p>');
 
-  // Then, remove single newlines by replacing them with a space
+  // Remove single newlines by replacing them with a space
   description = description.replace(/\n/g, ' ').trim();
 
   // Optionally, replace multiple spaces with a single space
