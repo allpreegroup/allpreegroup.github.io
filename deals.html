@@ -990,6 +990,30 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
+const refreshButton = document.createElement('div');
+refreshButton.id = 'refresh-button';
+refreshButton.style = `
+  position: fixed;
+  bottom: 5px;
+  right: 25px;
+  z-index: 1000;
+  font-size: 15px;
+  background: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+  text-align: center;
+`;
+refreshButton.innerHTML = `🔄`;
+document.body.appendChild(refreshButton);
+
+refreshButton.addEventListener('click', function() {
+  location.reload();
+});
+
+
+
 ///////  ///////// START
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1076,7 +1100,7 @@ function openFavoriteBrandPopup() {
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
+    bottom: 68px;
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.6);
@@ -1095,17 +1119,24 @@ function openFavoriteBrandPopup() {
     popup = document.createElement('div');
     popup.id = 'favorite-brand-popup';
     popup.style = `
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 20px;
-      width: 90%;
-      max-width: 500px;
-      height: 80%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    `;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  width: 90%;
+  max-width: 500px;
+  height: 70%;
+  max-height: 100vh;
+   overflow-y: scroll; /* Allow scroll */
+  scrollbar-width: none; /* Firefox hide */
+  -ms-overflow-style: none; /* IE/Edge hide */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+`;
   }
 
   // Add swipeable brand content dynamically from allBrandsData
@@ -1128,7 +1159,7 @@ function openFavoriteBrandPopup() {
         width: 100%;
         display: flex;
         align-items: center;
-        padding: 20px;
+        padding: 10px;
         border: 1px solid #ddd;
         border-radius: 8px;
         cursor: pointer;
@@ -1211,31 +1242,6 @@ function closeFavoriteBrandPopup() {
 	
 /////// ////////// START
 
-const refreshButton = document.createElement('div');
-refreshButton.id = 'refresh-button';
-refreshButton.style = `
-  position: fixed;
-  bottom: 5px;
-  right: 25px;
-  z-index: 1000;
-  font-size: 15px;
-  background: white;
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  cursor: pointer;
-  text-align: center;
-`;
-refreshButton.innerHTML = `🔄`;
-document.body.appendChild(refreshButton);
-
-refreshButton.addEventListener('click', function() {
-  location.reload();
-});
-
-
-
-	
 document.addEventListener('DOMContentLoaded', () => {
   initCartIcon();
   updateCartCount(getTotalCartItems());
@@ -1258,7 +1264,7 @@ function initCartIcon() {
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         cursor: pointer;
       ">
-        🛒
+        📝
         <span id="cart-count" style="
           position: absolute;
           top: 0;
@@ -1359,7 +1365,7 @@ function clearBrandCart(brand) {
   const remainingCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const hasItems = Object.values(remainingCart).some(arr => arr.length > 0);
   if (!hasItems) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
+    popup.innerHTML = `<div style="text-align:center;">📝 Your shopping list is empty.</div>`;
   }
 }
 
@@ -1371,15 +1377,16 @@ function clearBrandCart(brand) {
   return localStorage.getItem('userLocation');
 }
 
-
 async function loadBrandLocations() {
   try {
     const res = await fetch('brandLocations.json');
+    if (!res.ok) throw new Error('Failed to fetch locations');
     brandLocations = await res.json();
   } catch (err) {
     console.error('Failed to load brand locations:', err);
   }
 }
+	
 
 async function showCartWithLocations() {
   await loadBrandLocations();  // Wait for the locations to load
@@ -1411,60 +1418,122 @@ function hasMovedSignificantly(savedLocation, currentLocation) {
   return distance > 500; // 500 meters
 }
 
-async function openBrandLocation(brand) {
-  // Prevent multiple redirects
-  if (isNavigating) return;
-
-  isNavigating = true; // Set flag to prevent duplicate navigation
-
-  const dest = brandLocations[brand];
-
-  if (!dest || dest.trim() === "") {
-    alert("No location set for this brand yet.");
-    isNavigating = false;
+function handleLocationClick(coordinates) {
+  if (!coordinates) {
+    alert("Sorry, this location is not available yet.");
     return;
   }
+  closeLocationPopup(); // auto-close the popup first
+  navigateToLocation(coordinates);
+}
 
-  // Get the saved location
-  const savedLocation = getSavedLocation();
+	
+async function openBrandLocation(brand) {
+  if (isNavigating) return;
+  isNavigating = true;
 
-  // If there's no saved location or the user has moved significantly, fetch the current location
-  if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+ const dest = brandLocations[brand];
 
-          // Save the new location if it's different from the saved one
-          if (hasMovedSignificantly(savedLocation, currentCoords)) {
-  userLocation = currentCoords;
-  saveLocation(currentCoords); // Update saved location
-  alert("Click ok to redirect to google maps for directions.");
+// If no destination OR blank string OR empty object
+if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+  alert("No location set for this brand yet.");
+  isNavigating = false;
+  return;
 }
 
 
-          // Redirect the user to the brand's location using the current or updated coordinates
-          navigateToLocation(dest, currentCoords);
-          isNavigating = false;
-        },
-        (err) => {
-          alert("Could not retrieve your location.");
-          navigateToLocation(dest); // Proceed without location
-          isNavigating = false;
-        }
-      );
+  if (typeof dest === 'object') {
+    // Brand has multiple locations
+    showLocationPopup(dest);
+    isNavigating = false;
+  } else {
+    // Brand has only one location
+    const savedLocation = getSavedLocation();
+    if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+            if (hasMovedSignificantly(savedLocation, currentCoords)) {
+              userLocation = currentCoords;
+              saveLocation(currentCoords);
+            }
+            navigateToLocation(dest, currentCoords);
+            isNavigating = false;
+          },
+          (err) => {
+            alert("Could not retrieve your location.");
+            navigateToLocation(dest);
+            isNavigating = false;
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+        navigateToLocation(dest);
+        isNavigating = false;
+      }
     } else {
-      alert("Geolocation is not supported by your browser.");
-      navigateToLocation(dest); // Proceed without location
+      navigateToLocation(dest, savedLocation);
       isNavigating = false;
     }
-  } else {
-    // If no update needed, use the saved location for navigation
-    navigateToLocation(dest, savedLocation);
-    isNavigating = false;
   }
 }
 
+
+	
+function showLocationPopup(brandLocations) {
+  // Check if already open
+  if (document.getElementById('location-popup')) return;
+
+  const popup = document.createElement('div');
+  popup.id = 'location-popup';
+  popup.style = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10001;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  `;
+
+  let optionsHtml = '<h3>Select a Location</h3>';
+
+  const origin = getSavedLocation();
+  for (const [name, coords] of Object.entries(brandLocations)) {
+  if (!coords) continue; // Skip if no coordinates
+
+  optionsHtml += `
+    <button onclick="navigateToLocation('${coords}', '${origin}'); closeLocationPopup();" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+    `;
+  }
+
+  optionsHtml += `<button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>`;
+
+  popup.innerHTML = optionsHtml;
+  document.body.appendChild(popup);
+}
+
+function closeLocationPopup() {
+  const popup = document.getElementById('location-popup');
+  if (popup) popup.remove();
+}
+	
+
+// Close the location section in the cart popup
+function closeLocationSection() {
+  const popup = document.getElementById('cart-popup');
+  const locationSection = popup.querySelector('.location-section'); // Target the location section by its class
+  if (locationSection) {
+    locationSection.remove(); // Remove the location options section
+  }
+}
+	
 function navigateToLocation(dest, originCoords = null) {
   // Redirect to Google Maps with or without the current location
   const url = originCoords
@@ -1473,6 +1542,7 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
+	
 	
 function openCartPopup() {
   // Prevent duplicate backdrop
@@ -1488,7 +1558,7 @@ backdrop.style = `
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 30;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
  background: linear-gradient(
@@ -1520,17 +1590,21 @@ if (!popup) {
   popup = document.createElement('div');
   popup.id = 'cart-popup';
   popup.style = `
-    background: #fff;
+   background: #fff;
     border: 1px solid #ccc;
     border-radius: 10px;
     padding: 10px;
     width: 90%;
     max-width: 500px;
-    height: 80%;
-    
+    margin-top: -100px;
+    height: 70%;
     max-height: 100vh;
-    overflow-y: auto;
-  `;
+   overflow-y: scroll; /* Allow scroll */
+  scrollbar-width: none; /* Firefox hide */
+  -ms-overflow-style: none; /* IE/Edge hide */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+`;
 }
 
 // Add popup to backdrop and backdrop to body
@@ -1543,7 +1617,7 @@ document.body.appendChild(backdrop);
   popup.innerHTML = '';
 
   if (brandKeys.length === 0) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
+    popup.innerHTML = `<div style="text-align:center;">📝 Your shopping is empty.</div>`;
   } else {
     brandKeys.forEach(brand => {
       const items = cart[brand];
@@ -1693,7 +1767,7 @@ function openSavedListsPopup() {
   popup.innerHTML = `<h3 style="margin-bottom: 16px;">📝 Saved Shopping Lists</h3>`;
 
   if (brandKeys.length === 0) {
-    popup.innerHTML += `<div style="text-align: center;">No saved shopping lists yet.</div>`;
+    popup.innerHTML += `<div style="text-align: center;">📝 No saved shopping lists yet.</div>`;
   } else {
     brandKeys.forEach(brand => {
       savedLists[brand].forEach((list, index) => {
@@ -1827,7 +1901,6 @@ function renderLikedDealsGallery() {
   updateCountdown();
   const timerInterval = setInterval(updateCountdown, 1000);
 }
-
 
 	
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
