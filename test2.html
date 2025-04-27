@@ -897,9 +897,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Likes</button>
   <button id="showRandomBtn" class="tab-btn active">Deals</button>
-  <button id="showBrandTabBtn" class="tab-btn">Store</button>
+  <button id="showBrandTabBtn" class="tab-btn">Shop</button>
  <button id="cartBtn" class="tab-btn">
-  <span class="cart-icon2">🛒</span>
+  <span class="cart-icon2">📝</span>
   <span id="cartCount" class="cart-count2">0</span>
 </button>
 </div>
@@ -915,7 +915,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <img id="popupImg" src="" alt="Product">
     </div>
 	   <div id="cartBtnContainer" class="hidden">
-	    <button id="popupAddToCartBtn" class="cart-btn">🛒 Add</button>
+	    <button id="popupAddToCartBtn" class="cart-btn">📝 Add</button>
 	    </div>
 	   <div id="likeButtonContainer">
   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
@@ -1272,7 +1272,7 @@ function initCartIcon() {
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         cursor: pointer;
       ">
-        🛒
+        📝
         <span id="cart-count" style="
           position: absolute;
           top: 0;
@@ -1373,7 +1373,7 @@ function clearBrandCart(brand) {
   const remainingCart = JSON.parse(localStorage.getItem('cartItems') || '{}');
   const hasItems = Object.values(remainingCart).some(arr => arr.length > 0);
   if (!hasItems) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
+    popup.innerHTML = `<div style="text-align:center;">📝 Your shopping list is empty.</div>`;
   }
 }
 
@@ -1561,7 +1561,7 @@ document.body.appendChild(backdrop);
   popup.innerHTML = '';
 
   if (brandKeys.length === 0) {
-    popup.innerHTML = `<div style="text-align:center;">🛒 Your cart is empty.</div>`;
+    popup.innerHTML = `<div style="text-align:center;">📝 Your shopping is empty.</div>`;
   } else {
     brandKeys.forEach(brand => {
       const items = cart[brand];
@@ -1711,7 +1711,7 @@ function openSavedListsPopup() {
   popup.innerHTML = `<h3 style="margin-bottom: 16px;">📝 Saved Shopping Lists</h3>`;
 
   if (brandKeys.length === 0) {
-    popup.innerHTML += `<div style="text-align: center;">No saved shopping lists yet.</div>`;
+    popup.innerHTML += `<div style="text-align: center;">📝 No saved shopping lists yet.</div>`;
   } else {
     brandKeys.forEach(brand => {
       savedLists[brand].forEach((list, index) => {
@@ -2000,7 +2000,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
 
   function updateCartBtnState(isNowInCart) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
-    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
+    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '📝 Add';
   }
 }
 
