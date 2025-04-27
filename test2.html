@@ -2212,9 +2212,24 @@ function closePopup() {
   document.getElementById('popup').style.display = 'none';
   currentPopupDeal = null;
   document.body.classList.remove('noscroll');
+
+  // FULL RESET here:
+  isBrandMode = false;
+  isLikedMode = false;
+  
+  // Reset tab buttons inside the popup (if you have any active classes)
+  const tabs = document.querySelectorAll('.tab-switcher .tab-btn');
+  tabs.forEach(tab => tab.classList.remove('active'));
+
+  // Optional: highlight random tab as the default
+  const randomTab = document.getElementById('showRandomBtn');
+  if (randomTab) randomTab.classList.add('active');
 }
 
-/*	
+
+
+
+	
 function resetTabsToNormal() {
   // Reset the active tab to the "random" deals tab
   highlightTab('showRandomTabBtn');  // Assumes 'showRandomTabBtn' is the button for the random tab
@@ -2276,8 +2291,10 @@ dealCard.addEventListener('click', () => {
     // For non-favorite brands, show random deals or the default behavior
     openPopup(dealData);
   }
-}); */
+}); 
 
+
+	
 
 function showBrandDealsInPopup(brandName) {
   isBrandMode = true;  // Set this before calling openPopup
