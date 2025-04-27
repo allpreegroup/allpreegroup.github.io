@@ -2228,8 +2228,6 @@ function closePopup() {
 
 
 
-
-	
 function resetTabsToNormal() {
   // Reset the active tab to the "random" deals tab
   highlightTab('showRandomTabBtn');  // Assumes 'showRandomTabBtn' is the button for the random tab
@@ -2253,19 +2251,13 @@ function resetTabsToNormal() {
   document.getElementById('popupTimer').textContent = '';
 }
 
-// Assuming there's a close button with the ID 'popupCloseBtn'
-document.getElementById('popupCloseBtn').addEventListener('click', function() {
-  // Reset tabs to normal when the popup is closed
-  resetTabsToNormal();
-});
-
-// You can also handle the 'back' button if you're using history navigation
+// You can handle the 'back' button if you're using history navigation
 window.onpopstate = function(event) {
   if (event.state && event.state.popup) {
     resetTabsToNormal();
   }
 };
-	
+
 function highlightTab(tabId) {
   // Reset the styles for all tabs
   const tabs = document.querySelectorAll('.tab-button');  // Assuming all tab buttons have class 'tab-button'
@@ -2277,6 +2269,14 @@ function highlightTab(tabId) {
     selectedTab.classList.add('active');  // Add active class
   }
 }
+
+// Add click event to close the popup by clicking outside
+document.getElementById('popup').addEventListener('click', function (e) {
+  if (e.target === this) {
+    resetTabsToNormal();  // Reset tabs when closing the popup
+  }
+});
+
 
 
 	
