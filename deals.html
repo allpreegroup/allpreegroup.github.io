@@ -59,6 +59,9 @@
   padding-left: 50px;
   padding-right: 50px;
 }
+
+
+
 		 
 .top-deal-badge {
   background-color: gold;
@@ -287,12 +290,13 @@ height: 60px;
 
 .popup-content {
   background: white;
+  justify-content: center;
   border-radius: 10px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  position: relative;
+  position: relative;	
 }
 
 
@@ -301,7 +305,7 @@ height: 60px;
   width: 50%;
   justify-content: center;
   background: black;
-  margin-top: -100px; /* or try -10px if you want to pull it up */	
+  margin-top: -50px; /* or try -10px if you want to pull it up */	
   padding: 5px 0;
 }
 
@@ -334,15 +338,23 @@ height: 60px;
 }
 
 		 
-.popup-content img {
+.image-wrapper {
   width: 100%;
-  max-height: 250px;
-  object-fit: contain;
-  padding: 10px;
+  height: 200px; /* Fixed container height */
   background: #f9f9f9;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  position: relative;
+  overflow: hidden; /* Important: clip the image if needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-wrapper img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Show full image inside without cutting */
+  display: block;
 }
 
 .popup-body {
@@ -428,6 +440,7 @@ height: 60px;
 
 .popup-description {
   font-size: 14px;
+  padding-top: 10px;
 }
 
 .popup-close {
@@ -441,7 +454,7 @@ height: 60px;
 }
 
 .popup-brand-box {
- margin: -15px 20px 20px; /* Top, horizontal, bottom */
+ margin: -10px 20px 20px 20px; /* Top, horizontal, bottom */
   padding: 15px;
   border-top: 1px solid #eee;
   background-color: #fdfdfd;
@@ -895,9 +908,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div class="tab-switcher">
   <button id="showLikedBtn" class="tab-btn">Likes</button>
   <button id="showRandomBtn" class="tab-btn active">Deals</button>
-  <button id="showBrandTabBtn" class="tab-btn">List</button>
+  <button id="showBrandTabBtn" class="tab-btn">Shop</button>
  <button id="cartBtn" class="tab-btn">
-  <span class="cart-icon2">🛒</span>
+  <span class="cart-icon2">📝</span>
   <span id="cartCount" class="cart-count2">0</span>
 </button>
 </div>
@@ -909,9 +922,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
       <span class="popup-discount-badge" id="popupBadge"></span>
 	    
       <button id="popupBack" class="popup-back-arrow"></button> 
+     <div class="image-wrapper">
       <img id="popupImg" src="" alt="Product">
+    </div>
 	   <div id="cartBtnContainer" class="hidden">
-	    <button id="popupAddToCartBtn" class="cart-btn">🛒 Add</button>
+	    <button id="popupAddToCartBtn" class="cart-btn">📝 Add</button>
 	    </div>
 	   <div id="likeButtonContainer">
   <button class="like-btn" id="popupLikeBtn">🤍 Like</button>
@@ -946,8 +961,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 
 <div id="cartPopup" style="display: none; position: fixed; top: 60px; right: 10px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 10000; padding: 16px;"></div>
-
-
+			 
 <script>
 	let sheetUrls = [];
 
@@ -1952,9 +1966,8 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   setupLikeButton(currentPopupDeal);
   setupAddToCartButton(currentPopupDeal);
 }
-//outside 
-
-
+	
+//////////    OUTSIDE 
 	
 function setupLikeButton(deal) {
 
@@ -2016,9 +2029,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
 
     renderLikedDealsGallery();
   };
-}
-
-	
+}		
  	
  function setupAddToCartButton(deal) {
   const cartBtnContainer = document.getElementById('cartBtnContainer');
@@ -2055,11 +2066,9 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
 
   function updateCartBtnState(isNowInCart) {
     addToCartBtn.classList.toggle('in-cart', isNowInCart);
-    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '🛒 Add';
+    addToCartBtn.textContent = isNowInCart ? '❌ Del' : '📝 Add';
   }
 }
-
-
 
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
@@ -2128,9 +2137,6 @@ function highlightTab(buttonId) {
   const deal = unlikedDeals[randomIndex];
   openPopup(deal, true);
 } 
-
-
-
 	
 function showLikedDealsInPopup() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -2147,9 +2153,6 @@ function showLikedDealsInPopup() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
-
-
-
 	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
@@ -2236,9 +2239,6 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   highlightTab('showBrandTabBtn');
   showBrandDealsInPopup(brand);
 };
-
-	
-
 	
 		
 async function loadDeals() {
@@ -2500,10 +2500,6 @@ if (favoriteBrandData) {
   }, 1000); // Toggle every second
 }
 
-
-
-
-
     // Auto-open the favorite brand grid
     favoriteBrandData.grid.style.display = 'grid';
     currentlyOpenGrid = favoriteBrandData.grid;
@@ -2555,8 +2551,6 @@ function toSemiTransparent(color, alpha = 0.5) {
   return color; // fallback for rgb() already
 }
 
-
-	
 	
 function startBrandCountdown(expireDate, elementId) {
   const parsedDate = Date.parse(expireDate);
