@@ -1442,6 +1442,148 @@ async function openBrandLocation(brand) {
   // Get the saved location
   const savedLocation = getSavedLocation();
 
+  // If the brand has multiple locations
+  if (typeof dest === 'object') {
+    // If there's no saved location or the user has moved significantly, fetch the current location
+    if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+            // Save the new location if it's different from the saved one
+            if (hasMovedSignificantly(savedLocation, currentCoords)) {
+              userLocation = currentCoords;
+              saveLocation(currentCoords); // Update saved location
+              alert("Location updated successfully.");
+            }
+
+            // Show a location selection popup with the locations of this brand
+            let locationOptions = '';
+            for (const [locationName, coordinates] of Object.entries(dest)) {
+              locationOptions += `<button onclick="navigateToLocation('${coordinates}')">${locationName}</button><br>`;
+            }
+            showLocationPopup(locationOptions); // Show location selection
+            isNavigating = false;
+          },
+          (err) => {
+            alert("Could not retrieve your location.");
+            showLocationPopup(generateLocationButtons(dest)); // Show the buttons without geolocation
+            isNavigating = false;
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+        showLocationPopup(generateLocationButtons(dest)); // Show the buttons without geolocation
+        isNavigating = false;
+      }
+    } else {
+      // If no update needed, use the saved location for navigation
+      showLocationPopup(generateLocationButtons(dest)); // Show the buttons for multiple locations
+      isNavigating = false;
+    }
+  } else {
+    // If it's a single location, proceed as before
+    if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+            // Save the new location if it's different from the saved one
+            if (hasMovedSignificantly(savedLocation, currentCoords)) {
+              userLocation = currentCoords;
+              saveLocation(currentCoords); // Update saved location
+              alert("Location updated successfully.");
+            }
+
+            // Redirect the user to the brand's location using the current or updated coordinates
+            navigateToLocation(dest, currentCoords);
+            isNavigating = false;
+          },
+          (err) => {
+            alert("Could not retrieve your location.");
+            navigateToLocation(dest); // Proceed without location
+            isNavigating = false;
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+        navigateToLocation(dest); // Proceed without location
+        isNavigating = false;
+      }
+    } else {
+      // If no update needed, use the saved location for navigation
+      navigateToLocation(dest, savedLocation);
+      isNavigating = false;
+    }
+  }
+}
+
+function generateLocationButtons(locations) {
+  let locationOptions = '';
+  for (const [locationName, coordinates] of Object.entries(locations)) {
+    locationOptions += `<button onclick="navigateToLocation('${coordinates}')">${locationName}</button><br>`;
+  }
+  return locationOptions;
+}
+
+function showLocationPopup(locationOptions) {
+  const popup = document.createElement('div');
+  popup.id = 'location-popup';
+  popup.style = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 300px;
+    height: auto;
+    z-index: 9999;
+  `;
+  popup.innerHTML = `
+    <h3>Select a location:</h3>
+    ${locationOptions}
+    <button onclick="closeLocationPopup()">Close</button>
+  `;
+  document.body.appendChild(popup);
+}
+
+function closeLocationPopup() {
+  const popup = document.getElementById('location-popup');
+  if (popup) popup.remove();
+}
+
+function navigateToLocation(coords, userCoords = '') {
+  // Redirect to Google Maps with the provided coordinates
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${coords}`;
+  window.location.href = url;
+}
+
+
+
+
+	
+/*	
+async function openBrandLocation(brand) {
+  // Prevent multiple redirects
+  if (isNavigating) return;
+
+  isNavigating = true; // Set flag to prevent duplicate navigation
+
+  const dest = brandLocations[brand];
+
+  if (!dest || dest.trim() === "") {
+    alert("No location set for this brand yet.");
+    isNavigating = false;
+    return;
+  }
+
+  // Get the saved location
+  const savedLocation = getSavedLocation();
+
   // If there's no saved location or the user has moved significantly, fetch the current location
   if (!savedLocation || hasMovedSignificantly(savedLocation, savedLocation)) {
     if (navigator.geolocation) {
@@ -1478,6 +1620,9 @@ async function openBrandLocation(brand) {
     isNavigating = false;
   }
 }
+*/
+
+	
 
 function navigateToLocation(dest, originCoords = null) {
   // Redirect to Google Maps with or without the current location
