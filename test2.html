@@ -2386,10 +2386,13 @@ if (favoriteBrandData) {
 
   // Apply the favorite color
   if (favoriteBrandData.themeColor) {
-    favoriteBrandData.section.querySelector('.brand').classList.add('favorite-brand-highlight');
-    favoriteBrandData.section.style.border = `2px solid ${favoriteBrandData.themeColor}`;
-    favoriteBrandData.section.style.boxShadow = `0 0 10px ${favoriteBrandData.themeColor}88`; // 50% opacity
-  }
+  const brandElement = favoriteBrandData.section.querySelector('.brand');
+  brandElement.classList.add('favorite-brand-highlight');
+
+  brandElement.style.setProperty('--highlight-border-color', favoriteBrandData.themeColor);
+  brandElement.style.setProperty('--highlight-glow-color', favoriteBrandData.themeColor);
+  brandElement.style.setProperty('--highlight-glow-pulse-color', favoriteBrandData.primaryColor || favoriteBrandData.themeColor);
+}
 
 
 
