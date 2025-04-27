@@ -1578,12 +1578,15 @@ async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
 
-  const dest = brandLocations[brand];
-  if (!dest) {
-    alert("No location set for this brand yet.");
-    isNavigating = false;
-    return;
-  }
+ const dest = brandLocations[brand];
+
+// If no destination OR blank string OR empty object
+if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+  alert("No location set for this brand yet.");
+  isNavigating = false;
+  return;
+}
+
 
   if (typeof dest === 'object') {
     // Brand has multiple locations
