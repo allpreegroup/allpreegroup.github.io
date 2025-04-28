@@ -737,6 +737,29 @@ height: 20%;
   border-radius: 50%;
   font-size: 12px;
 }
+.badge-premium,
+.badge-pro {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: white;
+  color: #2066A7; /* nice blue */
+  border-radius: 50%;
+  padding: 3px;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 18px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* Special color for PRO */
+.badge-pro {
+  background-color: gold;
+  color: white;
+}
 		 
   </style>
   
@@ -2649,6 +2672,9 @@ async function loadDeals() {
 
             isFavorite = currentBrand === favoriteBrand;
 
+		  // ➡️ Add it HERE
+            let isPaidBrand = row.Tier === 'Paid' || row.Tier === 'Pro'; 
+
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
 
@@ -2665,7 +2691,12 @@ async function loadDeals() {
                 <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
               </div>
             `;
-
+if (isPaidBrand) {
+  const badge = document.createElement('div');
+  badge.className = isProBrand ? 'badge-pro' : 'badge-premium';
+  badge.textContent = isProBrand ? '💎' : '🏅';
+  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+}
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
 
@@ -2724,7 +2755,9 @@ async function loadDeals() {
               deals: brandDeals,
               primaryColor: currentPrimaryColor,
               secondaryColor: currentSecondaryColor,
-              isFavorite
+              isFavorite,
+	      isPaidBrand: row.Tier === 'Paid' || row.Tier === 'Pro',   // <-- Add this
+              isPro: row.Tier === 'Pro'  
             });
           }
 
@@ -2800,32 +2833,33 @@ async function loadDeals() {
   }
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
+// Prepare brands
 allBrandsData.forEach(brandData => {
   let best = 0;
   for (const deal of brandData.deals) {
     if (deal.percentOff > best) {
       best = deal.percentOff;
     }
+    brandData.grid.appendChild(deal.element);
   }
   brandData.bestDiscount = best;
-
   brandData.timeRemaining = brandData.expireDate
     ? brandData.expireDate.getTime() - Date.now()
     : Infinity;
-
-  // Add this part to append the deals to the grid
-  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
 });
 
-// 2. Then sort brands based on precomputed values
+// Sort by Paid > Best Discount > Soonest Expiry
 allBrandsData.sort((a, b) => {
+  if ((b.isPaid ? 1 : 0) !== (a.isPaid ? 1 : 0)) {
+    return (b.isPaid ? 1 : 0) - (a.isPaid ? 1 : 0);
+  }
   if (b.bestDiscount !== a.bestDiscount) {
     return b.bestDiscount - a.bestDiscount;
   }
   return a.timeRemaining - b.timeRemaining;
 });
 
-// 3. Clear container and continue
+// Clear container
 container.innerHTML = '';
 
 
