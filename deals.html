@@ -2431,9 +2431,19 @@ function activateBrandTab() {
   }
 }
 	
+// Add this small helper function near the top of your script
+async function fetchWithTimeout(url, timeout = 7000) {
+  return Promise.race([
+    fetch(url).then(res => res.json()),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+  ]).catch(error => ({ error }));
+}
+
+// Then inside your main code:
+
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');  // Get the favorite brand from localStorage
+  const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
   allBrandsData.length = 0;
@@ -2441,13 +2451,14 @@ async function loadDeals() {
   let currentlyOpenGrid = null;
 
   const allResponses = await Promise.all(
-    sheetUrls.map(url => fetch(url).then(res => res.json()).catch(err => ({ error: err })))
+    sheetUrls.map(url => fetchWithTimeout(url))
   );
 
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
+
     if (rows.error) {
-      console.warn(`Skipping sheet due to error: ${sheetUrls[i]}`, rows.error);
+      console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
     }
 
@@ -2467,10 +2478,9 @@ async function loadDeals() {
           if (row.BrandName && row.BrandLogo) {
             currentBrand = row.BrandName;
             currentLogo = row.BrandLogo;
-	    currentPrimaryColor = row.PrimaryColor || '#163A5C'; // fallback
-            currentSecondaryColor = row.SecondaryColor || '#2066A7'; // fallback
+            currentPrimaryColor = row.PrimaryColor || '#163A5C';
+            currentSecondaryColor = row.SecondaryColor || '#2066A7';
 
-            // Check if the brand is marked as the favorite
             isFavorite = currentBrand === favoriteBrand;
 
             brandSection = document.createElement('div');
@@ -2508,16 +2518,14 @@ async function loadDeals() {
             grid = document.createElement('div');
             grid.className = 'deal-grid';
             grid.style.display = 'none';
-
             brandSection.appendChild(grid);
-            brandDiv.style.cursor = 'pointer';
 
+            brandDiv.style.cursor = 'pointer';
             brandDiv.addEventListener('click', () => {
               const isOpen = grid.style.display === 'grid';
               if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
                 currentlyOpenGrid.style.display = 'none';
               }
-
               grid.style.display = isOpen ? 'none' : 'grid';
 
               if (!isOpen) {
@@ -2529,7 +2537,7 @@ async function loadDeals() {
                 window.scrollTo({ top, behavior: 'smooth' });
               }
 
-             currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+              currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
             });
 
             container.appendChild(brandSection);
@@ -2541,7 +2549,6 @@ async function loadDeals() {
               }
             }
 
-            // Add the brand to the data list
             allBrandsData.push({
               brand: currentBrand,
               logo: currentLogo,
@@ -2555,12 +2562,10 @@ async function loadDeals() {
             });
           }
 
-          // Now we process deals for each brand
           if (row.ProductName && row.ImageURL && row.OriginalPrice && row.DiscountPrice) {
             const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
             const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
             const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
             const shortName = row.ProductName.length > 15 ? row.ProductName.slice(0, 15) + '...' : row.ProductName;
 
             const dealCard = document.createElement('div');
@@ -2587,37 +2592,26 @@ async function loadDeals() {
 
             const isLiked = !!likedDeals[dealData.name];
 
-           
-	dealCard.addEventListener('click', () => {
-  if (!dealData) {
-    console.error("dealData is missing or null");
-    return;  // Exit if dealData is not available
-  }
+            dealCard.addEventListener('click', () => {
+              if (!dealData) return;
+              isLikedMode = false;
+              document.getElementById('showRandomBtn')?.classList.add('active');
+              document.getElementById('showLikedBtn')?.classList.remove('active');
 
-  isLikedMode = false;
-  document.getElementById('showRandomBtn')?.classList.add('active');
-  document.getElementById('showLikedBtn')?.classList.remove('active');
+              const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
 
-  const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
-
-  if (brandData) {
-    if (brandData.isFavorite) {
-      // First, open the popup (even if it's "blank" for now)
-      openPopup(dealData);
-
-      // Then show the brand deals inside it
-      showBrandDealsInPopup(brandData.brand);
-
-      // Finally switch to the brand tab
-      activateBrandTab();
-    } else {
-      openPopup(dealData);
-    }
-  } else {
-    openPopup(dealData);
-  }
-});
-
+              if (brandData) {
+                if (brandData.isFavorite) {
+                  openPopup(dealData);
+                  showBrandDealsInPopup(brandData.brand);
+                  activateBrandTab();
+                } else {
+                  openPopup(dealData);
+                }
+              } else {
+                openPopup(dealData);
+              }
+            });
 
             if (!isLiked) {
               allDealsFlat.push(dealData);
@@ -2631,36 +2625,45 @@ async function loadDeals() {
             }
           }
         } catch (rowErr) {
-          console.warn(`Skipped row due to missing or invalid fields:`, rowErr);
+          console.warn('Skipped bad deal row:', rowErr);
         }
       });
     } catch (sheetErr) {
-      console.warn(`Error processing sheet at ${sheetUrls[i]}`, sheetErr);
+      console.warn('Error processing a sheet:', sheetErr);
     }
   }
-
-  allBrandsData.forEach(brandData => {
-    // Sort deals by discount percent
-    brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-    brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-  });
-
-  allBrandsData.forEach(brandData => {
-    brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-    brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
-  });
-
-  // Sort brands: first by best discount, then by time remaining
-  allBrandsData.sort((a, b) => {
-    if (b.bestDiscount !== a.bestDiscount) {
-      return b.bestDiscount - a.bestDiscount;
+	
+// 1. Precompute bestDiscount and timeRemaining ONCE
+allBrandsData.forEach(brandData => {
+  let best = 0;
+  for (const deal of brandData.deals) {
+    if (deal.percentOff > best) {
+      best = deal.percentOff;
     }
-    return a.timeRemaining - b.timeRemaining;
-  });
+  }
+  brandData.bestDiscount = best;
 
-  container.innerHTML = '';
+  brandData.timeRemaining = brandData.expireDate
+    ? brandData.expireDate.getTime() - Date.now()
+    : Infinity;
 
-  // Create liked deals section
+  // Add this part to append the deals to the grid
+  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+});
+
+// 2. Then sort brands based on precomputed values
+allBrandsData.sort((a, b) => {
+  if (b.bestDiscount !== a.bestDiscount) {
+    return b.bestDiscount - a.bestDiscount;
+  }
+  return a.timeRemaining - b.timeRemaining;
+});
+
+// 3. Clear container and continue
+container.innerHTML = '';
+
+
+
   let likedDealsSection = document.getElementById('likedDealsSection');
   if (!likedDealsSection) {
     likedDealsSection = document.createElement('div');
@@ -2673,61 +2676,37 @@ async function loadDeals() {
 
   renderLikedDealsGallery();
 
-  // Handle favorite brand first
-const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
-if (favoriteBrandData) {
-  // Apply favorite brand specific styles
-  const favBadge = document.createElement('div');
-  favBadge.className = 'favorite-brand-badge';
-  favBadge.textContent = '⭐ Your Favorite Brand';
+  const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
+  if (favoriteBrandData) {
+    const favBadge = document.createElement('div');
+    favBadge.className = 'favorite-brand-badge';
+    favBadge.textContent = '⭐ Your Favorite Brand';
+    const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
+    favBadge.style.backgroundColor = primaryColor;
+    favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
 
-  // Apply the brand's color if available
-  const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
+    if (favoriteBrandData.secondaryColor) {
+      const brandElement = favoriteBrandData.section.querySelector('.brand');
+      brandElement.classList.add('favorite-brand-highlight');
+      const secondaryColor = favoriteBrandData.secondaryColor.trim();
+      brandElement.style.setProperty('--highlight-border-color', secondaryColor);
 
-  // Apply dynamic colors
-  favBadge.style.backgroundColor = primaryColor;  // Background = Primary Color
- 
-  // Append the badge to the logo container
-  favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
-
-  // Apply the favorite color
- if (favoriteBrandData.secondaryColor) {
-  const brandElement = favoriteBrandData.section.querySelector('.brand');
-  brandElement.classList.add('favorite-brand-highlight');
-
-  const secondaryColor = favoriteBrandData.secondaryColor.trim();
-
-  // Set the border color
-  brandElement.style.setProperty('--highlight-border-color', secondaryColor);
-  
-  // Calculate the pulse color (50% lighter version of secondaryColor)
-  const pulseColor = toSemiTransparent(secondaryColor, 0.6);
-
-  // Start animating the glow effect with JavaScript
-  let pulseActive = true;
-  setInterval(() => {
-    if (pulseActive) {
-      brandElement.style.boxShadow = `0 0 10px ${secondaryColor}`;  // Apply regular secondary color glow
-    } else {
-      brandElement.style.boxShadow = `0 0 20px ${pulseColor}`;  // Apply 50% lighter pulse color glow
+      const pulseColor = toSemiTransparent(secondaryColor, 0.6);
+      let pulseActive = true;
+      setInterval(() => {
+        brandElement.style.boxShadow = pulseActive ? `0 0 10px ${secondaryColor}` : `0 0 20px ${pulseColor}`;
+        pulseActive = !pulseActive;
+      }, 1000);
     }
-    pulseActive = !pulseActive; // Toggle pulse
-  }, 1000); // Toggle every second
-}
 
-    // Auto-open the favorite brand grid
     favoriteBrandData.grid.style.display = 'grid';
     currentlyOpenGrid = favoriteBrandData.grid;
-
-    // Move the favorite brand to the top
     container.appendChild(favoriteBrandData.section);
   }
 
-  // Process remaining brands (excluding the favorite)
   allBrandsData.forEach(brandData => {
     if (!brandData.isFavorite) {
       if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
-        // Apply gold border and glow for the Hottest Discount
         const badge = document.createElement('div');
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Discount';
