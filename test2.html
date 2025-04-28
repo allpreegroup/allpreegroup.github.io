@@ -2767,10 +2767,13 @@ async function loadDeals() {
 
   if (brandData) {
     if (brandData.isFavorite) {
-      // If the brand is a favorite, show its deals in the brand tab
+      // First, open the popup (even if it's "blank" for now)
+      openPopup(dealData);
+
+      // Then show the brand deals inside it
       showBrandDealsInPopup(brandData.brand);
 
-      // 👉 Force the brand tab to open
+      // Finally switch to the brand tab
       activateBrandTab();
     } else {
       openPopup(dealData);
@@ -2779,6 +2782,7 @@ async function loadDeals() {
     openPopup(dealData);
   }
 });
+
 
 
 
