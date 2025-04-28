@@ -1495,7 +1495,7 @@ if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest ==
 }
 
 
-	
+
 function showLocationPopup(brandLocations) {
   // Check if already open
   if (document.getElementById('location-popup')) return;
@@ -1525,29 +1525,56 @@ function showLocationPopup(brandLocations) {
 
   const origin = getSavedLocation();
 
-  // Check if there's a saved location and that it’s been moved significantly
+  // Check if there's a saved location and if it’s been moved significantly
   if (origin) {
     const currentCoords = `${origin.latitude},${origin.longitude}`;
     if (hasMovedSignificantly(origin, currentCoords)) {
-      saveLocation(currentCoords); // Update saved location if moved
+      // If moved, save the new location and alert
+      saveLocation(currentCoords); 
       alert("Close to redirect to google maps for directions.");
     }
-  }	
-
-  // Build location buttons
-  for (const [name, coords] of Object.entries(brandLocations)) {
-    optionsHtml += `
-      <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
-    `;
   }
 
-  // Cancel button
-  optionsHtml += `
-    <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
-  `;
+  // If the brand has multiple locations, ask for the user's geolocation
+  if (Object.keys(brandLocations).length > 1 && !origin) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+          saveLocation(currentCoords); // Save the new location
+          // alert("Location detected. You will now see nearby options.");
+          showLocationButtons(brandLocations, currentCoords); // Show the buttons with the updated location
+        },
+        (err) => {
+          alert("Could not retrieve your location.");
+          showLocationButtons(brandLocations); // Show buttons without geolocation
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+      showLocationButtons(brandLocations); // Show buttons without geolocation
+    }
+  } else {
+    // Show location buttons directly if single location or already have saved location
+    showLocationButtons(brandLocations, origin);
+  }
 
-  popup.innerHTML = optionsHtml;
-  document.body.appendChild(popup);
+  function showLocationButtons(brandLocations, origin) {
+    // Build location buttons for each brand
+    for (const [name, coords] of Object.entries(brandLocations)) {
+      optionsHtml += `
+        <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+      `;
+    }
+
+    // Cancel button
+    optionsHtml += `
+      <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
+    `;
+
+    popup.innerHTML = optionsHtml;
+    document.body.appendChild(popup);
+  }
 }
 
 // New helper function for safe navigation
@@ -1580,7 +1607,6 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
-
 	
 	
 function openCartPopup() {
@@ -2099,12 +2125,79 @@ function closePopup() {
   document.getElementById('popup').style.display = 'none';
   currentPopupDeal = null;
   document.body.classList.remove('noscroll');
+
+  // FULL RESET here:
+  isBrandMode = false;
+  isLikedMode = false;
+  
+  // Reset tab buttons inside the popup (if you have any active classes)
+  const tabs = document.querySelectorAll('.tab-switcher .tab-btn');
+  tabs.forEach(tab => tab.classList.remove('active'));
+
+  // Optional: highlight random tab as the default
+  const randomTab = document.getElementById('showRandomBtn');
+  if (randomTab) randomTab.classList.add('active');
 }
 
+function resetTabsToNormal() {
+  // Reset the active tab to the "random" deals tab
+  highlightTab('showRandomTabBtn');  // Assumes 'showRandomTabBtn' is the button for the random tab
+  isBrandMode = false;  // Reset brand mode
+  isLikedMode = false;  // Reset liked mode
 
+  // Optionally, reset any other state or UI changes that were specific to the popup
+  document.body.classList.remove('noscroll');  // Allow scrolling again after popup close
+  // Hide the popup
+  document.getElementById('popup').style.display = 'none';
+
+  // Optionally clear any other custom settings (e.g., reset any custom button styles or selected elements)
+  // Example: reset the popup content (optional)
+  document.getElementById('popupImg').src = '';
+  document.getElementById('popupTitle').textContent = '';
+  document.getElementById('popupPrice').textContent = '';
+  document.getElementById('popupDiscount').textContent = '';
+  document.getElementById('popupDesc').textContent = '';
+  document.getElementById('popupBadge').textContent = '';
+  document.getElementById('popupSavings').textContent = '';
+  document.getElementById('popupTimer').textContent = '';
+}
+
+// You can handle the 'back' button if you're using history navigation
+window.onpopstate = function(event) {
+  if (event.state && event.state.popup) {
+    resetTabsToNormal();
+  }
+};
+
+function highlightTab(tabId) {
+  // Reset the styles for all tabs
+  const tabs = document.querySelectorAll('.tab-button');  // Assuming all tab buttons have class 'tab-button'
+  tabs.forEach(tab => tab.classList.remove('active'));  // Remove active class
+
+  // Add the active class to the selected tab
+  const selectedTab = document.getElementById(tabId);
+  if (selectedTab) {
+    selectedTab.classList.add('active');  // Add active class
+  }
+}
+
+// Add click event to close the popup by clicking outside
+document.getElementById('popup').addEventListener('click', function (e) {
+  if (e.target === this) {
+    resetTabsToNormal();  // Reset tabs when closing the popup
+  }
+});
+	
+
+	
 function showBrandDealsInPopup(brandName) {
-  isBrandMode = true; // Set this before calling openPopup
+ isBrandMode = true;  // Set this before calling openPopup
+  isLikedMode = false;  // Disable liked mode (random deals)
+  highlightTab('showBrandTabBtn');  // Highlight the "Brand" tab
+	  
+  // Filter all deals to get the selected brand's deals
   const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
     return;
@@ -2113,13 +2206,16 @@ function showBrandDealsInPopup(brandName) {
   brandDealKeys = brandDeals.map(d => d.name);
   brandDealIndex = 0;
 
+  // Check if the current deal is from this brand to maintain position
   const currentKey = getDealKey(currentPopupDeal);
-const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
-brandDealIndex = startIndex !== -1 ? startIndex : 0;
-const deal = brandDeals[brandDealIndex];
+  const startIndex = brandDeals.findIndex(d => getDealKey(d) === currentKey);
+  brandDealIndex = startIndex !== -1 ? startIndex : 0;
 
-  openPopup(deal, true); // Skip history push
-}
+  const deal = brandDeals[brandDealIndex];
+
+  // Show only brand deals in the "Brand" tab
+  openPopup(deal, true);  // Skip history push
+}	
 
 
 function goToNextBrandDeal() {
@@ -2186,9 +2282,6 @@ function goToNextLikedDeal() {
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
-
-
-
 	
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
@@ -2208,9 +2301,6 @@ document.getElementById('showLikedBtn').onclick = () => {
   document.getElementById('showRandomBtn').classList.remove('active');
   showLikedDealsInPopup();
 };
-
-
-	
 
 function cleanUpLikedDeals() {
   // Retrieve liked deals from localStorage
