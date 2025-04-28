@@ -2798,18 +2798,23 @@ async function loadDeals() {
       console.warn('Error processing a sheet:', sheetErr);
     }
   }
-
-  allBrandsData.forEach(brandData => {
-    brandData.deals.sort((a, b) => b.percentOff - a.percentOff);
-    brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-  });
 	
+// 1. Precompute bestDiscount and timeRemaining ONCE
 allBrandsData.forEach(brandData => {
-  brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-  brandData.timeRemaining = brandData.expireDate ? new Date(brandData.expireDate) - new Date() : Infinity;
+  let best = 0;
+  for (const deal of brandData.deals) {
+    if (deal.percentOff > best) {
+      best = deal.percentOff;
+    }
+  }
+  brandData.bestDiscount = best;
+
+  brandData.timeRemaining = brandData.expireDate
+    ? brandData.expireDate.getTime() - Date.now()
+    : Infinity;
 });
 
-// 👉 Insert this to rank the brands
+// 2. Then sort brands based on precomputed values
 allBrandsData.sort((a, b) => {
   if (b.bestDiscount !== a.bestDiscount) {
     return b.bestDiscount - a.bestDiscount;
@@ -2817,8 +2822,9 @@ allBrandsData.sort((a, b) => {
   return a.timeRemaining - b.timeRemaining;
 });
 
-// Proceed
+// 3. Clear container and continue
 container.innerHTML = '';
+
 
 
   let likedDealsSection = document.getElementById('likedDealsSection');
