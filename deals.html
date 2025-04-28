@@ -439,7 +439,7 @@ height: 60px;
 
 
 .popup-description {
-  font-size: 14px;
+  font-size: 9px;
   padding-top: 10px;
 }
 
@@ -1515,53 +1515,63 @@ function showLocationPopup(brandLocations) {
     max-width: 400px;
     width: 90%;
     text-align: center;
-    overflow-y: scroll; /* Allow scroll */
+    overflow-y: scroll;
     scrollbar-width: none; /* Firefox hide */
     -ms-overflow-style: none; /* IE/Edge hide */
-    height: 100vh;
     height: 80%;
   `;
 
   let optionsHtml = '<h3>Select a Location</h3>';
 
   const origin = getSavedLocation();
-  for (const [name, coords] of Object.entries(brandLocations)) {
-  if (!coords) continue; // Skip if no coordinates
 
-  optionsHtml += `
-    <button onclick="navigateToLocation('${coords}', '${origin}'); closeLocationPopup();" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+  // Build location buttons
+  for (const [name, coords] of Object.entries(brandLocations)) {
+    optionsHtml += `
+      <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
     `;
   }
 
-  optionsHtml += `<button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>`;
+  // Cancel button
+  optionsHtml += `
+    <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
+  `;
 
   popup.innerHTML = optionsHtml;
   document.body.appendChild(popup);
+}
+
+// New helper function for safe navigation
+function handleNavigate(coords, origin) {
+  if (!coords || coords.trim() === '') {
+    alert("No location set for this location yet.");
+    return;
+  }
+  closeLocationPopup();
+  navigateToLocation(coords, origin);
 }
 
 function closeLocationPopup() {
   const popup = document.getElementById('location-popup');
   if (popup) popup.remove();
 }
-	
 
-// Close the location section in the cart popup
 function closeLocationSection() {
   const popup = document.getElementById('cart-popup');
-  const locationSection = popup.querySelector('.location-section'); // Target the location section by its class
+  const locationSection = popup.querySelector('.location-section');
   if (locationSection) {
-    locationSection.remove(); // Remove the location options section
+    locationSection.remove();
   }
 }
-	
+
 function navigateToLocation(dest, originCoords = null) {
-  // Redirect to Google Maps with or without the current location
   const url = originCoords
     ? `https://www.google.com/maps/dir/?api=1&origin=${originCoords}&destination=${dest}`
     : `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
 
   window.location.href = url;
 }
+
 	
 	
 function openCartPopup() {
@@ -1944,7 +1954,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   document.getElementById('popupTitle').textContent = name;
   document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
   document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
-  document.getElementById('popupDesc').textContent = description || '';
+  document.getElementById('popupDesc').innerHTML = formatDescription(description || '');
   document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
   document.getElementById('popupSavings').textContent = `SAVINGS $${savings.toLocaleString()}`;
 
@@ -2246,7 +2256,22 @@ document.getElementById('showBrandTabBtn').onclick = () => {
   showBrandDealsInPopup(brand);
 };
 	
-		
+function formatDescription(description) {
+  if (!description) return '';
+
+  // Replace bold markers (e.g., **bold**) with <strong> tags
+  description = description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Replace newlines (\n) with <br> to preserve line breaks, without showing \n to the user
+  description = description.replace(/\n/g, '<br>');
+
+  // Optional: Replace multiple consecutive <br> tags with <p> tags for paragraphs
+  description = description.replace(/(<br>){2,}/g, '</p><p>');
+
+  return description;
+}
+
+	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');  // Get the favorite brand from localStorage
