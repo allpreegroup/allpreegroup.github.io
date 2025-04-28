@@ -1603,6 +1603,7 @@ if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest ==
             if (hasMovedSignificantly(savedLocation, currentCoords)) {
               userLocation = currentCoords;
               saveLocation(currentCoords);
+	      alert("Close to redirect to google maps for directions.");
             }
             navigateToLocation(dest, currentCoords);
             isNavigating = false;
@@ -1663,7 +1664,7 @@ function showLocationPopup(brandLocations) {
   }
 
   // Cancel button
-  optionsHtml += `
+  optionsHtml += `  
     <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
   `;
 
@@ -1677,6 +1678,14 @@ function handleNavigate(coords, origin) {
     alert("No location set for this location yet.");
     return;
   }
+
+  // Check if the origin location exists and is different from the selected coordinates
+  const originLocation = getSavedLocation();
+  if (originLocation && hasMovedSignificantly(originLocation, coords)) {
+    saveLocation(coords); // Update saved location
+    alert("Your location has been updated and will be used for navigation.");
+  }
+
   closeLocationPopup();
   navigateToLocation(coords, origin);
 }
