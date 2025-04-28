@@ -2413,6 +2413,13 @@ function formatDescription(description) {
   return description;
 }
 
+
+function activateBrandTab() {
+  const brandTabBtn = document.getElementById('brandTabBtn');
+  if (brandTabBtn) {
+    brandTabBtn.click(); // Simulate user clicking on the Brand tab
+  }
+}
 	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
@@ -2570,12 +2577,37 @@ async function loadDeals() {
 
             const isLiked = !!likedDeals[dealData.name];
 
-            dealCard.addEventListener('click', () => {
-              isLikedMode = false;
-              document.getElementById('showRandomBtn')?.classList.add('active');
-              document.getElementById('showLikedBtn')?.classList.remove('active');
-              openPopup(dealData);
-            });
+           
+	dealCard.addEventListener('click', () => {
+  if (!dealData) {
+    console.error("dealData is missing or null");
+    return;  // Exit if dealData is not available
+  }
+
+  isLikedMode = false;
+  document.getElementById('showRandomBtn')?.classList.add('active');
+  document.getElementById('showLikedBtn')?.classList.remove('active');
+
+  const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
+
+  if (brandData) {
+    if (brandData.isFavorite) {
+      // First, open the popup (even if it's "blank" for now)
+      openPopup(dealData);
+
+      // Then show the brand deals inside it
+      showBrandDealsInPopup(brandData.brand);
+
+      // Finally switch to the brand tab
+      activateBrandTab();
+    } else {
+      openPopup(dealData);
+    }
+  } else {
+    openPopup(dealData);
+  }
+});
+
 
             if (!isLiked) {
               allDealsFlat.push(dealData);
