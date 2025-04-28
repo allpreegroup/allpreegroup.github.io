@@ -2582,6 +2582,12 @@ function formatDescription(description) {
 
 
 
+function activateBrandTab() {
+  const brandTabBtn = document.getElementById('brandTabBtn');
+  if (brandTabBtn) {
+    brandTabBtn.click(); // Simulate user clicking on the Brand tab
+  }
+}
 	
 	
 async function loadDeals() {
@@ -2747,7 +2753,7 @@ async function loadDeals() {
               openPopup(dealData);
             }); */
 
-		dealCard.addEventListener('click', () => {
+	dealCard.addEventListener('click', () => {
   if (!dealData) {
     console.error("dealData is missing or null");
     return;  // Exit if dealData is not available
@@ -2757,19 +2763,19 @@ async function loadDeals() {
   document.getElementById('showRandomBtn')?.classList.add('active');
   document.getElementById('showLikedBtn')?.classList.remove('active');
 
-  // Find the brand data for the current deal
   const brandData = allBrandsData.find(brand => brand.brand === dealData.brandName);
 
   if (brandData) {
     if (brandData.isFavorite) {
       // If the brand is a favorite, show its deals in the brand tab
       showBrandDealsInPopup(brandData.brand);
+
+      // 👉 Force the brand tab to open
+      activateBrandTab();
     } else {
-      // Otherwise, open the regular deal popup
       openPopup(dealData);
     }
   } else {
-    // In case brandData is missing, just open the regular popup
     openPopup(dealData);
   }
 });
