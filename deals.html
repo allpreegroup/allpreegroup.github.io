@@ -1496,10 +1496,25 @@ if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest ==
 
 
 
+
 function showLocationPopup(brandLocations) {
   // Check if already open
   if (document.getElementById('location-popup')) return;
 
+  // Create the backdrop element
+  const backdrop = document.createElement('div');
+  backdrop.id = 'location-popup-backdrop';
+  backdrop.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 10000;
+  `;
+
+  // Create the popup element
   const popup = document.createElement('div');
   popup.id = 'location-popup';
   popup.style = `
@@ -1568,10 +1583,23 @@ function showLocationPopup(brandLocations) {
     }
 
     // Cancel button
-    optionsHtml += `
+  /*  optionsHtml += `
       <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
-    `;
+    `; */
 
+    popup.innerHTML = optionsHtml;
+    document.body.appendChild(backdrop); // Add the backdrop to the body
+    document.body.appendChild(popup); // Add the popup to the body
+
+    // Add click event listener to the backdrop to close the popup when clicking outside
+    backdrop.addEventListener('click', closeLocationPopup);
+
+    // Prevent closing when clicking inside the popup
+    popup.addEventListener('click', (event) => {
+      event.stopPropagation(); // Stop event from propagating to the backdrop
+    });
+
+	  
     popup.innerHTML = optionsHtml;
     document.body.appendChild(popup);
   }
@@ -1589,7 +1617,9 @@ function handleNavigate(coords, origin) {
 
 function closeLocationPopup() {
   const popup = document.getElementById('location-popup');
+  const backdrop = document.getElementById('location-popup-backdrop');
   if (popup) popup.remove();
+  if (backdrop) backdrop.remove();
 }
 
 function closeLocationSection() {
