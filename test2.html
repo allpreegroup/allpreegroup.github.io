@@ -1718,6 +1718,19 @@ function showLocationPopup(brandLocations) {
     `;
 
     popup.innerHTML = optionsHtml;
+    document.body.appendChild(backdrop); // Add the backdrop to the body
+    document.body.appendChild(popup); // Add the popup to the body
+
+    // Add click event listener to the backdrop to close the popup when clicking outside
+    backdrop.addEventListener('click', closeLocationPopup);
+
+    // Prevent closing when clicking inside the popup
+    popup.addEventListener('click', (event) => {
+      event.stopPropagation(); // Stop event from propagating to the backdrop
+    });
+
+	  
+    popup.innerHTML = optionsHtml;
     document.body.appendChild(popup);
   }
 }
@@ -1734,7 +1747,9 @@ function handleNavigate(coords, origin) {
 
 function closeLocationPopup() {
   const popup = document.getElementById('location-popup');
+  const backdrop = document.getElementById('location-popup-backdrop');
   if (popup) popup.remove();
+  if (backdrop) backdrop.remove();
 }
 
 function closeLocationSection() {
@@ -1744,6 +1759,7 @@ function closeLocationSection() {
     locationSection.remove();
   }
 }
+
 
 function navigateToLocation(dest, originCoords = null) {
   const url = originCoords
