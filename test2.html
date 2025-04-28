@@ -2812,6 +2812,9 @@ allBrandsData.forEach(brandData => {
   brandData.timeRemaining = brandData.expireDate
     ? brandData.expireDate.getTime() - Date.now()
     : Infinity;
+
+  // Add this part to append the deals to the grid
+  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
 });
 
 // 2. Then sort brands based on precomputed values
