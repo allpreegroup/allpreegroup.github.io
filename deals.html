@@ -1525,6 +1525,15 @@ function showLocationPopup(brandLocations) {
 
   const origin = getSavedLocation();
 
+  // Check if there's a saved location and that it’s been moved significantly
+  if (origin) {
+    const currentCoords = `${origin.latitude},${origin.longitude}`;
+    if (hasMovedSignificantly(origin, currentCoords)) {
+      saveLocation(currentCoords); // Update saved location if moved
+      alert("Close to redirect to google maps for directions.");
+    }
+  }	
+
   // Build location buttons
   for (const [name, coords] of Object.entries(brandLocations)) {
     optionsHtml += `
