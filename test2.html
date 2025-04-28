@@ -1656,20 +1656,56 @@ function showLocationPopup(brandLocations) {
 
   const origin = getSavedLocation();
 
-  // Build location buttons
-  for (const [name, coords] of Object.entries(brandLocations)) {
-    optionsHtml += `
-      <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
-    `;
+  // Check if there's a saved location and if it’s been moved significantly
+  if (origin) {
+    const currentCoords = `${origin.latitude},${origin.longitude}`;
+    if (hasMovedSignificantly(origin, currentCoords)) {
+      // If moved, save the new location and alert
+      saveLocation(currentCoords); 
+      alert("Location has moved significantly. Updating saved location.");
+    }
   }
 
-  // Cancel button
-  optionsHtml += `  
-    <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
-  `;
+  // If the brand has multiple locations, ask for the user's geolocation
+  if (Object.keys(brandLocations).length > 1 && !origin) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+          saveLocation(currentCoords); // Save the new location
+          alert("Location detected. You will now see nearby options.");
+          showLocationButtons(brandLocations, currentCoords); // Show the buttons with the updated location
+        },
+        (err) => {
+          alert("Could not retrieve your location.");
+          showLocationButtons(brandLocations); // Show buttons without geolocation
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+      showLocationButtons(brandLocations); // Show buttons without geolocation
+    }
+  } else {
+    // Show location buttons directly if single location or already have saved location
+    showLocationButtons(brandLocations, origin);
+  }
 
-  popup.innerHTML = optionsHtml;
-  document.body.appendChild(popup);
+  function showLocationButtons(brandLocations, origin) {
+    // Build location buttons for each brand
+    for (const [name, coords] of Object.entries(brandLocations)) {
+      optionsHtml += `
+        <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+      `;
+    }
+
+    // Cancel button
+    optionsHtml += `
+      <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
+    `;
+
+    popup.innerHTML = optionsHtml;
+    document.body.appendChild(popup);
+  }
 }
 
 // New helper function for safe navigation
@@ -1678,14 +1714,6 @@ function handleNavigate(coords, origin) {
     alert("No location set for this location yet.");
     return;
   }
-
-  // Check if the origin location exists and is different from the selected coordinates
-  const originLocation = getSavedLocation();
-  if (originLocation && hasMovedSignificantly(originLocation, coords)) {
-    saveLocation(coords); // Update saved location
-    alert("Your location has been updated and will be used for navigation.");
-  }
-
   closeLocationPopup();
   navigateToLocation(coords, origin);
 }
@@ -1710,6 +1738,7 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
+
 	
 	
 function openCartPopup() {
