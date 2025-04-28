@@ -1631,6 +1631,20 @@ function showLocationPopup(brandLocations) {
   // Check if already open
   if (document.getElementById('location-popup')) return;
 
+  // Create the backdrop element
+  const backdrop = document.createElement('div');
+  backdrop.id = 'location-popup-backdrop';
+  backdrop.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 10000;
+  `;
+
+  // Create the popup element
   const popup = document.createElement('div');
   popup.id = 'location-popup';
   popup.style = `
@@ -1662,7 +1676,7 @@ function showLocationPopup(brandLocations) {
     if (hasMovedSignificantly(origin, currentCoords)) {
       // If moved, save the new location and alert
       saveLocation(currentCoords); 
-      alert("Location has moved significantly. Updating saved location.");
+      alert("Close to redirect to google maps for directions.");
     }
   }
 
@@ -1673,7 +1687,7 @@ function showLocationPopup(brandLocations) {
         (pos) => {
           const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
           saveLocation(currentCoords); // Save the new location
-          alert("Location detected. You will now see nearby options.");
+          // alert("Location detected. You will now see nearby options.");
           showLocationButtons(brandLocations, currentCoords); // Show the buttons with the updated location
         },
         (err) => {
