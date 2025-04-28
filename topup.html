@@ -1,1 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+ <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
+ <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
+<link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
 
+  
+     <title>Top UP Now</title>
+	
+         <style>
+     .hidden {
+      display: none !important;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .topup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .topup-card {
+      max-width: 500px;
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .topup-card:hover {
+      background-color: #f3f4f6;
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+    .topup-option.selected .topup-card {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+    .topup-label {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    #next-step {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      display: none; /* Initially hidden */
+    }
+    #next-step:hover {
+      background-color: #1d4ed8;
+    }
+
+    .topup-summary {
+      padding: 1.5rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 0.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-size: 1rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* WhatsApp Button */
+    #send-whatsapp {
+      display: block;
+      text-align: center;
+      background-color: #16a34a; /* Tailwind's green-600 */
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      margin-top: 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    #send-whatsapp:hover {
+      background-color: #15803d; /* Tailwind's green-700 */
+    }
+
+    #topup-btn {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    #topup-btn:hover {
+      background-color: #1d4ed8;
+    }
+ 
+    
+    #toggle-form-btn {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    #topup-btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
+  
+<link rel="manifest" href="https://www.allpree.com/manifest.json">
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("https://www.allpree.com/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
+    }
+</script>	
+
+	<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J2Z2P5DQPN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-J2Z2P5DQPN');
+</script>
+
+</head>
+<body>
+<!-- start webpushr tracking code --> 
+<script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
+fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
+webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
+<!-- end webpushr tracking code -->
+
+<!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d4d4a08e-e7f1-49b4-9d7b-0c4c57222df1",
+      safari_web_id: "web.onesignal.auto.2d1085e1-a560-4918-b950-42f254dd8495",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script> -->
+
+<!-- Fullscreen Overlay -->
+ <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
+   <button onclick="smartBack()" style="
+     position:absolute;
+     top:15px;
+     right:15px;
+     z-index:10000;
+     background:#000;
+     color:#fff;
+     border:none;
+     padding:10px 15px;
+     font-size:16px;
+     border-radius:8px;
+   ">✕ Close</button>
+ 
+   <div id="menuContent" style="padding:20px;"></div>
+ </div>
+ 
+ <script>
+ function loadMenu() {
+   fetch('https://www.allpree.com/menu/')
+     .then(response => response.text())
+     .then(html => {
+       document.getElementById('menuContent').innerHTML = html;
+       document.getElementById('fullscreenOverlay').style.display = 'block';
+     })
+     .catch(err => {
+       alert("Failed to load menu.");
+       console.error(err);
+     });
+ }
+ 
+ function smartBack(fallbackUrl = '/balance') {
+   const previous = document.referrer;
+ 
+   if (previous && previous !== window.location.href) {
+     window.location.href = previous;
+   } else {
+     window.location.href = fallbackUrl;
+   }
+ }
+ 
+ </script>
+
+
+<nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+             <a href="#" onclick="loadMenu(); return false;">   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Toggle navigation</span> Menu <i class="fa-solid fa-bars"></i>
+                </button> 
+
+             </a> 
+               
+
+           <!--  <a class="navbar-brand page-scroll" href="https://twitter.com/allpreedotcom"><i class="fa-brands fa-twitter"></i></a>
+             <a class="navbar-brand page-scroll" href="https://instagram.com/allpreedotcom"><i class="fa-brands fa-instagram"></i></a>
+             <a class="navbar-brand page-scroll" href="https://facebook.com/allpreedotcom"><i class="fa-brands fa-facebook"></i></a> -->
+             
+             <!--    <a class="navbar-brand page-scroll" onclick="history.back()"><i class="fa-solid fa-backward"></i></a>  
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
+
+             
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals"><i class="fa-solid fa-badge-percent fa-2xl"></i></a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/generategiftcard" ><i class="fa-solid fa-credit-card fa-2xl"></i></a>
+	     <a class="navbar-brand page-scroll" href="https://www.allpree.com/topup" ><i class="fa-solid fa-building-columns fa-2xl"></i></a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" ><i class="fa-solid fa-piggy-bank fa-2xl"></i></i></a>
+              
+	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
+             <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/invite" >Earn</a>
+              <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance"><strong><i class="fa-solid fa-house"></i> HOME</strong></a>
+               
+            <!--   <a class="navbar-brand page-scroll" href="https://www.allpree.com/join" >Msg HR</a> -->
+
+              
+             
+            <!--   <a class="navbar-brand page-scroll" href="https://www.snapchat.com/add/allpreedotcom"><i class="fa-brands fa-snapchat"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll" href="https://tiktok.com/@joinwatsapp"><i class="fa-brands fa-tiktok"></i>&nbsp;</a>
+             
+              <a class="navbar-brand page-scroll">&nbsp;<strong>EVERY Day Is Black Friday!</strong></a>  
+      <a class="navbar-brand page-scroll">&nbsp;<strong>Allpree Plus <i class="fa-solid fa-location-plus"></i></strong></a>
+             <a class="navbar-brand page-scroll" href=""><strong><i class="fa-brands fa-whatsapp"></i> eCom <i class="fa-brands fa-btc"></i></strong> - Semi Done For You </a> 
+             	  <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Investors</a>
+              <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Resellers</a>
+             <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Referrals</a> 
+               -->
+              
+             
+             
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling &nbsp; -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <!--  <ul class="nav navbar-nav navbar-right">
+                <li>
+                   <a class="page-scroll" href="https://www.allpree.com/referral-program" >Refer & Earn</a>
+                    </li>
+                    <li>
+                   <a class="page-scroll" href="https://www.allpree.com/list/">All Stores</a>
+                    </li>
+                    <li>
+                  <a class="page-scroll" href="https://www.allpree.com/balance/"><strong>Check Balance</strong></a> 
+                    </li> 
+                </ul> -->
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+	<div class="container">
+             <div class="row land">
+                 <div class="home">     
+ 			<div class="center">
+                 <div class="col-md-6 home-txt1"> <br>
+
+                   <!-- Top Up Button (Initial Button to Start Process) -->
+<button id="topup-btn" class="bg-blue-600 text-white p-2 rounded">
+ Run Low, Top Up Now
+</button>
+
+<div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content">
+
+  <!-- Step 1: Amount Selection -->
+  <div id="step1" class="space-y-8 hidden">
+   <center> <h3 class="text-3xl font-semibold text-gray-900">Choose Top-up Amount(s)</h3>
+    <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to payment.</p>  </center>
+
+    <div class="topup-grid" id="topup-grid">
+      <div class="topup-option" data-amount="10000">
+        <div class="topup-card">
+          <span class="topup-label">J$10,000 eVOUCHER</span>
+        </div>
+      </div>
+      <div class="topup-option" data-amount="15000">
+        <div class="topup-card">
+          <span class="topup-label">J$15,000 eVOUCHER</span>
+        </div>
+      </div>
+      <div class="topup-option" data-amount="20000">
+        <div class="topup-card">
+          <span class="topup-label">J$20,000 eVOUCHER</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="summary" class="topup-summary mt-4 text-sm text-gray-600"></div>
+
+    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">Proceed to Payment</button>
+  </div>
+
+  <!-- Step 2: Payment Info -->
+  <div id="step2" class="space-y-8 hidden">
+    <center> <h3 class="text-3xl font-semibold text-gray-900">Send Payment</h3>
+    <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>  </center>
+    <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
+      <p><strong class="text-gray-800">Bank Name:</strong> Bank of Nova Scotia Jamaica</p>
+      <p><strong class="text-gray-800">Account Number:</strong> 000603575</p>
+       <p><strong class="text-gray-800">Branch:</strong> Savanna-la-Mar</p>
+      <p><strong class="text-gray-800">Branch Code:</strong> 00265</p>
+       <p><strong class="text-gray-800">Account Type:</strong> JMD</p>   
+      <p><strong class="text-gray-800">Account Name:</strong> Garen Thoms</p>
+      <p><strong class="text-gray-800">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="font-semibold text-xl text-blue-600"></span></p>
+    </div>
+<br>
+   <center>  <p class="text-lg text-gray-700 mt-4">Once you have made payment<br> kindly click on the button below.</p> </center>
+
+    <!-- Payment Confirmation Button -->
+    <button id="toggle-form-btn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">
+      I’ve Sent the Payment
+    </button>
+  </div>
+
+  <!-- Step 3: WhatsApp Form + Send -->
+  <div id="step3" class="hidden">
+ <center> <h3 class="text-3xl font-semibold text-gray-900">Send Details</h3>
+    <p class="text-lg text-gray-700">Kindly fill out the form below and submit to complete your transaction.</p> </center>
+
+    
+    <div class="input-group">
+      <input type="text" id="fullname" placeholder="Full Name" />
+      <input type="text" id="idcode" placeholder="Your ID Code" />
+      <input type="text" id="idtran" placeholder="Payment Trabsaction ID" />
+      <input type="text" id="bankused" placeholder="Your Bank Name" />
+      <input type="date" id="datesent" />
+    </div>
+    <a id="send-whatsapp" href="#" target="_blank" class="block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8">
+      Send via WhatsApp
+    </a>
+  </div>
+
+</div>
+
+<script>
+  const topUpBtn = document.getElementById("topup-btn");
+  const select = document.getElementById("topup-grid");
+  const summary = document.getElementById("summary");
+  const nextStepBtn = document.getElementById("next-step");
+  const toggleBtn = document.getElementById("toggle-form-btn");
+  const sendWhatsappBtn = document.getElementById("send-whatsapp");
+  const step1 = document.getElementById("step1");
+  const step2 = document.getElementById("step2");
+  const step3 = document.getElementById("step3");
+
+  let selectedTopups = [];
+
+  function formatCurrency(amount) {
+    return `JMD ${amount.toLocaleString()}`;
+  }
+
+  function calculateTotals() {
+    const total = selectedTopups.reduce((sum, val) => sum + val, 0);
+
+    if (total === 0) {
+      summary.innerHTML = "";
+      nextStepBtn.style.display = "none";
+      return;
+    }
+
+    if (total > 45000) {
+      summary.textContent = "Total cannot exceed JMD 45,000.";
+      nextStepBtn.style.display = "none";
+      return;
+    }
+
+    const tax = total * 0.15;
+    const fee = total * 0.10;
+    const grandTotal = Math.round(total + tax + fee);
+
+    summary.innerHTML = `
+      <h4 class="text-lg font-semibold mb-2">Summary:</h4>
+      <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Total:</span><span>JMD ${total.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Grand Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
+    `;
+    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
+    nextStepBtn.style.display = "block";
+  }
+
+  function saveStep(step) {
+    localStorage.setItem("currentStep", step);
+  }
+
+  function restoreStep() {
+    const step = localStorage.getItem("currentStep");
+    if (step === "step1") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.remove("hidden");
+    } else if (step === "step2") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.add("hidden");
+      step2.classList.remove("hidden");
+    } else if (step === "step3") {
+      topUpBtn.classList.add("hidden");
+      step1.classList.add("hidden");
+      step2.classList.add("hidden");
+      step3.classList.remove("hidden");
+    }
+  }
+
+  function restoreTopups() {
+    const savedTopups = JSON.parse(localStorage.getItem("selectedTopups") || "[]");
+    if (Array.isArray(savedTopups)) {
+      selectedTopups = savedTopups;
+
+      document.querySelectorAll(".topup-option").forEach((el) => {
+        const amount = parseInt(el.dataset.amount);
+        if (selectedTopups.includes(amount)) {
+          el.classList.add("selected");
+        } else {
+          el.classList.remove("selected");
+        }
+      });
+
+      calculateTotals();
+    }
+  }
+
+  window.addEventListener("load", () => {
+    restoreStep();
+    restoreTopups();
+  });
+
+  topUpBtn.addEventListener("click", () => {
+    topUpBtn.classList.add("hidden");
+    step1.classList.remove("hidden");
+    saveStep("step1");
+  });
+
+  select.addEventListener("click", (e) => {
+    if (!e.target.closest(".topup-option")) return;
+
+    const amount = parseInt(e.target.closest(".topup-option").dataset.amount);
+    const option = e.target.closest(".topup-option");
+
+    if (selectedTopups.includes(amount)) {
+      selectedTopups = selectedTopups.filter((topup) => topup !== amount);
+      option.classList.remove("selected");
+    } else {
+      selectedTopups.push(amount);
+      option.classList.add("selected");
+    }
+
+    localStorage.setItem("selectedTopups", JSON.stringify(selectedTopups));
+    calculateTotals();
+  });
+
+  nextStepBtn.addEventListener("click", () => {
+    step1.classList.add("hidden");
+    step2.classList.remove("hidden");
+    saveStep("step2");
+  });
+
+  toggleBtn.addEventListener("click", () => {
+    step2.classList.add("hidden");
+    step3.classList.remove("hidden");
+    saveStep("step3");
+  });
+
+  sendWhatsappBtn.addEventListener("click", () => {
+    const fullName = document.getElementById("fullname").value.trim();
+    const idCode = document.getElementById("idcode").value.trim();
+    const idtran = document.getElementById("idtran").value.trim();
+    const bankUsed = document.getElementById("bankused").value.trim();
+    const dateSent = document.getElementById("datesent").value.trim();
+
+    const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
+    const grandTotalText = document.getElementById("grand-total").textContent.replace(/,/g, "");
+
+    const message = `I'd like to complete my gift card top-up.\n\nTop-up Combination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nTransaction ID: ${idtran}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\n*Note:* Please find payment attached before sending msg \n\nHere is my payment screenshot.`;
+
+    sendWhatsappBtn.href = `https://api.whatsapp.com/send?phone=18762042132&text=${encodeURIComponent(message)}`;
+
+    selectedTopups = [];
+    localStorage.removeItem("selectedTopups");
+    localStorage.removeItem("currentStep");
+
+    document.querySelectorAll(".topup-option").forEach((el) => {
+      el.classList.remove("selected");
+    });
+
+    summary.innerHTML = "";
+    document.getElementById("grand-total").textContent = "";
+    nextStepBtn.style.display = "none";
+
+    step1.classList.add("hidden");
+    step2.classList.add("hidden");
+    step3.classList.add("hidden");
+    topUpBtn.classList.remove("hidden");
+  });
+</script>
+
+                    </div>	</div>	</div>	</div>	</div>			 			 
+</body>
+</html>
