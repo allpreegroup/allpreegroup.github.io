@@ -2202,6 +2202,26 @@ document.getElementById('popupDesc').innerHTML = formatDescription(description |
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
 
+// Insert Premium / Pro Badge in Popup
+const badgeContainer = document.querySelector('#brandContainer .brand-logo-container');
+badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove()); // Remove old badges if any
+
+if (brandInfo) {
+  const badge = document.createElement('div');
+
+  if (brandInfo.Pro === 'True') {
+    badge.className = 'badge-pro';
+    badge.textContent = '👑 PRO';
+  } else if (brandInfo.Premium === 'True') {
+    badge.className = 'badge-premium';
+    badge.textContent = '💎 PREMIUM';
+  }
+
+  if (badge.textContent) {
+    badgeContainer.appendChild(badge);
+  }
+}
+	
   const popupTimerEl = document.getElementById('popupTimer');
   popupTimerEl.textContent = 'Loading...';
   popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
