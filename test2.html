@@ -2698,18 +2698,19 @@ async function loadDeals() {
                 <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
               </div>
             `;
-if (brandData.isPaidBrand) {
+if (isPaidBrand) {
   const badge = document.createElement('div');
-  badge.className = brandData.isPro ? 'badge-pro' : 'badge-premium';
-  badge.textContent = brandData.isPro ? '💎' : '🏅';
-  brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+  badge.className = row.Tier === 'Pro' ? 'badge-pro' : 'badge-premium';
+  badge.textContent = row.Tier === 'Pro' ? '💎' : '🏅';
+  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
 
-  if (brandData.isPro) {
-    brandData.section.querySelector('.brand').classList.add('pro-brand-highlight');
+  if (row.Tier === 'Pro') {
+    brandDiv.classList.add('pro-brand-highlight');
   } else {
-    brandData.section.querySelector('.brand').classList.add('premium-brand-highlight');
+    brandDiv.classList.add('premium-brand-highlight');
   }
 }
+
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
 
