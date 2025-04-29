@@ -1346,33 +1346,43 @@ document.addEventListener('DOMContentLoaded', () => {
     openAdminFavoriteBrandPopup();
   });
 
-  document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
-    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
-    const expiryTime = document.getElementById('expiryInput').value;
+document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
+  const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+  const expiryInput = document.getElementById('expiryInput').value;
 
-    if (!expiryTime) {
-      alert('Please select an expiration date!');
-      return;
-    }
+  if (!expiryInput) {
+    alert('Please select an expiration date!');
+    return;
+  }
 
-    if (!selectedBrand) {
-      alert('Please select a favorite brand first!');
-      return;
-    }
+  if (!selectedBrand) {
+    alert('Please select a favorite brand first!');
+    return;
+  }
 
-    fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
-      method: 'POST',
-      body: new URLSearchParams({
-        brand: selectedBrand,
-        expiresAt: expiryTime
-      })
-    }).then(() => {
-      alert('Featured brand successfully updated!');
-    }).catch(err => {
-      console.error('Error updating brand:', err);
-      alert('There was an error updating the featured brand.');
-    });
+  // Format to YYYY-MM-DDTHH:mm
+  const expiryDate = new Date(expiryInput);
+  const year = expiryDate.getFullYear();
+  const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+  const day = String(expiryDate.getDate()).padStart(2, '0');
+  const hours = String(expiryDate.getHours()).padStart(2, '0');
+  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
+  const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+      brand: selectedBrand,
+      expiresAt: formattedExpiry
+    })
+  }).then(() => {
+    alert('Featured brand successfully updated!');
+  }).catch(err => {
+    console.error('Error updating brand:', err);
+    alert('There was an error updating the featured brand.');
   });
+});
+
 });
 
 function openAdminFavoriteBrandPopup() {
