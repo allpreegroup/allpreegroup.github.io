@@ -738,6 +738,40 @@ height: 20%;
   font-size: 12px;
 }
 		 
+/* Badge styles for premium and pro tiers */
+.badge-premium, .badge-pro {
+  background-color: black;
+  border: 0.2px solid  #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 12px;
+  box-shadow: 0 0 8px #f5f5f5;
+}
+
+.premium-brand-highlight {
+  border: 3px solid  #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 10px  #f5f5f5;
+ 
+}
+
+.pro-brand-highlight {
+  border: 3px solid  #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 15px  #f5f5f5;
+  
+}
+
+.brand-logo-container {
+  position: absolute; /* Needed for badge positioning */
+ 
+}
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -2480,9 +2514,10 @@ async function loadDeals() {
             currentLogo = row.BrandLogo;
             currentPrimaryColor = row.PrimaryColor || '#163A5C';
             currentSecondaryColor = row.SecondaryColor || '#2066A7';
-
             isFavorite = currentBrand === favoriteBrand;
-
+            
+	    let isPaidBrand = row.Pro === 'True' || row.Premium === 'True';
+		  
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
 
@@ -2496,10 +2531,25 @@ async function loadDeals() {
               </div>
               <div>
                 <span class="brand-name">${currentBrand}</span><br>
-                <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
+                <span class="brand-timer" id="${timerId}">Visit us now - More Deals Coming Soon!</span>
               </div>
             `;
+		  
+           if (isPaidBrand) {
+           const badge = document.createElement('div');
 
+           if (row.Pro === 'True') {
+           badge.className = 'badge-pro';
+           badge.textContent = '👑 PRO';
+           brandDiv.classList.add('pro-brand-highlight');
+         } else if (row.Premium === 'True') {
+           badge.className = 'badge-premium';
+           badge.textContent = '💎 PRO';
+           brandDiv.classList.add('premium-brand-highlight');
+         }
+
+           brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+         }
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
 
