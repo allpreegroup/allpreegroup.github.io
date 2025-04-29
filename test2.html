@@ -489,27 +489,6 @@ height: 60px;
 .popup-brand-box .brand-timer {
   font-size: 14px;
   color: #555;
-}
-		 
-.badge-premium, .badge-pro {
-  background-color: red !important;
-  border: 0.2px solid #000 !important;
-  color: #fff !important;
-  font-weight: bold !important;
-  padding: 2px 8px !important;
-  border-radius: 12px !important;
-  position: absolute !important;
-  top: 50px !important;          /* WAS: -10px — now pushed down to be visible */
-  right: 6px !important;        /* WAS: -10px — now inside the logo container */
-  font-size: 11px !important;
-  box-shadow: 0 0 4px #f5f5f5 !important;
-  z-index: 1000 !important;       /* Ensures it's on top */
-}
-		 
-#popup .brand-logo-container {
-  position: relative;
-  display: inline-block;
-  max-width: 100px;
 }		
 
 .popup-back-arrow {
@@ -2228,6 +2207,26 @@ document.getElementById('popupDesc').innerHTML = formatDescription(description |
   popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
 
   const brandInfo = allBrandsData.find(b => b.brand === brandName);
+
+// Insert Premium / Pro Badge in Popup
+const badgeContainer = document.querySelector('#popup .brand-logo-container');
+badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove()); // Remove old badges if any
+
+if (brandInfo) {
+  const badge = document.createElement('div');
+
+  if (brandInfo.Pro === 'True') {
+    badge.className = 'badge-pro';
+    badge.textContent = '👑 PRO';
+  } else if (brandInfo.Premium === 'True') {
+    badge.className = 'badge-premium';
+    badge.textContent = '💎 PREMIUM';
+  }
+
+  if (badge.textContent) {
+    badgeContainer.appendChild(badge);
+  }
+}
 	
   if (brandInfo?.expireDate) {
     startPopupCountdown(brandInfo.expireDate, popupTimerEl);
