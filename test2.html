@@ -1163,18 +1163,36 @@ Object.assign(adminPanel.style, {
   boxShadow: '0 0 10px rgba(0,0,0,0.3)',
   zIndex: '9999'
 });
+
+// Admin panel UI with Close Button
 adminPanel.innerHTML = `
+  <button id="closeAdminPanelBtn" style="background-color: #ff4d4d; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 14px;">
+    Close Admin Panel
+  </button>
   <button id="showUpgradeBtn">Upgrade Buttons</button>
   <button id="resortBrandsBtn">Resort Brands</button>
   <button id="featureFavoriteBtn">Feature Favorite</button>
   <button id="clearLikedBtn">Clear Likes</button>
+  <hr />
+  <button id="selectFavoriteBrandBtn">Select Favorite Brand</button>
+  <br />
+  <label for="expiryInput">Expiration Date:</label>
+  <input type="datetime-local" id="expiryInput" />
+  <br /><br />
+  <button id="sendFeaturedBtn">Set Featured Brand</button>
 `;
+
 document.body.appendChild(adminPanel);
+
+// --- Close Admin Panel Button Logic ---
+document.getElementById('closeAdminPanelBtn').addEventListener('click', () => {
+  adminPanel.style.display = 'none';
+});
 
 // --- Tap Detection Logic ---
 let tapCount = 0;
 let lastTapTime = 0;
-
+const tapZone = document.body; // Assuming tapZone is the body element for detecting tap zone
 tapZone.addEventListener('click', () => {
   const now = Date.now();
   if (now - lastTapTime < 600) {
@@ -1210,26 +1228,198 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('featureFavoriteBtn').addEventListener('click', () => {
-    if (typeof allBrandsData !== 'undefined') {
-      const favorite = allBrandsData.find(b => b.isFavorite);
-      if (favorite) {
-        favorite.isPaid = true;
-        sortAndRenderBrands();
-      } else {
-        alert('No favorite brand selected.');
-      }
-    } else {
-      alert('allBrandsData not available.');
-    }
-  });
-
   document.getElementById('clearLikedBtn').addEventListener('click', () => {
     localStorage.removeItem('likedDeals');
     alert('All liked deals cleared!');
     location.reload();
   });
+
+  // --- Open Favorite Brand Selection for Admin ---
+  document.getElementById('selectFavoriteBrandBtn').addEventListener('click', () => {
+    openAdminFavoriteBrandPopup();
+  });
+
+  // --- Set Featured Brand Logic ---
+  document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
+    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+    const expiryTime = document.getElementById('expiryInput').value;
+
+    // Ensure expiration date is selected
+    if (!expiryTime) {
+      alert('Please select an expiration date!');
+      return;
+    }
+
+    if (!selectedBrand) {
+      alert('Please select a favorite brand first!');
+      return;
+    }
+
+    // Send to Google Apps Script Web App to overwrite row
+    fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+      method: 'POST',
+      body: new URLSearchParams({
+        brand: selectedBrand,
+        expiresAt: expiryTime
+      })
+    }).then(() => {
+      alert('Featured brand successfully updated!');
+    }).catch(err => {
+      console.error('Error updating brand:', err);
+      alert('There was an error updating the featured brand.');
+    });
+  });
 });
+
+// --- Open Admin Favorite Brand Popup ---
+function openAdminFavoriteBrandPopup() {
+  // Prevent duplicate backdrop
+  if (document.getElementById('admin-favorite-brand-backdrop')) return;
+
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-favorite-brand-backdrop';
+  backdrop.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 68px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  `;
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeAdminFavoriteBrandPopup();
+  });
+
+  // Create popup
+  let popup = document.getElementById('admin-favorite-brand-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'admin-favorite-brand-popup';
+    popup.style = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 90%;
+      max-width: 500px;
+      height: 60%;
+      max-height: 70vh;
+      overflow-y: scroll; /* Allow scroll */
+      scrollbar-width: none; /* Firefox hide */
+      -ms-overflow-style: none; /* IE/Edge hide */
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+    `;
+  }
+
+  // Add swipeable brand content dynamically from allBrandsData
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo })); // Extract brand names and logos
+  popup.innerHTML = '';
+
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.style = 'display: flex; flex-direction: column; gap: 10px; overflow-y: scroll; max-height: 60vh; padding: 10px;';
+
+    // Retrieve selected brand from localStorage
+    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+
+    // Add each brand as a card
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.style = `
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        transition: all 0.3s;
+      `;
+
+      const brandLogo = document.createElement('img');
+      brandLogo.src = brand.logo; // Set the logo image source
+      brandLogo.style = 'width: 40px; height: 40px; margin-right: 15px; border-radius: 50%;';
+
+      const brandName = document.createElement('strong');
+      brandName.innerText = brand.name;
+
+      brandCard.appendChild(brandLogo);
+      brandCard.appendChild(brandName);
+
+      // Check if this brand was previously selected
+      if (brand.name === selectedBrand) {
+        brandCard.style.border = '2px solid #ff4d4d';
+        brandCard.style.backgroundColor = '#ffe6e6';
+      }
+
+      // Click event to select brand
+      brandCard.onclick = () => {
+        selectFavoriteBrand(brand.name, brandCard);
+      };
+
+      // Hover effect
+      brandCard.onmouseover = () => {
+        brandCard.style.transform = 'scale(1.05)';
+        brandCard.style.backgroundColor = '#f0f0f0';
+      };
+
+      brandCard.onmouseout = () => {
+        brandCard.style.transform = 'scale(1)';
+        brandCard.style.backgroundColor = '#f8f8f8';
+      };
+
+      // Add brand card to carousel
+      brandCarousel.appendChild(brandCard);
+    });
+
+    popup.appendChild(brandCarousel);
+  }
+
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+// Select a brand and highlight it visually
+function selectFavoriteBrand(brand, brandCard) {
+  console.log(`Selected favorite brand: ${brand}`);
+
+  // Reset previous selections
+  const allBrandCards = document.querySelectorAll('#admin-favorite-brand-popup div');
+  allBrandCards.forEach(card => {
+    card.style.border = '1px solid #ddd';
+    card.style.backgroundColor = '#f8f8f8';
+  });
+
+  // Highlight selected brand
+  brandCard.style.border = '2px solid #ff4d4d';
+  brandCard.style.backgroundColor = '#ffe6e6';
+
+  // Save selected brand to localStorage
+  localStorage.setItem('selectedFavoriteBrand', brand);
+  closeAdminFavoriteBrandPopup();
+}
+
+function closeAdminFavoriteBrandPopup() {
+  const backdrop = document.getElementById('admin-favorite-brand-backdrop');
+  if (backdrop) {
+    backdrop.remove();
+  }
+}
+
 //////////END
 
 	
