@@ -1469,24 +1469,32 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
     const expiry = new Date(last['Expires At']);
     const featuredBrand = last['Featured Brand'];
 
+    console.log('Now:', now.toISOString());
+    console.log('Expiry from sheet:', last['Expires At']);
+    console.log('Parsed Expiry:', expiry.toISOString());
+    console.log('Featured Brand:', featuredBrand);
+
     const storedBrand = localStorage.getItem('selectedFavoriteBrand');
     const originalBrand = localStorage.getItem('originalBrand');
 
-    if (now < expiry) {
+    if (now < expiry && featuredBrand) {
       if (!originalBrand && storedBrand && storedBrand !== featuredBrand) {
         localStorage.setItem('originalBrand', storedBrand);
       }
 
       localStorage.setItem('selectedFavoriteBrand', featuredBrand);
-      localStorage.setItem('tempExpiryTime', expiry.getTime());
+      localStorage.setItem('tempExpiryTime', expiry.getTime()); // 👈 THIS should run
+      console.log('tempExpiryTime set to:', expiry.getTime());
     } else {
       if (originalBrand) {
         localStorage.setItem('selectedFavoriteBrand', originalBrand);
         localStorage.removeItem('originalBrand');
       }
       localStorage.removeItem('tempExpiryTime');
+      console.log('Expired or missing brand — reset to original.');
     }
   });
+
 
 
 	
