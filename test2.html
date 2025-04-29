@@ -1135,39 +1135,101 @@ let lastKnownLocation = null;
 let userLocation = null;
 
 /////////// ADMIN	
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'A') {  // Press "A" to toggle admin panel
-    const adminPanel = document.getElementById('adminPanel');
-    adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+<!-- Hidden tap zone to open admin panel -->
+const tapZone = document.createElement('div');
+tapZone.id = 'secretTapZone';
+Object.assign(tapZone.style, {
+  position: 'fixed',
+  bottom: '5px',
+  left: '25px',
+  width: '50px',
+  height: '50px',
+  zIndex: '9999',
+  background: 'transparent'
+});
+document.body.appendChild(tapZone);
+
+// --- Create the Admin Panel ---
+const adminPanel = document.createElement('div');
+adminPanel.id = 'adminPanel';
+Object.assign(adminPanel.style, {
+  display: 'none',
+  position: 'fixed',
+  bottom: '80px',
+  left: '20px',
+  background: 'white',
+  borderRadius: '10px',
+  padding: '10px',
+  boxShadow: '0 0 10px rgba(0,0,0,0.3)',
+  zIndex: '9999'
+});
+adminPanel.innerHTML = `
+  <button id="showUpgradeBtn">Upgrade Buttons</button>
+  <button id="resortBrandsBtn">Resort Brands</button>
+  <button id="featureFavoriteBtn">Feature Favorite</button>
+  <button id="clearLikedBtn">Clear Likes</button>
+`;
+document.body.appendChild(adminPanel);
+
+// --- Tap Detection Logic ---
+let tapCount = 0;
+let lastTapTime = 0;
+
+tapZone.addEventListener('click', () => {
+  const now = Date.now();
+  if (now - lastTapTime < 600) {
+    tapCount++;
+    if (tapCount >= 5) {
+      tapCount = 0;
+      showAdminPanel();
+    }
+  } else {
+    tapCount = 1;
   }
+  lastTapTime = now;
 });
 
-document.getElementById('showUpgradeBtn').addEventListener('click', () => {
-  document.querySelectorAll('.upgrade-button').forEach(btn => {
-    btn.style.display = btn.style.display === 'block' ? 'none' : 'block';
+// --- Show Admin Panel ---
+function showAdminPanel() {
+  adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+// --- Button Actions ---
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('showUpgradeBtn').addEventListener('click', () => {
+    document.querySelectorAll('.upgrade-button').forEach(btn => {
+      btn.style.display = btn.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  document.getElementById('resortBrandsBtn').addEventListener('click', () => {
+    if (typeof sortAndRenderBrands === 'function') {
+      sortAndRenderBrands();
+    } else {
+      alert('sortAndRenderBrands function not found.');
+    }
+  });
+
+  document.getElementById('featureFavoriteBtn').addEventListener('click', () => {
+    if (typeof allBrandsData !== 'undefined') {
+      const favorite = allBrandsData.find(b => b.isFavorite);
+      if (favorite) {
+        favorite.isPaid = true;
+        sortAndRenderBrands();
+      } else {
+        alert('No favorite brand selected.');
+      }
+    } else {
+      alert('allBrandsData not available.');
+    }
+  });
+
+  document.getElementById('clearLikedBtn').addEventListener('click', () => {
+    localStorage.removeItem('likedDeals');
+    alert('All liked deals cleared!');
+    location.reload();
   });
 });
-
-document.getElementById('resortBrandsBtn').addEventListener('click', () => {
-  sortAndRenderBrands();
-});
-
-document.getElementById('featureFavoriteBtn').addEventListener('click', () => {
-  const favorite = allBrandsData.find(b => b.isFavorite);
-  if (favorite) {
-    favorite.isPaid = true;
-    sortAndRenderBrands();
-  } else {
-    alert('No favorite brand selected.');
-  }
-});
-
-document.getElementById('clearLikedBtn').addEventListener('click', () => {
-  localStorage.removeItem('likedDeals');
-  alert('All liked deals cleared!');
-  location.reload();
-});
-
 //////////END
 
 	
