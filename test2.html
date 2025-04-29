@@ -453,7 +453,7 @@ height: 60px;
   font-weight: bold;
 }
 
-.popup-brand-box {
+#popup .popup-brand-box {
  margin: 20px 20px 20px 20px; /* Top, horizontal, bottom */
   padding: 15px;
   border-top: 1px solid #eee;
@@ -481,18 +481,16 @@ height: 60px;
   border-radius: 6px;
 }
 
-.popup-brand-box .brand-name {
+#popup .popup-brand-box .brand-name {
   font-size: 16px;
   font-weight: bold;
 }
 
-.popup-brand-box .brand-timer {
+#popup .popup-brand-box .brand-timer {
   font-size: 14px;
   color: #555;
 }		
-#popup .brand-logo-container {
-  position: relative;
-}
+
 
 .badge-premium, .badge-pro {
   background-color: black;
@@ -507,6 +505,10 @@ height: 60px;
   font-size: 12px;
   box-shadow: 0 0 8px #f5f5f5;
 }
+#popup .brand-logo-container {
+  position: relative;
+}
+		 
 .popup-back-arrow {
   position: absolute;
   left: 15px;
@@ -2225,24 +2227,32 @@ document.getElementById('popupDesc').innerHTML = formatDescription(description |
   const brandInfo = allBrandsData.find(b => b.brand === brandName);
 
 // Insert Premium / Pro Badge in Popup
-const badgeContainer = document.querySelector('#popup .brand-logo-container');
-badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove()); // Remove old badges if any
+// Wait for the popup to be fully populated
+setTimeout(() => {
+  const badgeContainer = document.querySelector('#popup .brand-logo-container');
+  if (!badgeContainer) return console.warn('No badge container in popup');
 
-if (brandInfo) {
-  const badge = document.createElement('div');
+  // Remove old badges
+  badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove());
 
-  if (brandInfo.Pro === 'True') {
-    badge.className = 'badge-pro';
-    badge.textContent = '👑 PRO';
-  } else if (brandInfo.Premium === 'True') {
-    badge.className = 'badge-premium';
-    badge.textContent = '💎 PREMIUM';
-  }
+  if (brandInfo && (brandInfo.Pro === 'True' || brandInfo.Premium === 'True')) {
+    const badge = document.createElement('div');
 
-  if (badge.textContent) {
+    if (brandInfo.Pro === 'True') {
+      badge.className = 'badge-pro';
+      badge.textContent = '👑 PRO';
+    } else if (brandInfo.Premium === 'True') {
+      badge.className = 'badge-premium';
+      badge.textContent = '💎 PREMIUM';
+    }
+
     badgeContainer.appendChild(badge);
+    console.log('Badge added to popup:', badge.outerHTML);
+  } else {
+    console.log('No Pro or Premium flag found in brandInfo:', brandInfo);
   }
-}
+}, 100);
+
 	
   if (brandInfo?.expireDate) {
     startPopupCountdown(brandInfo.expireDate, popupTimerEl);
