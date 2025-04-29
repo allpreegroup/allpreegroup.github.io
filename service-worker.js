@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v53";
+const CACHE_NAME = "offline-v54";
 
 // Preload core assets
 const preLoad = () => {
@@ -10,7 +10,6 @@ const preLoad = () => {
             "/howitwork/",
             "/menu/",
             "/marketing",
-            "/splashpage",
             "/partner/",
             "/vouchers/",
             "/manifest.json",
