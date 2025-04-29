@@ -990,24 +990,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   </div>
 			  <div id="main-app" style="display: none;">
 			 
-		<button 
-  onclick="openSavedListsPopup()" 
-  style="
-    position: fixed;
-    bottom: 5px;
-    right: 160px;
-    background: #28a745;
-    color: white;
-    padding: 10px;
-    border-radius: 50px;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 1000;
-    cursor: pointer;
-  "
->
-  📝 Saved Lists
-</button>
+	
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
@@ -1135,7 +1118,26 @@ refreshButton.addEventListener('click', function() {
   location.reload();
 });
 
+const savedListsButton = document.createElement('div');
+savedListsButton.id = 'saved-lists-button';
+savedListsButton.innerText = '📝 Saved Lists';
+savedListsButton.onclick = openSavedListsPopup;
+savedListsButton.style = `
+  position: fixed;
+  bottom: 5px;
+  right: 160px;
+  z-index: 1000;
+  font-size: 15px;
+  background: #28a745;
+  color: white;
+  border-radius: 50px;
+  padding: 10px 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  text-align: center;
+`;
 
+document.body.appendChild(savedListsButton);
 
 ///////  ///////// START
 
