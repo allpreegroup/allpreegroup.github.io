@@ -455,7 +455,7 @@ height: 60px;
 
 .popup-brand-box {
  margin: -10px 20px 20px 20px; /* Top, horizontal, bottom */
-  padding: 15px;
+  padding: 10px;
   border-top: 1px solid #eee;
   background-color: #fdfdfd;
   border-radius: 8px;
@@ -490,6 +490,16 @@ height: 60px;
   font-size: 14px;
   color: #555;
 }
+		 
+#brandContainer .badge-premium,
+#brandContainer .badge-pro {
+  position: absolute;
+  top: -10px;
+  right: -15px;
+  font-size: 12px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}	
 
 
 .popup-back-arrow {
@@ -2153,6 +2163,32 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
 
   const brandInfo = allBrandsData.find(b => b.brand === brandName);
+  // Wait for the popup to be fully populated
+  setTimeout(() => {
+  const badgeContainer = document.querySelector('#popup .brand-logo-container');
+  if (!badgeContainer) return console.warn('No badge container in popup');
+
+  // Remove old badges
+  badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove());
+
+  if (brandInfo && (brandInfo.Pro === 'True' || brandInfo.Premium === 'True')) {
+    const badge = document.createElement('div');
+
+    if (brandInfo.Pro === 'True') {
+      badge.className = 'badge-pro';
+      badge.textContent = '👑 PRO';
+    } else if (brandInfo.Premium === 'True') {
+      badge.className = 'badge-premium';
+      badge.textContent = '💎 PREMIUM';
+    }
+
+    badgeContainer.appendChild(badge);
+    console.log('Badge added to popup:', badge.outerHTML);
+  } else {
+    console.log('No Pro or Premium flag found in brandInfo:', brandInfo);
+  }
+  }, 100);
+	
   if (brandInfo?.expireDate) {
     startPopupCountdown(brandInfo.expireDate, popupTimerEl);
   }
@@ -2682,7 +2718,11 @@ async function loadDeals() {
               deals: brandDeals,
               primaryColor: currentPrimaryColor,
               secondaryColor: currentSecondaryColor,
-              isFavorite
+              isFavorite,
+	      isPaidBrand: row.Pro === 'True' || row.Premium === 'True',
+              isPro: row.Pro === 'True',
+	      Pro: row.Pro, 
+              Premium: row.Premium    
             });
           }
 
