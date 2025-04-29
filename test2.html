@@ -2686,7 +2686,7 @@ async function loadDeals() {
             isFavorite = currentBrand === favoriteBrand;
 
 		  // ➡️ Add it HERE
-            let isPaidBrand = row.Tier === 'Paid' || row.Tier === 'Pro'; 
+           let isPaidBrand = row.Pro === 'True' || row.Premium === 'True';
 
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
@@ -2706,17 +2706,19 @@ async function loadDeals() {
             `;
 if (isPaidBrand) {
   const badge = document.createElement('div');
-  badge.className = row.Tier === 'Pro' ? 'badge-pro' : 'badge-premium';
-  badge.textContent = row.Tier === 'Pro' ? '💎' : '🏅';
-  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
 
-  if (row.Tier === 'Pro') {
+  if (row.Pro === 'True') {
+    badge.className = 'badge-pro';
+    badge.textContent = '💎';
     brandDiv.classList.add('pro-brand-highlight');
-  } else {
+  } else if (row.Premium === 'True') {
+    badge.className = 'badge-premium';
+    badge.textContent = '🏅';
     brandDiv.classList.add('premium-brand-highlight');
   }
-}
 
+  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+}
 
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
@@ -2777,8 +2779,9 @@ if (isPaidBrand) {
               primaryColor: currentPrimaryColor,
               secondaryColor: currentSecondaryColor,
               isFavorite,
-	      isPaidBrand: row.Tier === 'Paid' || row.Tier === 'Pro',   // <-- Add this
-              isPro: row.Tier === 'Pro'  
+	      isPaidBrand: row.Pro === 'True' || row.Premium === 'True',
+              isPro: row.Pro === 'True'
+ 
             });
           }
 
