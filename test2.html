@@ -738,6 +738,7 @@ height: 20%;
   font-size: 12px;
 }
 		 
+/* Badge styles for premium and pro tiers */
 .badge-premium, .badge-pro {
   background-color: gold;
   color: #000;
@@ -746,11 +747,18 @@ height: 20%;
   border-radius: 20px;
   position: absolute;
   top: -10px;
-  right: -225px;
+  right: -10px;
   font-size: 12px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 
+/* Ensure the container is the reference for the absolute positioning */
+.brand-logo-container {
+  position: relative; /* ✅ This is essential for the badge positioning */
+}
+
+/* Highlight effect for premium brands */
 .premium-brand-highlight {
   border: 3px solid gold;
   border-radius: 12px;
@@ -760,6 +768,7 @@ height: 20%;
   padding-right: 50px;
 }
 
+/* Highlight effect for pro brands (stronger glow) */
 .pro-brand-highlight {
   border: 3px solid gold;
   border-radius: 12px;
@@ -768,6 +777,20 @@ height: 20%;
   padding-left: 50px;
   padding-right: 50px;
 }
+
+/* Optional: glowing pulse animation */
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 5px gold;
+  }
+  50% {
+    box-shadow: 0 0 20px gold;
+  }
+  100% {
+    box-shadow: 0 0 5px gold;
+  }
+}
+
 
 
 
