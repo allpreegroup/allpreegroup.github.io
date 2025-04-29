@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+  <h3>Set Featured Brand</h3>
+  <select id="brand">
+    <option value="Sunshine Market">Sunshine Market</option>
+    <option value="Island Fresh">Island Fresh</option>
+    <option value="Yaad Essentials">Yaad Essentials</option>
+  </select>
+  <br><br>
+  <input type="datetime-local" id="expiresAt">
+  <br><br>
+  <button onclick="submitBrand()">Save</button>
+
+  <script>
+    function submitBrand() {
+      const brand = document.getElementById('brand').value;
+      const expiresAt = document.getElementById('expiresAt').value;
+
+      fetch('/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featuredBrand: brand, expiresAt })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert('Updated!');
+        console.log(data);
+      });
+    }
+  </script>
+</body>
+</html>
