@@ -827,7 +827,161 @@ height: 20%;
   @keyframes fadeInLetter {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-  }		 
+  }	
+
+
+/* Main Admin Panel */
+#adminPanel {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  left: 10px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+/* Buttons Inside Panel */
+#adminPanel button {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  transition: background-color 0.25s ease;
+}
+
+#adminPanel button:hover {
+  background-color: #2980b9;
+}
+
+/* Close Button Styling */
+#closeAdminPanelBtn {
+  background-color: #e74c3c;
+  font-weight: 600;
+}
+
+#closeAdminPanelBtn:hover {
+  background-color: #c0392b;
+}
+
+/* Labels & Inputs */
+#adminPanel label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: #333;
+}
+
+#adminPanel input[type="datetime-local"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+#adminPanel input[type="datetime-local"]:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Backdrop */
+#admin-favorite-brand-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 68px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* Brand Popup */
+#admin-favorite-brand-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  width: 90%;
+  max-width: 500px;
+  height: 60%;
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+}
+
+#admin-favorite-brand-popup::-webkit-scrollbar {
+  display: none;
+}
+
+/* Brand Carousel */
+.admin-brand-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: scroll;
+  max-height: 60vh;
+  padding: 10px;
+}
+
+/* Brand Card Styling */
+.admin-brand-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: all 0.25s ease;
+}
+
+.admin-brand-card:hover {
+  transform: scale(1.03);
+  background-color: #f0f0f0;
+}
+
+.admin-brand-card.selected {
+  border: 2px solid #e74c3c;
+  background-color: #ffe6e6;
+}
+
+.admin-brand-card img {
+  width: 42px;
+  height: 42px;
+  margin-right: 16px;
+  border-radius: 50%;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1099,6 +1253,228 @@ let isNavigating = false; // Flag to prevent multiple redirects happening at the
 let lastKnownLocation = null;
 let userLocation = null;
 
+// --- Create the Admin Panel ---
+	
+const adminPanel = document.createElement('div');
+adminPanel.id = 'adminPanel';
+
+adminPanel.innerHTML = `
+  <button id="closeAdminPanelBtn">Close Admin Panel</button>
+  <button id="showUpgradeBtn">Upgrade Buttons</button>
+  <button id="resortBrandsBtn">Resort Brands</button>
+  <button id="featureFavoriteBtn">Feature Favorite</button>
+  <button id="clearLikedBtn">Clear Likes</button>
+  <hr />
+  <button id="selectFavoriteBrandBtn">Select Favorite Brand</button>
+  <br />
+  <label for="expiryInput">Expiration Date:</label>
+  <input type="datetime-local" id="expiryInput" />
+  <br /><br />
+  <button id="sendFeaturedBtn">Set Featured Brand</button>
+`;
+
+document.body.appendChild(adminPanel);
+
+// Tap detection
+let tapCount = 0;
+let lastTapTime = 0;
+document.body.addEventListener('click', () => {
+  const now = Date.now();
+  if (now - lastTapTime < 600) {
+    tapCount++;
+    if (tapCount >= 5) {
+      tapCount = 0;
+      showAdminPanel();
+    }
+  } else {
+    tapCount = 1;
+  }
+  lastTapTime = now;
+});
+
+function showAdminPanel() {
+  adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('closeAdminPanelBtn').addEventListener('click', () => {
+    adminPanel.style.display = 'none';
+  });
+
+  document.getElementById('showUpgradeBtn').addEventListener('click', () => {
+    document.querySelectorAll('.upgrade-button').forEach(btn => {
+      btn.style.display = btn.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  document.getElementById('resortBrandsBtn').addEventListener('click', () => {
+    if (typeof sortAndRenderBrands === 'function') {
+      sortAndRenderBrands();
+    } else {
+      alert('sortAndRenderBrands function not found.');
+    }
+  });
+
+  document.getElementById('clearLikedBtn').addEventListener('click', () => {
+    localStorage.removeItem('likedDeals');
+    alert('All liked deals cleared!');
+    location.reload();
+  });
+
+  document.getElementById('selectFavoriteBrandBtn').addEventListener('click', () => {
+    openAdminFavoriteBrandPopup();
+  });
+
+document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
+  const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+  const expiryInput = document.getElementById('expiryInput').value;
+
+  if (!expiryInput) {
+    alert('Please select an expiration date!');
+    return;
+  }
+
+  if (!selectedBrand) {
+    alert('Please select a favorite brand first!');
+    return;
+  }
+
+  // Format to YYYY-MM-DDTHH:mm
+  const expiryDate = new Date(expiryInput);
+  const year = expiryDate.getFullYear();
+  const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+  const day = String(expiryDate.getDate()).padStart(2, '0');
+  const hours = String(expiryDate.getHours()).padStart(2, '0');
+  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
+  const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+      brand: selectedBrand,
+      expiresAt: formattedExpiry
+    })
+  }).then(() => {
+    alert('Featured brand successfully updated!');
+  }).catch(err => {
+    console.error('Error updating brand:', err);
+    alert('There was an error updating the featured brand.');
+  });
+});
+
+});
+
+function openAdminFavoriteBrandPopup() {
+  if (document.getElementById('admin-favorite-brand-backdrop')) return;
+   document.body.classList.add('no-scroll');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-favorite-brand-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminFavoriteBrandPopup();
+  });
+
+  let popup = document.getElementById('admin-favorite-brand-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'admin-favorite-brand-popup';
+  }
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  popup.innerHTML = '';
+
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.className = 'admin-brand-carousel';
+
+    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.className = 'admin-brand-card';
+
+      if (brand.name === selectedBrand) {
+        brandCard.classList.add('selected');
+      }
+
+      const brandLogo = document.createElement('img');
+      brandLogo.src = brand.logo;
+
+      const brandName = document.createElement('strong');
+      brandName.innerText = brand.name;
+
+      brandCard.appendChild(brandLogo);
+      brandCard.appendChild(brandName);
+
+      brandCard.onclick = () => {
+        selectFavoriteBrand(brand.name, brandCard);
+      };
+
+      brandCarousel.appendChild(brandCard);
+    });
+
+    popup.appendChild(brandCarousel);
+  }
+
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+function selectFavoriteBrand(brand, brandCard) {
+  console.log(`Selected favorite brand: ${brand}`);
+
+  document.querySelectorAll('.admin-brand-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  brandCard.classList.add('selected');
+  localStorage.setItem('selectedFavoriteBrand', brand);
+  closeAdminFavoriteBrandPopup();
+}
+
+function closeAdminFavoriteBrandPopup() {
+  const backdrop = document.getElementById('admin-favorite-brand-backdrop');
+  if (backdrop) backdrop.remove();
+	document.body.classList.remove('no-scroll');
+}
+
+fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1')
+  .then(res => res.json())
+  .then(data => {
+    const last = data[data.length - 1];
+    const now = new Date();
+    const expiry = new Date(last['Expires At']);
+    const featuredBrand = last['Featured Brand'];
+
+    console.log('Now:', now.toISOString());
+    console.log('Expiry from sheet:', last['Expires At']);
+    console.log('Parsed Expiry:', expiry.toISOString());
+    console.log('Featured Brand:', featuredBrand);
+
+    const storedBrand = localStorage.getItem('selectedFavoriteBrand');
+    const originalBrand = localStorage.getItem('originalBrand');
+
+    if (now < expiry && featuredBrand) {
+      if (!originalBrand && storedBrand && storedBrand !== featuredBrand) {
+        localStorage.setItem('originalBrand', storedBrand);
+      }
+
+      localStorage.setItem('selectedFavoriteBrand', featuredBrand);
+      localStorage.setItem('tempExpiryTime', expiry.getTime()); // 👈 THIS should run
+      console.log('tempExpiryTime set to:', expiry.getTime());
+    } else {
+      if (originalBrand) {
+        localStorage.setItem('selectedFavoriteBrand', originalBrand);
+        localStorage.removeItem('originalBrand');
+      }
+      localStorage.removeItem('tempExpiryTime');
+      console.log('Expired or missing brand — reset to original.');
+    }
+  });
+	
+//////////END
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
