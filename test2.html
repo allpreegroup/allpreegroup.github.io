@@ -2202,6 +2202,13 @@ document.getElementById('popupDesc').innerHTML = formatDescription(description |
   document.getElementById('brandLogo').alt = brandName;
   document.getElementById('brandName').textContent = brandName;
 
+
+	
+  const popupTimerEl = document.getElementById('popupTimer');
+  popupTimerEl.textContent = 'Loading...';
+  popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
+
+  const brandInfo = allBrandsData.find(b => b.brand === brandName);
 // Insert Premium / Pro Badge in Popup
 const badgeContainer = document.querySelector('#brandContainer .brand-logo-container');
 badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove()); // Remove old badges if any
@@ -2222,11 +2229,6 @@ if (brandInfo) {
   }
 }
 	
-  const popupTimerEl = document.getElementById('popupTimer');
-  popupTimerEl.textContent = 'Loading...';
-  popupTimerEl.classList.remove('countdown-ended', 'countdown-urgent');
-
-  const brandInfo = allBrandsData.find(b => b.brand === brandName);
   if (brandInfo?.expireDate) {
     startPopupCountdown(brandInfo.expireDate, popupTimerEl);
   }
