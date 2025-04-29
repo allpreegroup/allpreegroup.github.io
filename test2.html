@@ -737,8 +737,8 @@ height: 20%;
   border-radius: 50%;
   font-size: 12px;
 }
-.badge-premium {
-background-color: gold;
+.premium-brand-highlight {
+  background-color: gold;
   color: #000;
   font-weight: bold;
   padding: 2px 10px;
@@ -749,6 +749,20 @@ background-color: gold;
   font-size: 12px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
+
+.pro-brand-highlight {
+ background-color: gold;
+  color: #000;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -225px;
+  font-size: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
 .brand-logo-container {
   position: absolute; /* Needed for badge positioning */
  
@@ -2684,12 +2698,17 @@ async function loadDeals() {
                 <span class="brand-timer" id="${timerId}">Visit us now - limited-time promotion!</span>
               </div>
             `;
-if (isPaidBrand) {
+if (brandData.isPaidBrand) {
   const badge = document.createElement('div');
-  badge.className = isProBrand ? 'badge-pro' : 'badge-premium';
-  badge.textContent = isProBrand ? '💎' : '🏅';
-  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
-  brandData.section.querySelector('.brand').classList.add('badge-premium');
+  badge.className = brandData.isPro ? 'badge-pro' : 'badge-premium';
+  badge.textContent = brandData.isPro ? '💎' : '🏅';
+  brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+
+  if (brandData.isPro) {
+    brandData.section.querySelector('.brand').classList.add('pro-brand-highlight');
+  } else {
+    brandData.section.querySelector('.brand').classList.add('premium-brand-highlight');
+  }
 }
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
