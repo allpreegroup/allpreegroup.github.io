@@ -846,6 +846,12 @@ height: 20%;
   z-index: 9999;
 }
 		 
+#rankSlotButtonsContainer {
+  display: flex;
+  gap: 10px;  /* Space between buttons */
+  justify-content: start;  /* Align buttons to the left */
+  margin-bottom: 10px;  /* Adjust margin as needed */
+}		 
 
 /* Style for rank slot buttons */
 .rankSlotBtn {
@@ -1308,7 +1314,12 @@ adminPanel.innerHTML = `
 
   <div>
     <strong>Select Top Rank Slot:</strong><br/>
-    ${[1, 2, 3, 4, 5].map(i => `<button class="" data-slot="${i - 1}">Slot ${i}</button>`).join(' ')}
+    
+  <div id="rankSlotButtonsContainer">
+  ${[1, 2, 3, 4, 5].map(i => `<button class="rankSlotBtn" data-slot="${i - 1}">Slot ${i}</button>`).join(' ')}
+</div>
+
+    
   </div>
   <br />
   <button id="selectTopRankBrandBtn" disabled>Select Brand for Slot</button>
