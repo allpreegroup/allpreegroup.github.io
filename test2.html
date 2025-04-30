@@ -827,7 +827,8 @@ height: 20%;
   @keyframes fadeInLetter {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-  }
+  }	
+
 
 /* Main Admin Panel */
 #adminPanel {
@@ -980,9 +981,7 @@ height: 20%;
 
 body.no-scroll {
   overflow: hidden;
-}
-
-		 
+}		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1155,13 +1154,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   </div>
 			  <div id="main-app" style="display: none;">
 			 
-	<div id="adminPanel" style="display:none;">
-  <button id="showUpgradeBtn">Show Upgrade Buttons</button>
-  <button id="resortBrandsBtn">Re-Sort Brands</button>
-  <button id="featureFavoriteBtn">Feature Favorite</button>
-  <button id="clearLikedBtn">Clear Liked Deals</button>
-</div>
-
+	
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
@@ -1260,21 +1253,8 @@ let isNavigating = false; // Flag to prevent multiple redirects happening at the
 let lastKnownLocation = null;
 let userLocation = null;
 
-/////////// ADMIN	
-const tapZone = document.createElement('div');
- tapZone.id = 'secretTapZone';
- Object.assign(tapZone.style, {
-   position: 'fixed',
-   bottom: '5px',
-   left: '25px',
-   width: '50px',
-   height: '50px',
-   zIndex: '9999',
-   background: 'transparent'
- });
- document.body.appendChild(tapZone);
-	
 // --- Create the Admin Panel ---
+	
 const adminPanel = document.createElement('div');
 adminPanel.id = 'adminPanel';
 
@@ -1460,7 +1440,6 @@ function closeAdminFavoriteBrandPopup() {
 	document.body.classList.remove('no-scroll');
 }
 
-
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1')
   .then(res => res.json())
   .then(data => {
@@ -1494,12 +1473,8 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
       console.log('Expired or missing brand — reset to original.');
     }
   });
-
-
-
 	
 //////////END
-
 	
 function getDealKey(deal) {
   return `${(deal.brandName || '').trim().toLowerCase()}-${(deal.name || '').trim().toLowerCase()}`
@@ -3245,7 +3220,7 @@ container.innerHTML = '';
   if (favoriteBrandData) {
     const favBadge = document.createElement('div');
     favBadge.className = 'favorite-brand-badge';
-    favBadge.textContent = '⭐ Your Favorite Brand';
+    favBadge.textContent = '⭐ Featured Brand';
     const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
     favBadge.style.backgroundColor = primaryColor;
     favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
