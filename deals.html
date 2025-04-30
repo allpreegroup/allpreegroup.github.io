@@ -845,7 +845,32 @@ height: 20%;
   font-size: 14px;
   z-index: 9999;
 }
+		 
+#rankSlotButtonsContainer {
+  display: flex;
+  gap: 5px;  /* Space between buttons */
+  justify-content: start;  /* Align buttons to the left */
+  margin-bottom: 10px;  /* Adjust margin as needed */
+}		 
 
+/* Style for rank slot buttons */
+.rankSlotBtn {
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 12px;   /* Smaller text size */
+  margin: 0 5px;     /* Space between buttons */
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for buttons */
+.rankSlotBtn:hover {
+  background-color: #e0e0e0;
+}
+		 
+		 
 /* Buttons Inside Panel */
 #adminPanel button {
   margin-top: 8px;
@@ -900,7 +925,8 @@ height: 20%;
 }
 
 /* Backdrop */
-#admin-favorite-brand-backdrop {
+#admin-favorite-brand-backdrop,
+#admin-single-rank-backdrop{
   position: fixed;
   top: 0;
   left: 0;
@@ -915,7 +941,8 @@ height: 20%;
 }
 
 /* Brand Popup */
-#admin-favorite-brand-popup {
+#admin-favorite-brand-popup,
+#admin-single-rank-backdrop {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -981,7 +1008,7 @@ height: 20%;
 
 body.no-scroll {
   overflow: hidden;
-}		 
+}			 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1268,30 +1295,37 @@ const tapZone = document.createElement('div');
    background: 'transparent'
  });
  document.body.appendChild(tapZone);
-		
-// --- Create the Admin Panel ---
 	
+// --- Create the Admin Panel ---
+
+let selectedRankSlot = null;
+let selectedRankBrand = null;
+
+// Admin Panel
 const adminPanel = document.createElement('div');
 adminPanel.id = 'adminPanel';
-
+adminPanel.style.display = 'none';
 adminPanel.innerHTML = `
-  <button id="closeAdminPanelBtn">Close Admin Panel</button>
-  <button id="showUpgradeBtn">Upgrade Buttons</button>
-  <button id="resortBrandsBtn">Resort Brands</button>
-  <button id="featureFavoriteBtn">Feature Favorite</button>
-  <button id="clearLikedBtn">Clear Likes</button>
+ 
+  <div> <strong>Select Top Rank Slot:</strong><br/>  
+  <div id="rankSlotButtonsContainer">
+  ${[1, 2, 3, 4, 5].map(i => `<button class="rankSlotBtn" data-slot="${i - 1}"> ${i}</button>`).join(' ')}
+</div> </div>
+  <button id="selectTopRankBrandBtn" disabled>Select Top Rank Brand</button>
+  <label for="rankExpiryInput">Expiration Date:</label>
+  <input type="datetime-local" id="rankExpiryInput" />
+  <button id="sendSelectedRankBtn" disabled>Update Top Rank Brand</button>
   <hr />
-  <button id="selectFavoriteBrandBtn">Select Favorite Brand</button>
-  <br />
-  <label for="expiryInput">Expiration Date:</label>
+
+  <button id="selectFavoriteBrandBtn">Select Featured Brand</button>
+  <label for="expiryInput">Favorite Expiry:</label>
   <input type="datetime-local" id="expiryInput" />
-  <br /><br />
-  <button id="sendFeaturedBtn">Set Featured Brand</button>
+  <button id="sendFeaturedBtn">Update Featured Brand</button>
 `;
 
 document.body.appendChild(adminPanel);
 
-// Tap detection
+// Show/hide with 5 clicks
 let tapCount = 0;
 let lastTapTime = 0;
 document.body.addEventListener('click', () => {
@@ -1312,150 +1346,191 @@ function showAdminPanel() {
   adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('closeAdminPanelBtn').addEventListener('click', () => {
-    adminPanel.style.display = 'none';
+// Rank Slot Buttons
+document.querySelectorAll('.rankSlotBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedRankSlot = parseInt(btn.getAttribute('data-slot'));
+    selectedRankBrand = null;
+    document.getElementById('selectTopRankBrandBtn').disabled = false;
+    document.getElementById('sendSelectedRankBtn').disabled = true;
+    alert(`Selected Slot ${selectedRankSlot + 1}`);
   });
+});
 
-  document.getElementById('showUpgradeBtn').addEventListener('click', () => {
-    document.querySelectorAll('.upgrade-button').forEach(btn => {
-      btn.style.display = btn.style.display === 'block' ? 'none' : 'block';
-    });
-  });
+// Select Brand for Slot
+document.getElementById('selectTopRankBrandBtn').addEventListener('click', () => {
+  if (selectedRankSlot === null) {
+    alert('Please select a slot first!');
+    return;
+  }
+  openRankBrandPopup();
+});
 
-  document.getElementById('resortBrandsBtn').addEventListener('click', () => {
-    if (typeof sortAndRenderBrands === 'function') {
-      sortAndRenderBrands();
-    } else {
-      alert('sortAndRenderBrands function not found.');
-    }
-  });
+// Format to YYYY-MM-DDTHH:mm
+const expiryDate = new Date(expiryInput);
+const year = expiryDate.getFullYear();
+const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+const day = String(expiryDate.getDate()).padStart(2, '0');
+const hours = String(expiryDate.getHours()).padStart(2, '0');
+const minutes = String(expiryDate.getMinutes()).padStart(2, '0'); 
+const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-  document.getElementById('clearLikedBtn').addEventListener('click', () => {
-    localStorage.removeItem('likedDeals');
-    alert('All liked deals cleared!');
-    location.reload();
-  });
+	
+// Update Slot Button
+document.getElementById('sendSelectedRankBtn').addEventListener('click', () => {
+  const expiry = document.getElementById('rankExpiryInput').value;
+  if (!expiry || !selectedRankBrand || selectedRankSlot === null) {
+    alert('Make sure you selected a slot, brand, and expiration!');
+    return;
+  }
 
-  document.getElementById('selectFavoriteBrandBtn').addEventListener('click', () => {
-    openAdminFavoriteBrandPopup();
+  const formattedExpiry = new Date(expiry).toISOString().slice(0, 16);
+
+  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+      brand: selectedRankBrand,
+      expiresAt: formattedExpiry,
+      index: selectedRankSlot.toString(),
+      action: 'toprank'
+    })
+  }).then(() => {
+    alert(`Slot ${selectedRankSlot + 1} updated with "${selectedRankBrand}"`);
+    selectedRankSlot = null;
+    selectedRankBrand = null;
+    document.getElementById('selectTopRankBrandBtn').disabled = true;
+    document.getElementById('sendSelectedRankBtn').disabled = true;
+  }).catch(err => {
+    console.error('Error:', err);
+    alert('There was an error updating the slot.');
   });
+});
+
+// Favorite Brand Flow (unchanged)
+document.getElementById('selectFavoriteBrandBtn').addEventListener('click', () => {
+  openAdminFavoriteBrandPopup();
+});
 
 document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
   const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
   const expiryInput = document.getElementById('expiryInput').value;
+  if (!expiryInput) return alert('Please select expiration!');
+  if (!selectedBrand) return alert('Select a favorite brand first!');
 
-  if (!expiryInput) {
-    alert('Please select an expiration date!');
-    return;
-  }
+  const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
 
-  if (!selectedBrand) {
-    alert('Please select a favorite brand first!');
-    return;
-  }
-
-  // Format to YYYY-MM-DDTHH:mm
-  const expiryDate = new Date(expiryInput);
-  const year = expiryDate.getFullYear();
-  const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-  const day = String(expiryDate.getDate()).padStart(2, '0');
-  const hours = String(expiryDate.getHours()).padStart(2, '0');
-  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
-  const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
-
-  fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
     method: 'POST',
     body: new URLSearchParams({
       brand: selectedBrand,
-      expiresAt: formattedExpiry
+      expiresAt: formattedExpiry,
+      action: 'favorite'
     })
   }).then(() => {
     alert('Featured brand successfully updated!');
   }).catch(err => {
     console.error('Error updating brand:', err);
-    alert('There was an error updating the featured brand.');
+    alert('Error updating featured brand.');
   });
 });
 
-});
-
+// Favorite Brand Popup
 function openAdminFavoriteBrandPopup() {
   if (document.getElementById('admin-favorite-brand-backdrop')) return;
-   document.body.classList.add('no-scroll');
+
+  document.body.classList.add('no-scroll');
   const backdrop = document.createElement('div');
   backdrop.id = 'admin-favorite-brand-backdrop';
   backdrop.addEventListener('click', e => {
     if (e.target === backdrop) closeAdminFavoriteBrandPopup();
   });
 
-  let popup = document.getElementById('admin-favorite-brand-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'admin-favorite-brand-popup';
-  }
+  const popup = document.createElement('div');
+  popup.id = 'admin-favorite-brand-popup';
 
   const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
-  popup.innerHTML = '';
+  const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+  const carousel = document.createElement('div');
+  carousel.className = 'admin-brand-carousel';
 
-  if (brands.length === 0) {
-    popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
-  } else {
-    const brandCarousel = document.createElement('div');
-    brandCarousel.className = 'admin-brand-carousel';
+  brands.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'admin-brand-card';
+    if (brand.name === selectedBrand) card.classList.add('selected');
 
-    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+    card.innerHTML = `<img src="${brand.logo}" /><strong>${brand.name}</strong>`;
+    card.onclick = () => {
+      document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      localStorage.setItem('selectedFavoriteBrand', brand.name);
+      closeAdminFavoriteBrandPopup();
+    };
 
-    brands.forEach(brand => {
-      const brandCard = document.createElement('div');
-      brandCard.className = 'admin-brand-card';
+    carousel.appendChild(card);
+  });
 
-      if (brand.name === selectedBrand) {
-        brandCard.classList.add('selected');
-      }
-
-      const brandLogo = document.createElement('img');
-      brandLogo.src = brand.logo;
-
-      const brandName = document.createElement('strong');
-      brandName.innerText = brand.name;
-
-      brandCard.appendChild(brandLogo);
-      brandCard.appendChild(brandName);
-
-      brandCard.onclick = () => {
-        selectFavoriteBrand(brand.name, brandCard);
-      };
-
-      brandCarousel.appendChild(brandCard);
-    });
-
-    popup.appendChild(brandCarousel);
-  }
-
+  popup.appendChild(carousel);
   backdrop.appendChild(popup);
   document.body.appendChild(backdrop);
 }
 
-function selectFavoriteBrand(brand, brandCard) {
-  console.log(`Selected favorite brand: ${brand}`);
+function closeAdminFavoriteBrandPopup() {
+  document.getElementById('admin-favorite-brand-backdrop')?.remove();
+  document.body.classList.remove('no-scroll');
+}
+	
+// Brand Selection Popup for Top Rank
+function openRankBrandPopup() {
+  if (document.getElementById('admin-single-rank-backdrop')) return;
 
-  document.querySelectorAll('.admin-brand-card').forEach(card => {
-    card.classList.remove('selected');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-single-rank-backdrop';
+
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeRankBrandPopup();
   });
 
-  brandCard.classList.add('selected');
-  localStorage.setItem('selectedFavoriteBrand', brand);
-  closeAdminFavoriteBrandPopup();
+  const popup = document.createElement('div');
+  popup.id = 'admin-single-rank-popup';
+  popup.innerHTML = '<h3>Select a Brand for Slot</h3>';
+
+  const brandList = document.createElement('div');
+  brandList.className = 'admin-brand-carousel'; // <-- use correct class
+
+  allBrandsData.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'admin-brand-card'; // <-- use correct class
+
+    const img = document.createElement('img');
+    img.src = brand.logo;
+
+    const label = document.createElement('div');
+    label.textContent = brand.brand;
+
+    card.appendChild(img);
+    card.appendChild(label);
+
+    card.onclick = () => {
+      selectedRankBrand = brand.brand;
+      document.getElementById('sendSelectedRankBtn').disabled = false;
+      closeRankBrandPopup();
+    };
+
+    brandList.appendChild(card);
+  });
+
+  popup.appendChild(brandList);
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
 }
 
-function closeAdminFavoriteBrandPopup() {
-  const backdrop = document.getElementById('admin-favorite-brand-backdrop');
-  if (backdrop) backdrop.remove();
-	document.body.classList.remove('no-scroll');
+function closeRankBrandPopup() {
+  const el = document.getElementById('admin-single-rank-backdrop');
+  if (el) el.remove();
 }
-
+	
+//////////END
+	
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1')
   .then(res => res.json())
   .then(data => {
@@ -1488,6 +1563,33 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
       localStorage.removeItem('tempExpiryTime');
       console.log('Expired or missing brand — reset to original.');
     }
+  });
+	
+/////////// 
+
+// Load ranked slots (Sheet2)
+fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2')
+  .then(res => res.json())
+  .then(data => {
+    const now = new Date();
+
+    data.forEach((row, i) => {
+      const brand = row['Brand'];          // Adjust keys if necessary
+      const expiry = new Date(row['Expires At']); // Adjust keys if necessary
+
+      const slotKey = `rankedSlot${i + 1}`;
+      const expiryKey = `${slotKey}Expiry`;
+
+      if (brand && expiry && now < expiry) {
+        localStorage.setItem(slotKey, brand);
+        localStorage.setItem(expiryKey, expiry.getTime());
+        console.log(`Set ${slotKey} to ${brand} (expires at ${expiry})`);
+      } else {
+        localStorage.removeItem(slotKey);
+        localStorage.removeItem(expiryKey);
+        console.log(`${slotKey} expired or missing — cleared.`);
+      }
+    });
   });
 	
 //////////END
@@ -3251,6 +3353,7 @@ if (allDealsFlat.length === 0) {
 
   renderLikedDealsGallery();
 
+  
   const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
   if (favoriteBrandData) {
     const favBadge = document.createElement('div');
@@ -3279,9 +3382,37 @@ if (allDealsFlat.length === 0) {
     container.appendChild(favoriteBrandData.section);
   }
 
-  allBrandsData.forEach(brandData => {
-    if (!brandData.isFavorite) {
-      if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
+
+// 2. Find and render promoted brands (rankedSlot1–5)
+const promotedBrands = [];
+for (let i = 1; i <= 5; i++) {
+  const brandName = localStorage.getItem(`rankedSlot${i}`);
+  const expiry = parseInt(localStorage.getItem(`rankedSlot${i}Expiry`), 10);
+
+  if (brandName && !isNaN(expiry) && Date.now() < expiry) {
+    const match = allBrandsData.find(b => b.brand === brandName && !b.isFavorite);
+    if (match && !promotedBrands.includes(match)) {
+      const badge = document.createElement('div');
+      badge.className = 'top-ranked-badge';
+      badge.textContent = `Sponsored`;
+
+      const logoContainer = match.section.querySelector('.brand-logo-container');
+      if (logoContainer) logoContainer.appendChild(badge);
+      match.section.querySelector('.brand')?.classList.add('top-ranked-highlight');
+
+      promotedBrands.push(match);
+    }
+  }
+}
+	
+  promotedBrands.forEach(b => container.appendChild(b.section));
+
+// 3. Append remaining brands sorted by discount, skipping favorite and promoted
+const promotedSet = new Set(promotedBrands.map(b => b.brand));
+allBrandsData.forEach(brandData => {
+  if (!brandData.isFavorite && !promotedSet.has(brandData.brand)) {
+    // Add hottest discount badge
+    if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
         const badge = document.createElement('div');
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Discount';
