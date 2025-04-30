@@ -289,7 +289,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </center>
 <hr>
 	<center> 		
-<button type="button" id="clearBtn" style="display: none;">Clear And Start Over</button>
+<button type="button" id="clearBtn" style="display: none;"> Clear And Start Over If Mistake Was Made </button>
 	</center><br>	
 <script>
 const form = document.getElementById("redirectForm");
@@ -438,28 +438,34 @@ document.getElementById("clearBtn").addEventListener("click", function () {
     localStorage.removeItem("hasDownloadedQR");
     localStorage.removeItem("savedQRData");
 
-    // Clear timer if running
+    // Stop any active countdown
     if (typeof countdownInterval !== "undefined") {
         clearInterval(countdownInterval);
     }
 
-    // Reset UI
+    // Reset input fields
     document.getElementById("code").value = "";
     document.getElementById("pin").value = "";
+
+    // Hide flyer, show form again
     flyer1.style.display = "none";
     form.style.display = "block";
 
+    // Clear QR container if it exists
     const qrContainer = document.getElementById("qr-container");
     if (qrContainer) qrContainer.innerHTML = "";
 
-    downloadBtn.style.display = "block";
-    downloadNote.style.display = "block";
+    // Fully reset countdown and download UI
     countdownMsg.textContent = "";
     countdownMsg.style.display = "none";
 
-    // Hide clear button
+    downloadBtn.style.display = "none";
+    downloadNote.style.display = "none";
+
+    // Hide the Clear button itself again
     this.style.display = "none";
 });
+
 
 	
 </script>
