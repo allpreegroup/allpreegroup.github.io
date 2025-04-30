@@ -1277,16 +1277,17 @@ adminPanel.id = 'adminPanel';
 
 adminPanel.innerHTML = `
   <button id="closeAdminPanelBtn">Close Admin Panel</button>
-  <button id="selectTopRanksBtn">Select Top Ranked Brands</button>
+
   <hr />
+   <button id="selectTopRanksBtn">Select Top Ranked Brands</button>
   <button id="selectFavoriteBrandBtn">Select Favorite Brand</button>
   <br />
   <label for="expiryInput">Expiration Date:</label>
   <input type="datetime-local" id="expiryInput" />
   <br /><br />
   <button id="sendFeaturedBtn">Set Featured Brand</button>
-  <hr />
   <button id="sendTopRanksBtn">Set Top Ranked Brands</button>
+  <hr />
 `;
 
 document.body.appendChild(adminPanel);
@@ -1411,6 +1412,84 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
+// Open the Popup for Selecting Favorite Brand
+function openAdminFavoriteBrandPopup() {
+  if (document.getElementById('admin-favorite-brand-backdrop')) return;
+  document.body.classList.add('no-scroll');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-favorite-brand-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminFavoriteBrandPopup();
+  });
+
+  let popup = document.getElementById('admin-favorite-brand-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'admin-favorite-brand-popup';
+  }
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  popup.innerHTML = '';
+
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No favorite brands available.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.className = 'admin-brand-carousel';
+
+    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.className = 'admin-brand-card';
+
+      if (brand.name === selectedBrand) {
+        brandCard.classList.add('selected');
+      }
+
+      const brandLogo = document.createElement('img');
+      brandLogo.src = brand.logo;
+
+      const brandName = document.createElement('strong');
+      brandName.innerText = brand.name;
+
+      brandCard.appendChild(brandLogo);
+      brandCard.appendChild(brandName);
+
+      brandCard.onclick = () => {
+        selectFavoriteBrand(brand.name, brandCard);
+      };
+
+      brandCarousel.appendChild(brandCard);
+    });
+
+    popup.appendChild(brandCarousel);
+  }
+
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+// Select Favorite Brand Logic
+function selectFavoriteBrand(brand, brandCard) {
+  console.log(`Selected favorite brand: ${brand}`);
+
+  document.querySelectorAll('.admin-brand-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  brandCard.classList.add('selected');
+  localStorage.setItem('selectedFavoriteBrand', brand);
+  closeAdminFavoriteBrandPopup();
+}
+
+// Close the Favorite Brand Popup
+function closeAdminFavoriteBrandPopup() {
+  const backdrop = document.getElementById('admin-favorite-brand-backdrop');
+  if (backdrop) backdrop.remove();
+  document.body.classList.remove('no-scroll');
+}
 
 // Open the Popup for Selecting Top-Ranked Brands
 function openAdminTopRanksPopup() {
