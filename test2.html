@@ -1313,16 +1313,16 @@ adminPanel.innerHTML = `
   <div id="rankSlotButtonsContainer">
   ${[1, 2, 3, 4, 5].map(i => `<button class="rankSlotBtn" data-slot="${i - 1}"> ${i}</button>`).join(' ')}
 </div> </div>
-  <button id="selectTopRankBrandBtn" disabled>Select Brand for Slot</button>
+  <button id="selectTopRankBrandBtn" disabled>Select Top Rank Brand</button>
   <label for="rankExpiryInput">Expiration Date:</label>
   <input type="datetime-local" id="rankExpiryInput" />
-  <button id="sendSelectedRankBtn" disabled>Update Slot</button>
+  <button id="sendSelectedRankBtn" disabled>Update Top Rank Brand</button>
   <hr />
 
-  <button id="selectFavoriteBrandBtn">Select Favorite Brand</button>
+  <button id="selectFavoriteBrandBtn">Select Featured Brand</button>
   <label for="expiryInput">Favorite Expiry:</label>
   <input type="datetime-local" id="expiryInput" />
-  <button id="sendFeaturedBtn">Set Featured Brand</button>
+  <button id="sendFeaturedBtn">Update Featured Brand</button>
 `;
 
 document.body.appendChild(adminPanel);
@@ -1861,6 +1861,34 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
       console.log('Expired or missing brand — reset to original.');
     }
   });
+///////////
+
+// Load ranked slots (Sheet2)
+fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2')
+  .then(res => res.json())
+  .then(data => {
+    const now = new Date();
+
+    data.forEach((row, i) => {
+      const brand = row['Brand'];          // Adjust keys if necessary
+      const expiry = new Date(row['Expires At']); // Adjust keys if necessary
+
+      const slotKey = `rankedSlot${i + 1}`;
+      const expiryKey = `${slotKey}Expiry`;
+
+      if (brand && expiry && now < expiry) {
+        localStorage.setItem(slotKey, brand);
+        localStorage.setItem(expiryKey, expiry.getTime());
+        console.log(`Set ${slotKey} to ${brand} (expires at ${expiry})`);
+      } else {
+        localStorage.removeItem(slotKey);
+        localStorage.removeItem(expiryKey);
+        console.log(`${slotKey} expired or missing — cleared.`);
+      }
+    });
+  });
+
+
 	
 //////////END
 	
