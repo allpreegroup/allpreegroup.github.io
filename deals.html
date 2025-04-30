@@ -3218,6 +3218,11 @@ noDealsMessage.style.marginTop = '2rem';
 noDealsMessage.style.display = 'none';
 container.appendChild(noDealsMessage);
 
+if (allDealsFlat.length === 0) {
+  document.getElementById('noDealsMessage').style.display = 'block';
+}
+	
+
   let likedDealsSection = document.getElementById('likedDealsSection');
   if (!likedDealsSection) {
     likedDealsSection = document.createElement('div');
@@ -3270,11 +3275,7 @@ container.appendChild(noDealsMessage);
       container.appendChild(brandData.section);
     }
   });
-	
-if (allDealsFlat.length === 0) {
-  document.getElementById('noDealsMessage').style.display = 'block';
-}
-	
+		
   setTimeout(() => {
     cleanUpLikedDeals();
   }, 3000);
