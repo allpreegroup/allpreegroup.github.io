@@ -1408,17 +1408,17 @@ document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
 
 // Brand Selection Popup for Top Rank
 function openRankBrandPopup() {
-  if (document.getElementById('rank-brand-popup-backdrop')) return;
+  if (document.getElementById('admin-single-rank-backdrop')) return;
 
   const backdrop = document.createElement('div');
-  backdrop.id = 'rank-brand-popup-backdrop';
-  backdrop.className = 'popup-backdrop';
+  backdrop.id = 'admin-single-rank-backdrop';
+
   backdrop.addEventListener('click', e => {
     if (e.target === backdrop) closeRankBrandPopup();
   });
 
   const popup = document.createElement('div');
-  popup.className = 'popup-content';
+  popup.id = 'admin-single-rank-popup';
   popup.innerHTML = '<h3>Select a Brand for Slot</h3>';
 
   const brandList = document.createElement('div');
@@ -1452,7 +1452,7 @@ function openRankBrandPopup() {
 }
 
 function closeRankBrandPopup() {
-  const el = document.getElementById('rank-brand-popup-backdrop');
+  const el = document.getElementById('admin-single-rank-backdrop');
   if (el) el.remove();
 }
 
