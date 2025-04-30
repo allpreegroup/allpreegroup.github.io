@@ -1253,6 +1253,23 @@ let isNavigating = false; // Flag to prevent multiple redirects happening at the
 let lastKnownLocation = null;
 let userLocation = null;
 
+
+	/////////// ADMIN	
+const tapZone = document.createElement('div');
+ tapZone.id = 'secretTapZone';
+ Object.assign(tapZone.style, {
+   position: 'fixed',
+   bottom: '5px',
+   left: '25px',
+   width: '50px',
+   height: '50px',
+   zIndex: '9999',
+   background: 'transparent'
+ });
+ document.body.appendChild(tapZone);
+	
+
+	
 // --- Create the Admin Panel ---
 	
 const adminPanel = document.createElement('div');
@@ -1271,6 +1288,9 @@ adminPanel.innerHTML = `
   <input type="datetime-local" id="expiryInput" />
   <br /><br />
   <button id="sendFeaturedBtn">Set Featured Brand</button>
+  <hr />
+  <button id="selectTopRanksBtn">Select Top Ranked Brands</button>
+  <button id="sendTopRanksBtn">Set Top Ranked Brands</button>
 `;
 
 document.body.appendChild(adminPanel);
@@ -1326,49 +1346,80 @@ document.addEventListener('DOMContentLoaded', () => {
     openAdminFavoriteBrandPopup();
   });
 
-document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
-  const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
-  const expiryInput = document.getElementById('expiryInput').value;
+  document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
+    const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+    const expiryInput = document.getElementById('expiryInput').value;
 
-  if (!expiryInput) {
-    alert('Please select an expiration date!');
-    return;
-  }
+    if (!expiryInput) {
+      alert('Please select an expiration date!');
+      return;
+    }
 
-  if (!selectedBrand) {
-    alert('Please select a favorite brand first!');
-    return;
-  }
+    if (!selectedBrand) {
+      alert('Please select a favorite brand first!');
+      return;
+    }
 
-  // Format to YYYY-MM-DDTHH:mm
-  const expiryDate = new Date(expiryInput);
-  const year = expiryDate.getFullYear();
-  const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-  const day = String(expiryDate.getDate()).padStart(2, '0');
-  const hours = String(expiryDate.getHours()).padStart(2, '0');
-  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
-  const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
+    // Format to YYYY-MM-DDTHH:mm
+    const expiryDate = new Date(expiryInput);
+    const year = expiryDate.getFullYear();
+    const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+    const day = String(expiryDate.getDate()).padStart(2, '0');
+    const hours = String(expiryDate.getHours()).padStart(2, '0');
+    const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
+    const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-  fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
-    method: 'POST',
-    body: new URLSearchParams({
-      brand: selectedBrand,
-      expiresAt: formattedExpiry,
-      action: 'favorite'
-    })
-  }).then(() => {
-    alert('Featured brand successfully updated!');
-  }).catch(err => {
-    console.error('Error updating brand:', err);
-    alert('There was an error updating the featured brand.');
+    fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+      method: 'POST',
+      body: new URLSearchParams({
+        brand: selectedBrand,
+        expiresAt: formattedExpiry,
+        action: 'favorite'
+      })
+    }).then(() => {
+      alert('Featured brand successfully updated!');
+    }).catch(err => {
+      console.error('Error updating brand:', err);
+      alert('There was an error updating the featured brand.');
+    });
   });
-});
+
+  // New: Select and Send Top Ranked Brands
+  document.getElementById('selectTopRanksBtn').addEventListener('click', () => {
+    openAdminTopRanksPopup();
+  });
+
+  document.getElementById('sendTopRanksBtn').addEventListener('click', () => {
+    const expiryInput = document.getElementById('expiryInput').value;
+    const topRanked = JSON.parse(localStorage.getItem('selectedTopRanked') || '[]');
+
+    if (!expiryInput) return alert('Please select an expiration date!');
+    if (topRanked.length === 0) return alert('No ranked brands selected!');
+
+    const expiryDate = new Date(expiryInput);
+    const formattedExpiry = expiryDate.toISOString().slice(0, 16);
+
+    fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+      method: 'POST',
+      body: new URLSearchParams({
+        action: 'rank',
+        brands: JSON.stringify(topRanked),
+        expiresAt: formattedExpiry
+      })
+    }).then(() => {
+      alert('Top ranked brands updated!');
+    }).catch(err => {
+      console.error('Error updating ranked brands:', err);
+      alert('There was an error updating the ranked brands.');
+    });
+  });
 
 });
 
+// Open the Popup for Selecting Favorite Brand
 function openAdminFavoriteBrandPopup() {
   if (document.getElementById('admin-favorite-brand-backdrop')) return;
-   document.body.classList.add('no-scroll');
+  document.body.classList.add('no-scroll');
   const backdrop = document.createElement('div');
   backdrop.id = 'admin-favorite-brand-backdrop';
   backdrop.addEventListener('click', e => {
@@ -1423,6 +1474,7 @@ function openAdminFavoriteBrandPopup() {
   document.body.appendChild(backdrop);
 }
 
+// Select Favorite Brand Logic
 function selectFavoriteBrand(brand, brandCard) {
   console.log(`Selected favorite brand: ${brand}`);
 
@@ -1435,11 +1487,93 @@ function selectFavoriteBrand(brand, brandCard) {
   closeAdminFavoriteBrandPopup();
 }
 
+// Close the Favorite Brand Popup
 function closeAdminFavoriteBrandPopup() {
   const backdrop = document.getElementById('admin-favorite-brand-backdrop');
   if (backdrop) backdrop.remove();
-	document.body.classList.remove('no-scroll');
+  document.body.classList.remove('no-scroll');
 }
+
+// Open the Popup for Selecting Top-Ranked Brands
+function openAdminTopRanksPopup() {
+  if (document.getElementById('admin-top-rank-backdrop')) return;
+  document.body.classList.add('no-scroll');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-top-rank-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminTopRanksPopup();
+  });
+
+  let popup = document.getElementById('admin-top-rank-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'admin-top-rank-popup';
+  }
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  popup.innerHTML = '';
+
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No brands available for ranking.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.className = 'admin-brand-carousel';
+
+    const selectedBrands = JSON.parse(localStorage.getItem('selectedTopRanked') || '[]');
+
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.className = 'admin-brand-card';
+
+      if (selectedBrands.includes(brand.name)) {
+        brandCard.classList.add('selected');
+      }
+
+      const brandLogo = document.createElement('img');
+      brandLogo.src = brand.logo;
+
+      const brandName = document.createElement('strong');
+      brandName.innerText = brand.name;
+
+      brandCard.appendChild(brandLogo);
+      brandCard.appendChild(brandName);
+
+      brandCard.onclick = () => {
+        selectTopRankedBrand(brand.name, brandCard);
+      };
+
+      brandCarousel.appendChild(brandCard);
+    });
+
+    popup.appendChild(brandCarousel);
+  }
+
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+// Select Top Ranked Brand Logic
+function selectTopRankedBrand(brand, brandCard) {
+  const selectedBrands = JSON.parse(localStorage.getItem('selectedTopRanked') || '[]');
+  const index = selectedBrands.indexOf(brand);
+
+  if (index === -1) {
+    selectedBrands.push(brand);
+  } else {
+    selectedBrands.splice(index, 1);
+  }
+
+  localStorage.setItem('selectedTopRanked', JSON.stringify(selectedBrands));
+  brandCard.classList.toggle('selected');
+}
+
+// Close the Top-Ranked Brands Popup
+function closeAdminTopRanksPopup() {
+  const backdrop = document.getElementById('admin-top-rank-backdrop');
+  if (backdrop) backdrop.remove();
+  document.body.classList.remove('no-scroll');
+}
+
 
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1')
   .then(res => res.json())
