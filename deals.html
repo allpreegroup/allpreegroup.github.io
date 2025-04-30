@@ -2977,6 +2977,12 @@ async function loadDeals() {
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
 
+  const activeRow = rows.find(row => row.Active !== undefined);
+    if (activeRow?.Active?.toLowerCase() !== 'yes') {
+    console.log(`Sheet ${i} is marked inactive. Skipping.`);
+    continue;
+  }
+	  
     if (rows.error) {
       console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
