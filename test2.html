@@ -1406,6 +1406,51 @@ document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
   });
 });
 
+// Favorite Brand Popup
+function openAdminFavoriteBrandPopup() {
+  if (document.getElementById('admin-favorite-brand-backdrop')) return;
+
+  document.body.classList.add('no-scroll');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-favorite-brand-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminFavoriteBrandPopup();
+  });
+
+  const popup = document.createElement('div');
+  popup.id = 'admin-favorite-brand-popup';
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  const selectedBrand = localStorage.getItem('selectedFavoriteBrand');
+  const carousel = document.createElement('div');
+  carousel.className = 'admin-brand-carousel';
+
+  brands.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'admin-brand-card';
+    if (brand.name === selectedBrand) card.classList.add('selected');
+
+    card.innerHTML = `<img src="${brand.logo}" /><strong>${brand.name}</strong>`;
+    card.onclick = () => {
+      document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      localStorage.setItem('selectedFavoriteBrand', brand.name);
+      closeAdminFavoriteBrandPopup();
+    };
+
+    carousel.appendChild(card);
+  });
+
+  popup.appendChild(carousel);
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+function closeAdminFavoriteBrandPopup() {
+  document.getElementById('admin-favorite-brand-backdrop')?.remove();
+  document.body.classList.remove('no-scroll');
+}
+	
 // Brand Selection Popup for Top Rank
 function openRankBrandPopup() {
   if (document.getElementById('admin-single-rank-backdrop')) return;
