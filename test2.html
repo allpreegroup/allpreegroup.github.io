@@ -981,29 +981,7 @@ height: 20%;
 
 body.no-scroll {
   overflow: hidden;
-}
-#admin-top-rank-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  #admin-top-rank-popup {
-    background: white;
-    padding: 20px;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  }
+}	
 		 
   </style>
   
@@ -1390,29 +1368,41 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('sendTopRanksBtn').addEventListener('click', () => {
-    const expiryInput = document.getElementById('expiryInput').value;
-    const topRanked = JSON.parse(localStorage.getItem('selectedTopRanked') || '[]');
+  const expiryInput = document.getElementById('expiryInput').value;
+  const topRanked = JSON.parse(localStorage.getItem('selectedTopRanked') || '[]');
 
-    if (!expiryInput) return alert('Please select an expiration date!');
-    if (topRanked.length === 0) return alert('No ranked brands selected!');
+  if (!expiryInput) return alert('Please select an expiration date!');
+  if (topRanked.length === 0) return alert('No ranked brands selected!');
 
-    const expiryDate = new Date(expiryInput);
-    const formattedExpiry = expiryDate.toISOString().slice(0, 16);
+  const expiryDate = new Date(expiryInput);
+  const formattedExpiry = expiryDate.toISOString().slice(0, 16);
 
-    fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
-      method: 'POST',
-      body: new URLSearchParams({
-        action: 'rank',
-        brands: JSON.stringify(topRanked),
-        expiresAt: formattedExpiry
+  const maxRanks = 5;
+  const promises = [];
+
+  for (let i = 0; i < maxRanks; i++) {
+    const brand = topRanked[i] || '';  // Empty string if fewer than 5 selected
+    promises.push(
+      fetch('https://script.google.com/macros/s/AKfycbxjIVIMsTcP0YetYzb6dKEtYnOtN-HhRJHTDhwPfFoyHmMIpgQRmZag3lgHETMpmrIx/exec', {
+        method: 'POST',
+        body: new URLSearchParams({
+          action: 'rank',
+          brand: brand,
+          expiresAt: formattedExpiry,
+          index: i.toString()
+        })
       })
-    }).then(() => {
-      alert('Top ranked brands updated!');
-    }).catch(err => {
+    );
+  }
+
+  Promise.all(promises)
+    .then(() => alert('Top ranked brands updated!'))
+    .catch(err => {
       console.error('Error updating ranked brands:', err);
       alert('There was an error updating the ranked brands.');
     });
-  });
+});
+
 
 });
 
