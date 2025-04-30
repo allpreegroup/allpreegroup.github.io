@@ -845,7 +845,37 @@ height: 20%;
   font-size: 14px;
   z-index: 9999;
 }
+		 
+/* Container for the buttons */
+div {
+  margin-bottom: 10px;
+}
 
+/* Style for rank slot buttons */
+.rankSlotBtn {
+  padding: 5px 10px; /* Smaller padding */
+  font-size: 12px;   /* Smaller text size */
+  margin: 0 5px;     /* Space between buttons */
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for buttons */
+.rankSlotBtn:hover {
+  background-color: #e0e0e0;
+}
+
+/* Display buttons side by side */
+div {
+  display: flex;
+  gap: 10px;  /* Space between buttons */
+  justify-content: start;  /* Align buttons to the left */
+}
+		 
+		 
 /* Buttons Inside Panel */
 #adminPanel button {
   margin-top: 8px;
@@ -1348,6 +1378,16 @@ document.getElementById('selectTopRankBrandBtn').addEventListener('click', () =>
   openRankBrandPopup();
 });
 
+// Format to YYYY-MM-DDTHH:mm
+const expiryDate = new Date(expiryInput);
+const year = expiryDate.getFullYear();
+const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+const day = String(expiryDate.getDate()).padStart(2, '0');
+const hours = String(expiryDate.getHours()).padStart(2, '0');
+const minutes = String(expiryDate.getMinutes()).padStart(2, '0'); 
+const formattedExpiry = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+	
 // Update Slot Button
 document.getElementById('sendSelectedRankBtn').addEventListener('click', () => {
   const expiry = document.getElementById('rankExpiryInput').value;
