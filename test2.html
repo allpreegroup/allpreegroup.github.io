@@ -3660,9 +3660,37 @@ container.innerHTML = '';
     container.appendChild(favoriteBrandData.section);
   }
 
-  allBrandsData.forEach(brandData => {
-    if (!brandData.isFavorite) {
-      if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
+
+// 2. Find and render promoted brands (rankedSlot1–5)
+const promotedBrands = [];
+for (let i = 1; i <= 5; i++) {
+  const brandName = localStorage.getItem(`rankedSlot${i}`);
+  const expiry = parseInt(localStorage.getItem(`rankedSlot${i}Expiry`), 10);
+
+  if (brandName && !isNaN(expiry) && Date.now() < expiry) {
+    const match = allBrandsData.find(b => b.brand === brandName && !b.isFavorite);
+    if (match && !promotedBrands.includes(match)) {
+      const badge = document.createElement('div');
+      badge.className = 'top-deal-badge';
+      badge.textContent = `📢 Promoted Spot ${i}`;
+
+      const logoContainer = match.section.querySelector('.brand-logo-container');
+      if (logoContainer) logoContainer.appendChild(badge);
+      match.section.querySelector('.brand')?.classList.add('top-ranked-highlight');
+
+      promotedBrands.push(match);
+    }
+  }
+}
+	
+  promotedBrands.forEach(b => container.appendChild(b.section));
+
+// 3. Append remaining brands sorted by discount, skipping favorite and promoted
+const promotedSet = new Set(promotedBrands.map(b => b.brand));
+allBrandsData.forEach(brandData => {
+  if (!brandData.isFavorite && !promotedSet.has(brandData.brand)) {
+    // Add hottest discount badge
+    if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
         const badge = document.createElement('div');
         badge.className = 'top-deal-badge';
         badge.textContent = '🔥 Hottest Discount';
