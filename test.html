@@ -143,34 +143,45 @@
       showProduct(product);
     }
 
-    function startQuagga() {
-      const scannerEl = document.getElementById('scanner');
-      scannerEl.style.display = 'block';
-      scannerEl.innerHTML += ''; // Leave cancel button
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: scannerEl,
-          constraints: {
-            facingMode: "environment"
-          }
-        },
-        decoder: {
-          readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
-        },
-        locate: true
-      }, function(err) {
-        if (err) {
-          console.error(err);
-          alert("❌ Error starting scanner. Please check camera permissions.");
-          return;
-        }
-        Quagga.start();
-      });
+   function startQuagga() {
+  const scannerEl = document.getElementById('scanner');
+  scannerEl.style.display = 'block';
+  scannerEl.innerHTML = '';
 
-      Quagga.onDetected(handleDetection);
+  Quagga.init({
+    inputStream: {
+      name: "Live",
+      type: "LiveStream",
+      target: scannerEl,
+      constraints: {
+        facingMode: "environment",
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        aspectRatio: { ideal: 1.777 }, // 16:9 for modern phones
+        advanced: [{ focusMode: "continuous" }] // Autofocus hint
+      },
+    },
+    decoder: {
+      readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
+    },
+    locate: true,
+    locator: {
+      patchSize: "medium", // Try "x-large" if small barcodes
+      halfSample: true
+    },
+    frequency: 10
+  }, function(err) {
+    if (err) {
+      console.error(err);
+      alert("❌ Error starting scanner. Please check camera permissions.");
+      return;
     }
+    Quagga.start();
+  });
+
+  Quagga.onDetected(handleDetection);
+}
+
 
     function handleDetection(result) {
   let code = result.codeResult.code;
