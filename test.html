@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Allpree Barcode Scanner</title>
   <style>
     body {
@@ -11,46 +11,58 @@
       margin: 2rem auto;
       padding: 1rem;
     }
-    h2, h3 { margin-bottom: 0.5rem; }
+
     input, button {
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      width: 100%;
+      padding: 0.75rem 1rem;
       font-size: 1rem;
-    }
-    #product-info {
-      margin-top: 1rem;
+      width: 100%;
+      margin: 0.5rem 0;
       border: 1px solid #ccc;
       border-radius: 8px;
-      padding: 1rem;
+      box-sizing: border-box;
     }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+    }
+
     #product-info img {
-      max-width: 100%;
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
+      max-width: 150px;
+      display: block;
+      margin-bottom: 10px;
     }
+
     #manual-entry {
       display: none;
       margin-top: 1rem;
     }
+
     #scanner {
+      display: none;
+      width: 100%;
+      height: 250px;
       margin-top: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
     }
-    .loading {
-      font-style: italic;
-      color: gray;
+
+    canvas, video {
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
   <h2>Scan or Enter Barcode</h2>
+
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
-  <button id="lookup-btn">🔍 Lookup Product</button>
-  <button onclick="startScanner()">📷 Scan with Camera</button>
+  <button onclick="lookupProduct()">🔍 Lookup Product</button>
+  <button onclick="startQuagga()">📷 Scan with Camera</button>
 
-  <div id="scanner" style="width: 100%; max-width: 400px;"></div>
-
+  <div id="scanner"></div>
   <div id="product-info"></div>
 
   <div id="manual-entry">
@@ -58,26 +70,18 @@
     <input type="text" id="name" placeholder="Product Name" />
     <input type="text" id="brand" placeholder="Brand" />
     <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
-    <input type="number" id="cashback" placeholder="Cashback %" min="0" max="100" />
-    <button id="save-btn">💾 Save Product</button>
+    <input type="text" id="cashback" placeholder="Cashback %" />
+    <button onclick="saveProduct()">💾 Save Product</button>
     <p>📸 After saving, manually upload the product image to:<br>
       <code>allpree-product-images/images/BARCODE.jpg</code> on GitHub
     </p>
   </div>
 
+  <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
   <script>
-    document.getElementById('lookup-btn').addEventListener('click', lookupProduct);
-    document.getElementById('save-btn').addEventListener('click', saveProduct);
-    window.onload = () => document.getElementById('barcode').focus();
-
     function lookupProduct() {
       const code = document.getElementById('barcode').value.trim();
-      if (!code) return alert("Please enter a barcode.");
-
       const localData = localStorage.getItem('product-' + code);
-      const infoDiv = document.getElementById('product-info');
-      infoDiv.innerHTML = '<p class="loading">Looking up product...</p>';
-      document.getElementById('manual-entry').style.display = 'none';
 
       if (localData) {
         showProduct(JSON.parse(localData));
@@ -86,11 +90,11 @@
         const img = new Image();
         img.src = imageUrl;
         img.onload = () => {
-          infoDiv.innerHTML = `<img src="${imageUrl}" alt="Product Image"/><p>Image found on GitHub! Enter the rest of the info below.</p>`;
+          document.getElementById('product-info').innerHTML = `<img src="${imageUrl}" /><p>Image found on GitHub! Enter the rest of the info below.</p>`;
           document.getElementById('manual-entry').style.display = 'block';
         };
         img.onerror = () => {
-          infoDiv.innerHTML = `<p>No product found for barcode: <strong>${code}</strong></p>`;
+          document.getElementById('product-info').innerHTML = `<p>No product found for barcode: ${code}</p>`;
           document.getElementById('manual-entry').style.display = 'block';
         };
       }
@@ -98,7 +102,7 @@
 
     function showProduct(product) {
       document.getElementById('product-info').innerHTML = `
-        <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" alt="Product Image"/>
+        <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" />
         <h3>${product.name}</h3>
         <p><strong>Brand:</strong> ${product.brand}</p>
         <p><strong>Size:</strong> ${product.size}</p>
@@ -109,41 +113,51 @@
 
     function saveProduct() {
       const code = document.getElementById('barcode').value.trim();
-      const name = document.getElementById('name').value.trim();
-      const brand = document.getElementById('brand').value.trim();
-      const size = document.getElementById('size').value.trim();
-      const cashback = document.getElementById('cashback').value.trim();
-
-      if (!name || !brand || !size || cashback === "") {
-        return alert("Please fill in all fields.");
-      }
-
-      const product = { barcode: code, name, brand, size, cashback };
+      const product = {
+        barcode: code,
+        name: document.getElementById('name').value.trim(),
+        brand: document.getElementById('brand').value.trim(),
+        size: document.getElementById('size').value.trim(),
+        cashback: document.getElementById('cashback').value.trim()
+      };
       localStorage.setItem('product-' + code, JSON.stringify(product));
-      alert('Product saved! Now upload the image to GitHub to complete.');
+      alert('✅ Product saved! Now upload the image to GitHub to complete.');
       showProduct(product);
     }
 
-    function startScanner() {
-      const scanner = new Html5Qrcode("scanner");
-      const config = { fps: 10, qrbox: 250 };
+    function startQuagga() {
+      const scannerEl = document.getElementById('scanner');
+      scannerEl.style.display = 'block';
+      scannerEl.innerHTML = '';
 
-      scanner.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          document.getElementById('barcode').value = decodedText;
-          scanner.stop().then(() => {
-            document.getElementById('scanner').innerHTML = '';
-            lookupProduct();
-          });
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: scannerEl,
+          constraints: {
+            facingMode: "environment"
+          },
         },
-        (error) => {
-          console.warn(`Scan error: ${error}`);
+        decoder: {
+          readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
+        },
+        locate: true
+      }, function(err) {
+        if (err) {
+          console.error(err);
+          alert("❌ Error starting scanner. Please check camera permissions.");
+          return;
         }
-      ).catch(err => {
-        console.error("Camera init error:", err);
-        alert("Could not start scanner. Check camera permissions.");
+        Quagga.start();
+      });
+
+      Quagga.onDetected(result => {
+        const code = result.codeResult.code;
+        document.getElementById('barcode').value = code;
+        Quagga.stop();
+        scannerEl.style.display = 'none';
+        lookupProduct();
       });
     }
   </script>
