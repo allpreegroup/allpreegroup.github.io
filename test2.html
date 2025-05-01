@@ -3457,10 +3457,10 @@ async function loadDeals() {
             badge.className = 'location-badge';
             badge.textContent = `📍`; // Dynamically set the badge content
 
-            // Add the click event to the badge
-            badge.addEventListener('click', () => {
-              openBrandLocation('${brand}'); // Pass the brandDiv to the function
-            });
+            badge.addEventListener('click', (event) => {
+  event.stopPropagation(); // Stops the brand grid from opening
+  openBrandLocation(currentBrand); // currentBrand should be the brand name string
+});
 
             // Find the logo container and append the badge
             const logoContainer = brandDiv.querySelector('.brand-logo-container');
