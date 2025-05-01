@@ -2112,20 +2112,18 @@ function handleLocationClick(coordinates) {
   navigateToLocation(coordinates);
 }
 
-	
 async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
 
- const dest = brandLocations[brand];
+  const dest = brandLocations[brand];
 
-// If no destination OR blank string OR empty object
-if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
-  alert("No location set for this brand yet.");
-  isNavigating = false;
-  return;
-}
-
+  // If no destination OR blank string OR empty object
+  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+    alert("No location set for this brand yet.");
+    isNavigating = false;
+    return;
+  }
 
   if (typeof dest === 'object') {
     // Brand has multiple locations
@@ -2134,42 +2132,35 @@ if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest ==
   } else {
     // Brand has only one location
     const savedLocation = getSavedLocation();
-    if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
-            if (hasMovedSignificantly(savedLocation, currentCoords)) {
-              userLocation = currentCoords;
-              saveLocation(currentCoords);
-              alert("Close to redirect to google maps for directions.");
-            }
-            navigateToLocation(dest, currentCoords);
-            isNavigating = false;
-          },
-          (err) => {
-            alert("Could not retrieve your location.");
-            navigateToLocation(dest);
-            isNavigating = false;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+          if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
+            saveLocation(currentCoords);
+            alert("Close to redirect to Google Maps for directions.");
           }
-        );
-      } else {
-        alert("Geolocation is not supported by your browser.");
-        navigateToLocation(dest);
-        isNavigating = false;
-      }
+          navigateToLocation(dest, currentCoords);
+          isNavigating = false;
+        },
+        (err) => {
+          alert("Could not retrieve your location.");
+          navigateToLocation(dest);
+          isNavigating = false;
+        }
+      );
     } else {
-      navigateToLocation(dest, savedLocation);
+      alert("Geolocation is not supported by your browser.");
+      navigateToLocation(dest);
       isNavigating = false;
     }
   }
-} 	
-
+}
+	
 function showLocationPopup(brandLocations) {
-  // Check if already open
   if (document.getElementById('location-popup')) return;
 
-  // Create the backdrop element
   const backdrop = document.createElement('div');
   backdrop.id = 'location-popup-backdrop';
   backdrop.style = `
@@ -2178,24 +2169,10 @@ function showLocationPopup(brandLocations) {
     left: 0;
     width: 100%;
     height: 100%;
-   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 10%,
-    rgba(0, 0, 0, 1) 20%,
-    rgba(0, 0, 0, 1) 30%,
-    rgba(0, 0, 0, 1) 40%,
-    rgba(0, 0, 0, 1) 50%,
-    rgba(0, 0, 0, 1) 60%,
-    rgba(0, 0, 0, 1) 70%,
-    rgba(0, 0, 0, 1) 80%,
-    rgba(0, 0, 0, 1) 90%,
-    rgba(0, 0, 0, 1) 100%
-  );
+    background: rgba(0, 0, 0, 0.8);
     z-index: 10000;
   `;
 
-  // Create the popup element
   const popup = document.createElement('div');
   popup.id = 'location-popup';
   popup.style = `
@@ -2207,84 +2184,57 @@ function showLocationPopup(brandLocations) {
     padding: 20px;
     border-radius: 10px;
     z-index: 10001;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     max-width: 400px;
     width: 90%;
     text-align: center;
-    overflow-y: scroll;
-    scrollbar-width: none; /* Firefox hide */
-    -ms-overflow-style: none; /* IE/Edge hide */
+    overflow-y: auto;
     height: 80%;
   `;
 
-  let optionsHtml = '<h3>Select a Location</h3>';
+  const saved = getSavedLocation();
 
-  const origin = getSavedLocation();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
 
-  // Check if there's a saved location and if it’s been moved significantly
-  if (origin) {
-    const currentCoords = `${origin.latitude},${origin.longitude}`;
-    if (hasMovedSignificantly(origin, currentCoords)) {
-      // If moved, save the new location and alert
-      saveLocation(currentCoords); 
-      alert("Close to redirect to google maps for directions.");
-    }
-  }
-
-  // If the brand has multiple locations, ask for the user's geolocation
-  if (Object.keys(brandLocations).length > 1 && !origin) {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
-          saveLocation(currentCoords); // Save the new location
-           alert("Location detected. You will now see all location.");
-          showLocationButtons(brandLocations, currentCoords); // Show the buttons with the updated location
-        },
-        (err) => {
-          alert("Could not retrieve your location.");
-          showLocationButtons(brandLocations); // Show buttons without geolocation
+        if (!saved || hasMovedSignificantly(saved, currentCoords)) {
+          saveLocation(currentCoords);
+          alert("Location updated. Close to proceed to Google Maps.");
         }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser.");
-      showLocationButtons(brandLocations); // Show buttons without geolocation
-    }
+
+        showLocationButtons(currentCoords);
+      },
+      () => {
+        alert("Could not retrieve your current location.");
+        showLocationButtons(saved);
+      }
+    );
   } else {
-    // Show location buttons directly if single location or already have saved location
-    showLocationButtons(brandLocations, origin);
+    alert("Geolocation is not supported by your browser.");
+    showLocationButtons(saved);
   }
 
-  function showLocationButtons(brandLocations, origin) {
-    // Build location buttons for each brand
+  function showLocationButtons(origin) {
+    let optionsHtml = '<h3>Select a Location</h3>';
     for (const [name, coords] of Object.entries(brandLocations)) {
       optionsHtml += `
         <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
       `;
     }
 
-    // Cancel button
-  /*  optionsHtml += `
-      <button onclick="closeLocationPopup()" style="margin-top: 10px; padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px;">Cancel</button>
-    `; */
-
     popup.innerHTML = optionsHtml;
-    document.body.appendChild(backdrop); // Add the backdrop to the body
-    document.body.appendChild(popup); // Add the popup to the body
 
-    // Add click event listener to the backdrop to close the popup when clicking outside
-    backdrop.addEventListener('click', closeLocationPopup);
-
-    // Prevent closing when clicking inside the popup
-    popup.addEventListener('click', (event) => {
-      event.stopPropagation(); // Stop event from propagating to the backdrop
-    });
-
-	  
-    popup.innerHTML = optionsHtml;
+    // Attach popup and backdrop to DOM
+    document.body.appendChild(backdrop);
     document.body.appendChild(popup);
+
+    // Add close on outside click
+    backdrop.addEventListener('click', closeLocationPopup);
+    popup.addEventListener('click', (event) => event.stopPropagation());
   }
 }
+
 
 // New helper function for safe navigation
 function handleNavigate(coords, origin) {
