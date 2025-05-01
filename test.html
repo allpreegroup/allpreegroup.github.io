@@ -5,24 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Allpree Barcode Scanner</title>
   <style>
-  body {
+ body {
       font-family: system-ui, sans-serif;
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    
+.form-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* vertical */
-  align-items: center;     /* horizontal */
-  min-height: 100vh;       /* full screen height */
-  margin: 0;
-  background: #f9f9f9;
-}
-    
-#app, .container {
-  max-width: 400px;
-  width: 100%;
-  padding: 1rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  align-items: center;
 }
     input, button {
       padding: 0.75rem 1rem;
@@ -80,9 +73,9 @@
   </style>
 </head>
 <body>
-<div id="app">
-  <h2>Scan or Enter Barcode</h2>
 
+  <h2>Scan or Enter Barcode</h2>
+<div class="form-wrapper">
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
   <button onclick="lookupProduct()">🔍 Lookup Product</button>
   <button onclick="startQuagga()">📷 Scan with Camera</button>
@@ -141,19 +134,40 @@
       document.getElementById('manual-entry').style.display = 'none';
     }
 
-    function saveProduct() {
-      const code = document.getElementById('barcode').value.trim();
-      const product = {
-        barcode: code,
-        name: document.getElementById('name').value.trim(),
-        brand: document.getElementById('brand').value.trim(),
-        size: document.getElementById('size').value.trim(),
-        cashback: document.getElementById('cashback').value.trim()
-      };
-      localStorage.setItem('product-' + code, JSON.stringify(product));
-      alert('✅ Product saved! Now upload the image to GitHub to complete.');
-      showProduct(product);
-    }
+   function saveProduct() {
+  const code = document.getElementById('barcode').value.trim();
+  const product = {
+    barcode: code,
+    name: document.getElementById('name').value.trim(),
+    brand: document.getElementById('brand').value.trim(),
+    size: document.getElementById('size').value.trim(),
+    cashback: document.getElementById('cashback').value.trim()
+  };
+
+  // Save to localStorage
+  localStorage.setItem('product-' + code, JSON.stringify(product));
+
+  // Send to Google Sheet
+  fetch('https://script.google.com/macros/s/AKfycbzzs9GdO8a3crwFO0ubv8PknPbvRPpNAMN8pI-hc_TilBcWtNB0cg5WrkOTBViPU8XTMA/exec', {
+    method: 'POST',
+    body: JSON.stringify(product),
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(res => res.json())
+    .then(response => {
+      if (response.success) {
+        alert('✅ Product saved to Google Sheet!');
+        showProduct(product);
+      } else {
+        alert('❌ Failed to save to Google Sheet.');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('❌ Network error while saving product.');
+    });
+}
+
 
    function startQuagga() {
   const scannerEl = document.getElementById('scanner');
