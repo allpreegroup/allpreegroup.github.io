@@ -2,67 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Allpree Barcode Scanner</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      max-width: 500px;
-      margin: 2rem auto;
+      font-family: sans-serif;
       padding: 1rem;
+      max-width: 600px;
+      margin: auto;
     }
-
     input, button {
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
       width: 100%;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
       box-sizing: border-box;
+      font-size: 1rem;
     }
-
-    input:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-    }
-
     #product-info img {
       max-width: 150px;
       display: block;
       margin-bottom: 10px;
     }
-
     #manual-entry {
       display: none;
       margin-top: 1rem;
     }
-
     #scanner {
       display: none;
+      margin-top: 1rem;
+      border: 2px dashed #ccc;
       width: 100%;
       height: 250px;
-      margin-top: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
+      position: relative;
     }
-
-    canvas, video {
-      width: 100% !important;
-      height: 100% !important;
+    #cancel-scan {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      z-index: 10;
+      background: red;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+
   <h2>Scan or Enter Barcode</h2>
 
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
   <button onclick="lookupProduct()">🔍 Lookup Product</button>
   <button onclick="startQuagga()">📷 Scan with Camera</button>
 
-  <div id="scanner"></div>
+  <div id="scanner">
+    <button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>
+  </div>
+
   <div id="product-info"></div>
 
   <div id="manual-entry">
@@ -90,11 +87,13 @@
         const img = new Image();
         img.src = imageUrl;
         img.onload = () => {
-          document.getElementById('product-info').innerHTML = `<img src="${imageUrl}" /><p>Image found on GitHub! Enter the rest of the info below.</p>`;
+          document.getElementById('product-info').innerHTML =
+            `<img src="${imageUrl}" /><p>Image found on GitHub! Enter the rest of the info below.</p>`;
           document.getElementById('manual-entry').style.display = 'block';
         };
         img.onerror = () => {
-          document.getElementById('product-info').innerHTML = `<p>No product found for barcode: ${code}</p>`;
+          document.getElementById('product-info').innerHTML =
+            `<p>No product found for barcode: ${code}</p>`;
           document.getElementById('manual-entry').style.display = 'block';
         };
       }
@@ -128,8 +127,7 @@
     function startQuagga() {
       const scannerEl = document.getElementById('scanner');
       scannerEl.style.display = 'block';
-      scannerEl.innerHTML = '';
-
+      scannerEl.innerHTML += ''; // Leave cancel button
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -137,7 +135,7 @@
           target: scannerEl,
           constraints: {
             facingMode: "environment"
-          },
+          }
         },
         decoder: {
           readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
@@ -152,13 +150,25 @@
         Quagga.start();
       });
 
-      Quagga.onDetected(result => {
-        const code = result.codeResult.code;
-        document.getElementById('barcode').value = code;
+      Quagga.onDetected(handleDetection);
+    }
+
+    function handleDetection(result) {
+      const code = result.codeResult.code;
+      document.getElementById('barcode').value = code;
+
+      stopQuagga();
+      lookupProduct();
+    }
+
+    function stopQuagga() {
+      if (Quagga) {
+        Quagga.offDetected(handleDetection);
         Quagga.stop();
-        scannerEl.style.display = 'none';
-        lookupProduct();
-      });
+      }
+      const scannerEl = document.getElementById('scanner');
+      scannerEl.style.display = 'none';
+      scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
     }
   </script>
 </body>
