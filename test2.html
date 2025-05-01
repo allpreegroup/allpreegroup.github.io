@@ -3453,25 +3453,20 @@ async function loadDeals() {
               </div>
             `;
 
-	   brandList.forEach((brand) => {
-  const brandDiv = createBrandDiv(brand); // or however you're building brandDivs
-
-  // Add badge here for each brand
-  const badge = document.createElement('div');
-  badge.className = 'location-badge';
-  badge.textContent = `📍`;
-
-  // Use `brand` directly
-  badge.addEventListener('click', (event) => {
-    event.stopPropagation(); // Stops the brand grid from opening
-    openBrandLocation(brand); // Pass the correct brand name
+	  // 📍 Add location badge
+  const locationBadge = document.createElement('div');
+  locationBadge.className = 'location-badge';
+  locationBadge.textContent = `📍`;
+  locationBadge.addEventListener('click', (event) => {
+    event.stopPropagation(); // Prevents grid from toggling
+    openBrandLocation(currentBrand);
   });
 
   const logoContainer = brandDiv.querySelector('.brand-logo-container');
   if (logoContainer) {
-    logoContainer.appendChild(badge);
+    logoContainer.appendChild(locationBadge);
   }
-});
+
 		  
            if (isPaidBrand) {
            const badge = document.createElement('div');
