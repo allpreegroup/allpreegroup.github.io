@@ -1273,13 +1273,20 @@ async function loadSheetUrls() {
     // Now we have the array of URLs
     sheetUrls = data.sheeturls; // This will assign the URLs to the sheetUrls variable
     console.log(sheetUrls); // You can log the URLs to confirm
-    loadDeals(); // Call the loadDeals function after loading the sheet URLs
+     init(); // ✅ Start the app after URLs are ready
   } catch (err) {
     console.error('Failed to load sheet URLs:', err);
   }
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
+
+// Initialize the app, calling loadBrandLocations and loadDeals
+async function init() {
+  await loadBrandLocations();  // Load brand locations first
+  await loadDeals();           // Then load the deals
+}
+	
 	
 const allBrandsData = [];       // Holds all data from each brand's sheet
 const allDealsFlat = [];        // Flattened list of all deals across brands
