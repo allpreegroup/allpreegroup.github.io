@@ -2033,6 +2033,8 @@ function clearBrandCart(brand) {
   }
 }
 
+
+
 function saveLocation(coords) {
   localStorage.setItem('userLocation', coords);
 }
@@ -2096,8 +2098,39 @@ async function loadBrandLocations() {
 }
 
 async function showCartWithLocations() {
+  await ensureUserLocation();
   await loadBrandLocations();
   openCartPopup();
+}
+
+async function ensureUserLocation() {
+  const saved = getSavedLocation();
+  if (saved) return;
+
+  while (!getSavedLocation()) {
+    await new Promise((resolve, reject) => {
+      showLoadingMessage("We need your location to continue...");
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            hideLoadingMessage();
+            const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+            saveLocation(coords);
+            resolve();
+          },
+          (err) => {
+            hideLoadingMessage();
+            alert("We need your location to proceed.");
+            resolve(); // retry on next loop
+          }
+        );
+      } else {
+        hideLoadingMessage();
+        alert("Geolocation is not supported by your browser.");
+        reject();
+      }
+    });
+  }
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -2144,24 +2177,24 @@ function getUserLocationAndNavigate(destination) {
         if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
           saveLocation(currentCoords);
         }
-        navigateToLocation(destination, savedLocation);
+        navigateToLocation(destination, getSavedLocation());
       },
       () => {
         hideLoadingMessage();
         alert("Could not retrieve your location.");
-        navigateToLocation(destination, savedLocation);
       }
     );
   } else {
     hideLoadingMessage();
     alert("Geolocation is not supported by your browser.");
-    navigateToLocation(destination, savedLocation);
   }
 }
 
 async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
+
+  await ensureUserLocation();
 
   const dest = brandLocations[brand];
 
@@ -2222,17 +2255,6 @@ function showLocationPopup(brandLocations) {
   const saved = getSavedLocation();
   showLocationButtons(saved);
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
-        if (!saved || hasMovedSignificantly(saved, currentCoords)) {
-          saveLocation(currentCoords);
-        }
-      }
-    );
-  }
-
   function showLocationButtons(origin) {
     let optionsHtml = '<h3>Select a Location</h3>';
     for (const [name, coords] of Object.entries(brandLocations)) {
@@ -2275,6 +2297,8 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
+
+let isNavigating = false;
 
 	
 	
