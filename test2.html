@@ -1262,7 +1262,28 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div id="cartPopup" style="display: none; position: fixed; top: 60px; right: 10px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 10000; padding: 16px;"></div>
 			 
 <script>
-	let sheetUrls = [];
+let sheetUrls = [];		
+const allBrandsData = [];       // Holds all data from each brand's sheet
+const allDealsFlat = [];        // Flattened list of all deals across brands
+let currentPopupDeal = null;    // Currently open deal in the popup
+let likedDealIndex = 0;         // Index of current liked deal being viewed
+let likedDealKeys = [];         // Array of liked deal keys
+let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
+let allDealsFromSheets = [];
+let isBrandMode = false;
+let brandDealIndex = 0;
+let brandDealKeys =[];	
+let isSwiping = false;
+let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
+let lastKnownLocation = null;
+let userLocation = null;
+let brandLocations = {}; // Declare at the top of your script
+
+// Initialize the app, calling loadBrandLocations and loadDeals
+async function init() {
+  await loadBrandLocations();  // Load brand locations first
+  await loadDeals();           // Then load the deals
+}	
 
 async function loadSheetUrls() {
   try {
@@ -1280,31 +1301,7 @@ async function loadSheetUrls() {
 }
 
 loadSheetUrls(); // Call this function to initialize and load the URLs
-
-// Initialize the app, calling loadBrandLocations and loadDeals
-async function init() {
-  await loadBrandLocations();  // Load brand locations first
-  await loadDeals();           // Then load the deals
-}
 	
-	
-const allBrandsData = [];       // Holds all data from each brand's sheet
-const allDealsFlat = [];        // Flattened list of all deals across brands
-let currentPopupDeal = null;    // Currently open deal in the popup
-let likedDealIndex = 0;         // Index of current liked deal being viewed
-let likedDealKeys = [];         // Array of liked deal keys
-let isLikedMode = false;        // Tracks whether we’re in liked mode or random mode
-let allDealsFromSheets = [];
-let isBrandMode = false;
-let brandDealIndex = 0;
-let brandDealKeys =[];	
-let isSwiping = false;
-let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
-let lastKnownLocation = null;
-let userLocation = null;
-let brandLocations = {}; // Declare at the top of your script
-
-
 	/////////// ADMIN	
 const tapZone = document.createElement('div');
  tapZone.id = 'secretTapZone';
