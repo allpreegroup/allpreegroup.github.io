@@ -2032,7 +2032,7 @@ function clearBrandCart(brand) {
     popup.innerHTML = `<div style="text-align:center;">📝 Your shopping list is empty.</div>`;
   }
 }
-
+	
 
 function saveLocation(coords) {
   localStorage.setItem('userLocation', coords);
@@ -2058,9 +2058,27 @@ function showLoadingMessage(message) {
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
       z-index: 9999;
     `;
+
+    const closeBtn = document.createElement('span');
+    closeBtn.textContent = '✖';
+    closeBtn.style = `
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    `;
+    closeBtn.onclick = hideLoadingMessage;
+    loading.appendChild(closeBtn);
+
+    const messageP = document.createElement('p');
+    messageP.id = 'loading-text';
+    messageP.style = 'margin-top: 20px;';
+    loading.appendChild(messageP);
+
     document.body.appendChild(loading);
   }
-  loading.innerHTML = `<p>${message}</p>`;
+  document.getElementById('loading-text').textContent = message;
 }
 
 function hideLoadingMessage() {
@@ -2110,7 +2128,7 @@ async function ensureUserLocation() {
 
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      showLoadingMessage("Geolocation is not supported by your browser.");
       return resolve(false);
     }
 
@@ -2125,7 +2143,8 @@ async function ensureUserLocation() {
       (err) => {
         hideLoadingMessage();
         console.warn("User denied location or error occurred", err);
-        alert("We need your location to show directions. Please allow it when asked.");
+        showLoadingMessage("Location denied. Please allow location access to continue.");
+        setTimeout(hideLoadingMessage, 3000);
         resolve(false);
       }
     );
@@ -2157,7 +2176,8 @@ function hasMovedSignificantly(savedLocation, currentLocation) {
 
 function handleLocationClick(coordinates) {
   if (!coordinates) {
-    alert("Sorry, this location is not available yet.");
+    showLoadingMessage("Sorry, this location is not available yet.");
+    setTimeout(hideLoadingMessage, 3000);
     return;
   }
   closeLocationPopup();
@@ -2180,12 +2200,14 @@ function getUserLocationAndNavigate(destination) {
       },
       () => {
         hideLoadingMessage();
-        alert("Could not retrieve your location.");
+        showLoadingMessage("Could not retrieve your location.");
+        setTimeout(hideLoadingMessage, 3000);
       }
     );
   } else {
     hideLoadingMessage();
-    alert("Geolocation is not supported by your browser.");
+    showLoadingMessage("Geolocation is not supported by your browser.");
+    setTimeout(hideLoadingMessage, 3000);
   }
 }
 
@@ -2202,7 +2224,8 @@ async function openBrandLocation(brand) {
   const dest = brandLocations[brand];
 
   if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
-    alert("No location set for this brand yet.");
+    showLoadingMessage("No location set for this brand yet.");
+    setTimeout(hideLoadingMessage, 3000);
     isNavigating = false;
     return;
   }
@@ -2271,7 +2294,8 @@ function showLocationPopup(brandLocations) {
 
 function handleNavigate(coords, origin) {
   if (!coords || coords.trim() === '') {
-    alert("No location set for this location yet.");
+    showLoadingMessage("No location set for this location yet.");
+    setTimeout(hideLoadingMessage, 3000);
     return;
   }
   closeLocationPopup();
@@ -2300,6 +2324,7 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
+
 
 //////////////
 	
