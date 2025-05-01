@@ -2112,7 +2112,7 @@ function handleLocationClick(coordinates) {
   navigateToLocation(coordinates);
 }
 
-/*	
+	
 async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
@@ -2163,58 +2163,7 @@ if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest ==
       isNavigating = false;
     }
   }
-} */
-
-async function openBrandLocation(brand) {
-  if (isNavigating) return;
-  isNavigating = true;
-
-  const dest = brandLocations[brand];
-
-  // If no destination OR blank string OR empty object
-  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
-    alert("No location set for this brand yet.");
-    isNavigating = false;
-    return;
-  }
-
-  // Brand has multiple locations
-  if (typeof dest === 'object') {
-    showLocationPopup(dest);
-    isNavigating = false;
-    return;
-  }
-
-  // Brand has only one location
-  const savedLocation = getSavedLocation();
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
-
-        if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
-          userLocation = currentCoords;
-          saveLocation(currentCoords);
-          alert("Close to redirect to Google Maps for directions.");
-        }
-
-        navigateToLocation(dest, currentCoords);
-        isNavigating = false;
-      },
-      (err) => {
-        alert("Could not retrieve your location.");
-        navigateToLocation(dest, savedLocation || null);
-        isNavigating = false;
-      }
-    );
-  } else {
-    alert("Geolocation is not supported by your browser.");
-    navigateToLocation(dest, savedLocation || null);
-    isNavigating = false;
-  }
-}
-	
+} 	
 
 function showLocationPopup(brandLocations) {
   // Check if already open
