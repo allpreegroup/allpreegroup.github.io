@@ -2034,7 +2034,6 @@ function clearBrandCart(brand) {
 }
 
 
-
 function saveLocation(coords) {
   localStorage.setItem('userLocation', coords);
 }
@@ -2098,39 +2097,39 @@ async function loadBrandLocations() {
 }
 
 async function showCartWithLocations() {
-  await ensureUserLocation();
+  const allowed = await ensureUserLocation();
+  if (!allowed) return;
+
   await loadBrandLocations();
   openCartPopup();
 }
 
 async function ensureUserLocation() {
   const saved = getSavedLocation();
-  if (saved) return;
+  if (saved) return true;
 
-  while (!getSavedLocation()) {
-    await new Promise((resolve, reject) => {
-      showLoadingMessage("We need your location to continue...");
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            hideLoadingMessage();
-            const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-            saveLocation(coords);
-            resolve();
-          },
-          (err) => {
-            hideLoadingMessage();
-            alert("We need your location to proceed.");
-            resolve(); // retry on next loop
-          }
-        );
-      } else {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return resolve(false);
+    }
+
+    showLoadingMessage("We need your location to continue...");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
         hideLoadingMessage();
-        alert("Geolocation is not supported by your browser.");
-        reject();
+        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+        saveLocation(coords);
+        resolve(true);
+      },
+      (err) => {
+        hideLoadingMessage();
+        console.warn("User denied location or error occurred", err);
+        alert("We need your location to show directions. Please allow it when asked.");
+        resolve(false);
       }
-    });
-  }
+    );
+  });
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -2177,7 +2176,7 @@ function getUserLocationAndNavigate(destination) {
         if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
           saveLocation(currentCoords);
         }
-        navigateToLocation(destination, getSavedLocation());
+        navigateToLocation(destination, currentCoords);
       },
       () => {
         hideLoadingMessage();
@@ -2194,7 +2193,11 @@ async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
 
-  await ensureUserLocation();
+  const allowed = await ensureUserLocation();
+  if (!allowed) {
+    isNavigating = false;
+    return;
+  }
 
   const dest = brandLocations[brand];
 
@@ -2296,7 +2299,10 @@ function navigateToLocation(dest, originCoords = null) {
     : `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
 
   window.location.href = url;
-}	
+}
+
+//////////////
+	
 	
 function openCartPopup() {
   // Prevent duplicate backdrop
