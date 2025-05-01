@@ -77,6 +77,22 @@
  
 }
 
+.location-badge {
+  background-color: #f5f5f5;
+  color: #000;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 20px;
+  position: absolute;
+  top: -10px;
+  right: -70px;
+  font-size: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+.brand-logo-container {
+  position: absolute; /* Needed for badge positioning */
+ 
+}
 		 
 .top-deal-badge {
   background-color: gold;
@@ -1261,25 +1277,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div id="cartPopup" style="display: none; position: fixed; top: 60px; right: 10px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 10000; padding: 16px;"></div>
 			 
 <script>
-	let sheetUrls = [];
-
-async function loadSheetUrls() {
-  try {
-    // Fetch the sheeturls.json
-    const response = await fetch('https://www.allpree.com/sheeturls.json'); // Make sure this is the correct URL to your JSON file
-    const data = await response.json();
-
-    // Now we have the array of URLs
-    sheetUrls = data.sheeturls; // This will assign the URLs to the sheetUrls variable
-    console.log(sheetUrls); // You can log the URLs to confirm
-    loadDeals(); // Call the loadDeals function after loading the sheet URLs
-  } catch (err) {
-    console.error('Failed to load sheet URLs:', err);
-  }
-}
-
-loadSheetUrls(); // Call this function to initialize and load the URLs
-	
+let sheetUrls = [];		
 const allBrandsData = [];       // Holds all data from each brand's sheet
 const allDealsFlat = [];        // Flattened list of all deals across brands
 let currentPopupDeal = null;    // Currently open deal in the popup
@@ -1294,8 +1292,30 @@ let isSwiping = false;
 let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
 let lastKnownLocation = null;
 let userLocation = null;
+let brandLocations = {}; // Declare at the top of your script
 
+// Initialize the app, calling loadBrandLocations and loadDeals
+async function init() {
+  await loadBrandLocations();  // Load brand locations first
+  await loadDeals();           // Then load the deals
+}	
 
+async function loadSheetUrls() {
+  try {
+    // Fetch the sheeturls.json
+    const response = await fetch('https://www.allpree.com/sheeturls.json'); // Make sure this is the correct URL to your JSON file
+    const data = await response.json();
+
+    // Now we have the array of URLs
+    sheetUrls = data.sheeturls; // This will assign the URLs to the sheetUrls variable
+    console.log(sheetUrls); // You can log the URLs to confirm
+     init(); // ✅ Start the app after URLs are ready
+  } catch (err) {
+    console.error('Failed to load sheet URLs:', err);
+  }
+}
+
+loadSheetUrls(); // Call this function to initialize and load the URLs
 
 /////////// ADMIN	
 const tapZone = document.createElement('div');
@@ -3159,7 +3179,21 @@ if (!hasActiveRow) {
                 <span class="brand-timer" id="${timerId}">Visit us - More Deals Coming Soon! </span>
               </div>
             `;
-		  
+
+            // 📍 Add location badge
+          const locationBadge = document.createElement('div');
+          locationBadge.className = 'location-badge';
+          locationBadge.textContent = `📍`;
+          locationBadge.addEventListener('click', (event) => {
+          event.stopPropagation(); // Prevents grid from toggling
+          openBrandLocation(currentBrand);
+       });
+
+           const logoContainer = brandDiv.querySelector('.brand-logo-container');
+           if (logoContainer) {
+           logoContainer.appendChild(locationBadge);
+         }
+	  
            if (isPaidBrand) {
            const badge = document.createElement('div');
 
@@ -3409,7 +3443,7 @@ for (let i = 1; i <= 5; i++) {
     if (match && !promotedBrands.includes(match)) {
       const badge = document.createElement('div');
       badge.className = 'top-ranked-badge';
-      badge.textContent = `📍${i}`;
+      badge.textContent = `🎯${i}`;
 
       const logoContainer = match.section.querySelector('.brand-logo-container');
       if (logoContainer) logoContainer.appendChild(badge);
