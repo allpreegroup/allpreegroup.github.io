@@ -154,12 +154,17 @@
     }
 
     function handleDetection(result) {
-      const code = result.codeResult.code;
-      document.getElementById('barcode').value = code;
+  let code = result.codeResult.code;
 
-      stopQuagga();
-      lookupProduct();
-    }
+  // Normalize UPC (12 digits) to EAN-13 by prepending a "0"
+  if (code.length === 12) {
+    code = "0" + code;
+  }
+
+  document.getElementById('barcode').value = code;
+  stopQuagga();
+  lookupProduct();
+}
 
     function stopQuagga() {
       if (Quagga) {
