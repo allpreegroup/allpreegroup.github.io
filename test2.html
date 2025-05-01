@@ -1295,6 +1295,7 @@ let isSwiping = false;
 let isNavigating = false; // Flag to prevent multiple redirects happening at the same time
 let lastKnownLocation = null;
 let userLocation = null;
+let brandLocations = {}; // Declare at the top of your script
 
 
 	/////////// ADMIN	
@@ -3452,6 +3453,8 @@ async function loadDeals() {
               </div>
             `;
 
+	     brandList.forEach((brand) => {
+             const brandDiv = createBrandDiv(brand); // or however you're building brandDivs
             // Add badge here for each brand
             const badge = document.createElement('div');
             badge.className = 'location-badge';
