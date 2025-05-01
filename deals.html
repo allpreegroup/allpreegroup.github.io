@@ -2043,13 +2043,34 @@ function clearBrandCart(brand) {
 
 async function loadBrandLocations() {
   try {
-    const res = await fetch('brandLocations.json');
-    if (!res.ok) throw new Error('Failed to fetch locations');
-    brandLocations = await res.json();
+    const res = await fetch('https://opensheet.elk.sh/19K8yc9jeDGb4BRjKq_lE_Xh0d-K7p-f24QtnP7vv0sQ/Sheet1'); // Replace with your actual Sheet ID and tab name
+    if (!res.ok) throw new Error('Failed to fetch locations from Google Sheet');
+    
+    const data = await res.json();
+
+    // Convert the flat sheet data into the nested brandLocations format
+    brandLocations = {};
+
+    data.forEach(row => {
+      const brand = row.parentBrand?.trim();
+      const store = row.storeLocation?.trim();
+      const coords = row.coordinates?.trim();
+
+      if (!brand || !store) return;
+
+      if (!brandLocations[brand]) {
+        brandLocations[brand] = {};
+      }
+
+      brandLocations[brand][store] = coords || " ";
+    });
+
+    console.log("Loaded brand locations:", brandLocations);
   } catch (err) {
     console.error('Failed to load brand locations:', err);
   }
 }
+
 	
 
 async function showCartWithLocations() {
