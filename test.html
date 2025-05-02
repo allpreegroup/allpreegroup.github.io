@@ -279,8 +279,9 @@ img.onerror = () => {
     form.submit();
      
 
-    // Set the URL hash to "#submitted"
-  window.location.hash = "#submitted";
+    // Call function to show the popup message after form submission
+  showPopupMessage();
+
     
     // Reset the form after submission
     document.getElementById('barcode').value = '';
@@ -288,7 +289,24 @@ img.onerror = () => {
     document.getElementById('brand').value = '';
     document.getElementById('size').value = '';
   }
+  
+function showPopupMessage() {
+  if (submitted) {
+    const popup = document.getElementById('popup-message');
+    popup.style.display = 'flex';  // Show the popup
+    setTimeout(() => {
+      popup.style.display = 'none';  // Hide the popup after 3 seconds
+      submitted = false;  // Reset the flag to prevent popup from showing again on page reload
+    }, 3000);
+  }
+}
 
+function hidePopupMessage() {
+  document.getElementById('popup-message').style.display = 'none';
+}
+
+
+  
   function startQuagga() {
     const scannerEl = document.getElementById('scanner');
     scannerEl.style.display = 'block';
@@ -351,29 +369,6 @@ img.onerror = () => {
     scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
   }
   
-  function showPopupMessage() {
-  const popup = document.getElementById('popup-message');
-  popup.style.display = 'flex';
-  setTimeout(() => {
-    popup.style.display = 'none';
-  }, 3000);  // Auto-hide after 3 seconds
-}
-
-function hidePopupMessage() {
-  document.getElementById('popup-message').style.display = 'none';
-}
-
-  window.addEventListener('load', () => {
-  if (window.location.hash === "#submitted") {
-    showPopupMessage();  // Show the popup
-
-    // Clear the hash after showing the popup
-    setTimeout(() => {
-      window.location.hash = "";  // Remove the #submitted hash
-      location.reload();  // Reload the page after clearing the hash
-    }, 1500);  // Delay the page reload for a smooth popup experience
-  }
-});
 </script>
 
 
