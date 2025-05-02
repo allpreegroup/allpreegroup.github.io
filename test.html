@@ -74,42 +74,7 @@
 </head>
 <body>
 
-  <button onclick="sendDataToGoogleAppScript()">Send Data</button>
- <script>
-        async function sendDataToGoogleAppScript() {
-    const url = 'https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec';
-    
-    const data = {
-        action: 'add',
-        barcode: '1111111111111',
-        name: 'Demo Test Product',
-        brand: 'Demo Brand',
-        size: '750ml',
-        cashback: '15',
-        imageUrl: 'https://example.com/demo.jpg'
-    };
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'  // This is the important header to send JSON data
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-        const responseData = await response.json();
-        alert('Data successfully posted!');
-        console.log('Data successfully posted:', responseData);
-    } else {
-        alert('Error posting data: ' + response.status);
-        console.error('Error posting data:', response.status, response.statusText);
-    }
-}
-
-    </script>
-
- <!-- 
   <h2>Scan or Enter Barcode</h2>
 <div class="form-wrapper">
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
@@ -135,179 +100,174 @@
   </div>
  </div>
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
-  <script>
-    function lookupProduct() {
-  const code = document.getElementById('barcode').value.trim();
-  const localData = localStorage.getItem('product-' + code);
-  const productInfo = document.getElementById('product-info');
-  const manualEntry = document.getElementById('manual-entry');
+<script>
+  function lookupProduct() {
+    const code = document.getElementById('barcode').value.trim();
+    const localData = localStorage.getItem('product-' + code);
+    const productInfo = document.getElementById('product-info');
+    const manualEntry = document.getElementById('manual-entry');
 
-  productInfo.style.textAlign = 'center';
+    productInfo.style.textAlign = 'center';
 
-  if (localData) {
-    showProduct(JSON.parse(localData));
-  } else {
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-    const img = new Image();
-    img.src = imageUrl;
+    if (localData) {
+      showProduct(JSON.parse(localData));
+    } else {
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+      const img = new Image();
+      img.src = imageUrl;
 
-    img.onload = () => {
-      productInfo.innerHTML = `
-        <img src="${imageUrl}" />
-        <p>✅ Image found on GitHub! Enter the rest of the info below.</p>`;
-      manualEntry.style.display = 'block';
-    };
+      img.onload = () => {
+        productInfo.innerHTML = `
+          <img src="${imageUrl}" />
+          <p>✅ Image found on GitHub! Enter the rest of the info below.</p>`;
+        manualEntry.style.display = 'block';
+      };
 
-    img.onerror = () => {
-      productInfo.innerHTML = `
-        <p>❌ No product image found for barcode: <strong>${code}</strong></p>`;
-      manualEntry.style.display = 'block';
-    };
+      img.onerror = () => {
+        productInfo.innerHTML = `
+          <p>❌ No product image found for barcode: <strong>${code}</strong></p>`;
+        manualEntry.style.display = 'block';
+      };
+    }
+
+    // 🔄 Autofill from Google Sheet using OpenSheet
+    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/sheet1')
+      .then(res => res.json())
+      .then(data => {
+        const match = data.find(row => row.Barcode === code);
+        if (match) {
+          const product = {
+            barcode: code,
+            name: match.Name || '',
+            brand: match.Brand || '',
+            size: match.Size || '',
+            imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
+          };
+          showProduct(product); // 💥 This will display it like localStorage does
+          console.log('✅ Product loaded from Google Sheet.');
+        } else {
+          console.log('ℹ️ No matching product found in Google Sheet.');
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching sheet:', err);
+      });
   }
 
-  // 🔄 Autofill from Google Sheet using OpenSheet
-  fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/sheet1')
-    .then(res => res.json())
-    .then(data => {
-      const match = data.find(row => row.Barcode === code);
-      if (match) {
-  const product = {
-    barcode: code,
-    name: match.Name || '',
-    brand: match.Brand || '',
-    size: match.Size || '',
-    cashback: match.Cashback || ''
-  };
-  showProduct(product); // 💥 This will display it like localStorage does
-  console.log('✅ Product loaded from Google Sheet.');
-}
- else {
-        console.log('ℹ️ No matching product found in Google Sheet.');
-      }
+  function showProduct(product) {
+    document.getElementById('product-info').innerHTML = `
+      <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" />
+      <h3>${product.name}</h3>
+      <p><strong>Brand:</strong> ${product.brand}</p>
+      <p><strong>Size:</strong> ${product.size}</p>
+    `;
+    document.getElementById('manual-entry').style.display = 'none';
+  }
+
+  function saveProduct() {
+    const code = document.getElementById('barcode').value.trim();
+    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+    const product = {
+      barcode: code,
+      name: document.getElementById('name').value.trim(),
+      brand: document.getElementById('brand').value.trim(),
+      size: document.getElementById('size').value.trim(),
+      imageUrl: imageUrl
+    };
+
+    // Save to localStorage
+    localStorage.setItem('product-' + code, JSON.stringify(product));
+
+    // Send product data to Google Form (without cashback)
+    const formData = new FormData();
+    formData.append('entry.704671786', product.barcode); // Barcode
+    formData.append('entry.776500300', product.name); // Product Name
+    formData.append('entry.1276633099', product.brand); // Brand
+    formData.append('entry.875936883', product.size); // Size
+    formData.append('entry.1939692918', product.imageUrl); // Image URL
+
+    // Submit the form data
+    fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse', {
+      method: 'POST',
+      body: formData
+    })
+    .then(() => {
+      alert('Product added successfully!');
+      // Optionally reset the form or disable buttons after submission
+      document.getElementById('barcode').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('brand').value = '';
+      document.getElementById('size').value = '';
     })
     .catch(err => {
-      console.error('Error fetching sheet:', err);
+      console.error('Error:', err);
+      alert('There was an error adding the product.');
     });
-}
-
-
-    function showProduct(product) {
-      document.getElementById('product-info').innerHTML = `
-        <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" />
-        <h3>${product.name}</h3>
-        <p><strong>Brand:</strong> ${product.brand}</p>
-        <p><strong>Size:</strong> ${product.size}</p>
-        <p><strong>Cashback:</strong> ${product.cashback}%</p>
-      `;
-      document.getElementById('manual-entry').style.display = 'none';
-    }
-
-  
-function saveProduct() {
-  const code = document.getElementById('barcode').value.trim();
-  const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-
-  const product = {
-    barcode: code,
-    name: document.getElementById('name').value.trim(),
-    brand: document.getElementById('brand').value.trim(),
-    size: document.getElementById('size').value.trim(),
-    cashback: document.getElementById('cashback').value.trim(),
-    imageUrl: imageUrl
-  };
-
-  // Save to localStorage
-  localStorage.setItem('product-' + code, JSON.stringify(product));
-
-  // Send product data to Google Apps Script via POST (to Sheet3)
-  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-    method: 'POST',
-    body: new URLSearchParams({
-      action: 'addProduct', // Action to add the product to Sheet3
-      barcode: product.barcode,
-      name: product.name,
-      brand: product.brand,
-      size: product.size,
-      cashback: product.cashback,
-      imageUrl: product.imageUrl
-    })
-  }).then(() => {
-    alert('Product added successfully!');
-    // Optionally reset the form or disable buttons after submission
-    document.getElementById('barcode').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('brand').value = '';
-    document.getElementById('size').value = '';
-    document.getElementById('cashback').value = '';
-  }).catch(err => {
-    console.error('Error:', err);
-    alert('There was an error adding the product.');
-  });
-}
-
-  
-   function startQuagga() {
-  const scannerEl = document.getElementById('scanner');
-  scannerEl.style.display = 'block';
-  scannerEl.innerHTML = '';
-
-  Quagga.init({
-    inputStream: {
-      name: "Live",
-      type: "LiveStream",
-      target: scannerEl,
-      constraints: {
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        aspectRatio: { ideal: 1.777 }, // 16:9 for modern phones
-        advanced: [{ focusMode: "continuous" }] // Autofocus hint
-      },
-    },
-    decoder: {
-      readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
-    },
-    locate: true,
-    locator: {
-      patchSize: "medium", // Try "x-large" if small barcodes
-      halfSample: true
-    },
-    frequency: 10
-  }, function(err) {
-    if (err) {
-      console.error(err);
-      alert("❌ Error starting scanner. Please check camera permissions.");
-      return;
-    }
-    Quagga.start();
-  });
-
-  Quagga.onDetected(handleDetection);
-}
-
-
-    function handleDetection(result) {
-  let code = result.codeResult.code;
-
-  // Normalize UPC (12 digits) to EAN-13 by prepending a "0"
-  if (code.length === 12) {
-    code = "0" + code;
   }
 
-  document.getElementById('barcode').value = code;
-  stopQuagga();
-  lookupProduct();
-}
+  function startQuagga() {
+    const scannerEl = document.getElementById('scanner');
+    scannerEl.style.display = 'block';
+    scannerEl.innerHTML = '';
 
-    function stopQuagga() {
-      if (Quagga) {
-        Quagga.offDetected(handleDetection);
-        Quagga.stop();
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: scannerEl,
+        constraints: {
+          facingMode: "environment",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          aspectRatio: { ideal: 1.777 }, // 16:9 for modern phones
+          advanced: [{ focusMode: "continuous" }] // Autofocus hint
+        },
+      },
+      decoder: {
+        readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
+      },
+      locate: true,
+      locator: {
+        patchSize: "medium", // Try "x-large" if small barcodes
+        halfSample: true
+      },
+      frequency: 10
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        alert("❌ Error starting scanner. Please check camera permissions.");
+        return;
       }
-      const scannerEl = document.getElementById('scanner');
-      scannerEl.style.display = 'none';
-      scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
+      Quagga.start();
+    });
+
+    Quagga.onDetected(handleDetection);
+  }
+
+  function handleDetection(result) {
+    let code = result.codeResult.code;
+
+    // Normalize UPC (12 digits) to EAN-13 by prepending a "0"
+    if (code.length === 12) {
+      code = "0" + code;
     }
-  </script> -->
+
+    document.getElementById('barcode').value = code;
+    stopQuagga();
+    lookupProduct();
+  }
+
+  function stopQuagga() {
+    if (Quagga) {
+      Quagga.offDetected(handleDetection);
+      Quagga.stop();
+    }
+    const scannerEl = document.getElementById('scanner');
+    scannerEl.style.display = 'none';
+    scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
+  }
+</script>
+ 
 </body>
 </html>
