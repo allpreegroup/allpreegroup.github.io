@@ -90,13 +90,19 @@
         imageUrl: 'https://example.com/demo.jpg'
       };
 
+      // Prepare parameters for URLSearchParams
+      const params = new URLSearchParams();
+      Object.keys(mockEvent).forEach(key => {
+        params.append(key, mockEvent[key]);
+      });
+
       // Sending the POST request to the Apps Script endpoint
       fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: new URLSearchParams(mockEvent)
+        body: params
       })
       .then(response => response.text())
       .then(result => {
@@ -109,7 +115,6 @@
       });
     });
   </script>
-
 
 
   
