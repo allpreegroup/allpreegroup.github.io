@@ -101,27 +101,54 @@
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
   <script>
     function lookupProduct() {
-      const code = document.getElementById('barcode').value.trim();
-      const localData = localStorage.getItem('product-' + code);
+  const code = document.getElementById('barcode').value.trim();
+  const localData = localStorage.getItem('product-' + code);
+  const productInfo = document.getElementById('product-info');
+  const manualEntry = document.getElementById('manual-entry');
 
-      if (localData) {
-        showProduct(JSON.parse(localData));
+  productInfo.style.textAlign = 'center';
+
+  if (localData) {
+    showProduct(JSON.parse(localData));
+  } else {
+    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+    const img = new Image();
+    img.src = imageUrl;
+
+    img.onload = () => {
+      productInfo.innerHTML = `
+        <img src="${imageUrl}" />
+        <p>✅ Image found on GitHub! Enter the rest of the info below.</p>`;
+      manualEntry.style.display = 'block';
+    };
+
+    img.onerror = () => {
+      productInfo.innerHTML = `
+        <p>❌ No product image found for barcode: <strong>${code}</strong></p>`;
+      manualEntry.style.display = 'block';
+    };
+  }
+
+  // 🔄 Autofill from Google Sheet using OpenSheet
+  fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1')
+    .then(res => res.json())
+    .then(data => {
+      const match = data.find(row => row.Barcode === code);
+      if (match) {
+        document.getElementById('name').value = match.Name || '';
+        document.getElementById('brand').value = match.Brand || '';
+        document.getElementById('size').value = match.Size || '';
+        document.getElementById('cashback').value = match.Cashback || '';
+        console.log('✅ Product autofilled from Google Sheet.');
       } else {
-        const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => {
-          document.getElementById('product-info').innerHTML =
-            `<img src="${imageUrl}" /><p>Image found on GitHub! Enter the rest of the info below.</p>`;
-          document.getElementById('manual-entry').style.display = 'block';
-        };
-        img.onerror = () => {
-          document.getElementById('product-info').innerHTML =
-            `<p>No product found for barcode: ${code}</p>`;
-          document.getElementById('manual-entry').style.display = 'block';
-        };
+        console.log('ℹ️ No matching product found in Google Sheet.');
       }
-    }
+    })
+    .catch(err => {
+      console.error('Error fetching sheet:', err);
+    });
+}
+
 
     function showProduct(product) {
       document.getElementById('product-info').innerHTML = `
