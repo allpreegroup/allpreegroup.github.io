@@ -77,35 +77,36 @@
   <button onclick="sendDataToGoogleAppScript()">Send Data</button>
  <script>
         async function sendDataToGoogleAppScript() {
-            const url = 'https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec';
-            
-            const data = {
-                action: 'add',
-                barcode: '1111111111111',
-                name: 'Demo Test Product',
-                brand: 'Demo Brand',
-                size: '750ml',
-                cashback: '15',
-                imageUrl: 'https://example.com/demo.jpg'
-            };
+    const url = 'https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec';
+    
+    const data = {
+        action: 'add',
+        barcode: '1111111111111',
+        name: 'Demo Test Product',
+        brand: 'Demo Brand',
+        size: '750ml',
+        cashback: '15',
+        imageUrl: 'https://example.com/demo.jpg'
+    };
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'  // This is the important header to send JSON data
+        },
+        body: JSON.stringify(data)
+    });
 
-            if (response.ok) {
-                const responseData = await response.json();
-                alert('Data successfully posted!');
-                console.log('Data successfully posted:', responseData);
-            } else {
-                alert('Error posting data: ' + response.status);
-                console.error('Error posting data:', response.status, response.statusText);
-            }
-        }
+    if (response.ok) {
+        const responseData = await response.json();
+        alert('Data successfully posted!');
+        console.log('Data successfully posted:', responseData);
+    } else {
+        alert('Error posting data: ' + response.status);
+        console.error('Error posting data:', response.status, response.statusText);
+    }
+}
+
     </script>
 
  <!-- 
