@@ -181,9 +181,7 @@ canvas, video {
   }
 
   function saveProduct() {
-    submitted = true;
-    form.target = "hidden_iframe";
-    
+    submitted = true; 
     const code = document.getElementById('barcode').value.trim();
     const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
@@ -191,7 +189,8 @@ canvas, video {
     const form = document.createElement('form');
     form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
     form.method = 'POST';
-
+    form.target = "hidden_iframe";
+    
     // Append the product data to the form
     const barcodeInput = document.createElement('input');
     barcodeInput.type = 'hidden';
