@@ -147,17 +147,8 @@ canvas, video {
  </div>
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
 
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="
-  if(submitted) {
-    const msg = document.getElementById('popup-message');
-    msg.style.display = 'block';
-    setTimeout(() => {
-      msg.style.display = 'none';
-      submitted = false;
-      location.reload();
-    }, 1500);
-  }
-"></iframe>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
 
 <div id="popup-message" class="popup-message">
   ✅ Product added!
@@ -368,6 +359,17 @@ img.onerror = () => {
 function hidePopupMessage() {
   document.getElementById('popup-message').style.display = 'none';
 }
+
+  window.addEventListener('load', () => {
+  if (window.location.hash === "#submitted") {
+    showPopupMessage();
+    setTimeout(() => {
+      window.location.hash = ""; // Clear the hash
+      location.reload(); // Reload page after popup
+    }, 1500);
+  }
+});
+
 </script>
 
 
