@@ -103,60 +103,67 @@
  </div>
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
 <script>
- function lookupProduct() {
-  const code = document.getElementById('barcode').value.trim();
-  const productInfo = document.getElementById('product-info');
-  const manualEntry = document.getElementById('manual-entry');
+  function lookupProduct() {
+    const code = document.getElementById('barcode').value.trim();
+    const productInfo = document.getElementById('product-info');
+    const manualEntry = document.getElementById('manual-entry');
 
-  productInfo.style.textAlign = 'center';
+    productInfo.style.textAlign = 'center';
 
-  // Attempt to fetch product data from OpenSheet (Google Sheets)
-  fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/sheet1')
-    .then(res => res.json())
-    .then(data => {
-      const match = data.find(row => row['Barcode'] === code); // Use clean column names
-      if (match) {
-        const product = {
-          barcode: match['Barcode'] || '',
-          name: match['Product Name'] || '',
-          brand: match['Brand'] || '',
-          size: match['Size'] || '',
-          imageUrl: match['Image URL'] || ''
-        };
+    if (localData) {
+      showProduct(JSON.parse(localData));
+    } else {
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+      const img = new Image();
+      img.src = imageUrl;
 
-        // Display the product information and autofill the form
-        showProduct(product);
-        console.log('✅ Product loaded from Google Sheet.');
-      } else {
-        productInfo.innerHTML = `<p>No matching product found for barcode: <strong>${code}</strong></p>`;
-        manualEntry.style.display = 'block'; // Show manual entry form
-        console.log('ℹ️ No matching product found in Google Sheet.');
-      }
-    })
-    .catch(err => {
-      console.error('Error fetching sheet:', err);
-      productInfo.innerHTML = `<p>❌ Error fetching product data.</p>`;
-    });
-}
+      img.onload = () => {
+        productInfo.innerHTML = `
+          <img src="${imageUrl}" />
+          <p>✅ Image found on GitHub! Enter the rest of the info below.</p>`;
+        manualEntry.style.display = 'block';
+      };
 
-function showProduct(product) {
-  // Display the product image and details
-  document.getElementById('product-info').innerHTML = `
-    <img src="${product.imageUrl}" alt="${product.name}" />
-    <h3>${product.name}</h3>
-    <p><strong>Brand:</strong> ${product.brand}</p>
-    <p><strong>Size:</strong> ${product.size}</p>`;
+      img.onerror = () => {
+        productInfo.innerHTML = `
+          <p>❌ No product image found for barcode: <strong>${code}</strong></p>`;
+        manualEntry.style.display = 'block';
+      };
+    }
 
-  // Autofill form fields
-  document.getElementById('barcode').value = product.barcode;
-  document.getElementById('name').value = product.name;
-  document.getElementById('brand').value = product.brand;
-  document.getElementById('size').value = product.size;
-  document.getElementById('imageUrl').value = product.imageUrl;  // If you have an image URL field
+    // 🔄 Autofill from Google Sheet using OpenSheet
+    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+      .then(res => res.json())
+      .then(data => {
+        const match = data.find(row => row.Barcode === code);
+        if (match) {
+          const product = {
+            barcode: code,
+            name: match.Name || '',
+            brand: match.Brand || '',
+            size: match.Size || '',
+            imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
+          };
+          showProduct(product); // 💥 This will display it like localStorage does
+          console.log('✅ Product loaded from Google Sheet.');
+        } else {
+          console.log('ℹ️ No matching product found in Google Sheet.');
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching sheet:', err);
+      });
+  }
 
-  // Hide manual entry form (since we autofilled the data)
-  document.getElementById('manual-entry').style.display = 'none';
-}
+  function showProduct(product) {
+    document.getElementById('product-info').innerHTML = `
+      <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" />
+      <h3>${product.name}</h3>
+      <p><strong>Brand:</strong> ${product.brand}</p>
+      <p><strong>Size:</strong> ${product.size}</p>
+    `;
+    document.getElementById('manual-entry').style.display = 'none';
+  }
 
   function saveProduct() {
     const code = document.getElementById('barcode').value.trim();
