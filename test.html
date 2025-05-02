@@ -75,33 +75,33 @@
 <body>
 
 
- <button onclick="submitProduct()">Add Test Product</button>
+<button onclick="submitProduct()">Add Test Product</button>
 
-  <script>
-    function submitProduct() {
-      fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'addProduct',
-          barcode: '1234567890123',
-          name: 'Test Product',
-          brand: 'Test Brand',
-          size: '500ml',
-          cashback: '10',
-          imageUrl: 'https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/1234567890123.jpg'
-        })
+<script>
+  function submitProduct() {
+    fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+      method: 'POST',
+      body: new URLSearchParams({
+        action: 'addProduct',
+        barcode: '1234567890123',
+        name: 'Test Product',
+        brand: 'Test Brand',
+        size: '500ml',
+        cashback: '10',
+        imageUrl: 'https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/1234567890123.jpg'
       })
-      .then(res => res.text())
-      .then(result => {
-        console.log('✅ Response:', result);
-        alert('Product submitted: ' + result);
-      })
-      .catch(err => {
-        console.error('❌ Error adding product:', err);
-        alert('Error adding product.');
-      });
-    }
-  </script>
+    })
+    .then(res => res.text())
+    .then(result => {
+      alert('✅ Product submitted: ' + result);
+    })
+    .catch(err => {
+      console.error('❌ Error:', err);
+      alert('There was an error adding the product.');
+    });
+  }
+</script>
+
 
 
   
