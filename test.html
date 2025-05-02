@@ -168,7 +168,7 @@
 
    function saveProduct() {
   const code = document.getElementById('barcode').value.trim();
-  const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;  // Dynamically generated image URL
+  const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
   const product = {
     barcode: code,
@@ -176,32 +176,38 @@
     brand: document.getElementById('brand').value.trim(),
     size: document.getElementById('size').value.trim(),
     cashback: document.getElementById('cashback').value.trim(),
-    imageUrl: imageUrl  // Make sure to add a comma after this line if other properties follow
+    imageUrl: imageUrl
   };
 
-  // Save to localStorage
+  // Save locally
   localStorage.setItem('product-' + code, JSON.stringify(product));
+  console.log('✅ Saved locally:', product);
 
-  // Send to Google Sheet
+  // Send to Google Sheet (Apps Script Web App)
   fetch('https://script.google.com/macros/s/AKfycbw5JFx0Er1K3Y8EcOVYkRZ_bTPXpGZzYEp14ses8YRuXiDeov1lJAOD6b4iMVD2_9NxZQ/exec', {
     method: 'POST',
-    body: JSON.stringify(product),
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(product)
   })
     .then(res => res.json())
     .then(response => {
       if (response.success) {
+        console.log('✅ Sent to Google Sheet:', product);
         alert('✅ Product saved to Google Sheet!');
         showProduct(product);
       } else {
+        console.warn('❌ Google Sheet rejected the data:', response);
         alert('❌ Failed to save to Google Sheet.');
       }
     })
-    .catch(err => {
-      console.error(err);
+    .catch(error => {
+      console.error('❌ Network error:', error);
       alert('❌ Network error while saving product.');
     });
 }
+
 
     
    function startQuagga() {
