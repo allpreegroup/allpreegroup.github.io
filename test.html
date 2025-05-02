@@ -135,12 +135,17 @@
     .then(data => {
       const match = data.find(row => row.Barcode === code);
       if (match) {
-        document.getElementById('name').value = match.Name || '';
-        document.getElementById('brand').value = match.Brand || '';
-        document.getElementById('size').value = match.Size || '';
-        document.getElementById('cashback').value = match.Cashback || '';
-        console.log('✅ Product autofilled from Google Sheet.');
-      } else {
+  const product = {
+    barcode: code,
+    name: match.Name || '',
+    brand: match.Brand || '',
+    size: match.Size || '',
+    cashback: match.Cashback || ''
+  };
+  showProduct(product); // 💥 This will display it like localStorage does
+  console.log('✅ Product loaded from Google Sheet.');
+}
+ else {
         console.log('ℹ️ No matching product found in Google Sheet.');
       }
     })
