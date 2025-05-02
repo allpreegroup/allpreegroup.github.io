@@ -75,36 +75,40 @@
 <body>
 
 
-<button onclick="submitProduct()">Add Test Product</button>
+<button id="addProductBtn">Add Test Product</button>
 
-<script>
-  function submitProduct() {
-    fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
+  <script>
+    document.getElementById('addProductBtn').addEventListener('click', function() {
+      // Simulating the mock event as in the Apps Script
+      const mockEvent = {
         action: 'add',
-        barcode: '1234567890123',
-        name: 'Test Product',
-        brand: 'Test Brand',
-        size: '500ml',
-        cashback: '10',
-        imageUrl: 'https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/1234567890123.jpg'
-      })
-    })
-    .then(res => res.text())
-    .then(result => {
-      alert('✅ Product submitted: ' + result);
-    })
-    .catch(err => {
-      console.error('❌ Error:', err);
-      alert('There was an error adding the product.');
-    });
-  }
-</script>
+        barcode: '1111111111111',
+        name: 'Demo Test Product',
+        brand: 'Demo Brand',
+        size: '750ml',
+        cashback: '15',
+        imageUrl: 'https://example.com/demo.jpg'
+      };
 
+      // Sending the POST request to the Apps Script endpoint
+      fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(mockEvent)
+      })
+      .then(response => response.text())
+      .then(result => {
+        alert('✅ Product added: ' + result); // Success message
+        console.log(result); // Log response in console
+      })
+      .catch(error => {
+        alert('❌ Error adding product');
+        console.error('Error:', error); // Log error in console
+      });
+    });
+  </script>
 
 
 
