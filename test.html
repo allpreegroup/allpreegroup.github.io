@@ -183,31 +183,32 @@ function saveProduct() {
   // Save to localStorage
   localStorage.setItem('product-' + code, JSON.stringify(product));
 
-  // Convert to URL-encoded format for Google Apps Script
-  const formData = new URLSearchParams();
-  for (const key in product) {
-    formData.append(key, product[key]);
-  }
-
-  // Send to Google Sheet through Apps Script Web App (must be deployed as Web App with "Anyone" access)
-  fetch('https://script.google.com/macros/s/AKfycbwBPu4vlpSzcsq0_8iQaEfkVF1H6DhyKrS4wEHL-Ur9byZjW8fA_dHCN6_iKC7AkMRiTA/exec', {
+  // Send product data to Google Apps Script via POST
+  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
     method: 'POST',
-    body: formData
-  })
-    .then(res => res.text()) // Google Apps Script usually returns plain text
-    .then(response => {
-      alert('✅ Product saved to Google Sheet!');
-      console.log('Response:', response);
-      showProduct(product);
+    body: new URLSearchParams({
+      action: 'addProduct', // Action to add the product to Sheet3
+      barcode: product.barcode,
+      name: product.name,
+      brand: product.brand,
+      size: product.size,
+      cashback: product.cashback,
+      imageUrl: product.imageUrl
     })
-    .catch(err => {
-      console.error('❌ Network error:', err);
-      alert('❌ Failed to save product.');
-    });
+  }).then(() => {
+    alert('Product added successfully!');
+    // Optionally reset the form or disable buttons after submission
+    document.getElementById('barcode').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('brand').value = '';
+    document.getElementById('size').value = '';
+    document.getElementById('cashback').value = '';
+  }).catch(err => {
+    console.error('Error:', err);
+    alert('There was an error adding the product.');
+  });
 }
-
-
-    
+  
    function startQuagga() {
   const scannerEl = document.getElementById('scanner');
   scannerEl.style.display = 'block';
