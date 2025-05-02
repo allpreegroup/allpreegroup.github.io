@@ -93,7 +93,10 @@ canvas, video {
     <button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>
   </div>
 
-  <div id="product-info"></div>
+  <div id="product-info">
+   <br>
+    <button id="refresh-button" style="display:none; margin-top: 1rem;" onclick="location.reload()">🔄 Refresh Page</button>
+  </div>
 
   <div id="manual-entry">
     <h3>Add New Product</h3>
@@ -154,6 +157,10 @@ canvas, video {
           };
           showProduct(product);
           console.log('✅ Product loaded from Google Sheet.');
+
+          // Show the refresh button
+          document.getElementById('refresh-button').style.display = 'inline-block';
+          
         } else {
           console.log('ℹ️ No matching product found in Google Sheet.');
         }
