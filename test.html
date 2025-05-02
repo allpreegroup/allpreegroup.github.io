@@ -131,27 +131,27 @@ function lookupProduct() {
 
   // Autofill from Google Sheet using OpenSheet
   fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-    .then(res => res.json())
-    .then(data => {
-      const match = data.find(row => row.Barcode === code);
-      if (match) {
-        const product = {
-          barcode: code,
-          name: match.Name || '',
-          brand: match.Brand || '',
-          size: match.Size || '',
-          imageUrl: imageUrl
-        };
-        showProduct(product);
-        console.log('✅ Product loaded from Google Sheet.');
-      } else {
-        console.log('ℹ️ No matching product found in Google Sheet.');
-      }
-    })
-    .catch(err => {
-      console.error('Error fetching sheet:', err);
-    });
-}
+  .then(res => res.json())
+  .then(data => {
+    const match = data.find(row => row["Barcode "]?.trim() === code);
+    if (match) {
+      const product = {
+        barcode: code,
+        name: match["Product Name "]?.trim() || '',
+        brand: match["Brand "]?.trim() || '',
+        size: match["Size "]?.trim() || '',
+        imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
+      };
+      showProduct(product);
+      console.log('✅ Product loaded from Google Sheet.');
+    } else {
+      console.log('ℹ️ No matching product found in Google Sheet.');
+    }
+  })
+  .catch(err => {
+    console.error('Error fetching sheet:', err);
+  });
+
 
 
   function showProduct(product) {
