@@ -74,48 +74,48 @@
 </head>
 <body>
 
+<button id="addProductBtn">Add Product</button>
 
-<h1>Add Product to Sheet3</h1>
-  <button id="addProductBtn">Add Test Product</button>
+<script>
+  document.getElementById('addProductBtn').addEventListener('click', function() {
+    // Simulating the mock event from the Apps Script test function
+    const mockEvent = {
+      action: 'add',
+      barcode: '1111111111111',
+      name: 'Demo Test Product',
+      brand: 'Demo Brand',
+      size: '750ml',
+      cashback: '15',
+      imageUrl: 'https://example.com/demo.jpg'
+    };
 
-  <script>
-    document.getElementById('addProductBtn').addEventListener('click', function() {
-      // Simulating the mock event as in the Apps Script
-      const mockEvent = {
-        action: 'add',
-        barcode: '1111111111111',
-        name: 'Demo Test Product',
-        brand: 'Demo Brand',
-        size: '750ml',
-        cashback: '15',
-        imageUrl: 'https://example.com/demo.jpg'
-      };
-
-      // Sending the POST request to the Apps Script endpoint
-      fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: mockEvent.action,
-          barcode: mockEvent.barcode,
-          name: mockEvent.name,
-          brand: mockEvent.brand,
-          size: mockEvent.size,
-          cashback: mockEvent.cashback,
-          imageUrl: mockEvent.imageUrl
-        })
+    // Send the data to Google Apps Script using fetch API
+    fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded', // ensure it's treated as form data
+      },
+      body: new URLSearchParams({
+        action: mockEvent.action,
+        barcode: mockEvent.barcode,
+        name: mockEvent.name,
+        brand: mockEvent.brand,
+        size: mockEvent.size,
+        cashback: mockEvent.cashback,
+        imageUrl: mockEvent.imageUrl
       })
-      .then(response => response.text())
-      .then(result => {
-        alert('✅ Product added: ' + result); // Success message
-        console.log(result); // Log response
-      })
-      .catch(error => {
-        alert('❌ Error adding product');
-        console.error('Error:', error); // Log error in console
-      });
+    })
+    .then(response => response.text())
+    .then(result => {
+      alert('✅ Product added: ' + result); // alert the success message
+      console.log(result); // log the result in the console for debugging
+    })
+    .catch(error => {
+      alert('❌ Error adding product');
+      console.error('Error:', error);
     });
-  </script>
-
+  });
+</script>
 
   
   <h2>Scan or Enter Barcode</h2>
