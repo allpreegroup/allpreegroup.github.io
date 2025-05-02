@@ -77,9 +77,8 @@
 <button id="addProductBtn">Add Product</button>
 
 <script>
-  document.getElementById('addProductBtn').addEventListener('click', function() {
-    // Simulating the mock event from the Apps Script test function
-    const mockEvent = {
+  document.getElementById('addProductBtn').addEventListener('click', function () {
+    const data = {
       action: 'add',
       barcode: '1111111111111',
       name: 'Demo Test Product',
@@ -89,33 +88,25 @@
       imageUrl: 'https://example.com/demo.jpg'
     };
 
-    // Send the data to Google Apps Script using fetch API
     fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded', // ensure it's treated as form data
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: new URLSearchParams({
-        action: mockEvent.action,
-        barcode: mockEvent.barcode,
-        name: mockEvent.name,
-        brand: mockEvent.brand,
-        size: mockEvent.size,
-        cashback: mockEvent.cashback,
-        imageUrl: mockEvent.imageUrl
-      })
+      body: new URLSearchParams(data)
     })
-    .then(response => response.text())
+    .then(res => res.text())
     .then(result => {
-      alert('✅ Product added: ' + result); // alert the success message
-      console.log(result); // log the result in the console for debugging
+      alert('✅ Response: ' + result);
+      console.log('Result:', result);
     })
-    .catch(error => {
-      alert('❌ Error adding product');
-      console.error('Error:', error);
+    .catch(err => {
+      console.error('❌ Error:', err);
+      alert('Error occurred.');
     });
   });
 </script>
+
 
   
   <h2>Scan or Enter Barcode</h2>
