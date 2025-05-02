@@ -168,13 +168,15 @@
 
    function saveProduct() {
   const code = document.getElementById('barcode').value.trim();
+  const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;  // Dynamically generated image URL
+
   const product = {
     barcode: code,
     name: document.getElementById('name').value.trim(),
     brand: document.getElementById('brand').value.trim(),
     size: document.getElementById('size').value.trim(),
-    cashback: document.getElementById('cashback').value.trim()
-    imageUrl: imageUrl  // Add image URL to the product data
+    cashback: document.getElementById('cashback').value.trim(),
+    imageUrl: imageUrl  // Make sure to add a comma after this line if other properties follow
   };
 
   // Save to localStorage
