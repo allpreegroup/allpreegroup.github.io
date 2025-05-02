@@ -356,7 +356,7 @@ img.onerror = () => {
   popup.style.display = 'flex';
   setTimeout(() => {
     popup.style.display = 'none';
-  }, 3000); // Auto-hide after 3 seconds
+  }, 3000);  // Auto-hide after 3 seconds
 }
 
 function hidePopupMessage() {
@@ -365,14 +365,15 @@ function hidePopupMessage() {
 
   window.addEventListener('load', () => {
   if (window.location.hash === "#submitted") {
-    showPopupMessage();
+    showPopupMessage();  // Show the popup
+
+    // Clear the hash after showing the popup
     setTimeout(() => {
-      window.location.hash = ""; // Clear the hash
-      location.reload(); // Reload page after popup
-    }, 1500);
+      window.location.hash = "";  // Remove the #submitted hash
+      location.reload();  // Reload the page after clearing the hash
+    }, 1500);  // Delay the page reload for a smooth popup experience
   }
 });
-
 </script>
 
 
