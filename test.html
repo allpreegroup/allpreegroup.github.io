@@ -11,6 +11,17 @@
   margin: 2rem auto;
   padding: 1rem;
 }
+
+.centered-content {
+  text-align: center;
+}
+
+.centered-content img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
     
 #popup-message {
     display: none;
@@ -154,20 +165,29 @@ canvas, video {
     const img = new Image();
     img.src = imageUrl;
 
-    // Show image if it exists
-    img.onload = () => {
-      productInfo.innerHTML = `
-        <img src="${imageUrl}" />
-        <p>✅ Image found on GitHub! Checking product info...</p>`;
-      manualEntry.style.display = 'block';
-    };
+    
+   // Show image if it exists
+img.onload = () => {
+  productInfo.innerHTML = `
+    <div class="centered-content">
+      <img src="${imageUrl}" />
+      <p>✅ Image found! Add product info...</p>
+    </div>`;
+  manualEntry.style.display = 'block';
+};
 
-    // Show message if image doesn't exist
-    img.onerror = () => {
-      productInfo.innerHTML = `
-        <p>❌ No product image found for barcode: <strong>${code}</strong></p>`;
-      manualEntry.style.display = 'block';
-    };
+// Show message if image doesn't exist
+img.onerror = () => {
+  productInfo.innerHTML = `
+    <div class="centered-content">
+      <p>❌ No product image found for barcode <br> 
+        <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+          ${code}
+        </a>
+    </div>`;
+  manualEntry.style.display = 'block';
+};
+
 
     // Autofill from Google Sheet using OpenSheet
     fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
