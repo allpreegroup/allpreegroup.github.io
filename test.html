@@ -110,6 +110,7 @@ canvas, video {
 
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(saveProduct) {window.location=' ';}"></iframe>
 <script>
+  let submitted = false;
   function lookupProduct() {
     const code = document.getElementById('barcode').value.trim();
     const productInfo = document.getElementById('product-info');
@@ -171,6 +172,7 @@ canvas, video {
   }
 
   function saveProduct() {
+    submitted = true;
     const code = document.getElementById('barcode').value.trim();
     const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
