@@ -22,7 +22,7 @@
   margin-bottom: 10px;
 }
 
-#popup-message {
+.popup-message {
   display: none;
   position: fixed;
   top: 20px;
@@ -35,6 +35,17 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popup-message .close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .form-wrapper {
@@ -148,17 +159,24 @@ canvas, video {
   }
 "></iframe
     
-  <div id="popup-message">✅ Product added!</div>
+ <div id="popup-message" class="popup-message">
+  ✅ Product added!
+  <button onclick="hidePopupMessage()" class="close-btn">✖</button>
+</div>
   
 <script>
   let submitted = false;
 
 function showPopupMessage() {
   const popup = document.getElementById('popup-message');
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
   setTimeout(() => {
     popup.style.display = 'none';
-  }, 2000);
+  }, 3000); // Auto-hide after 3 seconds
+}
+
+function hidePopupMessage() {
+  document.getElementById('popup-message').style.display = 'none';
 }
   
   function lookupProduct() {
