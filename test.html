@@ -74,33 +74,39 @@
 </head>
 <body>
 
-  <button onclick="submitProduct()">Add Demo Product</button>
+  <button onclick="sendDataToGoogleAppScript()">Send Data</button>
+ <script>
+        async function sendDataToGoogleAppScript() {
+            const url = 'https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec';
+            
+            const data = {
+                action: 'add',
+                barcode: '1111111111111',
+                name: 'Demo Test Product',
+                brand: 'Demo Brand',
+                size: '750ml',
+                cashback: '15',
+                imageUrl: 'https://example.com/demo.jpg'
+            };
 
-<script>
-  function submitProduct() {
-    fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-      method: 'POST',
-      body: new URLSearchParams({
-        action: 'add',
-        barcode: '1111111111111',
-        name: 'Demo Test Product',
-        brand: 'Demo Brand',
-        size: '750ml',
-        cashback: '15',
-        imageUrl: 'https://example.com/demo.jpg'
-      })
-    })
-    .then(res => res.text())
-    .then(result => {
-      alert('✅ Response: ' + result);
-    })
-    .catch(err => {
-      console.error('❌ Error:', err);
-      alert('Error adding product.');
-    });
-  }
-</script>
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
+            if (response.ok) {
+                const responseData = await response.json();
+                alert('Data successfully posted!');
+                console.log('Data successfully posted:', responseData);
+            } else {
+                alert('Error posting data: ' + response.status);
+                console.error('Error posting data:', response.status, response.statusText);
+            }
+        }
+    </script>
 
  <!-- 
   <h2>Scan or Enter Barcode</h2>
