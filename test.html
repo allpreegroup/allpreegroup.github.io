@@ -166,7 +166,8 @@
       document.getElementById('manual-entry').style.display = 'none';
     }
 
-   function saveProduct() {
+    
+function saveProduct() {
   const code = document.getElementById('barcode').value.trim();
   const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
@@ -179,32 +180,29 @@
     imageUrl: imageUrl
   };
 
-  // Save locally
+  // Save to localStorage
   localStorage.setItem('product-' + code, JSON.stringify(product));
-  console.log('✅ Saved locally:', product);
 
-  // Send to Google Sheet (Apps Script Web App)
+  // Convert to URL-encoded format for Google Apps Script
+  const formData = new URLSearchParams();
+  for (const key in product) {
+    formData.append(key, product[key]);
+  }
+
+  // Send to Google Sheet through Apps Script Web App (must be deployed as Web App with "Anyone" access)
   fetch('https://script.google.com/macros/s/AKfycbwBPu4vlpSzcsq0_8iQaEfkVF1H6DhyKrS4wEHL-Ur9byZjW8fA_dHCN6_iKC7AkMRiTA/exec', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(product)
+    body: formData
   })
-    .then(res => res.json())
+    .then(res => res.text()) // Google Apps Script usually returns plain text
     .then(response => {
-      if (response.success) {
-        console.log('✅ Sent to Google Sheet:', product);
-        alert('✅ Product saved to Google Sheet!');
-        showProduct(product);
-      } else {
-        console.warn('❌ Google Sheet rejected the data:', response);
-        alert('❌ Failed to save to Google Sheet.');
-      }
+      alert('✅ Product saved to Google Sheet!');
+      console.log('Response:', response);
+      showProduct(product);
     })
-    .catch(error => {
-      console.error('❌ Network error:', error);
-      alert('❌ Network error while saving product.');
+    .catch(err => {
+      console.error('❌ Network error:', err);
+      alert('❌ Failed to save product.');
     });
 }
 
