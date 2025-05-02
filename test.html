@@ -170,6 +170,7 @@ canvas, video {
     const productInfo = document.getElementById('product-info');
     const manualEntry = document.getElementById('manual-entry');
     const saveButton = document.getElementById('save-button'); // Get the save button
+    const imageInput = document.getElementById('image-upload'); // Get the image input field
 
     productInfo.style.textAlign = 'center';
 
@@ -180,7 +181,7 @@ canvas, video {
     // Initially, disable the save button
     saveButton.disabled = true;
 
-    // Show image if it exists
+    // Check if the image exists on GitHub
     img.onload = () => {
       productInfo.innerHTML = `
         <div class="centered-content">
@@ -191,7 +192,11 @@ canvas, video {
         </div>`;
       manualEntry.style.display = 'block';
 
-     
+      // Disable the image input if the image is found
+      imageInput.disabled = true;
+
+      // Enable the save button if other conditions are met
+      checkConditions();
     };
 
     // Show message if image doesn't exist
@@ -204,6 +209,12 @@ canvas, video {
             </a></p>
         </div>`;
       manualEntry.style.display = 'block';
+
+      // Enable the image input if the image doesn't exist
+      imageInput.disabled = false;
+
+      // Enable the save button if other conditions are met
+      checkConditions();
     };
 
     // Autofill from Google Sheet using OpenSheet
@@ -225,6 +236,8 @@ canvas, video {
           // Show the refresh button
           document.getElementById('refresh-button').style.display = 'inline-block';
 
+          // Disable the image upload if the image is found
+          imageInput.disabled = true;
         } else {
           console.log('ℹ️ No matching product found in Google Sheet.');
         }
@@ -247,84 +260,128 @@ canvas, video {
     document.getElementById('refresh-button').style.display = 'inline-block';
   }
 
-  async function saveProduct() {
-    submitted = true; 
-    const code = document.getElementById('barcode').value.trim();
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+  // Track the conditions
+  let isNameFilled = false;
+  let isBrandFilled = false;
+  let isSizeFilled = false;
+  let isImageUploaded = false;
 
-    // Get the image from the input field (or use the same logic to upload image)
-    const fileInput = document.getElementById('image-upload'); // Assuming you have a file input
-    const file = fileInput.files[0]; // Get the selected file
+  // Check if all conditions are met and enable the button
+  function checkConditions() {
+    const saveButton = document.getElementById('save-button');
 
-    if (!file) {
-      alert("Please select an image to upload.");
-      return;
-    }
-
-    // Create FormData to send the image to the Cloudflare Worker API
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', `${code}.jpg`);  // Use barcode as filename
-
-    // POST request to Cloudflare Worker
-    const response = await fetch('https://red-silence-79af.allpree.workers.dev/', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (response.ok) {
-      console.log('✅ Image uploaded successfully via Cloudflare Worker!');
-      // Create the form and append the data
-      const form = document.createElement('form');
-      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-      form.method = 'POST';
-      form.target = "hidden_iframe";
-      
-      // Append the product data to the form
-      const barcodeInput = document.createElement('input');
-      barcodeInput.type = 'hidden';
-      barcodeInput.name = 'entry.704671786';
-      barcodeInput.value = code;
-      form.appendChild(barcodeInput);
-
-      const nameInput = document.createElement('input');
-      nameInput.type = 'hidden';
-      nameInput.name = 'entry.776500300';
-      nameInput.value = document.getElementById('name').value.trim();
-      form.appendChild(nameInput);
-
-      const brandInput = document.createElement('input');
-      brandInput.type = 'hidden';
-      brandInput.name = 'entry.1276633099';
-      brandInput.value = document.getElementById('brand').value.trim();
-      form.appendChild(brandInput);
-
-      const sizeInput = document.createElement('input');
-      sizeInput.type = 'hidden';
-      sizeInput.name = 'entry.875936883';
-      sizeInput.value = document.getElementById('size').value.trim();
-      form.appendChild(sizeInput);
-
-      const imageInput = document.createElement('input');
-      imageInput.type = 'hidden';
-      imageInput.name = 'entry.1939692918';
-      imageInput.value = imageUrl;
-      form.appendChild(imageInput);
-
-      // Append form to the document and submit
-      document.body.appendChild(form);
-      form.submit();
-
-      // Call function to show the popup message after form submission
-      showPopupMessage();
-
-      // Reset the form after submission
-      document.getElementById('barcode').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('brand').value = '';
-      document.getElementById('size').value = '';
+    // Enable the save button only when all conditions are true
+    if (isNameFilled && isBrandFilled && isSizeFilled && isImageUploaded) {
+      saveButton.disabled = false;
     } else {
-      console.error('❌ Failed to upload image.');
+      saveButton.disabled = true;
+    }
+  }
+
+  // Function to track the name input
+  document.getElementById('name').addEventListener('input', function() {
+    isNameFilled = this.value.trim() !== ''; // If not empty, set to true
+    checkConditions(); // Check conditions on input change
+  });
+
+  // Function to track the brand input
+  document.getElementById('brand').addEventListener('input', function() {
+    isBrandFilled = this.value.trim() !== ''; // If not empty, set to true
+    checkConditions(); // Check conditions on input change
+  });
+
+  // Function to track the size input
+  document.getElementById('size').addEventListener('input', function() {
+    isSizeFilled = this.value.trim() !== ''; // If not empty, set to true
+    checkConditions(); // Check conditions on input change
+  });
+
+  // Function to track the image input
+  document.getElementById('image-upload').addEventListener('change', function() {
+    isImageUploaded = this.files.length > 0; // If image is selected, set to true
+    checkConditions(); // Check conditions on image upload
+  });
+
+  async function saveProduct() {
+    if (isNameFilled && isBrandFilled && isSizeFilled && isImageUploaded) {
+      submitted = true; 
+      const code = document.getElementById('barcode').value.trim();
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+      // Get the image from the input field (or use the same logic to upload image)
+      const fileInput = document.getElementById('image-upload'); // Assuming you have a file input
+      const file = fileInput.files[0]; // Get the selected file
+
+      if (!file) {
+        alert("Please select an image to upload.");
+        return;
+      }
+
+      // Create FormData to send the image to the Cloudflare Worker API
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', `${code}.jpg`);  // Use barcode as filename
+
+      // POST request to Cloudflare Worker
+      const response = await fetch('https://red-silence-79af.allpree.workers.dev/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        console.log('✅ Image uploaded successfully via Cloudflare Worker!');
+        // Create the form and append the data
+        const form = document.createElement('form');
+        form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+        form.method = 'POST';
+        form.target = "hidden_iframe";
+        
+        // Append the product data to the form
+        const barcodeInput = document.createElement('input');
+        barcodeInput.type = 'hidden';
+        barcodeInput.name = 'entry.704671786';
+        barcodeInput.value = code;
+        form.appendChild(barcodeInput);
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'hidden';
+        nameInput.name = 'entry.776500300';
+        nameInput.value = document.getElementById('name').value.trim();
+        form.appendChild(nameInput);
+
+        const brandInput = document.createElement('input');
+        brandInput.type = 'hidden';
+        brandInput.name = 'entry.1276633099';
+        brandInput.value = document.getElementById('brand').value.trim();
+        form.appendChild(brandInput);
+
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'hidden';
+        sizeInput.name = 'entry.875936883';
+        sizeInput.value = document.getElementById('size').value.trim();
+        form.appendChild(sizeInput);
+
+        const imageInput = document.createElement('input');
+        imageInput.type = 'hidden';
+        imageInput.name = 'entry.1939692918';
+        imageInput.value = imageUrl;
+        form.appendChild(imageInput);
+
+        // Append form to the document and submit
+        document.body.appendChild(form);
+        form.submit();
+
+        // Call function to show the popup message after form submission
+        showPopupMessage();
+
+        // Reset the form after submission
+        document.getElementById('barcode').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('brand').value = '';
+        document.getElementById('size').value = '';
+      } else {
+        console.error('❌ Failed to upload image.');
+      }
     }
   }
 
