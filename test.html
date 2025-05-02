@@ -154,6 +154,14 @@ canvas, video {
 <script>
   let submitted = false;
 
+function showPopupMessage() {
+  const popup = document.getElementById('popup-message');
+  popup.style.display = 'block';
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 2000);
+}
+  
   function lookupProduct() {
     const code = document.getElementById('barcode').value.trim();
     const productInfo = document.getElementById('product-info');
@@ -272,6 +280,7 @@ img.onerror = () => {
     // Append form to the document and submit
     document.body.appendChild(form);
     form.submit();
+     showPopupMessage();
     
     // Reset the form after submission
     document.getElementById('barcode').value = '';
