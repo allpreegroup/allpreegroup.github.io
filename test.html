@@ -112,11 +112,7 @@ canvas, video {
 
 <script>
   let submitted = false;
-  
-  form.target = "hidden_iframe";
-  document.body.appendChild(form);
-  form.submit();
-  
+
   function lookupProduct() {
     const code = document.getElementById('barcode').value.trim();
     const productInfo = document.getElementById('product-info');
@@ -179,6 +175,9 @@ canvas, video {
 
   function saveProduct() {
     submitted = true;
+    form.target = "hidden_iframe";
+    document.body.appendChild(form);
+    form.submit();
     const code = document.getElementById('barcode').value.trim();
     const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
