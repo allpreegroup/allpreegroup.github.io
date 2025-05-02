@@ -178,7 +178,6 @@ canvas, video {
     const form = document.createElement('form');
     form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
     form.method = 'POST';
-    form.target = 'hidden_iframe';  // Set target to iframe
 
     // Append the product data to the form
     const barcodeInput = document.createElement('input');
@@ -215,13 +214,11 @@ canvas, video {
     document.body.appendChild(form);
     form.submit();
 
-    // Reset the form after submission and allow the next barcode entry
+    // Reset the form after submission
     document.getElementById('barcode').value = '';
     document.getElementById('name').value = '';
     document.getElementById('brand').value = '';
     document.getElementById('size').value = '';
-    document.getElementById('product-info').innerHTML = '';
-    document.getElementById('manual-entry').style.display = 'none';
   }
 
   function startQuagga() {
@@ -287,28 +284,6 @@ canvas, video {
   }
 </script>
 
-<!-- Hidden iframe for form submission -->
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="stayOnPage()"></iframe>
-
-<script>
-  let submitted = false;
-
-  function stayOnPage() {
-    // After the form submission, clear the form and reset everything
-    if (!submitted) {
-      submitted = true;
-      console.log('✅ Form submitted successfully. Resetting fields and staying on the same page.');
-
-      // You can reset the form here as well
-      document.getElementById('barcode').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('brand').value = '';
-      document.getElementById('size').value = '';
-      document.getElementById('product-info').innerHTML = '';
-      document.getElementById('manual-entry').style.display = 'none';
-    }
-  }
-</script>
 
  
 </body>
