@@ -74,41 +74,35 @@
 </head>
 <body>
 
-<button id="addProductBtn">Add Product</button>
+  <button id="addProductBtn">Add Demo Product</button>
 
-<script>
-  document.getElementById('addProductBtn').addEventListener('click', function () {
-    const data = {
-      action: 'add',
-      barcode: '1111111111111',
-      name: 'Demo Test Product',
-      brand: 'Demo Brand',
-      size: '750ml',
-      cashback: '15',
-      imageUrl: 'https://example.com/demo.jpg'
-    };
-
-    fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams(data)
-    })
-    .then(res => res.text())
-    .then(result => {
-      alert('✅ Response: ' + result);
-      console.log('Result:', result);
-    })
-    .catch(err => {
-      console.error('❌ Error:', err);
-      alert('Error occurred.');
+  <script>
+    document.getElementById('addProductBtn').addEventListener('click', function() {
+      fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+        method: 'POST',
+        body: new URLSearchParams({
+          action: 'add',
+          barcode: '1111111111111',
+          name: 'Demo Test Product',
+          brand: 'Demo Brand',
+          size: '750ml',
+          cashback: '15',
+          imageUrl: 'https://example.com/demo.jpg'
+        })
+      })
+      .then(res => res.text())
+      .then(result => {
+        alert('Response: ' + result);
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        alert('There was an error adding the product.');
+      });
     });
-  });
-</script>
+  </script>
 
 
-  
+ <!-- 
   <h2>Scan or Enter Barcode</h2>
 <div class="form-wrapper">
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
@@ -307,6 +301,6 @@ function saveProduct() {
       scannerEl.style.display = 'none';
       scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
     }
-  </script>
+  </script> -->
 </body>
 </html>
