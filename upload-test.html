@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Upload Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <h2>Test Upload to red-silence API</h2>
+  <input type="file" id="imageInput" />
+  <button id="uploadBtn">Upload</button>
+  <pre id="output">No file uploaded yet.</pre>
+
+  <script>
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+      const input = document.getElementById('imageInput');
+      const file = input.files[0];
+      const output = document.getElementById('output');
+
+      if (!file) {
+        output.textContent = 'Please select a file first.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const text = await res.text();
+        output.textContent = 'Response:\n' + text;
+      } catch (err) {
+        output.textContent = 'Error:\n' + err.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
