@@ -263,26 +263,44 @@ input:focus {
 
       // Send form to Google Forms
       const form = document.createElement('form');
-      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-      form.method = 'POST';
-      form.target = "hidden_iframe";
+form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+form.method = 'POST';
+form.target = "hidden_iframe";
 
-      const appendHidden = (name, value) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
+const barcodeInput = document.createElement('input');
+barcodeInput.type = 'hidden';
+barcodeInput.name = 'entry.704671786';
+barcodeInput.value = code;
+form.appendChild(barcodeInput);
 
-      appendHidden('entry.704671786', code);
-      appendHidden('entry.776500300', document.getElementById('name').value.trim());
-      appendHidden('entry.1276633099', document.getElementById('brand').value.trim());
-      appendHidden('entry.875936883', document.getElementById('size').value.trim());
-      appendHidden('entry.1939692918', imageUrl);
+const nameInput = document.createElement('input');
+nameInput.type = 'hidden';
+nameInput.name = 'entry.776500300';
+nameInput.value = document.getElementById('name').value.trim();
+form.appendChild(nameInput);
 
-      document.body.appendChild(form);
-      form.submit();
+const brandInput = document.createElement('input');
+brandInput.type = 'hidden';
+brandInput.name = 'entry.1276633099';
+brandInput.value = document.getElementById('brand').value.trim();
+form.appendChild(brandInput);
+
+const sizeInput = document.createElement('input');
+sizeInput.type = 'hidden';
+sizeInput.name = 'entry.875936883';
+sizeInput.value = document.getElementById('size').value.trim();
+form.appendChild(sizeInput);
+
+const imageInput = document.createElement('input');
+imageInput.type = 'hidden';
+imageInput.name = 'entry.1939692918';
+imageInput.value = imageUrl;
+form.appendChild(imageInput);
+
+// ⬇️ This is crucial!
+document.body.appendChild(form);
+form.submit();
+
 
       setTimeout(() => {
         document.getElementById('loading-modal').style.display = 'none';
