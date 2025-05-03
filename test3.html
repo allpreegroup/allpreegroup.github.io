@@ -81,169 +81,170 @@
   </div>
   <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
-  <script type="module">
-    import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
+ <script type="module">
+  import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
 
-    window.submitted = false;
-    let codeReader = new BrowserMultiFormatReader();
-    let activeControl = null;
+  window.submitted = false;
+  let codeReader = new BrowserMultiFormatReader();
+  let activeControl = null;
 
-    function lookupProduct() {
-      const code = document.getElementById('barcode').value.trim();
-      const productInfo = document.getElementById('product-info');
-      const manualEntry = document.getElementById('manual-entry');
+  function lookupProduct() {
+    const code = document.getElementById('barcode').value.trim();
+    const productInfo = document.getElementById('product-info');
+    const manualEntry = document.getElementById('manual-entry');
 
-      productInfo.style.textAlign = 'center';
+    productInfo.style.textAlign = 'center';
 
-      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-      const img = new Image();
-      img.src = imageUrl;
+    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+    const img = new Image();
+    img.src = imageUrl;
 
-      img.onload = () => {
-        productInfo.innerHTML = `<div class="centered-content"><img src="${imageUrl}" /><p>✅ Image found! Add product info...<br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
-        manualEntry.style.display = 'block';
-      };
+    img.onload = () => {
+      productInfo.innerHTML = `<div class="centered-content"><img src="${imageUrl}" /><p>✅ Image found! Add product info...<br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
+      manualEntry.style.display = 'block';
+    };
 
-      img.onerror = () => {
-        productInfo.innerHTML = `<div class="centered-content"><p>❌ No product image found for barcode <br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
-        manualEntry.style.display = 'block';
-      };
+    img.onerror = () => {
+      productInfo.innerHTML = `<div class="centered-content"><p>❌ No product image found for barcode <br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
+      manualEntry.style.display = 'block';
+    };
 
-      fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-        .then(res => res.json())
-        .then(data => {
-          const match = data.find(row => row.Barcode?.trim() === code.trim());
-          if (match) {
-            const product = {
-              barcode: code,
-              name: match["Product Name"]?.trim() || '',
-              brand: match.Brand?.trim() || '',
-              size: match.Size?.trim() || '',
-              imageUrl
-            };
-            showProduct(product);
-            document.getElementById('refresh-button').style.display = 'inline-block';
-          }
-        })
-        .catch(err => console.error('Error fetching sheet:', err));
-    }
-
-    function startScanner() {
-      const scannerEl = document.getElementById('scanner');
-      scannerEl.style.display = 'block';
-      scannerEl.innerHTML = '';
-
-      BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
-        const deviceId = devices[0]?.deviceId;
-
-        if (!deviceId) {
-          alert("❌ No camera found.");
-          return;
+    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+      .then(res => res.json())
+      .then(data => {
+        const match = data.find(row => row.Barcode?.trim() === code.trim());
+        if (match) {
+          const product = {
+            barcode: code,
+            name: match["Product Name"]?.trim() || '',
+            brand: match.Brand?.trim() || '',
+            size: match.Size?.trim() || '',
+            imageUrl
+          };
+          showProduct(product);
+          document.getElementById('refresh-button').style.display = 'inline-block';
         }
+      })
+      .catch(err => console.error('Error fetching sheet:', err));
+  }
 
-        codeReader.decodeFromVideoDevice(deviceId, scannerEl, (result, err, controls) => {
-          if (result) {
-            let code = result.getText();
-            if (code.length === 12) code = "0" + code;
-            document.getElementById('barcode').value = code;
-            stopScanner();
-            lookupProduct();
-          }
-        }).then(controls => {
-          activeControl = controls;
-        });
-      }).catch(err => {
-        console.error("Scanner error:", err);
-        alert("❌ Failed to start scanner.");
-      });
-    }
+  function startScanner() {
+    const scannerEl = document.getElementById('scanner');
+    scannerEl.style.display = 'block';
+    scannerEl.innerHTML = '';
 
-    function stopScanner() {
-      if (activeControl) {
-        activeControl.stop();
-        activeControl = null;
-      }
-      const scannerEl = document.getElementById('scanner');
-      scannerEl.innerHTML = '';
-      scannerEl.style.display = 'none';
-    }
+    BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
+      const deviceId = devices[0]?.deviceId;
 
-    function showProduct(product) {
-      document.getElementById('product-info').innerHTML = `<div style="text-align: center;"><img src="${product.imageUrl}" /><h3>${product.name}</h3><p><strong>Brand:</strong> ${product.brand}</p><p><strong>Size:</strong> ${product.size}</p></div>`;
-      document.getElementById('manual-entry').style.display = 'none';
-    }
-
-    function saveProduct() {
-      window.submitted = true;
-      const code = document.getElementById('barcode').value.trim();
-      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-
-      const form = document.createElement('form');
-      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-      form.method = 'POST';
-      form.target = "hidden_iframe";
-
-      const fields = [
-        { id: 'barcode', name: 'entry.704671786' },
-        { id: 'name', name: 'entry.776500300' },
-        { id: 'brand', name: 'entry.1276633099' },
-        { id: 'size', name: 'entry.875936883' }
-      ];
-
-      for (const { id, name } of fields) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = document.getElementById(id).value.trim();
-        form.appendChild(input);
+      if (!deviceId) {
+        alert("❌ No camera found.");
+        return;
       }
 
-      const imageInput = document.createElement('input');
-      imageInput.type = 'hidden';
-      imageInput.name = 'entry.1939692918';
-      imageInput.value = imageUrl;
-      form.appendChild(imageInput);
-
-      document.body.appendChild(form);
-      form.submit();
-
-      document.getElementById('barcode').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('brand').value = '';
-      document.getElementById('size').value = '';
-      document.getElementById('save-button').disabled = true;
-    }
-
-    function checkSaveButtonState() {
-      const name = document.getElementById('name').value.trim();
-      const brand = document.getElementById('brand').value.trim();
-      const size = document.getElementById('size').value.trim();
-      const saveButton = document.getElementById('save-button');
-      saveButton.disabled = !(name && brand && size);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('name').addEventListener('input', checkSaveButtonState);
-      document.getElementById('brand').addEventListener('input', checkSaveButtonState);
-      document.getElementById('size').addEventListener('input', checkSaveButtonState);
-      document.getElementById('lookup-button').addEventListener('click', lookupProduct);
-      document.getElementById('scan-button').addEventListener('click', startScanner);
-      document.getElementById('refresh-button').addEventListener('click', () => location.reload());
-      document.getElementById('save-button').addEventListener('click', saveProduct);
-      checkSaveButtonState();
-
-      document.getElementById('hidden_iframe').addEventListener('load', () => {
-        if (window.submitted) {
-          alert('✅ Product added!');
-          window.submitted = false;
-          location.reload();
+      codeReader.decodeFromVideoDevice(deviceId, scannerEl, (result, err, controls) => {
+        if (result) {
+          let code = result.getText();
+          if (code.length === 12) code = "0" + code;
+          document.getElementById('barcode').value = code;
+          stopScanner();
+          lookupProduct();
         }
+      }).then(controls => {
+        activeControl = controls;
       });
+    }).catch(err => {
+      console.error("Scanner error:", err);
+      alert("❌ Failed to start scanner.");
     });
+  }
 
-    window.startScanner = startScanner;
-    window.stopScanner = stopScanner;
-    window.lookupProduct = lookupProduct;
-  </script>
+  function stopScanner() {
+    if (activeControl) {
+      activeControl.stop();
+      activeControl = null;
+    }
+    const scannerEl = document.getElementById('scanner');
+    scannerEl.innerHTML = '';
+    scannerEl.style.display = 'none';
+  }
+
+  function showProduct(product) {
+    document.getElementById('product-info').innerHTML = `<div style="text-align: center;"><img src="${product.imageUrl}" /><h3>${product.name}</h3><p><strong>Brand:</strong> ${product.brand}</p><p><strong>Size:</strong> ${product.size}</p></div>`;
+    document.getElementById('manual-entry').style.display = 'none';
+  }
+
+  function saveProduct() {
+    window.submitted = true;
+    const code = document.getElementById('barcode').value.trim();
+    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+    const form = document.createElement('form');
+    form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+    form.method = 'POST';
+    form.target = "hidden_iframe";
+
+    const fields = [
+      { id: 'barcode', name: 'entry.704671786' },
+      { id: 'name', name: 'entry.776500300' },
+      { id: 'brand', name: 'entry.1276633099' },
+      { id: 'size', name: 'entry.875936883' }
+    ];
+
+    for (const { id, name } of fields) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = document.getElementById(id).value.trim();
+      form.appendChild(input);
+    }
+
+    const imageInput = document.createElement('input');
+    imageInput.type = 'hidden';
+    imageInput.name = 'entry.1939692918';
+    imageInput.value = imageUrl;
+    form.appendChild(imageInput);
+
+    document.body.appendChild(form);
+    form.submit();
+
+    document.getElementById('barcode').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('brand').value = '';
+    document.getElementById('size').value = '';
+    document.getElementById('save-button').disabled = true;
+  }
+
+  function checkSaveButtonState() {
+    const name = document.getElementById('name').value.trim();
+    const brand = document.getElementById('brand').value.trim();
+    const size = document.getElementById('size').value.trim();
+    const saveButton = document.getElementById('save-button');
+    saveButton.disabled = !(name && brand && size);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('name').addEventListener('input', checkSaveButtonState);
+    document.getElementById('brand').addEventListener('input', checkSaveButtonState);
+    document.getElementById('size').addEventListener('input', checkSaveButtonState);
+    document.getElementById('lookup-button').addEventListener('click', lookupProduct);
+    document.getElementById('scan-button').addEventListener('click', startScanner);  // Ensure this is correct
+    document.getElementById('refresh-button').addEventListener('click', () => location.reload());
+    document.getElementById('save-button').addEventListener('click', saveProduct);
+    checkSaveButtonState();
+
+    document.getElementById('hidden_iframe').addEventListener('load', () => {
+      if (window.submitted) {
+        alert('✅ Product added!');
+        window.submitted = false;
+        location.reload();
+      }
+    });
+  });
+
+  window.startScanner = startScanner;
+  window.stopScanner = stopScanner;
+  window.lookupProduct = lookupProduct;
+</script>
+
 </body>
 </html>
