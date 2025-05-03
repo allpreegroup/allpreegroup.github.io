@@ -238,21 +238,22 @@ input:focus {
       // Create FormData to send the image to the Cloudflare Worker API
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('fileName', `${code}.jpg`);  // Use barcode as filename
+      formData.append('fileName', file.name); // Needed for GitHub upload
 
-      // POST request to Cloudflare Worker
       try {
-  const response = await fetch('https://red-silence-79af.allpree.workers.dev/', {
-    method: 'POST',
-    body: formData,
-  });
+        const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
+          method: 'POST',
+          body: formData
+        });
 
-  if (!response.ok) throw new Error("Image upload failed");
-} catch (error) {
-  console.error('❌ Upload failed:', error);
-  alert("Image upload failed. Please try again.");
-  return;
-}
+        if (!res.ok) {
+          const error = await res.text();
+          output.textContent = 'Upload failed:\n' + error;
+        } else {
+          const result = await res.json();
+          output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
+        }
+      }
 
 
       const form = document.createElement('form');
