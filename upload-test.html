@@ -28,16 +28,21 @@
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('fileName', file.name);  // Append file name if needed
+      formData.append('fileName', file.name); // Needed for GitHub upload
 
       try {
         const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
           method: 'POST',
-          body: formData // Do not manually set Content-Type here, let the browser handle it
+          body: formData
         });
 
-        const text = await res.text();
-        output.textContent = 'Response:\n' + text;
+        if (!res.ok) {
+          const error = await res.text();
+          output.textContent = 'Upload failed:\n' + error;
+        } else {
+          const result = await res.json();
+          output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
+        }
       } catch (err) {
         output.textContent = 'Error:\n' + err.message;
       }
