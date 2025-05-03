@@ -2245,10 +2245,8 @@ async function openBrandLocation(brand) {
 }
 
 async function showLocationPopup(brandLocations) {
-  // Avoid duplicate popup
   if (document.getElementById('location-popup')) return;
 
-  // Show loading while checking location
   showLoadingMessage("Checking your location...");
 
   if (navigator.geolocation) {
@@ -2262,18 +2260,24 @@ async function showLocationPopup(brandLocations) {
         console.log("User has not moved significantly.");
       }
       hideLoadingMessage();
-      buildLocationPopup(); // proceed after location check
+      buildLocationPopup(getSavedLocation()); // Use latest coords
     }, (err) => {
       console.warn("Failed to get current location:", err);
       hideLoadingMessage();
-      buildLocationPopup(); // still proceed
+      buildLocationPopup(getSavedLocation());
     });
   } else {
     console.warn("Geolocation not supported.");
     hideLoadingMessage();
-    buildLocationPopup(); // fallback
+    buildLocationPopup(getSavedLocation());
   }
-	
+
+  // no DOM code here!
+}
+
+function buildLocationPopup(originCoords) {
+  if (document.getElementById('location-popup')) return;
+
   const backdrop = document.createElement('div');
   backdrop.id = 'location-popup-backdrop';
   backdrop.style = `
@@ -2303,26 +2307,23 @@ async function showLocationPopup(brandLocations) {
     overflow-y: auto;
     height: 80%;
   `;
-  popup.innerHTML = '<p>Loading locations...</p>';
+
+  let optionsHtml = '<h3>Select a Location</h3>';
+  for (const [name, coords] of Object.entries(brandLocations)) {
+    optionsHtml += `
+      <button onclick="handleNavigate('${coords}', '${originCoords}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+    `;
+  }
+
+  popup.innerHTML = optionsHtml;
 
   document.body.appendChild(backdrop);
   document.body.appendChild(popup);
+
   backdrop.addEventListener('click', closeLocationPopup);
   popup.addEventListener('click', (event) => event.stopPropagation());
-
-  const saved = getSavedLocation();
-  showLocationButtons(saved);
-
-  function showLocationButtons(origin) {
-    let optionsHtml = '<h3>Select a Location</h3>';
-    for (const [name, coords] of Object.entries(brandLocations)) {
-      optionsHtml += `
-        <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
-      `;
-    }
-    popup.innerHTML = optionsHtml;
-  }
 }
+
 
 function handleNavigate(coords, origin) {
   if (!coords || coords.trim() === '') {
