@@ -2230,13 +2230,7 @@ async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
 
-  const allowed = await ensureUserLocation();
-  if (!allowed) {
-    isNavigating = false;
-    return;
-  }
-
-  const dest = brandLocations[brand];
+const dest = brandLocations[brand];
 
   if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
     showSpinner("No location set for this brand yet.");
@@ -2245,6 +2239,14 @@ async function openBrandLocation(brand) {
     return;
   }
 
+	
+  const allowed = await ensureUserLocation();
+  if (!allowed) {
+    isNavigating = false;
+    return;
+  }
+
+  
   if (typeof dest === 'object') {
     showLocationPopup(dest);
     isNavigating = false;
