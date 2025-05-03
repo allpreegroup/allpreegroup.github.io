@@ -113,34 +113,36 @@ canvas, video {
   padding: 0.3rem 0.5rem;
   cursor: pointer;
 }
-    #loading-modal .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+    
+  #loading-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      display: none;
+    }
 
-.spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #555;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
+    #loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #333;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
 
   </style>
@@ -148,8 +150,38 @@ canvas, video {
 <body>
 
 <div class="form-wrapper">
-  <h2>Scan or Enter Barcode</h2>
+  <h2> Enter Barcode Below</h2>
 
+<div>
+    <input type="text" id="barcode" placeholder="Enter Barcode" />
+    <button onclick="lookupProduct()">Lookup Product</button>
+  </div>
+
+  <!-- Product Info -->
+  <div id="product-info"></div>
+
+  <!-- Manual Entry Form -->
+  <div id="manual-entry">
+    <h3>Add New Product</h3>
+    <input type="text" id="name" placeholder="Product Name" />
+    <input type="text" id="brand" placeholder="Brand" />
+    <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
+    <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
+  </div>
+
+  <!-- Refresh Button -->
+  <button id="refresh-button" style="display: none;" onclick="refreshProduct()">🔄 Refresh Product</button>
+
+  <!-- Fullscreen loading spinner -->
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading product data...</p>
+  </div>
+
+
+
+
+  <!--
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
   <button onclick="lookupProduct()">🔍 Lookup Product</button>
   <button onclick="startQuagga()">📷 Scan with Camera</button>
@@ -168,29 +200,26 @@ canvas, video {
   <input type="text" id="brand" placeholder="Brand" />
   <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
   
-  <!-- Image input for user to upload 
-  <input type="file" id="image-upload" accept="image/*" /> -->
+   Image input for user to upload 
+  <input type="file" id="image-upload" accept="image/*" /> 
 
-  <!-- Save button (initially disabled until image is uploaded) -->
+   Save button (initially disabled until image is uploaded) 
   <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
 
 </div>
-<!-- Fullscreen loading spinner -->
-<div id="loading-modal" style="display: none;">
-  <div id="loading-spinner"></div>
-  <p style="text-align: center;">Loading product data...</p>
-</div>
- </div>
+   Fullscreen loading spinner 
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading product data...</p>
+  </div>
+  
+ 
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
+-->
 
+  </div>
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) { alert('✅ Product added!'); submitted = false; location.reload(); }"></iframe>
 
-
-<!--
-<div id="popup-message" class="popup-message">
-  ✅ Product added!
-  <button onclick="hidePopupMessage()" class="close-btn">✖</button>
-</div> -->
 
 
 
@@ -242,7 +271,7 @@ canvas, video {
             imageUrl
           };
           showProduct(product);
-          document.getElementById('refresh-button').style.display = 'inline-block';
+          document.getElementById('refresh-button').style.display = 'inline-block';  // Show refresh button (only if product is found in sheet)
         } else if (hasImage) {
           productInfo.innerHTML = `
             <div class="centered-content">
@@ -253,6 +282,7 @@ canvas, video {
                 </a></p>
             </div>`;
           manualEntry.style.display = 'block';
+          document.getElementById('refresh-button').style.display = 'none';  // Hide refresh button (image found but not in sheet)
         } else {
           productInfo.innerHTML = `
             <div class="centered-content">
@@ -261,6 +291,7 @@ canvas, video {
                   ${code}</a></p>
             </div>`;
           manualEntry.style.display = 'block';
+          document.getElementById('refresh-button').style.display = 'none';  // Hide refresh button (image not found)
         }
       });
     }
