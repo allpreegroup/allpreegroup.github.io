@@ -1039,7 +1039,39 @@ height: 20%;
 
 body.no-scroll {
   overflow: hidden;
-}			 
+}	
+		 
+#loading-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  display: none;
+}
+
+#loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1216,6 +1248,11 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
+				  <div id="loading-modal">
+  <div id="loading-spinner"></div>
+  <div id="loading-text">Loading...</div>
+</div>
+				  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
 
@@ -1317,6 +1354,22 @@ async function loadSheetUrls() {
 
 loadSheetUrls();
 
+function showSpinner(message = "Loading...") {
+  const modal = document.getElementById('loading-modal');
+  const text = document.getElementById('loading-text');
+  if (modal && text) {
+    text.textContent = message;
+    modal.style.display = 'flex';
+  }
+}
+
+function hideSpinner() {
+  const modal = document.getElementById('loading-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+	
 /////////// ADMIN	
 const tapZone = document.createElement('div');
  tapZone.id = 'secretTapZone';
@@ -2331,14 +2384,40 @@ async function showLocationPopup(brandLocations) {
 
 
 
-function handleNavigate(coords, origin) {
+function handleNavigate(coords, originFromPopup) {
   if (!coords || coords.trim() === '') {
-    showLoadingMessage("No location set for this location yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("No location set for this location yet.");
+    setTimeout(hideSpinner, 3000);
     return;
   }
-  closeLocationPopup();
-  navigateToLocation(coords, origin);
+
+  showSpinner("Checking your location...");
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+      const savedCoords = getSavedLocation();
+
+      if (!savedCoords || hasMovedSignificantly(savedCoords, currentCoords)) {
+        saveLocation(currentCoords);
+        console.log("Updated localStorage with new location:", currentCoords);
+      }
+
+      hideSpinner();
+      closeLocationPopup();
+      navigateToLocation(coords, currentCoords);
+
+    }, (err) => {
+      console.warn("Failed to get current location:", err);
+      hideSpinner();
+      closeLocationPopup();
+      navigateToLocation(coords, originFromPopup);
+    });
+  } else {
+    hideSpinner();
+    closeLocationPopup();
+    navigateToLocation(coords, originFromPopup);
+  }
 }
 
 function closeLocationPopup() {
