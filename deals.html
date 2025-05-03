@@ -1248,10 +1248,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
-				  <div id="loading-modal">
-  <div id="loading-spinner"></div>
-  <div id="loading-text">Loading...</div>
-</div>
+				 
 				  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -2429,6 +2426,22 @@ function navigateToLocation(dest, originCoords = null) {
   window.location.href = url;
 }
 
+	 // ✅ Add these here:
+  function showSpinner(message = "Loading...") {
+    const modal = document.getElementById('loading-modal');
+    const text = document.getElementById('loading-text');
+    if (modal && text) {
+      text.textContent = message;
+      modal.style.display = 'flex';
+    }
+  }
+
+  function hideSpinner() {
+    const modal = document.getElementById('loading-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
 
 //////////////
 	
