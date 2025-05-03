@@ -192,7 +192,169 @@ canvas, video {
   <button onclick="hidePopupMessage()" class="close-btn">✖</button>
 </div> -->
 
- <script>
+
+
+<script>
+    let submitted = false;
+
+    // Lookup product function
+    function lookupProduct() {
+      const code = document.getElementById('barcode').value.trim();
+      const productInfo = document.getElementById('product-info');
+      const manualEntry = document.getElementById('manual-entry');
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+      // Show loading spinner
+      document.getElementById('loading-modal').style.display = 'flex';
+      productInfo.innerHTML = ''; // Clear any previous content
+      manualEntry.style.display = 'none'; // Hide manual form initially
+
+      // Track image load status
+      const imageCheck = new Promise((resolve) => {
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+      });
+
+      // Fetch product from Google Sheet
+      const sheetCheck = fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+        .then(res => res.json())
+        .then(data => {
+          return data.find(row => row.Barcode?.trim() === code.trim()) || null;
+        })
+        .catch(err => {
+          console.error('Error fetching sheet:', err);
+          return null;
+        });
+
+      // Wait for both image check and sheet data fetch
+      Promise.all([imageCheck, sheetCheck]).then(([hasImage, sheetMatch]) => {
+        // Hide loading modal
+        document.getElementById('loading-modal').style.display = 'none';
+
+        if (sheetMatch) {
+          const product = {
+            barcode: code,
+            name: sheetMatch["Product Name"]?.trim() || '',
+            brand: sheetMatch.Brand?.trim() || '',
+            size: sheetMatch.Size?.trim() || '',
+            imageUrl
+          };
+          showProduct(product);
+          document.getElementById('refresh-button').style.display = 'inline-block';
+        } else if (hasImage) {
+          productInfo.innerHTML = `
+            <div class="centered-content">
+              <img src="${imageUrl}" />
+              <p>✅ Image found! Add product info...<br>
+                <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+                  ${code}
+                </a></p>
+            </div>`;
+          manualEntry.style.display = 'block';
+        } else {
+          productInfo.innerHTML = `
+            <div class="centered-content">
+              <p>❌ No product image found for barcode <br> 
+                <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+                  ${code}</a></p>
+            </div>`;
+          manualEntry.style.display = 'block';
+        }
+      });
+    }
+
+    // Display product info
+    function showProduct(product) {
+      document.getElementById('product-info').innerHTML = `
+        <div style="text-align: center;">
+          <img src="${product.imageUrl}" />
+          <h3>${product.name}</h3>
+          <p><strong>Brand:</strong> ${product.brand}</p>
+          <p><strong>Size:</strong> ${product.size}</p>
+        </div>
+      `;
+      document.getElementById('manual-entry').style.display = 'none';
+    }
+
+    // Save product to Google Form
+    function saveProduct() {
+      submitted = true; 
+      const code = document.getElementById('barcode').value.trim();
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+      const form = document.createElement('form');
+      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+      form.method = 'POST';
+      form.target = "hidden_iframe";
+      
+      const barcodeInput = document.createElement('input');
+      barcodeInput.type = 'hidden';
+      barcodeInput.name = 'entry.704671786';
+      barcodeInput.value = code;
+      form.appendChild(barcodeInput);
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'hidden';
+      nameInput.name = 'entry.776500300';
+      nameInput.value = document.getElementById('name').value.trim();
+      form.appendChild(nameInput);
+
+      const brandInput = document.createElement('input');
+      brandInput.type = 'hidden';
+      brandInput.name = 'entry.1276633099';
+      brandInput.value = document.getElementById('brand').value.trim();
+      form.appendChild(brandInput);
+
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'hidden';
+      sizeInput.name = 'entry.875936883';
+      sizeInput.value = document.getElementById('size').value.trim();
+      form.appendChild(sizeInput);
+
+      const imageInput = document.createElement('input');
+      imageInput.type = 'hidden';
+      imageInput.name = 'entry.1939692918';
+      imageInput.value = imageUrl;
+      form.appendChild(imageInput);
+
+      document.body.appendChild(form);
+      form.submit();
+
+      document.getElementById('barcode').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('brand').value = '';
+      document.getElementById('size').value = '';
+      document.getElementById('save-button').disabled = true;
+    }
+
+    // Enable/disable Save button based on name, brand, size
+    function checkSaveButtonState() {
+      const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const size = document.getElementById('size').value.trim();
+      const saveButton = document.getElementById('save-button');
+      saveButton.disabled = !(name && brand && size);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('name');
+      const brandInput = document.getElementById('brand');
+      const sizeInput = document.getElementById('size');
+
+      nameInput.addEventListener('input', checkSaveButtonState);
+      brandInput.addEventListener('input', checkSaveButtonState);
+      sizeInput.addEventListener('input', checkSaveButtonState);
+
+      checkSaveButtonState();
+    });
+  </script>
+
+
+
+  
+<!-- <script>
   let submitted = false;
   
   function lookupProduct() {
@@ -317,29 +479,12 @@ fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/For
     document.body.appendChild(form);
     form.submit();
 
-    //showPopupMessage();
-
     document.getElementById('barcode').value = '';
     document.getElementById('name').value = '';
     document.getElementById('brand').value = '';
     document.getElementById('size').value = '';
     document.getElementById('save-button').disabled = true;
   }
-
- /* function showPopupMessage() {
-    if (submitted) {
-      const popup = document.getElementById('popup-message');
-      popup.style.display = 'flex';
-      setTimeout(() => {
-        popup.style.display = 'none';
-        submitted = false;
-      }, 3000);
-    }
-  } 
-
-  function hidePopupMessage() {
-    document.getElementById('popup-message').style.display = 'none';
-  } */
 
   function startQuagga() {
     const scannerEl = document.getElementById('scanner');
@@ -423,8 +568,7 @@ fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/For
 </script>
 
 
-  
-  <!--
+
   <script>
   let submitted = false;
 
