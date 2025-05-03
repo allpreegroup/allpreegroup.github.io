@@ -2084,8 +2084,6 @@ function clearBrandCart(brand) {
     popup.innerHTML = `<div style="text-align:center;">📝 Your shopping list is empty.</div>`;
   }
 }
-	
-
 function saveLocation(coords) {
   localStorage.setItem('userLocation', coords);
 }
@@ -2277,20 +2275,15 @@ async function openBrandLocation(brand) {
 
   const dest = brandLocations[brand];
 
-  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+  if (!dest || Object.keys(dest).length === 0) {
     showLoadingMessage("No location set for this brand yet.");
     setTimeout(hideLoadingMessage, 3000);
     isNavigating = false;
     return;
   }
 
-  if (typeof dest === 'object') {
-    showLocationPopup(dest);
-    isNavigating = false;
-  } else {
-    getUserLocationAndNavigate(dest);
-    isNavigating = false;
-  }
+  showLocationPopup(dest); // Always show popup for multi-location brands
+  isNavigating = false;
 }
 
 async function showLocationPopup(brandLocations) {
@@ -2378,10 +2371,8 @@ async function showLocationPopup(brandLocations) {
   }
 }
 
-
-
-function handleNavigate(coords, originFromPopup) {
-  if (!coords || coords.trim() === '') {
+function handleNavigate(destinationCoords, originFromPopup) {
+  if (!destinationCoords || destinationCoords.trim() === '') {
     showSpinner("No location set for this location yet.");
     setTimeout(hideSpinner, 3000);
     return;
@@ -2391,28 +2382,36 @@ function handleNavigate(coords, originFromPopup) {
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {
-      const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+      const liveCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
       const savedCoords = getSavedLocation();
 
-      if (!savedCoords || hasMovedSignificantly(savedCoords, currentCoords)) {
-        saveLocation(currentCoords);
-        console.log("Updated localStorage with new location:", currentCoords);
+      if (!savedCoords || hasMovedSignificantly(savedCoords, liveCoords)) {
+        saveLocation(liveCoords); // ✅ Update localStorage if moved significantly
+        console.log("Updated localStorage with new location:", liveCoords);
+      } else {
+        console.log("User has not moved significantly. Using saved location.");
       }
 
       hideSpinner();
       closeLocationPopup();
-      navigateToLocation(coords, currentCoords);
+
+      const finalOrigin = getSavedLocation(); // ✅ Always use stored location
+      navigateToLocation(destinationCoords, finalOrigin);
 
     }, (err) => {
       console.warn("Failed to get current location:", err);
       hideSpinner();
       closeLocationPopup();
-      navigateToLocation(coords, originFromPopup);
+
+      const fallbackOrigin = getSavedLocation() || originFromPopup;
+      navigateToLocation(destinationCoords, fallbackOrigin); // Use fallback or popup value
     });
   } else {
     hideSpinner();
     closeLocationPopup();
-    navigateToLocation(coords, originFromPopup);
+
+    const fallbackOrigin = getSavedLocation() || originFromPopup;
+    navigateToLocation(destinationCoords, fallbackOrigin);
   }
 }
 
@@ -2438,6 +2437,7 @@ function navigateToLocation(dest, originCoords = null) {
 
   window.location.href = url;
 }
+
 
 	 // ✅ Add these here:
   function showSpinner(message = "Loading...") {
