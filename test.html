@@ -113,6 +113,35 @@ canvas, video {
   padding: 0.3rem 0.5rem;
   cursor: pointer;
 }
+    #loading-modal .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 
   </style>
 </head>
@@ -146,7 +175,11 @@ canvas, video {
   <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
 
 </div>
-
+<!-- Fullscreen loading spinner -->
+<div id="loading-modal" style="display: none;">
+  <div id="loading-spinner"></div>
+  <p style="text-align: center;">Loading product data...</p>
+</div>
  </div>
   <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
 
@@ -198,31 +231,36 @@ canvas, video {
     };
 
     // Autofill from Google Sheet using OpenSheet
-    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-      .then(res => res.json())
-      .then(data => {
-        const match = data.find(row => row.Barcode?.trim() === code.trim());
-        if (match) {
-          const product = {
-            barcode: code,
-            name: match["Product Name"]?.trim() || '',
-            brand: match.Brand?.trim() || '',
-            size: match.Size?.trim() || '',
-            imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
-          };
-          showProduct(product);
-          console.log('✅ Product loaded from Google Sheet.');
+    // Show loading modal
+document.getElementById('loading-modal').style.display = 'block';
 
-          // Show the refresh button
-          document.getElementById('refresh-button').style.display = 'inline-block';
-        } else {
-          console.log('ℹ️ No matching product found in Google Sheet.');
-        }
-      })
-      .catch(err => {
-        console.error('Error fetching sheet:', err);
-      });
-  }
+fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+  .then(res => res.json())
+  .then(data => {
+    // Hide loading modal
+    document.getElementById('loading-modal').style.display = 'none';
+
+    const match = data.find(row => row.Barcode?.trim() === code.trim());
+    if (match) {
+      const product = {
+        barcode: code,
+        name: match["Product Name"]?.trim() || '',
+        brand: match.Brand?.trim() || '',
+        size: match.Size?.trim() || '',
+        imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
+      };
+      showProduct(product);
+      document.getElementById('refresh-button').style.display = 'inline-block';
+    } else {
+      document.getElementById('manual-entry').style.display = 'block';
+    }
+  })
+  .catch(err => {
+    console.error('Error fetching sheet:', err);
+    document.getElementById('loading-modal').style.display = 'none';
+    document.getElementById('manual-entry').style.display = 'block';
+  });
+
 
   function showProduct(product) {
     document.getElementById('product-info').innerHTML = `
