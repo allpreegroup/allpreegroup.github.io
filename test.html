@@ -309,8 +309,11 @@ canvas, video {
       document.getElementById('manual-entry').style.display = 'none';
     }
 
-    // Save product to Google Form
+    // Save product to Google Form with loading spinner
     function saveProduct() {
+      // Show loading spinner
+      document.getElementById('loading-modal').style.display = 'flex';
+
       submitted = true; 
       const code = document.getElementById('barcode').value.trim();
       const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
@@ -353,6 +356,10 @@ canvas, video {
       document.body.appendChild(form);
       form.submit();
 
+      // Hide the spinner once the form is submitted
+      document.getElementById('loading-modal').style.display = 'none';
+
+      // Clear input fields after submission
       document.getElementById('barcode').value = '';
       document.getElementById('name').value = '';
       document.getElementById('brand').value = '';
@@ -380,6 +387,16 @@ canvas, video {
 
       checkSaveButtonState();
     });
+
+    // Refresh product function
+    function refreshProduct() {
+      const code = document.getElementById('barcode').value.trim();
+      if (code) {
+        lookupProduct();  // Call lookupProduct to refresh the product data
+      } else {
+        alert('Please enter a barcode to refresh the product.');
+      }
+    }
   </script>
 
 
