@@ -2245,84 +2245,90 @@ async function openBrandLocation(brand) {
 }
 
 async function showLocationPopup(brandLocations) {
+  // Avoid duplicate popup
   if (document.getElementById('location-popup')) return;
 
+  // Show loading while checking location
   showLoadingMessage("Checking your location...");
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {
       const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
       const savedCoords = getSavedLocation();
+
       if (!savedCoords || hasMovedSignificantly(savedCoords, currentCoords)) {
         saveLocation(currentCoords);
         console.log("Location updated in localStorage:", currentCoords);
       } else {
         console.log("User has not moved significantly.");
       }
-      hideLoadingMessage();
-      buildLocationPopup(getSavedLocation()); // Use latest coords
+
+      hideLoadingMessage(); // Proceed with showing popup
+      buildPopup();
     }, (err) => {
       console.warn("Failed to get current location:", err);
       hideLoadingMessage();
-      buildLocationPopup(getSavedLocation());
+      buildPopup(); // Proceed anyway
     });
   } else {
     console.warn("Geolocation not supported.");
     hideLoadingMessage();
-    buildLocationPopup(getSavedLocation());
+    buildPopup(); // Proceed anyway
   }
 
-  // no DOM code here!
-}
-
-function buildLocationPopup(originCoords) {
-  if (document.getElementById('location-popup')) return;
-
-  const backdrop = document.createElement('div');
-  backdrop.id = 'location-popup-backdrop';
-  backdrop.style = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 10000;
-  `;
-
-  const popup = document.createElement('div');
-  popup.id = 'location-popup';
-  popup.style = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 10001;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    overflow-y: auto;
-    height: 80%;
-  `;
-
-  let optionsHtml = '<h3>Select a Location</h3>';
-  for (const [name, coords] of Object.entries(brandLocations)) {
-    optionsHtml += `
-      <button onclick="handleNavigate('${coords}', '${originCoords}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+  function buildPopup() {
+    const backdrop = document.createElement('div');
+    backdrop.id = 'location-popup-backdrop';
+    backdrop.style = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 10000;
     `;
+
+    const popup = document.createElement('div');
+    popup.id = 'location-popup';
+    popup.style = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 10001;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      overflow-y: auto;
+      height: 80%;
+    `;
+    popup.innerHTML = '<p>Loading locations...</p>';
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(popup);
+    backdrop.addEventListener('click', closeLocationPopup);
+    popup.addEventListener('click', (event) => event.stopPropagation());
+
+    const saved = getSavedLocation();
+    showLocationButtons(saved);
   }
 
-  popup.innerHTML = optionsHtml;
-
-  document.body.appendChild(backdrop);
-  document.body.appendChild(popup);
-
-  backdrop.addEventListener('click', closeLocationPopup);
-  popup.addEventListener('click', (event) => event.stopPropagation());
+  function showLocationButtons(origin) {
+    let optionsHtml = '<h3>Select a Location</h3>';
+    for (const [name, coords] of Object.entries(brandLocations)) {
+      optionsHtml += `
+        <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+      `;
+    }
+    const popup = document.getElementById('location-popup');
+    if (popup) popup.innerHTML = optionsHtml;
+  }
 }
+
 
 
 function handleNavigate(coords, origin) {
