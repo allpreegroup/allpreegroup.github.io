@@ -1,422 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gift Card Top-up</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Allpree Barcode Scanner</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7fb;
-      color: #333;
-      padding: 20px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .topup-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-      gap: 2rem;
-      margin-top: 1rem;
-    }
-    .topup-card {
-      max-width: 500px;
-      width: 80%;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #ffffff;
-      padding: 0.8rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .topup-card:hover {
-      background-color: #f3f4f6;
-      transform: translateY(-5px);
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-    }
-    .topup-option.selected .topup-card {
-      background-color: #3b82f6;
-      color: white;
-      border-color: #2563eb;
-    }
-    .topup-label {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    #next-step {
-      width: 80%;
-      max-width: 500px;
-      margin: 0 auto;
-      justify-content: center;
-      align-items: center;
-      display: block;
-      background-color: #2563eb;
-      color: white;
+      font-family: system-ui, sans-serif;
+      max-width: 400px;
+      margin: 2rem auto;
       padding: 1rem;
-      display: flex;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1.25rem;
-      margin-top: 1.5rem;
-      display: none; /* Initially hidden */
-    }
-    #next-step:hover {
-      background-color: #1d4ed8;
     }
 
-    .topup-summary {
-      padding: 1.5rem;
-      background-color: #f9fafb;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-top: 0.5rem;
+    .centered-content {
+      text-align: center;
     }
 
-    .input-group {
+    .centered-content img {
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto 10px;
+    }
+
+    .form-wrapper {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      gap: 1.5rem;
-      margin-top: 1.5rem;
     }
 
-    .input-group input {
+    input, button {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      width: 80%;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+    }
+
+    #product-info img {
+      max-width: 150px;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    #manual-entry {
+      display: none;
+      margin-top: 1rem;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       width: 100%;
       padding: 1rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      transition: border-color 0.3s, box-shadow 0.3s;
-      font-size: 1rem;
-    }
-
-    .input-group input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    }
-
-    /* WhatsApp Button */
-    #send-whatsapp {
-      display: block;
-      text-align: center;
-      background-color: #16a34a; /* Tailwind's green-600 */
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s, box-shadow 0.3s;
-      margin-top: 2rem;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    #send-whatsapp:hover {
-      background-color: #15803d; /* Tailwind's green-700 */
-    }
-
-    #topup-btn {
-      width: 80%;
-      max-width: 500px;
-      margin: 0 auto;
-      justify-content: center;
-      align-items: center;
-      display: block;
-      background-color: #2563eb;
-      color: white;
-      padding: 1rem;
-      display: flex;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1.25rem;
-      margin-top: 1.5rem;
-    }
-    #topup-btn:hover {
-      background-color: #1d4ed8;
-    }
- 
-    
-    #toggle-form-btn {
-      width: 80%;
-      max-width: 500px;
-      margin: 0 auto;
-      justify-content: center;
-      align-items: center;
-      display: block;
-      background-color: #2563eb;
-      color: white;
-      padding: 1rem;
-      display: flex;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1.25rem;
-      margin-top: 1.5rem;
-    }
-    #topup-btn:hover {
-      background-color: #1d4ed8;
     }
   </style>
 </head>
 <body>
-
-<!-- Top Up Button (Initial Button to Start Process) -->
-<button id="topup-btn" class="bg-blue-600 text-white p-2 rounded">
- Run Low, Top Up Now
-</button>
-
-<div id="topup-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content">
-
-  <!-- Step 1: Amount Selection -->
-  <div id="step1" class="space-y-8 hidden">
-    <h2 class="text-3xl font-semibold text-gray-900">Choose Top-up Amount(s)</h2>
-    <p class="text-lg text-gray-700">Select the amount(s) you wish to top up and proceed to payment.</p>
-
-    <div class="topup-grid" id="topup-grid">
-      <div class="topup-option" data-amount="10000">
-        <div class="topup-card">
-          <span class="topup-label">J$10,000 eVOUCHER</span>
-        </div>
-      </div>
-      <div class="topup-option" data-amount="15000">
-        <div class="topup-card">
-          <span class="topup-label">J$15,000 eVOUCHER</span>
-        </div>
-      </div>
-      <div class="topup-option" data-amount="20000">
-        <div class="topup-card">
-          <span class="topup-label">J$20,000 eVOUCHER</span>
-        </div>
-      </div>
+  <div class="form-wrapper">
+    <h2>Scan or Enter Barcode</h2>
+    <input type="text" id="barcode" placeholder="Scan or type barcode" />
+    <button id="lookup-button">🔍 Lookup Product</button>
+    <div id="scanner" style="display:none; width: 100%; max-width: 500px;"></div>
+    <button id="scan-button">📷 Scan</button>
+    <div id="product-info"></div>
+    <button id="refresh-button" style="display:none; margin-top: 1rem;">🔄 Refresh Page</button>
+    <div id="manual-entry">
+      <h3>Add New Product</h3>
+      <input type="text" id="name" placeholder="Product Name" />
+      <input type="text" id="brand" placeholder="Brand" />
+      <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
+      <button id="save-button" disabled>💾 Save Product</button>
     </div>
-
-    <div id="summary" class="topup-summary mt-4 text-sm text-gray-600"></div>
-
-    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">Proceed to Payment</button>
   </div>
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
-  <!-- Step 2: Payment Info -->
-  <div id="step2" class="space-y-8 hidden">
-    <h2 class="text-3xl font-semibold text-gray-900">Send Payment</h2>
-    <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>
-    <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
-      <p><strong class="text-gray-800">Bank Name:</strong> Bank of Nova Scotia Jamaica</p>
-      <p><strong class="text-gray-800">Account Number:</strong> 000603575</p>
-       <p><strong class="text-gray-800">Branch:</strong> Savanna-la-Mar</p>
-      <p><strong class="text-gray-800">Branch Code:</strong> 00265</p>
-       <p><strong class="text-gray-800">Account Type:</strong> JMD</p>   
-      <p><strong class="text-gray-800">Account Name:</strong> Garen Thoms</p>
-      <p><strong class="text-gray-800">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="font-semibold text-xl text-blue-600"></span></p>
-    </div>
+  <script type="module">
+    import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
 
-    <p class="text-lg text-gray-700 mt-4">Once you have made payment, kindly click on the button below.</p>
+    window.submitted = false;
+    let codeReader = new BrowserMultiFormatReader();
+    let activeControl = null;
 
-    <!-- Payment Confirmation Button -->
-    <button id="toggle-form-btn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">
-      I’ve Sent the Payment
-    </button>
-  </div>
+    function lookupProduct() {
+      const code = document.getElementById('barcode').value.trim();
+      const productInfo = document.getElementById('product-info');
+      const manualEntry = document.getElementById('manual-entry');
 
-  <!-- Step 3: WhatsApp Form + Send -->
-  <div id="step3" class="hidden">
- <h2 class="text-3xl font-semibold text-gray-900">Send Details</h2>
-    <p class="text-lg text-gray-700">Kindly fill out the form below and submit to complete your transaction.</p>
+      productInfo.style.textAlign = 'center';
 
-    
-    <div class="input-group">
-      <input type="text" id="fullname" placeholder="Full Name" />
-      <input type="text" id="idcode" placeholder="Your ID Code" />
-      <input type="text" id="idtran" placeholder="Payment Trabsaction ID" />
-      <input type="text" id="bankused" placeholder="Your Bank Name" />
-      <input type="date" id="datesent" />
-    </div>
-    <a id="send-whatsapp" href="#" target="_blank" class="block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8">
-      Send via WhatsApp
-    </a>
-  </div>
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+      const img = new Image();
+      img.src = imageUrl;
 
-</div>
+      img.onload = () => {
+        productInfo.innerHTML = `<div class="centered-content"><img src="${imageUrl}" /><p>✅ Image found! Add product info...<br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
+        manualEntry.style.display = 'block';
+      };
 
-<script>
-  const topUpBtn = document.getElementById("topup-btn");
-  const select = document.getElementById("topup-grid");
-  const summary = document.getElementById("summary");
-  const nextStepBtn = document.getElementById("next-step");
-  const toggleBtn = document.getElementById("toggle-form-btn");
-  const sendWhatsappBtn = document.getElementById("send-whatsapp");
-  const step1 = document.getElementById("step1");
-  const step2 = document.getElementById("step2");
-  const step3 = document.getElementById("step3");
+      img.onerror = () => {
+        productInfo.innerHTML = `<div class="centered-content"><p>❌ No product image found for barcode <br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
+        manualEntry.style.display = 'block';
+      };
 
-  let selectedTopups = [];
-
-  function formatCurrency(amount) {
-    return `JMD ${amount.toLocaleString()}`;
-  }
-
-  function calculateTotals() {
-    const total = selectedTopups.reduce((sum, val) => sum + val, 0);
-
-    if (total === 0) {
-      summary.innerHTML = "";
-      nextStepBtn.style.display = "none";
-      return;
+      fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+        .then(res => res.json())
+        .then(data => {
+          const match = data.find(row => row.Barcode?.trim() === code.trim());
+          if (match) {
+            const product = {
+              barcode: code,
+              name: match["Product Name"]?.trim() || '',
+              brand: match.Brand?.trim() || '',
+              size: match.Size?.trim() || '',
+              imageUrl
+            };
+            showProduct(product);
+            document.getElementById('refresh-button').style.display = 'inline-block';
+          }
+        })
+        .catch(err => console.error('Error fetching sheet:', err));
     }
 
-    if (total > 45000) {
-      summary.textContent = "Total cannot exceed JMD 45,000.";
-      nextStepBtn.style.display = "none";
-      return;
+    function startScanner() {
+      const scannerEl = document.getElementById('scanner');
+      scannerEl.style.display = 'block';
+      scannerEl.innerHTML = '';
+
+      BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
+        const deviceId = devices[0]?.deviceId;
+
+        if (!deviceId) {
+          alert("❌ No camera found.");
+          return;
+        }
+
+        codeReader.decodeFromVideoDevice(deviceId, scannerEl, (result, err, controls) => {
+          if (result) {
+            let code = result.getText();
+            if (code.length === 12) code = "0" + code;
+            document.getElementById('barcode').value = code;
+            stopScanner();
+            lookupProduct();
+          }
+        }).then(controls => {
+          activeControl = controls;
+        });
+      }).catch(err => {
+        console.error("Scanner error:", err);
+        alert("❌ Failed to start scanner.");
+      });
     }
 
-    const tax = total * 0.15;
-    const fee = total * 0.10;
-    const grandTotal = Math.round(total + tax + fee);
-
-    summary.innerHTML = `
-      <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-      <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Total:</span><span>JMD ${total.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Grand Total:</span><span>JMD ${grandTotal.toLocaleString()}</span></div>
-    `;
-    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
-    nextStepBtn.style.display = "block";
-  }
-
-  function saveStep(step) {
-    localStorage.setItem("currentStep", step);
-  }
-
-  function restoreStep() {
-    const step = localStorage.getItem("currentStep");
-    if (step === "step1") {
-      topUpBtn.classList.add("hidden");
-      step1.classList.remove("hidden");
-    } else if (step === "step2") {
-      topUpBtn.classList.add("hidden");
-      step1.classList.add("hidden");
-      step2.classList.remove("hidden");
-    } else if (step === "step3") {
-      topUpBtn.classList.add("hidden");
-      step1.classList.add("hidden");
-      step2.classList.add("hidden");
-      step3.classList.remove("hidden");
+    function stopScanner() {
+      if (activeControl) {
+        activeControl.stop();
+        activeControl = null;
+      }
+      const scannerEl = document.getElementById('scanner');
+      scannerEl.innerHTML = '';
+      scannerEl.style.display = 'none';
     }
-  }
 
-  function restoreTopups() {
-    const savedTopups = JSON.parse(localStorage.getItem("selectedTopups") || "[]");
-    if (Array.isArray(savedTopups)) {
-      selectedTopups = savedTopups;
+    function showProduct(product) {
+      document.getElementById('product-info').innerHTML = `<div style="text-align: center;"><img src="${product.imageUrl}" /><h3>${product.name}</h3><p><strong>Brand:</strong> ${product.brand}</p><p><strong>Size:</strong> ${product.size}</p></div>`;
+      document.getElementById('manual-entry').style.display = 'none';
+    }
 
-      document.querySelectorAll(".topup-option").forEach((el) => {
-        const amount = parseInt(el.dataset.amount);
-        if (selectedTopups.includes(amount)) {
-          el.classList.add("selected");
-        } else {
-          el.classList.remove("selected");
+    function saveProduct() {
+      window.submitted = true;
+      const code = document.getElementById('barcode').value.trim();
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
+
+      const form = document.createElement('form');
+      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+      form.method = 'POST';
+      form.target = "hidden_iframe";
+
+      const fields = [
+        { id: 'barcode', name: 'entry.704671786' },
+        { id: 'name', name: 'entry.776500300' },
+        { id: 'brand', name: 'entry.1276633099' },
+        { id: 'size', name: 'entry.875936883' }
+      ];
+
+      for (const { id, name } of fields) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = document.getElementById(id).value.trim();
+        form.appendChild(input);
+      }
+
+      const imageInput = document.createElement('input');
+      imageInput.type = 'hidden';
+      imageInput.name = 'entry.1939692918';
+      imageInput.value = imageUrl;
+      form.appendChild(imageInput);
+
+      document.body.appendChild(form);
+      form.submit();
+
+      document.getElementById('barcode').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('brand').value = '';
+      document.getElementById('size').value = '';
+      document.getElementById('save-button').disabled = true;
+    }
+
+    function checkSaveButtonState() {
+      const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const size = document.getElementById('size').value.trim();
+      const saveButton = document.getElementById('save-button');
+      saveButton.disabled = !(name && brand && size);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('name').addEventListener('input', checkSaveButtonState);
+      document.getElementById('brand').addEventListener('input', checkSaveButtonState);
+      document.getElementById('size').addEventListener('input', checkSaveButtonState);
+      document.getElementById('lookup-button').addEventListener('click', lookupProduct);
+      document.getElementById('scan-button').addEventListener('click', startScanner);
+      document.getElementById('refresh-button').addEventListener('click', () => location.reload());
+      document.getElementById('save-button').addEventListener('click', saveProduct);
+      checkSaveButtonState();
+
+      document.getElementById('hidden_iframe').addEventListener('load', () => {
+        if (window.submitted) {
+          alert('✅ Product added!');
+          window.submitted = false;
+          location.reload();
         }
       });
-
-      calculateTotals();
-    }
-  }
-
-  window.addEventListener("load", () => {
-    restoreStep();
-    restoreTopups();
-  });
-
-  topUpBtn.addEventListener("click", () => {
-    topUpBtn.classList.add("hidden");
-    step1.classList.remove("hidden");
-    saveStep("step1");
-  });
-
-  select.addEventListener("click", (e) => {
-    if (!e.target.closest(".topup-option")) return;
-
-    const amount = parseInt(e.target.closest(".topup-option").dataset.amount);
-    const option = e.target.closest(".topup-option");
-
-    if (selectedTopups.includes(amount)) {
-      selectedTopups = selectedTopups.filter((topup) => topup !== amount);
-      option.classList.remove("selected");
-    } else {
-      selectedTopups.push(amount);
-      option.classList.add("selected");
-    }
-
-    localStorage.setItem("selectedTopups", JSON.stringify(selectedTopups));
-    calculateTotals();
-  });
-
-  nextStepBtn.addEventListener("click", () => {
-    step1.classList.add("hidden");
-    step2.classList.remove("hidden");
-    saveStep("step2");
-  });
-
-  toggleBtn.addEventListener("click", () => {
-    step2.classList.add("hidden");
-    step3.classList.remove("hidden");
-    saveStep("step3");
-  });
-
-  sendWhatsappBtn.addEventListener("click", () => {
-    const fullName = document.getElementById("fullname").value.trim();
-    const idCode = document.getElementById("idcode").value.trim();
-    const idtran = document.getElementById("idtran").value.trim();
-    const bankUsed = document.getElementById("bankused").value.trim();
-    const dateSent = document.getElementById("datesent").value.trim();
-
-    const comboText = selectedTopups.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
-    const grandTotalText = document.getElementById("grand-total").textContent.replace(/,/g, "");
-
-    const message = `I'd like to complete my gift card top-up.\n\nTop-up Combination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nTransaction ID: ${idtran}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\n*Note:* Please find attached before sending msg \n\nHere is my payment screenshot.`;
-
-    sendWhatsappBtn.href = `https://api.whatsapp.com/send?phone=18762042132&text=${encodeURIComponent(message)}`;
-
-    selectedTopups = [];
-    localStorage.removeItem("selectedTopups");
-    localStorage.removeItem("currentStep");
-
-    document.querySelectorAll(".topup-option").forEach((el) => {
-      el.classList.remove("selected");
     });
 
-    summary.innerHTML = "";
-    document.getElementById("grand-total").textContent = "";
-    nextStepBtn.style.display = "none";
-
-    step1.classList.add("hidden");
-    step2.classList.add("hidden");
-    step3.classList.add("hidden");
-    topUpBtn.classList.remove("hidden");
-  });
-</script>
-
-
+    window.startScanner = startScanner;
+    window.stopScanner = stopScanner;
+    window.lookupProduct = lookupProduct;
+  </script>
 </body>
 </html>
-
