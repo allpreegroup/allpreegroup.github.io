@@ -22,32 +22,6 @@
   margin: 0 auto 10px; /* center horizontally */
 }
 
-.popup-message {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  font-family: sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.popup-message .close-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
 .form-wrapper {
   display: flex;
   flex-direction: column;
@@ -86,7 +60,35 @@ input:focus {
   width: 100%;  /* Make sure it spans the width */
   padding: 1rem;
 }
+ #loading-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      display: none;
+    }
 
+    #loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #333;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
   </style>
   
@@ -95,461 +97,230 @@ input:focus {
 <body>
 
 <div class="form-wrapper">
-  <h2>Scan or Enter Barcode</h2>
-
-  <input type="text" id="barcode" placeholder="Scan or type barcode" />
-  <button onclick="lookupProduct()">🔍 Lookup Product</button>
-  <div id="scanner" style="display:none; width: 100%; max-width: 500px;"></div>
-  <button onclick="startScanner()">📷 Scan</button>
+ <h2> Enter Barcode Below</h2>
 
 
-  <div id="product-info"> </div>
- 
-    <button id="refresh-button" style="display:none; margin-top: 1rem;" onclick="location.reload()">🔄 Refresh Page</button>
-
-<div id="manual-entry">
-  <h3>Add New Product</h3>
-  <input type="text" id="name" placeholder="Product Name" />
-  <input type="text" id="brand" placeholder="Brand" />
-  <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
+    <input type="text" id="barcode" placeholder="Enter Barcode" />
+    <button onclick="lookupProduct()">Lookup Product</button>
   
-  <!-- Image input for user to upload 
-  <input type="file" id="image-upload" accept="image/*" /> -->
 
-  <!-- Save button (initially disabled until image is uploaded) -->
-  <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
+  <!-- Product Info -->
+  <div id="product-info"></div>
 
-</div>
+  <!-- Manual Entry Form -->
+  <div id="manual-entry">
+    <h3>Add New Product</h3>
+    <input type="text" id="name" placeholder="Product Name" />
+    <input type="text" id="brand" placeholder="Brand" />
+    <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
+    <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
+  </div>
 
+  <!-- Refresh Button -->
+  <button id="refresh-button" style="display: none;" onclick="refreshProduct()">🔄 Refresh Product</button>
+
+  <!-- Fullscreen loading spinner -->
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading product data...</p>
+  </div>
  </div>
  
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) { alert('✅ Product added!'); submitted = false; location.reload(); }"></iframe>
 
+<script>
+    let submitted = false;
 
-<!--
-<div id="popup-message" class="popup-message">
-  ✅ Product added!
-  <button onclick="hidePopupMessage()" class="close-btn">✖</button>
-</div> -->
+    // Lookup product function
+    function lookupProduct() {
+      const code = document.getElementById('barcode').value.trim();
+      const productInfo = document.getElementById('product-info');
+      const manualEntry = document.getElementById('manual-entry');
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
+      // Show loading spinner
+      document.getElementById('loading-modal').style.display = 'flex';
+      productInfo.innerHTML = ''; // Clear any previous content
+      manualEntry.style.display = 'none'; // Hide manual form initially
 
-<script type="module">
-  import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
+      // Track image load status
+      const imageCheck = new Promise((resolve) => {
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+      });
 
-  let submitted = false;
-  let codeReader = new BrowserMultiFormatReader();
-  let activeStream = null;
+      // Fetch product from Google Sheet
+      const sheetCheck = fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
+        .then(res => res.json())
+        .then(data => {
+          return data.find(row => row.Barcode?.trim() === code.trim()) || null;
+        })
+        .catch(err => {
+          console.error('Error fetching sheet:', err);
+          return null;
+        });
 
-  function lookupProduct() {
-    const code = document.getElementById('barcode').value.trim();
-    const productInfo = document.getElementById('product-info');
-    const manualEntry = document.getElementById('manual-entry');
+      // Wait for both image check and sheet data fetch
+      Promise.all([imageCheck, sheetCheck]).then(([hasImage, sheetMatch]) => {
+        // Hide loading modal
+        document.getElementById('loading-modal').style.display = 'none';
 
-    productInfo.style.textAlign = 'center';
-
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-    const img = new Image();
-    img.src = imageUrl;
-
-    img.onload = () => {
-      productInfo.innerHTML = `
-        <div class="centered-content">
-          <img src="${imageUrl}" />
-          <p>✅ Image found! Add product info...<br> 
-            <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-              ${code}</a></p>
-        </div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    img.onerror = () => {
-      productInfo.innerHTML = `
-        <div class="centered-content">
-          <p>❌ No product image found for barcode <br> 
-            <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-              ${code}
-            </a>
-        </div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-      .then(res => res.json())
-      .then(data => {
-        const match = data.find(row => row.Barcode?.trim() === code.trim());
-        if (match) {
+        if (sheetMatch) {
           const product = {
             barcode: code,
-            name: match["Product Name"]?.trim() || '',
-            brand: match.Brand?.trim() || '',
-            size: match.Size?.trim() || '',
-            imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
+            name: sheetMatch["Product Name"]?.trim() || '',
+            brand: sheetMatch.Brand?.trim() || '',
+            size: sheetMatch.Size?.trim() || '',
+            imageUrl
           };
           showProduct(product);
-          console.log('✅ Product loaded from Google Sheet.');
-          document.getElementById('refresh-button').style.display = 'inline-block';
+          document.getElementById('refresh-button').style.display = 'inline-block';  // Show refresh button (only if product is found in sheet)
+        } else if (hasImage) {
+          productInfo.innerHTML = `
+            <div class="centered-content">
+              <img src="${imageUrl}" />
+              <p>✅ Image found! Add product info...<br>
+                <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+                  ${code}
+                </a></p>
+            </div>`;
+          manualEntry.style.display = 'block';
+          document.getElementById('refresh-button').style.display = 'none';  // Hide refresh button (image found but not in sheet)
         } else {
-          console.log('ℹ️ No matching product found in Google Sheet.');
-        }
-      })
-      .catch(err => {
-        console.error('Error fetching sheet:', err);
-      });
-  }
-
-  function showProduct(product) {
-    document.getElementById('product-info').innerHTML = `
-      <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" /> 
-        <h3>${product.name}</h3>
-        <p><strong>Brand:</strong> ${product.brand}</p>
-        <p><strong>Size:</strong> ${product.size}</p>
-      </div>
-    `;
-    document.getElementById('manual-entry').style.display = 'none';
-  }
-
-  function saveProduct() {
-    submitted = true;
-    const code = document.getElementById('barcode').value.trim();
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-
-    const form = document.createElement('form');
-    form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-    form.method = 'POST';
-    form.target = "hidden_iframe";
-
-    const barcodeInput = document.createElement('input');
-    barcodeInput.type = 'hidden';
-    barcodeInput.name = 'entry.704671786';
-    barcodeInput.value = code;
-    form.appendChild(barcodeInput);
-
-    const nameInput = document.createElement('input');
-    nameInput.type = 'hidden';
-    nameInput.name = 'entry.776500300';
-    nameInput.value = document.getElementById('name').value.trim();
-    form.appendChild(nameInput);
-
-    const brandInput = document.createElement('input');
-    brandInput.type = 'hidden';
-    brandInput.name = 'entry.1276633099';
-    brandInput.value = document.getElementById('brand').value.trim();
-    form.appendChild(brandInput);
-
-    const sizeInput = document.createElement('input');
-    sizeInput.type = 'hidden';
-    sizeInput.name = 'entry.875936883';
-    sizeInput.value = document.getElementById('size').value.trim();
-    form.appendChild(sizeInput);
-
-    const imageInput = document.createElement('input');
-    imageInput.type = 'hidden';
-    imageInput.name = 'entry.1939692918';
-    imageInput.value = imageUrl;
-    form.appendChild(imageInput);
-
-    document.body.appendChild(form);
-    form.submit();
-
-    document.getElementById('barcode').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('brand').value = '';
-    document.getElementById('size').value = '';
-    document.getElementById('save-button').disabled = true;
-  }
-
-  async function startScanner() {
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.style.display = 'block';
-
-    try {
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      const deviceId = devices[0]?.deviceId;
-
-      if (!deviceId) {
-        alert("❌ No camera found.");
-        return;
-      }
-
-      const result = await codeReader.decodeFromVideoDevice(deviceId, scannerEl, (result, err) => {
-        if (result) {
-          let code = result.getText();
-          if (code.length === 12) code = "0" + code;
-          document.getElementById('barcode').value = code;
-          stopScanner();
-          lookupProduct();
+          productInfo.innerHTML = `
+            <div class="centered-content">
+              <p>❌ No product image found for barcode <br> 
+                <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+                  ${code}</a></p>
+            </div>`;
+          manualEntry.style.display = 'block';
+          document.getElementById('refresh-button').style.display = 'none';  // Hide refresh button (image not found)
         }
       });
-
-      activeStream = result;
-    } catch (err) {
-      console.error("Scanner error:", err);
-      alert("❌ Failed to start scanner.");
     }
-  }
 
-  function stopScanner() {
-    if (activeStream) {
-      activeStream.stop();
-      activeStream = null;
+    // Display product info
+    function showProduct(product) {
+      document.getElementById('product-info').innerHTML = `
+        <div style="text-align: center;">
+          <img src="${product.imageUrl}" />
+          <h3>${product.name}</h3>
+          <p><strong>Brand:</strong> ${product.brand}</p>
+          <p><strong>Size:</strong> ${product.size}</p>
+        </div>
+      `;
+      document.getElementById('manual-entry').style.display = 'none';
     }
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.innerHTML = '';
-    scannerEl.style.display = 'none';
-  }
 
-  function checkSaveButtonState() {
-    const name = document.getElementById('name').value.trim();
-    const brand = document.getElementById('brand').value.trim();
-    const size = document.getElementById('size').value.trim();
-    const saveButton = document.getElementById('save-button');
-    saveButton.disabled = !(name && brand && size);
-  }
+    // Save product to Google Form with loading spinner
+    function saveProduct() {
+      // Show loading spinner
+      document.getElementById('loading-modal').style.display = 'flex';
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const nameInput = document.getElementById('name');
-    const brandInput = document.getElementById('brand');
-    const sizeInput = document.getElementById('size');
+      submitted = true; 
+      const code = document.getElementById('barcode').value.trim();
+      const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
-    nameInput.addEventListener('input', checkSaveButtonState);
-    brandInput.addEventListener('input', checkSaveButtonState);
-    sizeInput.addEventListener('input', checkSaveButtonState);
+      const form = document.createElement('form');
+      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+      form.method = 'POST';
+      form.target = "hidden_iframe";
+      
+      const barcodeInput = document.createElement('input');
+      barcodeInput.type = 'hidden';
+      barcodeInput.name = 'entry.704671786';
+      barcodeInput.value = code;
+      form.appendChild(barcodeInput);
 
-    checkSaveButtonState();
-  });
+      const nameInput = document.createElement('input');
+      nameInput.type = 'hidden';
+      nameInput.name = 'entry.776500300';
+      nameInput.value = document.getElementById('name').value.trim();
+      form.appendChild(nameInput);
 
-  window.startScanner = startScanner;
-  window.stopScanner = stopScanner;
-</script>
+      const brandInput = document.createElement('input');
+      brandInput.type = 'hidden';
+      brandInput.name = 'entry.1276633099';
+      brandInput.value = document.getElementById('brand').value.trim();
+      form.appendChild(brandInput);
 
-<!--  
- <script>
-  let submitted = false;
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'hidden';
+      sizeInput.name = 'entry.875936883';
+      sizeInput.value = document.getElementById('size').value.trim();
+      form.appendChild(sizeInput);
+
+      const imageInput = document.createElement('input');
+      imageInput.type = 'hidden';
+      imageInput.name = 'entry.1939692918';
+      imageInput.value = imageUrl;
+      form.appendChild(imageInput);
+
+      document.body.appendChild(form);
+      form.submit();
+
+  // Hide the spinner with a slight delay after form submission
+  setTimeout(() => {
+    document.getElementById('loading-modal').style.display = 'none';
+  }, 2000); // Adjust the delay as needed to ensure spinner is visible during submission
   
-  function lookupProduct() {
-    const code = document.getElementById('barcode').value.trim();
-    const productInfo = document.getElementById('product-info');
-    const manualEntry = document.getElementById('manual-entry');
-
-    productInfo.style.textAlign = 'center';
-
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-    const img = new Image();
-    img.src = imageUrl;
-
-    // Show image if it exists
-    img.onload = () => {
-      productInfo.innerHTML = `
-        <div class="centered-content">
-          <img src="${imageUrl}" />
-          <p>✅ Image found! Add product info...<br> 
-            <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-              ${code}</a></p>
-        </div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    // Show message if image doesn't exist
-    img.onerror = () => {
-      productInfo.innerHTML = `
-        <div class="centered-content">
-          <p>❌ No product image found for barcode <br> 
-            <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-              ${code}
-            </a>
-        </div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    // Autofill from Google Sheet using OpenSheet
-    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-      .then(res => res.json())
-      .then(data => {
-        const match = data.find(row => row.Barcode?.trim() === code.trim());
-        if (match) {
-          const product = {
-            barcode: code,
-            name: match["Product Name"]?.trim() || '',
-            brand: match.Brand?.trim() || '',
-            size: match.Size?.trim() || '',
-            imageUrl: `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`
-          };
-          showProduct(product);
-          console.log('✅ Product loaded from Google Sheet.');
-
-          // Show the refresh button
-          document.getElementById('refresh-button').style.display = 'inline-block';
-        } else {
-          console.log('ℹ️ No matching product found in Google Sheet.');
-        }
-      })
-      .catch(err => {
-        console.error('Error fetching sheet:', err);
-      });
-  }
-
-  function showProduct(product) {
-    document.getElementById('product-info').innerHTML = `
-      <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${product.barcode}.jpg" /> 
-        <h3>${product.name}</h3>
-        <p><strong>Brand:</strong> ${product.brand}</p>
-        <p><strong>Size:</strong> ${product.size}</p>
-      </div>
-    `;
-    document.getElementById('manual-entry').style.display = 'none';
-  }
-
-  function saveProduct() {
-    submitted = true; 
-    const code = document.getElementById('barcode').value.trim();
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-
-    const form = document.createElement('form');
-    form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-    form.method = 'POST';
-    form.target = "hidden_iframe";
-    
-    const barcodeInput = document.createElement('input');
-    barcodeInput.type = 'hidden';
-    barcodeInput.name = 'entry.704671786';
-    barcodeInput.value = code;
-    form.appendChild(barcodeInput);
-
-    const nameInput = document.createElement('input');
-    nameInput.type = 'hidden';
-    nameInput.name = 'entry.776500300';
-    nameInput.value = document.getElementById('name').value.trim();
-    form.appendChild(nameInput);
-
-    const brandInput = document.createElement('input');
-    brandInput.type = 'hidden';
-    brandInput.name = 'entry.1276633099';
-    brandInput.value = document.getElementById('brand').value.trim();
-    form.appendChild(brandInput);
-
-    const sizeInput = document.createElement('input');
-    sizeInput.type = 'hidden';
-    sizeInput.name = 'entry.875936883';
-    sizeInput.value = document.getElementById('size').value.trim();
-    form.appendChild(sizeInput);
-
-    const imageInput = document.createElement('input');
-    imageInput.type = 'hidden';
-    imageInput.name = 'entry.1939692918';
-    imageInput.value = imageUrl;
-    form.appendChild(imageInput);
-
-    document.body.appendChild(form);
-    form.submit();
-
-    //showPopupMessage();
-
-    document.getElementById('barcode').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('brand').value = '';
-    document.getElementById('size').value = '';
-    document.getElementById('save-button').disabled = true;
-  }
-
- /* function showPopupMessage() {
-    if (submitted) {
-      const popup = document.getElementById('popup-message');
-      popup.style.display = 'flex';
-      setTimeout(() => {
-        popup.style.display = 'none';
-        submitted = false;
-      }, 3000);
+      // Clear input fields after submission
+      document.getElementById('barcode').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('brand').value = '';
+      document.getElementById('size').value = '';
+      document.getElementById('save-button').disabled = true;
     }
-  } 
 
-  function hidePopupMessage() {
-    document.getElementById('popup-message').style.display = 'none';
-  } */
+    // Enable/disable Save button based on name, brand, size
+    function checkSaveButtonState() {
+      const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const size = document.getElementById('size').value.trim();
+      const saveButton = document.getElementById('save-button');
+      saveButton.disabled = !(name && brand && size);
+    }
 
-  function startQuagga() {
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.style.display = 'block';
-    scannerEl.innerHTML = '';
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('name');
+      const brandInput = document.getElementById('brand');
+      const sizeInput = document.getElementById('size');
 
-    Quagga.init({
-      inputStream: {
-        name: "Live",
-        type: "LiveStream",
-        target: scannerEl,
-        constraints: {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          aspectRatio: { ideal: 1.777 },
-          advanced: [{ focusMode: "continuous" }]
-        },
-      },
-      decoder: {
-        readers: ["ean_reader", "upc_reader", "upc_e_reader", "ean_8_reader", "code_128_reader"]
-      },
-      locate: true,
-      locator: {
-        patchSize: "medium",
-        halfSample: true
-      },
-      frequency: 10
-    }, function(err) {
-      if (err) {
-        console.error(err);
-        alert("❌ Error starting scanner. Please check camera permissions.");
-        return;
-      }
-      Quagga.start();
+      nameInput.addEventListener('input', checkSaveButtonState);
+      brandInput.addEventListener('input', checkSaveButtonState);
+      sizeInput.addEventListener('input', checkSaveButtonState);
+
+      checkSaveButtonState();
     });
 
-    Quagga.onDetected(handleDetection);
-  }
+  
+    // Refresh product function - start from scratch
+function refreshProduct() {
+  // Clear barcode input field
+  document.getElementById('barcode').value = '';
+  
+  // Clear product info display
+  document.getElementById('product-info').innerHTML = '';
+  
+  // Hide product info and manual entry form
+  document.getElementById('manual-entry').style.display = 'none';
+  
+  // Hide the refresh button again
+  document.getElementById('refresh-button').style.display = 'none';
+  
+  // Reset the loading spinner and hide it
+  document.getElementById('loading-modal').style.display = 'none';
 
-  function handleDetection(result) {
-    let code = result.codeResult.code;
-    if (code.length === 12) {
-      code = "0" + code;
-    }
-    document.getElementById('barcode').value = code;
-    stopQuagga();
-    lookupProduct();
-  }
+  // Optionally, if you want to reset the save button as well
+  document.getElementById('save-button').disabled = true;
+  
+  // Optionally focus on the barcode input to re-enter barcode
+  document.getElementById('barcode').focus();
+}
 
-  function stopQuagga() {
-    if (Quagga) {
-      Quagga.offDetected(handleDetection);
-      Quagga.stop();
-    }
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.style.display = 'none';
-    scannerEl.innerHTML = '<button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>';
-  }
-
-  // Enable/disable Save button based on name, brand, size
-  function checkSaveButtonState() {
-    const name = document.getElementById('name').value.trim();
-    const brand = document.getElementById('brand').value.trim();
-    const size = document.getElementById('size').value.trim();
-    const saveButton = document.getElementById('save-button');
-    saveButton.disabled = !(name && brand && size);
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const nameInput = document.getElementById('name');
-    const brandInput = document.getElementById('brand');
-    const sizeInput = document.getElementById('size');
-
-    nameInput.addEventListener('input', checkSaveButtonState);
-    brandInput.addEventListener('input', checkSaveButtonState);
-    sizeInput.addEventListener('input', checkSaveButtonState);
-
-    checkSaveButtonState();
-  });
-</script>
--->
-
+  </script>
  
 </body>
 </html>
