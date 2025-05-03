@@ -87,34 +87,10 @@ input:focus {
   padding: 1rem;
 }
 
-#scanner {
-  display: none;
-  width: 80%;
-  height: 250px;
-  margin-top: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-canvas, video {
-  width: 400px !important;
-  height: 100% !important;
-}
-
-#cancel-scan {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  z-index: 10;
-  background: red;
-  color: white;
-  border: none;
-  padding: 0.3rem 0.5rem;
-  cursor: pointer;
-}
 
   </style>
+  
+
 </head>
 <body>
 
@@ -123,11 +99,9 @@ canvas, video {
 
   <input type="text" id="barcode" placeholder="Scan or type barcode" />
   <button onclick="lookupProduct()">🔍 Lookup Product</button>
-  <button onclick="startQuagga()">📷 Scan with Camera</button>
+  <div id="scanner" style="display:none; width: 100%; max-width: 500px;"></div>
+  <button onclick="startScanner()">📷 Scan</button>
 
-  <div id="scanner">
-    <button id="cancel-scan" onclick="stopQuagga()">✖ Cancel</button>
-  </div>
 
   <div id="product-info"> </div>
  
@@ -148,8 +122,7 @@ canvas, video {
 </div>
 
  </div>
-  <script src="https://unpkg.com/@ericblade/quagga2@v1.2.6/dist/quagga.min.js"></script>
-
+ 
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) { alert('✅ Product added!'); submitted = false; location.reload(); }"></iframe>
 
 
