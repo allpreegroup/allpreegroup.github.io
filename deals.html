@@ -2086,7 +2086,8 @@ function clearBrandCart(brand) {
 }
 
 // Location utilities
-// Location utilities
+	
+
 function saveLocation(coords) {
   localStorage.setItem('userLocation', coords);
 }
@@ -2170,8 +2171,40 @@ async function loadBrandLocations() {
 }
 
 async function showCartWithLocations() {
+  const allowed = await ensureUserLocation();
+  if (!allowed) return;
+
   await loadBrandLocations();
   openCartPopup();
+}
+
+async function ensureUserLocation() {
+  const saved = getSavedLocation();
+  if (saved) return true;
+
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      showLoadingMessage("Geolocation is not supported by your browser.");
+      return resolve(false);
+    }
+
+    showLoadingMessage("We need your location to continue...");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        hideLoadingMessage();
+        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+        saveLocation(coords);
+        resolve(true);
+      },
+      (err) => {
+        hideLoadingMessage();
+        console.warn("User denied location or error occurred", err);
+        showLoadingMessage("Location denied. Please allow location access to continue.");
+        setTimeout(hideLoadingMessage, 3000);
+        resolve(false);
+      }
+    );
+  });
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -2204,7 +2237,7 @@ function handleLocationClick(coordinates) {
     return;
   }
   closeLocationPopup();
-  getUserLocationAndNavigate(coordinates);
+  navigateToLocation(coordinates, getSavedLocation());
 }
 
 function getUserLocationAndNavigate(destination) {
@@ -2235,100 +2268,94 @@ function getUserLocationAndNavigate(destination) {
 }
 
 async function openBrandLocation(brand) {
-  const dest = brandLocations[brand];
+  if (isNavigating) return;
+  isNavigating = true;
 
-  if (!dest || Object.keys(dest).length === 0) {
-    showLoadingMessage("No location set for this brand yet.");
-    setTimeout(hideLoadingMessage, 3000);
+  const allowed = await ensureUserLocation();
+  if (!allowed) {
+    isNavigating = false;
     return;
   }
 
-  showLocationPopup(dest); // Always show popup for multi-location brands
+  const dest = brandLocations[brand];
+
+  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+    showLoadingMessage("No location set for this brand yet.");
+    setTimeout(hideLoadingMessage, 3000);
+    isNavigating = false;
+    return;
+  }
+
+  if (typeof dest === 'object') {
+    showLocationPopup(dest);
+    isNavigating = false;
+  } else {
+    getUserLocationAndNavigate(dest);
+    isNavigating = false;
+  }
 }
 
-async function showLocationPopup(brandLocations) {
-  // Avoid duplicate popup
+function showLocationPopup(brandLocations) {
   if (document.getElementById('location-popup')) return;
 
-  // Show loading while checking location
-  showLoadingMessage("Checking your location...");
+  const backdrop = document.createElement('div');
+  backdrop.id = 'location-popup-backdrop';
+  backdrop.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+  `;
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
-      const savedCoords = getSavedLocation();
+  const popup = document.createElement('div');
+  popup.id = 'location-popup';
+  popup.style = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10001;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    overflow-y: auto;
+    height: 80%;
+  `;
+  popup.innerHTML = '<p>Loading locations...</p>';
 
-      if (!savedCoords || hasMovedSignificantly(savedCoords, currentCoords)) {
-        saveLocation(currentCoords);
-        console.log("Location updated in localStorage:", currentCoords);
-      } else {
-        console.log("User has not moved significantly.");
-      }
+  document.body.appendChild(backdrop);
+  document.body.appendChild(popup);
+  backdrop.addEventListener('click', closeLocationPopup);
+  popup.addEventListener('click', (event) => event.stopPropagation());
 
-      hideLoadingMessage(); // Proceed with showing popup
-      buildPopup();
-    }, (err) => {
-      console.warn("Failed to get current location:", err);
-      hideLoadingMessage();
-      buildPopup(); // Proceed anyway
-    });
-  } else {
-    console.warn("Geolocation not supported.");
-    hideLoadingMessage();
-    buildPopup(); // Proceed anyway
-  }
-
-  function buildPopup() {
-    const backdrop = document.createElement('div');
-    backdrop.id = 'location-popup-backdrop';
-    backdrop.style = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 10000;
-    `;
-
-    const popup = document.createElement('div');
-    popup.id = 'location-popup';
-    popup.style = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 10001;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      overflow-y: auto;
-      height: 80%;
-    `;
-    popup.innerHTML = '<p>Loading locations...</p>';
-
-    document.body.appendChild(backdrop);
-    document.body.appendChild(popup);
-    backdrop.addEventListener('click', closeLocationPopup);
-    popup.addEventListener('click', (event) => event.stopPropagation());
-
-    const saved = getSavedLocation();
-    showLocationButtons(saved);
-  }
+  const saved = getSavedLocation();
+  showLocationButtons(saved);
 
   function showLocationButtons(origin) {
     let optionsHtml = '<h3>Select a Location</h3>';
     for (const [name, coords] of Object.entries(brandLocations)) {
       optionsHtml += `
-        <button onclick="handleLocationClick('${coords}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
+        <button onclick="handleNavigate('${coords}', '${origin}')" style="margin: 8px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">${name}</button><br>
       `;
     }
-    const popup = document.getElementById('location-popup');
-    if (popup) popup.innerHTML = optionsHtml;
+    popup.innerHTML = optionsHtml;
   }
+}
+
+function handleNavigate(coords, origin) {
+  if (!coords || coords.trim() === '') {
+    showLoadingMessage("No location set for this location yet.");
+    setTimeout(hideLoadingMessage, 3000);
+    return;
+  }
+  closeLocationPopup();
+  navigateToLocation(coords, origin);
 }
 
 function closeLocationPopup() {
@@ -2336,6 +2363,14 @@ function closeLocationPopup() {
   const backdrop = document.getElementById('location-popup-backdrop');
   if (popup) popup.remove();
   if (backdrop) backdrop.remove();
+}
+
+function closeLocationSection() {
+  const popup = document.getElementById('cart-popup');
+  const locationSection = popup.querySelector('.location-section');
+  if (locationSection) {
+    locationSection.remove();
+  }
 }
 
 function navigateToLocation(dest, originCoords = null) {
