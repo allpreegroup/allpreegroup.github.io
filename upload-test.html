@@ -14,12 +14,14 @@
   <input type="file" id="imageInput" />
   <button id="uploadBtn">Upload</button>
   <pre id="output">No file uploaded yet.</pre>
+  <div id="imageUrl"></div>
 
   <script>
     document.getElementById('uploadBtn').addEventListener('click', async () => {
       const input = document.getElementById('imageInput');
       const file = input.files[0];
       const output = document.getElementById('output');
+      const imageUrlDiv = document.getElementById('imageUrl');
 
       if (!file) {
         output.textContent = 'Please select a file first.';
@@ -28,7 +30,7 @@
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('fileName', file.name); // 👈 Add fileName field
+      formData.append('fileName', file.name); // Add fileName field
 
       try {
         const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
@@ -36,8 +38,16 @@
           body: formData
         });
 
-        const text = await res.text();
-        output.textContent = 'Response:\n' + text;
+        // Check if response is OK
+        if (!res.ok) {
+          throw new Error('Failed to upload image');
+        }
+
+        const result = await res.json(); // Expect JSON response
+
+        // Display the success message and the image URL
+        output.textContent = 'Response:\n' + result.message;
+        imageUrlDiv.innerHTML = `Image URL: <a href="${result.url}" target="_blank">${result.url}</a>`;
       } catch (err) {
         output.textContent = 'Error:\n' + err.message;
       }
