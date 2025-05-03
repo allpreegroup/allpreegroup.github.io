@@ -2244,9 +2244,36 @@ async function openBrandLocation(brand) {
   }
 }
 
-function showLocationPopup(brandLocations) {
+async function showLocationPopup(brandLocations) {
+  // Avoid duplicate popup
   if (document.getElementById('location-popup')) return;
 
+  // Show loading while checking location
+  showLoadingMessage("Checking your location...");
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+      const savedCoords = getSavedLocation();
+      if (!savedCoords || hasMovedSignificantly(savedCoords, currentCoords)) {
+        saveLocation(currentCoords);
+        console.log("Location updated in localStorage:", currentCoords);
+      } else {
+        console.log("User has not moved significantly.");
+      }
+      hideLoadingMessage();
+      buildLocationPopup(); // proceed after location check
+    }, (err) => {
+      console.warn("Failed to get current location:", err);
+      hideLoadingMessage();
+      buildLocationPopup(); // still proceed
+    });
+  } else {
+    console.warn("Geolocation not supported.");
+    hideLoadingMessage();
+    buildLocationPopup(); // fallback
+  }
+	
   const backdrop = document.createElement('div');
   backdrop.id = 'location-popup-backdrop';
   backdrop.style = `
