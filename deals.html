@@ -1351,7 +1351,20 @@ async function loadSheetUrls() {
 
 loadSheetUrls();
 
+// Inject loading modal into the DOM (this will add the spinner)
+function injectLoadingModal() {
+  if (document.getElementById('loading-modal')) return; // Prevent duplicates
 
+  const modal = document.createElement('div');
+  modal.id = 'loading-modal';
+  modal.style.display = 'none'; // Initial hidden state
+  modal.innerHTML = `
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Loading...</div>
+  `;
+  
+  document.body.appendChild(modal);
+}
 	
 /////////// ADMIN	
 const tapZone = document.createElement('div');
@@ -3727,7 +3740,42 @@ function startBrandCountdown(expireDate, elementId) {
   };
 	
   loadDeals();
-		
+
+	
+function injectLoadingModal() {
+  if (document.getElementById('loading-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'loading-modal';
+  modal.style.display = 'none';
+  modal.innerHTML = `
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Loading...</div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+// Call it on load
+injectLoadingModal(); // or use DOMContentLoaded if needed
+
+	
+function showSpinner(message = "Loading...") {
+  const modal = document.getElementById('loading-modal');
+  const text = document.getElementById('loading-text');
+  if (modal && text) {
+    text.textContent = message;
+    modal.style.display = 'flex';
+  }
+}
+
+function hideSpinner() {
+  const modal = document.getElementById('loading-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
   let startY = 0;
