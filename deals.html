@@ -2180,7 +2180,6 @@ async function showCartWithLocations() {
 
 async function ensureUserLocation() {
   const saved = getSavedLocation();
-  if (saved) return true;
 
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
@@ -2192,8 +2191,13 @@ async function ensureUserLocation() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         hideLoadingMessage();
-        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-        saveLocation(coords);
+        const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+        // Only save if user has moved significantly or no saved location
+        if (!saved || hasMovedSignificantly(saved, currentCoords)) {
+          saveLocation(currentCoords);
+        }
+
         resolve(true);
       },
       (err) => {
@@ -2206,6 +2210,7 @@ async function ensureUserLocation() {
     );
   });
 }
+
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
