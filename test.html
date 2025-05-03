@@ -389,14 +389,30 @@ canvas, video {
     });
 
     // Refresh product function
-    function refreshProduct() {
-      const code = document.getElementById('barcode').value.trim();
-      if (code) {
-        lookupProduct();  // Call lookupProduct to refresh the product data
-      } else {
-        alert('Please enter a barcode to refresh the product.');
-      }
-    }
+    // Refresh product function - start from scratch
+function refreshProduct() {
+  // Clear barcode input field
+  document.getElementById('barcode').value = '';
+  
+  // Clear product info display
+  document.getElementById('product-info').innerHTML = '';
+  
+  // Hide product info and manual entry form
+  document.getElementById('manual-entry').style.display = 'none';
+  
+  // Hide the refresh button again
+  document.getElementById('refresh-button').style.display = 'none';
+  
+  // Reset the loading spinner and hide it
+  document.getElementById('loading-modal').style.display = 'none';
+
+  // Optionally, if you want to reset the save button as well
+  document.getElementById('save-button').disabled = true;
+  
+  // Optionally focus on the barcode input to re-enter barcode
+  document.getElementById('barcode').focus();
+}
+
   </script>
 
 
