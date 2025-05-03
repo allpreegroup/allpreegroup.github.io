@@ -356,9 +356,11 @@ canvas, video {
       document.body.appendChild(form);
       form.submit();
 
-      // Hide the spinner once the form is submitted
-      document.getElementById('loading-modal').style.display = 'none';
-
+  // Hide the spinner with a slight delay after form submission
+  setTimeout(() => {
+    document.getElementById('loading-modal').style.display = 'none';
+  }, 2000); // Adjust the delay as needed to ensure spinner is visible during submission
+  
       // Clear input fields after submission
       document.getElementById('barcode').value = '';
       document.getElementById('name').value = '';
@@ -388,7 +390,7 @@ canvas, video {
       checkSaveButtonState();
     });
 
-    // Refresh product function
+  
     // Refresh product function - start from scratch
 function refreshProduct() {
   // Clear barcode input field
