@@ -2096,52 +2096,6 @@ function getSavedLocation() {
   return localStorage.getItem('userLocation');
 }
 
-function showLoadingMessage(message) {
-  let loading = document.getElementById('loading-message');
-  if (!loading) {
-    loading = document.createElement('div');
-    loading.id = 'loading-message';
-    loading.style = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      font-size: 14px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      z-index: 10003;
-    `;
-
-    const closeBtn = document.createElement('span');
-    closeBtn.textContent = '✖';
-    closeBtn.style = `
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: bold;
-    `;
-    closeBtn.onclick = hideLoadingMessage;
-    loading.appendChild(closeBtn);
-
-    const messageP = document.createElement('p');
-    messageP.id = 'loading-text';
-    messageP.style = 'margin-top: 20px;';
-    loading.appendChild(messageP);
-
-    document.body.appendChild(loading);
-  }
-  document.getElementById('loading-text').textContent = message;
-}
-
-function hideLoadingMessage() {
-  const el = document.getElementById('loading-message');
-  if (el) el.remove();
-}
-
 async function loadBrandLocations() {
   try {
     const res = await fetch('https://opensheet.elk.sh/19K8yc9jeDGb4BRjKq_lE_Xh0d-K7p-f24QtnP7vv0sQ/Sheet1');
@@ -2183,14 +2137,14 @@ async function ensureUserLocation() {
 
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      showLoadingMessage("Geolocation is not supported by your browser.");
+      showSpinner("Geolocation is not supported by your browser.");
       return resolve(false);
     }
 
-    showLoadingMessage("We need your location to continue...");
+    showSpinner("We need your location to continue...");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        hideLoadingMessage();
+        hideSpinner();
         const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
 
         // Only save if user has moved significantly or no saved location
@@ -2201,10 +2155,10 @@ async function ensureUserLocation() {
         resolve(true);
       },
       (err) => {
-        hideLoadingMessage();
+        hideSpinner();
         console.warn("User denied location or error occurred", err);
-        showLoadingMessage("Location denied. Please allow location access to continue.");
-        setTimeout(hideLoadingMessage, 3000);
+        showSpinner("Location denied. Please allow location access to continue.");
+        setTimeout(hideSpinner, 3000);
         resolve(false);
       }
     );
@@ -2237,8 +2191,8 @@ function hasMovedSignificantly(savedLocation, currentLocation) {
 
 function handleLocationClick(coordinates) {
   if (!coordinates) {
-    showLoadingMessage("Sorry, this location is not available yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("Sorry, this location is not available yet.");
+    setTimeout(hideSpinner, 3000);
     return;
   }
   closeLocationPopup();
@@ -2247,12 +2201,12 @@ function handleLocationClick(coordinates) {
 
 function getUserLocationAndNavigate(destination) {
   const savedLocation = getSavedLocation();
-  showLoadingMessage("Finding your location...");
+  showSpinner("Finding your location...");
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        hideLoadingMessage();
+        hideSpinner();
         const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
         if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
           saveLocation(currentCoords);
@@ -2260,15 +2214,15 @@ function getUserLocationAndNavigate(destination) {
         navigateToLocation(destination, currentCoords);
       },
       () => {
-        hideLoadingMessage();
-        showLoadingMessage("Could not retrieve your location.");
-        setTimeout(hideLoadingMessage, 3000);
+        hideSpinner();
+        showSpinner("Could not retrieve your location.");
+        setTimeout(hideSpinner, 3000);
       }
     );
   } else {
-    hideLoadingMessage();
-    showLoadingMessage("Geolocation is not supported by your browser.");
-    setTimeout(hideLoadingMessage, 3000);
+   hideSpinner();
+    showSpinner("Geolocation is not supported by your browser.");
+    setTimeout(hideSpinner, 3000);
   }
 }
 
@@ -2285,8 +2239,8 @@ async function openBrandLocation(brand) {
   const dest = brandLocations[brand];
 
   if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
-    showLoadingMessage("No location set for this brand yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("No location set for this brand yet.");
+    setTimeout(hideSpinner, 3000);
     isNavigating = false;
     return;
   }
@@ -2355,8 +2309,8 @@ function showLocationPopup(brandLocations) {
 
 function handleNavigate(coords, origin) {
   if (!coords || coords.trim() === '') {
-    showLoadingMessage("No location set for this location yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("No location set for this location yet.");
+    setTimeout(hideSpinner, 3000);
     return;
   }
   closeLocationPopup();
