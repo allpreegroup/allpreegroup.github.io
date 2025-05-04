@@ -229,37 +229,40 @@ input:focus {
       const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
       // Only upload image if we DON'T have a GitHub image
-      if (!hasGithubImage) {
-        const fileInput = document.getElementById('image-upload');
-        const file = fileInput.files[0];
+      // Only upload image if we DON'T have a GitHub image
+if (!hasGithubImage) {
+  const input = document.getElementById('image-upload');
+  const file = input.files[0];
+  const output = document.getElementById('output'); // Make sure this exists in your HTML
 
-        if (!file) {
-          alert("Please select an image to upload.");
-          document.getElementById('loading-modal').style.display = 'none';
-          return;
-        }
+  if (!file) {
+    output.textContent = 'Please select a file first.';
+    document.getElementById('loading-modal').style.display = 'none';
+    return;
+  }
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileName', file.name);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('fileName', file.name);
 
-        try {
-          const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
-            method: 'POST',
-            body: formData
-          });
+  try {
+    const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
+      method: 'POST',
+      body: formData
+    });
 
-          if (!res.ok) {
-            const error = await res.text();
-            output.textContent = 'Upload failed:\n' + error;
-          } else {
-            const result = await res.json();
-            output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
-          }
-        } catch (err) {
-          console.error("Upload error:", err);
-        }
-      }
+    if (!res.ok) {
+      const error = await res.text();
+      output.textContent = 'Upload failed:\n' + error;
+    } else {
+      const result = await res.json();
+      output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
+    }
+  } catch (err) {
+    output.textContent = 'Error:\n' + err.message;
+  }
+}
+
 
       // Send form to Google Forms
       const form = document.createElement('form');
