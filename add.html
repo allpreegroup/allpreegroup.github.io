@@ -111,15 +111,17 @@ input:focus {
   <!-- Product Info -->
   <div id="product-info"></div>
 
+
+<input type="file" id="imageInput" />
+  <button id="uploadBtn">Upload</button>
+  <pre id="output">No file uploaded yet.</pre>
+  
   <!-- Manual Entry Form -->
   <div id="manual-entry">
     <h3>Add New Product</h3>
     <input type="text" id="name" placeholder="Product Name" />
     <input type="text" id="brand" placeholder="Brand" />
     <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
-   <div id="image-upload-group">
-    <input type="file" id="image-upload" accept="image/*" />
-   </div> 
     <button id="save-button" onclick="saveProduct()" disabled>💾 Save Product</button>
   </div>
 
@@ -220,24 +222,107 @@ input:focus {
     document.getElementById('manual-entry').style.display = 'none';
   }
 
-  async function saveProduct() {
-    document.getElementById('loading-modal').style.display = 'flex';
+  // Save product to Google Form with loading spinner
+    function saveProduct() {
+      // Show loading spinner
+      document.getElementById('loading-modal').style.display = 'flex';
 
-    if (isNameFilled && isBrandFilled && isSizeFilled && (hasGithubImage || isImageUploaded)) {
-      submitted = true;
+      submitted = true; 
       const code = document.getElementById('barcode').value.trim();
       const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
 
-      // Only upload image if we DON'T have a GitHub image
-      // Only upload image if we DON'T have a GitHub image
-if (!hasGithubImage) {
-  const input = document.getElementById('image-upload');
+      const form = document.createElement('form');
+      form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
+      form.method = 'POST';
+      form.target = "hidden_iframe";
+      
+      const barcodeInput = document.createElement('input');
+      barcodeInput.type = 'hidden';
+      barcodeInput.name = 'entry.704671786';
+      barcodeInput.value = code;
+      form.appendChild(barcodeInput);
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'hidden';
+      nameInput.name = 'entry.776500300';
+      nameInput.value = document.getElementById('name').value.trim();
+      form.appendChild(nameInput);
+
+      const brandInput = document.createElement('input');
+      brandInput.type = 'hidden';
+      brandInput.name = 'entry.1276633099';
+      brandInput.value = document.getElementById('brand').value.trim();
+      form.appendChild(brandInput);
+
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'hidden';
+      sizeInput.name = 'entry.875936883';
+      sizeInput.value = document.getElementById('size').value.trim();
+      form.appendChild(sizeInput);
+
+      const imageInput = document.createElement('input');
+      imageInput.type = 'hidden';
+      imageInput.name = 'entry.1939692918';
+      imageInput.value = imageUrl;
+      form.appendChild(imageInput);
+
+      document.body.appendChild(form);
+      form.submit();
+
+  // Hide the spinner with a slight delay after form submission
+  setTimeout(() => {
+    document.getElementById('loading-modal').style.display = 'none';
+  }, 2000); // Adjust the delay as needed to ensure spinner is visible during submission
+  
+      // Clear input fields after submission
+      document.getElementById('barcode').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('brand').value = '';
+      document.getElementById('size').value = '';
+      document.getElementById('save-button').disabled = true;
+    }
+
+    // Enable/disable Save button based on name, brand, size
+    function checkSaveButtonState() {
+      const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const size = document.getElementById('size').value.trim();
+      const saveButton = document.getElementById('save-button');
+      saveButton.disabled = !(name && brand && size);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('name');
+      const brandInput = document.getElementById('brand');
+      const sizeInput = document.getElementById('size');
+
+      nameInput.addEventListener('input', checkSaveButtonState);
+      brandInput.addEventListener('input', checkSaveButtonState);
+      sizeInput.addEventListener('input', checkSaveButtonState);
+
+      checkSaveButtonState();
+    });
+
+
+  function refreshProduct() {
+    document.getElementById('barcode').value = '';
+    document.getElementById('product-info').innerHTML = '';
+    document.getElementById('manual-entry').style.display = 'none';
+    document.getElementById('refresh-button').style.display = 'none';
+    document.getElementById('loading-modal').style.display = 'none';
+    document.getElementById('save-button').disabled = true;
+    document.getElementById('image-upload-group').style.display = 'block';
+    hasGithubImage = false;
+    document.getElementById('barcode').focus();
+  }
+
+  document.getElementById('uploadBtn').addEventListener('click', async () => {
+  const input = document.getElementById('imageInput');
   const file = input.files[0];
-  const output = document.getElementById('output'); // Make sure this exists in your HTML
+  const output = document.getElementById('output');
 
   if (!file) {
     output.textContent = 'Please select a file first.';
-    document.getElementById('loading-modal').style.display = 'none';
     return;
   }
 
@@ -257,106 +342,17 @@ if (!hasGithubImage) {
     } else {
       const result = await res.json();
       output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
+      // ✅ Now show the save product step
+      document.getElementById('manual-entry').style.display = 'block';
+      document.getElementById('save-button').disabled = false;
     }
   } catch (err) {
     output.textContent = 'Error:\n' + err.message;
   }
-}
+});
 
 
-      // Send form to Google Forms
-      const form = document.createElement('form');
-form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-form.method = 'POST';
-form.target = "hidden_iframe";
-
-const barcodeInput = document.createElement('input');
-barcodeInput.type = 'hidden';
-barcodeInput.name = 'entry.704671786';
-barcodeInput.value = code;
-form.appendChild(barcodeInput);
-
-const nameInput = document.createElement('input');
-nameInput.type = 'hidden';
-nameInput.name = 'entry.776500300';
-nameInput.value = document.getElementById('name').value.trim();
-form.appendChild(nameInput);
-
-const brandInput = document.createElement('input');
-brandInput.type = 'hidden';
-brandInput.name = 'entry.1276633099';
-brandInput.value = document.getElementById('brand').value.trim();
-form.appendChild(brandInput);
-
-const sizeInput = document.createElement('input');
-sizeInput.type = 'hidden';
-sizeInput.name = 'entry.875936883';
-sizeInput.value = document.getElementById('size').value.trim();
-form.appendChild(sizeInput);
-
-const imageInput = document.createElement('input');
-imageInput.type = 'hidden';
-imageInput.name = 'entry.1939692918';
-imageInput.value = imageUrl;
-form.appendChild(imageInput);
-
-// ⬇️ This is crucial!
-document.body.appendChild(form);
-form.submit();
-
-
-      setTimeout(() => {
-        document.getElementById('loading-modal').style.display = 'none';
-      }, 2000);
-
-      // Clear fields
-      document.getElementById('barcode').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('brand').value = '';
-      document.getElementById('size').value = '';
-      document.getElementById('image-upload').value = '';
-      document.getElementById('save-button').disabled = true;
-    }
-  }
-
-  function checkSaveButtonState() {
-    const name = document.getElementById('name').value.trim();
-    const brand = document.getElementById('brand').value.trim();
-    const size = document.getElementById('size').value.trim();
-    const saveButton = document.getElementById('save-button');
-
-    isNameFilled = !!name;
-    isBrandFilled = !!brand;
-    isSizeFilled = !!size;
-    isImageUploaded = document.getElementById('image-upload').files.length > 0;
-
-    saveButton.disabled = !(isNameFilled && isBrandFilled && isSizeFilled && (hasGithubImage || isImageUploaded));
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const nameInput = document.getElementById('name');
-    const brandInput = document.getElementById('brand');
-    const sizeInput = document.getElementById('size');
-    const imageInput = document.getElementById('image-upload');
-
-    nameInput.addEventListener('input', checkSaveButtonState);
-    brandInput.addEventListener('input', checkSaveButtonState);
-    sizeInput.addEventListener('input', checkSaveButtonState);
-    imageInput.addEventListener('input', checkSaveButtonState);
-    checkSaveButtonState();
-  });
-
-  function refreshProduct() {
-    document.getElementById('barcode').value = '';
-    document.getElementById('product-info').innerHTML = '';
-    document.getElementById('manual-entry').style.display = 'none';
-    document.getElementById('refresh-button').style.display = 'none';
-    document.getElementById('loading-modal').style.display = 'none';
-    document.getElementById('save-button').disabled = true;
-    document.getElementById('image-upload-group').style.display = 'block';
-    hasGithubImage = false;
-    document.getElementById('barcode').focus();
-  }
+  
 </script>
  
 </body>
