@@ -3336,18 +3336,13 @@ brandDiv.addEventListener('click', () => {
     // 🧹 Clear grid before adding shuffled items
     grid.innerHTML = '';
 
-   // Pick 4 random deals (or fewer if less available)
-const numToShow = 4;
-const shuffled = shuffleArray(brandData.deals.slice());
-const pickedDeals = shuffled.slice(0, numToShow);
-const shuffled = shuffleArray([...localDeals]);
-	  
-// Append only 4 shuffled deals
-pickedDeals.forEach((d, index) => {
-  d.element.style.animationDelay = `${index * 50}ms`;
-  d.element.classList.add('deal-item');
-  grid.appendChild(d.element);
-});
+      // 🎲 Shuffle the current brand's deals on open
+     const shuffled = shuffleArray([...localDeals]);
+     shuffled.forEach((d, index) => {
+       d.element.style.animationDelay = `${index * 50}ms`;
+       d.element.classList.add('deal-item');
+       grid.appendChild(d.element);
+     });
 
     // Optional scroll logic
     const headerHeight = 70;
