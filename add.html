@@ -348,42 +348,41 @@ input:focus {
 
   
 // Upload Button Event Listener
-    const uploadBtn = document.getElementById('uploadBtn');
-    uploadBtn.replaceWith(uploadBtn.cloneNode(true));  // Remove old listeners
-    document.getElementById('uploadBtn').addEventListener('click', async () => {
-      const input = document.getElementById('imageInput');
-      const file = input.files[0];
-      const output = document.getElementById('output');
+  async function uploadHandler() {
+  const input = document.getElementById('imageInput');
+  const file = input.files[0];
+  const output = document.getElementById('output');
 
-      if (!file) {
-        output.textContent = 'Please select a file first.';
-        return;
-      }
+  if (!file) {
+    output.textContent = 'Please select a file first.';
+    return;
+  }
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', file.name);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('fileName', file.name);
 
-      try {
-        const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!res.ok) {
-          const error = await res.text();
-          output.textContent = 'Upload failed:\n' + error;
-        } else {
-          const result = await res.json();
-          output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
-          document.getElementById('image-upload-step').style.display = 'none';
-          document.getElementById('manual-entry').style.display = 'block';
-          document.getElementById('save-button').disabled = false;
-        }
-      } catch (err) {
-        output.textContent = 'Error:\n' + err.message;
-      }
+  try {
+    const res = await fetch('https://red-silence-79af.allpree.workers.dev/', {
+      method: 'POST',
+      body: formData
     });
+
+    if (!res.ok) {
+      const error = await res.text();
+      output.textContent = 'Upload failed:\n' + error;
+    } else {
+      const result = await res.json();
+      output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
+      document.getElementById('image-upload-step').style.display = 'none';
+      document.getElementById('manual-entry').style.display = 'block';
+      document.getElementById('save-button').disabled = false;
+    }
+  } catch (err) {
+    output.textContent = 'Error:\n' + err.message;
+  }
+}
+
   
   
 </script>
