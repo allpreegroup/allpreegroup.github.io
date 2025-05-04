@@ -3329,15 +3329,22 @@ if (!hasActiveRow) {
 
               if (!isOpen) {
 
-	      // 🔀 Shuffle and re-append deals every time grid opens
-              // Shuffle and re-append deals each time grid is opened
-               const shuffledDeals = shuffleArray(brandData.deals.slice()); // Make a copy
-               grid.innerHTML = ''; // Clear old elements
-               shuffledDeals.forEach((d, index) => {
-                d.element.style.animationDelay = `${index * 50}ms`; // optional: staggered animation
-              d.element.classList.add('deal-item'); // optional: fade-in animation
-              grid.appendChild(d.element);
-            });
+	      // Clear any existing deals.
+    grid.innerHTML = '';
+
+    // Shuffle the deals randomly.
+    // Using slice() to work on a copy so that the original order isn't permanently modified.
+    const shuffledDeals = shuffleArray(brandData.deals.slice());
+
+    // Append each shuffled deal into the grid with a staggered animation.
+    shuffledDeals.forEach((d, index) => {
+      // Optional: Add a slight delay to each deal's animation.
+      d.element.style.animationDelay = `${index * 50}ms`;
+      // Optional: Add a CSS class for fade-in animation.
+      d.element.classList.add('deal-item');
+      grid.appendChild(d.element);
+    });
+
 
 		      
                 const headerHeight = 70;
