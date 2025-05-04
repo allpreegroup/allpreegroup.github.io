@@ -3336,13 +3336,17 @@ brandDiv.addEventListener('click', () => {
     // 🧹 Clear grid before adding shuffled items
     grid.innerHTML = '';
 
-    // 🎲 Shuffle the current brand's deals on open
-    const shuffled = shuffleArray([...localDeals]);
-    shuffled.forEach((d, index) => {
-      d.element.style.animationDelay = `${index * 50}ms`;
-      d.element.classList.add('deal-item');
-      grid.appendChild(d.element);
-    });
+   // Pick 4 random deals (or fewer if less available)
+const numToShow = 4;
+const shuffled = shuffleArray(brandData.deals.slice());
+const pickedDeals = shuffled.slice(0, numToShow);
+
+// Append only 4 shuffled deals
+pickedDeals.forEach((d, index) => {
+  d.element.style.animationDelay = `${index * 50}ms`;
+  d.element.classList.add('deal-item');
+  grid.appendChild(d.element);
+});
 
     // Optional scroll logic
     const headerHeight = 70;
@@ -3355,8 +3359,6 @@ brandDiv.addEventListener('click', () => {
 
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
-
-
 
             container.appendChild(brandSection);
 
@@ -3482,32 +3484,6 @@ allBrandsData.sort((a, b) => {
   return a.timeRemaining - b.timeRemaining;
 });
 
-	
-	/* allBrandsData.forEach(brandData => {
-  let best = 0;
-  for (const deal of brandData.deals) {
-    if (deal.percentOff > best) {
-      best = deal.percentOff;
-    }
-  }
-  brandData.bestDiscount = best;
-
-  brandData.timeRemaining = brandData.expireDate
-    ? brandData.expireDate.getTime() - Date.now()
-    : Infinity;
-
-  // Add this part to append the deals to the grid
-  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-});
-
-// 2. Then sort brands based on precomputed values
-allBrandsData.sort((a, b) => {
-  if (b.bestDiscount !== a.bestDiscount) {
-    return b.bestDiscount - a.bestDiscount;
-  }
-  return a.timeRemaining - b.timeRemaining;
-}); */
-
 // 3. Clear container and continue
 container.innerHTML = '';
 
@@ -3525,7 +3501,6 @@ if (allDealsFlat.length === 0) {
   document.getElementById('noDealsMessage').style.display = 'block';
 }
 	
-
   let likedDealsSection = document.getElementById('likedDealsSection');
   if (!likedDealsSection) {
     likedDealsSection = document.createElement('div');
