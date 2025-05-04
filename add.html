@@ -142,7 +142,6 @@ input:focus {
 
 <script>
   let submitted = false;
-  let hasGithubImage = false; // Track if GitHub image exists
 
   function lookupProduct() {
     const code = document.getElementById('barcode').value.trim();
@@ -185,7 +184,7 @@ input:focus {
         };
         showProduct(product);
         document.getElementById('refresh-button').style.display = 'inline-block';
-        document.getElementById('image-upload-group').style.display = 'block'; // Always show input when from sheet
+        document.getElementById('image-upload-step').style.display = 'block'; // Always show input when from sheet
       } else if (hasImage) {
         productInfo.innerHTML = `
           <div class="centered-content">
@@ -197,7 +196,7 @@ input:focus {
           </div>`;
         manualEntry.style.display = 'block';
         document.getElementById('refresh-button').style.display = 'none';
-        document.getElementById('image-upload-group').style.display = 'none'; // Hide input
+        document.getElementById('image-upload-step').style.display = 'none'; // Hide input
       } else {
         productInfo.innerHTML = `
           <div class="centered-content">
@@ -209,7 +208,7 @@ input:focus {
         // Hide everything else, show only upload
   manualEntry.style.display = 'none';
   document.getElementById('refresh-button').style.display = 'none';
-  document.getElementById('image-upload-group').style.display = 'none'; // hide legacy input if still there
+  document.getElementById('image-upload-step').style.display = 'none'; // hide legacy input if still there
   document.getElementById('image-upload-step').style.display = 'block'; // ✅ show upload section
 }
     });
