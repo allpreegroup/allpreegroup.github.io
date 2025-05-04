@@ -171,47 +171,56 @@ input:focus {
       });
 
     Promise.all([imageCheck, sheetCheck]).then(([hasImage, sheetMatch]) => {
-      document.getElementById('loading-modal').style.display = 'none';
-      hasGithubImage = hasImage; // Set flag
+  document.getElementById('loading-modal').style.display = 'none';
+  const productInfo = document.getElementById('product-info');
+  const manualEntry = document.getElementById('manual-entry');
+  const imageUpload = document.getElementById('image-upload-step');
+  const refreshBtn = document.getElementById('refresh-button');
 
-      if (sheetMatch) {
-        const product = {
-          barcode: code,
-          name: sheetMatch["Product Name"]?.trim() || '',
-          brand: sheetMatch.Brand?.trim() || '',
-          size: sheetMatch.Size?.trim() || '',
-          imageUrl
-        };
-        showProduct(product);
-        document.getElementById('refresh-button').style.display = 'inline-block';
-        document.getElementById('image-upload-step').style.display = 'block'; // Always show input when from sheet
-      } else if (hasImage) {
-        productInfo.innerHTML = `
-          <div class="centered-content">
-            <img src="${imageUrl}" />
-            <p>✅ Image found! Add product info...<br>
-              <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-                ${code} <br>Search on Google for info
-              </a></p>
-          </div>`;
-        manualEntry.style.display = 'block';
-        document.getElementById('refresh-button').style.display = 'none';
-        document.getElementById('image-upload-step').style.display = 'none'; // Hide input
-      } else {
-        productInfo.innerHTML = `
-          <div class="centered-content">
-            <p>❌ No product image found for barcode <br> 
-              <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
-                ${code} <br>Search on Google for info
-              </a></p>
-          </div>`;
-        // Hide everything else, show only upload
+  // Reset all sections
+  productInfo.innerHTML = '';
   manualEntry.style.display = 'none';
-  document.getElementById('refresh-button').style.display = 'none';
-  document.getElementById('image-upload-step').style.display = 'none'; // hide legacy input if still there
-  document.getElementById('image-upload-step').style.display = 'block'; // ✅ show upload section
-}
-    });
+  imageUpload.style.display = 'none';
+  refreshBtn.style.display = 'none';
+
+  if (sheetMatch) {
+    const product = {
+      barcode: code,
+      name: sheetMatch["Product Name"]?.trim() || '',
+      brand: sheetMatch.Brand?.trim() || '',
+      size: sheetMatch.Size?.trim() || '',
+      imageUrl
+    };
+    showProduct(product);
+    refreshBtn.style.display = 'inline-block';
+
+    // Show image upload only if GitHub image is missing
+    if (!hasImage) {
+      imageUpload.style.display = 'block';
+    }
+  } else if (hasImage) {
+    // No sheet match, but image exists: show manual form
+    productInfo.innerHTML = `
+      <div class="centered-content">
+        <img src="${imageUrl}" />
+        <p>✅ Image found! Add product info...<br>
+          <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+            ${code} <br>Search on Google for info
+          </a></p>
+      </div>`;
+    manualEntry.style.display = 'block';
+  } else {
+    // No image, no sheet match
+    productInfo.innerHTML = `
+      <div class="centered-content">
+        <p>❌ No product image found for barcode <br> 
+          <a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">
+            ${code} <br>Search on Google for info
+          </a></p>
+      </div>`;
+    imageUpload.style.display = 'block';
+  }
+});
   }
 
   function showProduct(product) {
