@@ -3194,6 +3194,13 @@ async function fetchWithTimeout(url, timeout = 7000) {
 
 // Then inside your main code:
 
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');
@@ -3442,15 +3449,12 @@ if (!hasActiveRow) {
   }
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
 
 allBrandsData.forEach(brandData => {
 
+	// Shuffle deals randomly
+  shuffleArray(brandData.deals);
+	
   // Append shuffled deals to the grid
   brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
 
