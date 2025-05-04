@@ -3295,14 +3295,23 @@ if (!hasActiveRow) {
             brandSection.appendChild(grid);
 
             brandDiv.style.cursor = 'pointer';
+		  
             brandDiv.addEventListener('click', () => {
               const isOpen = grid.style.display === 'grid';
+		    
               if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
                 currentlyOpenGrid.style.display = 'none';
               }
+		    
               grid.style.display = isOpen ? 'none' : 'grid';
 
               if (!isOpen) {
+
+	 // 🔀 Shuffle and re-append deals every time grid opens
+              grid.innerHTML = ''; // clear old items
+              shuffleArray(brandData.deals);
+               brandData.deals.forEach(d => grid.appendChild(d.element));
+		      
                 const headerHeight = 70;
                 const likedDealsSection = document.getElementById('likedDealsSection');
                 const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
@@ -3420,8 +3429,6 @@ function shuffleArray(arr) {
 }
 
 allBrandsData.forEach(brandData => {
-  // Shuffle deals randomly
-  shuffleArray(brandData.deals);
 
   // Append shuffled deals to the grid
   brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
