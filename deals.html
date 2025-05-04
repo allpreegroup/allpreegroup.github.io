@@ -3329,11 +3329,11 @@ if (!hasActiveRow) {
 
               if (!isOpen) {
 
-	      // Clear any existing deals.
+	     
+   // Clear any existing deals.
     grid.innerHTML = '';
 
-    // Shuffle the deals randomly.
-    // Using slice() to work on a copy so that the original order isn't permanently modified.
+    // Shuffle the deals randomly when opening the grid
     const shuffledDeals = shuffleArray(brandData.deals.slice());
 
     // Append each shuffled deal into the grid with a staggered animation.
@@ -3459,8 +3459,8 @@ if (!hasActiveRow) {
 
 allBrandsData.forEach(brandData => {
 
-	// Shuffle deals randomly
-  shuffleArray(brandData.deals);
+	// Shuffle deals on page load
+brandData.deals = shuffleArray(brandData.deals);
 	
   // Append shuffled deals to the grid
   brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
