@@ -3412,7 +3412,39 @@ if (!hasActiveRow) {
   }
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 allBrandsData.forEach(brandData => {
+  // Shuffle deals randomly
+  shuffleArray(brandData.deals);
+
+  // Append shuffled deals to the grid
+  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+
+  // Compute best discount (still based on actual data)
+  brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+
+  // Time remaining to expiry
+  brandData.timeRemaining = brandData.expireDate
+    ? new Date(brandData.expireDate).getTime() - Date.now()
+    : Infinity;
+});
+
+// Sort brands as usual
+allBrandsData.sort((a, b) => {
+  if (b.bestDiscount !== a.bestDiscount) {
+    return b.bestDiscount - a.bestDiscount;
+  }
+  return a.timeRemaining - b.timeRemaining;
+});
+
+	
+	/* allBrandsData.forEach(brandData => {
   let best = 0;
   for (const deal of brandData.deals) {
     if (deal.percentOff > best) {
@@ -3435,7 +3467,7 @@ allBrandsData.sort((a, b) => {
     return b.bestDiscount - a.bestDiscount;
   }
   return a.timeRemaining - b.timeRemaining;
-});
+}); */
 
 // 3. Clear container and continue
 container.innerHTML = '';
