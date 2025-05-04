@@ -3307,10 +3307,16 @@ if (!hasActiveRow) {
 
               if (!isOpen) {
 
-	 // 🔀 Shuffle and re-append deals every time grid opens
-              grid.innerHTML = ''; // clear old items
-              shuffleArray(brandData.deals);
-               brandData.deals.forEach(d => grid.appendChild(d.element));
+	      // 🔀 Shuffle and re-append deals every time grid opens
+              // Shuffle and re-append deals each time grid is opened
+               const shuffledDeals = shuffleArray(brandData.deals.slice()); // Make a copy
+               grid.innerHTML = ''; // Clear old elements
+               shuffledDeals.forEach((d, index) => {
+                d.element.style.animationDelay = `${index * 50}ms`; // optional: staggered animation
+              d.element.classList.add('deal-item'); // optional: fade-in animation
+              grid.appendChild(d.element);
+            });
+
 		      
                 const headerHeight = 70;
                 const likedDealsSection = document.getElementById('likedDealsSection');
