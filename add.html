@@ -322,6 +322,14 @@ input:focus {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+
+      const oldBtn = document.getElementById('uploadBtn');
+      const newBtn = oldBtn.cloneNode(true);
+      oldBtn.replaceWith(newBtn);
+
+     // Bind only once
+      newBtn.addEventListener('click', uploadHandler);
+      
       const nameInput = document.getElementById('name');
       const brandInput = document.getElementById('brand');
       const sizeInput = document.getElementById('size');
