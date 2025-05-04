@@ -3318,25 +3318,31 @@ if (!hasActiveRow) {
 
             brandDiv.style.cursor = 'pointer';
 		  
-           brandDiv.addEventListener('click', () => {
+           // Capture a reference to the local deals for this brand
+const localDeals = brandDeals;
+
+brandDiv.addEventListener('click', () => {
   const isOpen = grid.style.display === 'grid';
+
   if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
     currentlyOpenGrid.style.display = 'none';
   }
+
   grid.style.display = isOpen ? 'none' : 'grid';
 
   if (!isOpen) {
-    // Clear old deals from the grid
+    // 🧹 Clear grid before adding shuffled items
     grid.innerHTML = '';
 
-    // Shuffle and append new order of deals
-    const shuffledDeals = shuffleArray([...brandDeals]); // use the local brandDeals
-    shuffledDeals.forEach((d, index) => {
+    // 🎲 Shuffle the current brand's deals on open
+    const shuffled = shuffleArray([...localDeals]);
+    shuffled.forEach((d, index) => {
       d.element.style.animationDelay = `${index * 50}ms`;
       d.element.classList.add('deal-item');
       grid.appendChild(d.element);
     });
 
+    // Optional scroll logic
     const headerHeight = 70;
     const likedDealsSection = document.getElementById('likedDealsSection');
     const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
@@ -3347,6 +3353,7 @@ if (!hasActiveRow) {
 
   currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
 });
+
 
 
             container.appendChild(brandSection);
