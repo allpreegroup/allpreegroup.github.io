@@ -712,24 +712,48 @@
   </thead>
   <tbody>
     <tr>
-      <td>>⏱️ 24 Hours</td>
-      <td>$9</td>
-      <td>$19</td>
+      <td>⏱️ 24 Hours</td>
+      <td>
+        <span id="usd-premium-24"></span>
+        <span id="jmd-premium-24"></span>
+      </td>
+      <td>
+        <span id="usd-featured-24"></span>
+        <span id="jmd-featured-24"></span>
+      </td>
     </tr>
     <tr>
-      <td>>⏱️ 7 Days</td>
-      <td>$39</td>
-      <td>$89</td>
+      <td>⏱️ 7 Days</td>
+     <td>
+        <span id="usd-premium-7"></span>
+        <span id="jmd-premium-7"></span>
+      </td>
+      <td>
+        <span id="usd-featured-7"></span>
+        <span id="jmd-featured-7"></span>
+      </td>
     </tr>
     <tr>
-      <td>>⏱️ 14 Days</td>
-      <td>$69</td>
-      <td>$149</td>
+      <td>⏱️ 14 Days</td>
+     <td>
+        <span id="usd-premium-14"></span>
+        <span id="jmd-premium-14"></span>
+      </td>
+      <td>
+        <span id="usd-featured-14"></span>
+        <span id="jmd-featured-14"></span>
+      </td>
     </tr>
     <tr>
-      <td>>⏱️ 30 Days</td>
-      <td>$119</td>
-      <td>$249</td>
+      <td>⏱️ 30 Days</td>
+      <td>
+        <span id="usd-premium-30"></span>
+        <span id="jmd-premium-30"></span>
+      </td>
+      <td>
+        <span id="usd-featured-30"></span>
+        <span id="jmd-featured-30"></span>
+      </td>
     </tr>
   </tbody>
 </table>
@@ -763,31 +787,49 @@
   
 
 <script>
- document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4')
     .then(res => res.json())
     .then(data => {
-      const entry = data[0];
-      const rate = parseFloat(entry['USD Rate']);
+      const rate = parseFloat(data[0]['USD Rate']);
       if (isNaN(rate)) return;
 
-      // Handle all plans dynamically
-      const plans = ['starter','diamond', 'crown', 'elite', 'license'];
+      // Plan pricing
+      const plans = ['starter', 'diamond', 'crown', 'elite', 'license'];
       plans.forEach(plan => {
-        const usdVal = parseFloat(entry[`jmd-${plan}`]);
+        const usdVal = parseFloat(data[0][`jmd-${plan}`]);
         if (!isNaN(usdVal)) {
           const jmdVal = Math.round(usdVal * rate).toLocaleString();
           const usdEl = document.getElementById(`usd-${plan}`);
           const jmdEl = document.getElementById(`jmd-${plan}`);
-
           if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()}${plan === 'license' ? ' / 5 year' : ' / year'}`;
           if (jmdEl) jmdEl.textContent = `J$${jmdVal}`;
+        }
+      });
+
+      // Add-on pricing (Featured Brand & Premium Spot)
+      const durations = ['24', '7', '14', '30']; // in days
+      durations.forEach((d, i) => {
+        const featuredUSD = parseFloat(data[i]['featured brand']);
+        const premiumUSD = parseFloat(data[i]['premium spots']);
+        if (!isNaN(featuredUSD)) {
+          const jmd = Math.round(featuredUSD * rate).toLocaleString();
+          const usdEl = document.getElementById(`usd-featured-${d}`);
+          const jmdEl = document.getElementById(`jmd-featured-${d}`);
+          if (usdEl) usdEl.textContent = `USD $${featuredUSD}`;
+          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+        }
+        if (!isNaN(premiumUSD)) {
+          const jmd = Math.round(premiumUSD * rate).toLocaleString();
+          const usdEl = document.getElementById(`usd-premium-${d}`);
+          const jmdEl = document.getElementById(`jmd-premium-${d}`);
+          if (usdEl) usdEl.textContent = `USD $${premiumUSD}`;
+          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
         }
       });
     })
     .catch(err => console.error('Fetch error:', err));
 });
-
 </script>
 
   
