@@ -565,7 +565,7 @@
 
   <div class="pricing-card diamond">
     <div class="emoji">💎</div>
-    <h3>Diamond Plan – $997 / year</h3>
+    <h3>Diamond Plan <br> $997 usd/ year <br> <span id="jmd-price"></span></h3></h3>
     <p>Full deal support, enhanced visibility, and brand colors.</p>
   </div>
 
@@ -716,6 +716,25 @@
     </div>
   
 
+<script>
+  const usdPrice = 997;
+  const url = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4';
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      const rate = parseFloat(data[0]['USDJMD']);
+      if (!isNaN(rate)) {
+        const jmdPrice = usdPrice * rate;
+        document.getElementById('jmd-price').textContent = ` (~JMD $${jmdPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })})`;
+      } else {
+        console.warn('Exchange rate missing or invalid');
+      }
+    })
+    .catch(err => {
+      console.error('Failed to fetch JMD rate:', err);
+    });
+</script>
 
   
 </body>
