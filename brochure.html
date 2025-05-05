@@ -509,13 +509,13 @@
 
   <div class="pricing-card diamond">
     <div class="emoji">💎</div>
-    <h3>Diamond Plan <br> USD $997 / year <br> <span id="jmd-diamond"></span></h3>
+    <h3>Diamond Plan <br> USD $<span id="usd-diamond"></span> / year <br> <span id="jmd-diamond"></span></h3>
     <p>Full deal support, enhanced visibility, and brand colors.</p>
   </div>
 
   <div class="pricing-card premium">
     <div class="emoji">👑</div>
-    <h3>Crown Diamond <br>USD $1,997 / year <br> <span id="jmd-crown"></span></h3>
+    <h3>Crown Diamond <br>USD $<span id="usd-crown"></span> / year <br> <span id="jmd-crown"></span></h3>
     <p>Premium placement, priority features, and performance analytics.</p>
   </div>
 
@@ -526,7 +526,7 @@
     <div class="emoji-big">🏆</div>
     <div>
       <h3>Full Branded App – For Elite Businesses</h3>
-      <p><strong>USD $4,997 / year - <span id="jmd-elite"></span></strong> – Your business. Your app. Your customers.</p>
+      <p><strong>USD $<span id="usd-elite"> / year - <span id="jmd-elite"></span></strong> – Your business. Your app. Your customers.</p>
       <ul>
         <li>✅ Full branding (logo, colors, deals)</li>
         <li>✅ Lifetime access to all features</li>
@@ -536,7 +536,7 @@
         <li>✅ Small menu button links to main app</li>
       </ul>
    <!--   <p><strong>Want to own it forever?</strong></p>
-        <p><strong>One-Time License Fee: USD $19,970 – <span id="jmd-license"></span></strong> - No future payments. All upgrades included.</p> -->
+        <p><strong>One-Time License Fee: USD $<span id="usd-license"></span> – <span id="jmd-license"></span></strong> - No future payments. All upgrades included.</p> -->
     </div>
   </div>
 </div>
@@ -550,32 +550,35 @@
   
 
 <script>
+  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4';
 
-  const exchangeSheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4';
-
-  const planPrices = {
-    'jmd-diamond':997,
-    'jmd-crown': 1997,
-    'jmd-elite': 4997,
-    'jmd-license': 19997
-  };
-  
-
-  fetch(exchangeSheetURL)
+  fetch(sheetURL)
     .then(res => res.json())
     .then(data => {
-      const rate = parseFloat(data[0]['USD Rate']); // Use exact key with space
+      const entry = data[0];
+      const rate = parseFloat(entry['USD Rate']);
       if (isNaN(rate)) return;
 
-      for (const id in planPrices) {
-        const jmdAmount = Math.round(planPrices[id] * rate);
-        const element = document.getElementById(id);
-        if (element) {
-          element.textContent = `JMD $${jmdAmount.toLocaleString()}`;
+      const usdKeys = {
+        'usd-diamond': 'jmd-diamond',
+        'usd-crown': 'jmd-crown',
+        'usd-elite': 'jmd-elite',
+        'usd-license': 'jmd-license'
+      };
+
+      Object.entries(usdKeys).forEach(([usdId, jmdKey]) => {
+        const usdVal = parseFloat(entry[jmdKey]);
+        if (!isNaN(usdVal)) {
+          const jmdVal = Math.round(usdVal * rate).toLocaleString();
+          const usdEl = document.getElementById(usdId);
+          const jmdEl = document.getElementById(jmdKey);
+
+          if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()} / year`;
+          if (jmdEl) jmdEl.textContent = `(~JMD $${jmdVal})`;
         }
-      }
+      });
     })
-    .catch(err => console.error('Exchange rate fetch failed:', err));
+    .catch(err => console.error('Failed to fetch price data:', err));
 </script>
 
   
