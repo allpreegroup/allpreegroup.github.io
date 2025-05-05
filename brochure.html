@@ -565,13 +565,13 @@
 
   <div class="pricing-card diamond">
     <div class="emoji">💎</div>
-    <h3>Diamond Plan <br> $997 usd/ year <br> <span id="jmd-price"></span></h3></h3>
+    <h3>Diamond Plan <br> $997 usd/ year <br> <span id="jmd-diamond"></span></h3>
     <p>Full deal support, enhanced visibility, and brand colors.</p>
   </div>
 
   <div class="pricing-card premium">
     <div class="emoji">👑</div>
-    <h3>Crown Diamond – $1,997 / year</h3>
+    <h3>Crown Diamond – $1,997 / year  <span id="jmd-crown"></span></h3>
     <p>Premium placement, priority features, and performance analytics.</p>
   </div>
 </div>
@@ -717,23 +717,32 @@
   
 
 <script>
-  const usdPrice = 997;
-  const url = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4';
 
-  fetch(url)
+  const exchangeSheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4';
+
+  const planPrices = {
+    'jmd-diamond':997,
+    'jmd-crown': 1997,
+    'jmd-elite': 4997,
+    'jmd-license': 19997
+  };
+  
+
+  fetch(exchangeSheetURL)
     .then(res => res.json())
     .then(data => {
-      const rate = parseFloat(data[0]['USDJMD']);
-      if (!isNaN(rate)) {
-        const jmdPrice = usdPrice * rate;
-        document.getElementById('jmd-price').textContent = ` (~JMD $${jmdPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })})`;
-      } else {
-        console.warn('Exchange rate missing or invalid');
+      const rate = parseFloat(data[0]['USD Rate']); // Use exact key with space
+      if (isNaN(rate)) return;
+
+      for (const id in planPrices) {
+        const jmdAmount = Math.round(planPrices[id] * rate);
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = ` (~JMD $${jmdAmount.toLocaleString()})`;
+        }
       }
     })
-    .catch(err => {
-      console.error('Failed to fetch JMD rate:', err);
-    });
+    .catch(err => console.error('Exchange rate fetch failed:', err));
 </script>
 
   
