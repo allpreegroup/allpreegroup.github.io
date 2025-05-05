@@ -820,7 +820,7 @@ h2 {
     <li>Save Our <i class="fa-brands fa-whatsapp"></i> Contacts </li><br>
 
 	  <div id="action"></div>
-          <div id="qr" style="margin-top: 10px;"></div>
+          <div id="qr" style="margin-top: 0px;"></div><br>
 	  
     <li>Send us A <i class="fa-brands fa-whatsapp"></i> Message</li><br>
     <li>Install Our Web App & Activate Notification</li>	  
@@ -1032,9 +1032,9 @@ ADR:;;${contactDetails.address}`;
 
   // Immediately show both download button and "fallback coming" message
   actionDiv.innerHTML = `
-    <p>Oops 😬 didn’t work <br> scan QR code <br>or manually download and add</p>
+    <p>Oops 😬 didn’t work <br> scan QR code <br>or manually download and import it</p>
     <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-    <button onclick="generateVCF()">Download & Import</button>
+    <button onclick="generateVCF()">D/L & Imp</button>
   `;
 
   // Fade in the QR code after a short delay for smooth transition
@@ -1045,13 +1045,13 @@ ADR:;;${contactDetails.address}`;
 
 
     actionDiv.innerHTML = `
-      <button onclick="tryIntentFallback()">Preview Then Add</button>
+      <button onclick="tryIntentFallback()">Click To Add</button>
       
     `;
 
     qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
   } else if (isIOS) {
-    actionDiv.innerHTML = `<button onclick="generateVCF()">Preview Then Add</button>`;
+    actionDiv.innerHTML = `<button onclick="generateVCF()">Click To Add</button>`;
   } else {
     actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
   }
