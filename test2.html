@@ -3241,16 +3241,6 @@ if (selectedTakeoverBrand) {
   console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
 }
 
-// Then update the class on the grid
-const takeoverBrandData = isTakeover
-  ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
-  : null;
-
-if (takeoverBrandData && takeoverBrandData.grid) {
-  takeoverBrandData.grid.classList.add('takeover-active');
-}
-
-
 	
 // ✅ Step 3: Continue with deal loading
    const allResponses = await Promise.all(
@@ -3563,6 +3553,12 @@ const takeoverBrandData = isTakeover
   ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
   : null;
 
+/ 👉 Add the class right after it's defined
+if (takeoverBrandData?.grid) {
+  takeoverBrandData.grid.classList.add('takeover-active');
+}
+
+	
 const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
 
 const brandToShow = takeoverBrandData || favoriteBrandData;
