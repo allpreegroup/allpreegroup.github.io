@@ -1384,10 +1384,12 @@ function getFilteredLikedDeals() {
 }
 
 function getFilteredDealsFlat() {
-  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-  if (!selectedTakeoverBrand) return allDealsFlat;
-  return allDealsFlat.filter(deal => deal.brandName === selectedTakeoverBrand);
+  if (brandTakeover) {
+    return allDealsFlat.filter(deal => deal.brandName === brandTakeover);
+  }
+  return allDealsFlat;
 }
+
 	
 // Inject loading modal into the DOM (this will add the spinner)
 function injectLoadingModal() {
