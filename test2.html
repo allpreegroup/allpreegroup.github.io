@@ -3536,7 +3536,6 @@ if (allDealsFlat.length === 0) {
 
   renderLikedDealsGallery();
 
-  
  const isTakeover = selectedTakeoverBrand && !sessionStorage.getItem('overrideTakeover');
 
 const takeoverBrandData = isTakeover
@@ -3548,46 +3547,50 @@ const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
 const brandToShow = takeoverBrandData || favoriteBrandData;
 
 if (brandToShow) {
-    const favBadge = document.createElement('div');
-    favBadge.className = 'favorite-brand-badge';
-    favBadge.textContent = isTakeover ? '💥 Exclusive Brand' : '⭐ Featured Brand';
-    const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
-    favBadge.style.backgroundColor = primaryColor;
-    favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
+  const favBadge = document.createElement('div');
+  favBadge.className = 'favorite-brand-badge';
+  favBadge.textContent = isTakeover ? '💥 Exclusive Brand' : '⭐ Featured Brand';
+  const primaryColor = brandToShow.primaryColor?.trim() || '#163A5C';
+  favBadge.style.backgroundColor = primaryColor;
+  brandToShow.section.querySelector('.brand-logo-container').appendChild(favBadge);
 
-    if (favoriteBrandData.secondaryColor) {
-      const brandElement = favoriteBrandData.section.querySelector('.brand');
-      brandElement.classList.add('favorite-brand-highlight');
-      const secondaryColor = favoriteBrandData.secondaryColor.trim();
-      brandElement.style.setProperty('--highlight-border-color', secondaryColor);
+  if (brandToShow.secondaryColor) {
+    const brandElement = brandToShow.section.querySelector('.brand');
+    brandElement.classList.add('favorite-brand-highlight');
+    const secondaryColor = brandToShow.secondaryColor.trim();
+    brandElement.style.setProperty('--highlight-border-color', secondaryColor);
 
-      const pulseColor = toSemiTransparent(secondaryColor, 0.6);
-      let pulseActive = true;
-      setInterval(() => {
-        brandElement.style.boxShadow = pulseActive ? `0 0 10px ${secondaryColor}` : `0 0 20px ${pulseColor}`;
-        pulseActive = !pulseActive;
-      }, 1000);
-    }
+    const pulseColor = toSemiTransparent(secondaryColor, 0.6);
+    let pulseActive = true;
+    setInterval(() => {
+      brandElement.style.boxShadow = pulseActive ? `0 0 10px ${secondaryColor}` : `0 0 20px ${pulseColor}`;
+      pulseActive = !pulseActive;
+    }, 1000);
+  }
 
-   brandToShow.grid.style.display = 'grid';
-currentlyOpenGrid = brandToShow.grid;
-container.appendChild(brandToShow.section);
+  // Auto-open the grid
+  brandToShow.grid.style.display = 'grid';
+  currentlyOpenGrid = brandToShow.grid;
 
-if (isTakeover) {
-  const overrideBtn = document.createElement('button');
-  overrideBtn.textContent = 'Show All Other Brands';
-  overrideBtn.id = 'overrideButton';
-  overrideBtn.className = 'override-button';
-  overrideBtn.style.margin = '1rem auto';
-  overrideBtn.style.display = 'block';
+  container.appendChild(brandToShow.section);
 
-  overrideBtn.addEventListener('click', () => {
-    sessionStorage.setItem('overrideTakeover', 'true');
-    location.reload();
-  });
+  if (isTakeover) {
+    const overrideBtn = document.createElement('button');
+    overrideBtn.textContent = 'Show All Other Brands';
+    overrideBtn.id = 'overrideButton';
+    overrideBtn.className = 'override-button';
+    overrideBtn.style.margin = '1rem auto';
+    overrideBtn.style.display = 'block';
 
-  container.appendChild(overrideBtn);
+    overrideBtn.addEventListener('click', () => {
+      sessionStorage.setItem('overrideTakeover', 'true');
+      location.reload();
+    });
+
+    container.appendChild(overrideBtn);
+  }
 }
+
 
 // 2. Find and render promoted brands (rankedSlot1–5)
 const promotedBrands = [];
