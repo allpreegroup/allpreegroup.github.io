@@ -3092,7 +3092,7 @@ function showLikedDealsInPopup() {
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDeals = getFilteredLikedDeals();
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
@@ -3100,7 +3100,7 @@ function goToNextLikedDeal() {
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+ const likedDeals = getFilteredLikedDeals();
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
