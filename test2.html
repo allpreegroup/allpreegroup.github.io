@@ -2788,48 +2788,51 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   const brandInfo = allBrandsData.find(b => b.brand === brandName);
   // Wait for the popup to be fully populated
-  setTimeout(() => {
-  const badgeContainer = document.querySelector('#popup .brand-logo-container');
-  if (!badgeContainer) return console.warn('No badge container in popup');
 
- // Remove old badges (including any future types)
-badgeContainer.querySelectorAll('.badge-premium, .badge-pro, .badge-starter, .badge-exclusive')
-  .forEach(el => el.remove());
+	  setTimeout(() => {
+    const badgeContainer = document.querySelector('#popup .brand-logo-container');
+    if (!badgeContainer) return console.warn('No badge container in popup');
 
-if (brandInfo) {
-  // Normalize case to avoid mismatches like 'True' vs 'true'
-  const isPro = brandInfo.Pro?.toLowerCase() === 'true';
-  const isPremium = brandInfo.Premium?.toLowerCase() === 'true';
-  const isStarter = brandInfo.Starter?.toLowerCase() === 'true';
-  const isExclusive = brandInfo.Exclusive?.toLowerCase() === 'true';
+    // Remove old badges (including any future types)
+    badgeContainer.querySelectorAll('.badge-premium, .badge-pro, .badge-starter, .badge-exclusive')
+      .forEach(el => el.remove());
 
-  let badge;
+    if (brandInfo) {
+      // Normalize case to avoid mismatches like 'True' vs 'true'
+      const isPro = brandInfo.Pro?.toLowerCase() === 'true';
+      const isPremium = brandInfo.Premium?.toLowerCase() === 'true';
+      const isStarter = brandInfo.Starter?.toLowerCase() === 'true';
+      const isExclusive = brandInfo.Exclusive?.toLowerCase() === 'true';
 
-  if (isExclusive) {
-    badge = document.createElement('div');
-    badge.className = 'badge-exclusive';
-    badge.textContent = '🏆';
-  } else if (isStarter) {
-    badge = document.createElement('div');
-    badge.className = 'badge-starter';
-    badge.textContent = '🎁';
-  } else if (isPro) {
-    badge = document.createElement('div');
-    badge.className = 'badge-pro';
-    badge.textContent = '👑';
-  } else if (isPremium) {
-    badge = document.createElement('div');
-    badge.className = 'badge-premium';
-    badge.textContent = '💎';
-  }
+      let badge;
 
-  if (badge) {
-    badgeContainer.appendChild(badge);
-    console.log('Badge added to popup:', badge.outerHTML);
-  } else {
-    console.log('No matching badge type found for brandInfo:', brandInfo);
-  }
- }, 100);
+      if (isExclusive) {
+        badge = document.createElement('div');
+        badge.className = 'badge-exclusive';
+        badge.textContent = '🏆';
+      } else if (isStarter) {
+        badge = document.createElement('div');
+        badge.className = 'badge-starter';
+        badge.textContent = '🎁';
+      } else if (isPro) {
+        badge = document.createElement('div');
+        badge.className = 'badge-pro';
+        badge.textContent = '👑';
+      } else if (isPremium) {
+        badge = document.createElement('div');
+        badge.className = 'badge-premium';
+        badge.textContent = '💎';
+      }
+
+      if (badge) {
+        badgeContainer.appendChild(badge);
+        console.log('Badge added to popup:', badge.outerHTML);
+      } else {
+        console.log('No matching badge type found for brandInfo:', brandInfo);
+      }
+    }
+  }, 100); // ✅ Properly closed
+
 
 if (brandInfo?.expireDate) {
   startPopupCountdown(brandInfo.expireDate, popupTimerEl);
