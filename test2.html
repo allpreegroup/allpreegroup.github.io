@@ -3619,7 +3619,7 @@ for (let i = 1; i <= 5; i++) {
 // 3. Append remaining brands sorted by discount, skipping favorite and promoted
 const promotedSet = new Set(promotedBrands.map(b => b.brand));
 allBrandsData.forEach(brandData => {
-  if (!brandData.isFavorite && !promotedSet.has(brandData.brand)) {
+  if (brandData.brand === selectedTakeoverBrand || (!brandData.isFavorite && !promotedSet.has(brandData.brand))) {
     // Add hottest discount badge
     if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
         const badge = document.createElement('div');
