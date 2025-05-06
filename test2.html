@@ -799,9 +799,8 @@ height: 20%;
 }
 		 
 /* Badge styles for premium and pro tiers */
-.badge-premium, .badge-pro {
-  background-color: black;
-  border: 0.2px solid  #000;
+.badge-premium, .badge-pro, .badge-starter, .badge-exclusive {
+  border: 0.2px solid #000;
   color: #fff;
   font-weight: bold;
   padding: 2px 10px;
@@ -812,7 +811,7 @@ height: 20%;
   font-size: 12px;
   box-shadow: 0 0 8px #f5f5f5;
 }
-
+		 
 .premium-brand-highlight {
   border: 3px solid  #f5f5f5;
   border-radius: 12px;
@@ -826,7 +825,17 @@ height: 20%;
   box-shadow: 0 0 15px  #f5f5f5;
   
 }
+.starter-brand-highlight {
+  border: 3px solid #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 8px #f5f5f5;
+}
 
+.exclusive-brand-highlight {
+  border: 3px solid #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #f5f5f5;
+}
 .brand-logo-container {
   position: absolute; /* Needed for badge positioning */
  
@@ -3287,7 +3296,7 @@ if (selectedTakeoverBrand) {
             currentSecondaryColor = row.SecondaryColor || '#2066A7';
             isFavorite = currentBrand === favoriteBrand;
             
-	    let isPaidBrand = row.Pro === 'true' || row.Premium === 'true';
+	    let isPaidBrand = row.Pro === 'true' || row.Premium === 'true' || row.Starter === 'true' || row.Exclusive === 'true';
 		  
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
@@ -3320,21 +3329,30 @@ if (selectedTakeoverBrand) {
            logoContainer.appendChild(locationBadge);
          }
 	  
-           if (isPaidBrand) {
-           const badge = document.createElement('div');
+          if (isPaidBrand) {
+  const badge = document.createElement('div');
 
-           if (row.Pro === 'true') {
-           badge.className = 'badge-pro';
-           badge.textContent = '👑';
-           brandDiv.classList.add('pro-brand-highlight');
-         } else if (row.Premium === 'true') {
-           badge.className = 'badge-premium';
-           badge.textContent = '💎';
-           brandDiv.classList.add('premium-brand-highlight');
-         }
+  if (row.Pro === 'true') {
+    badge.className = 'badge-pro';
+    badge.textContent = '👑';
+    brandDiv.classList.add('pro-brand-highlight');
+  } else if (row.Premium === 'true') {
+    badge.className = 'badge-premium';
+    badge.textContent = '💎';
+    brandDiv.classList.add('premium-brand-highlight');
+  } else if (row.Starter === 'true') {
+    badge.className = 'badge-starter';
+    badge.textContent = '🎁';
+    brandDiv.classList.add('starter-brand-highlight');
+  } else if (row.Exclusive === 'true') {
+    badge.className = 'badge-exclusive';
+    badge.textContent = '🏆';
+    brandDiv.classList.add('exclusive-brand-highlight');
+  }
 
-           brandDiv.querySelector('.brand-logo-container').appendChild(badge);
-         }
+  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+}
+
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
 
