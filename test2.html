@@ -3263,8 +3263,14 @@ async function loadDeals() {
 
       rows.forEach(row => {
         try {
-          if (row.BrandName && row.BrandLogo) {
-            currentBrand = row.BrandName;
+         if (row.BrandName && row.BrandLogo) {
+  currentBrand = row.BrandName;
+
+  // 🛑 Brand Override Mode Enforcement
+  if (isOverrideActive && currentBrand !== selectedTakeoverBrand) {
+    console.log(`Skipping ${currentBrand} due to active Brand Override (${selectedTakeoverBrand})`);
+    return; // Exit early – skip all further processing for this sheet
+  }
             currentLogo = row.BrandLogo;
             currentPrimaryColor = row.PrimaryColor || '#163A5C';
             currentSecondaryColor = row.SecondaryColor || '#2066A7';
