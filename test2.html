@@ -1366,31 +1366,6 @@ async function loadSheetUrls() {
 
 loadSheetUrls();
 
-function getFilteredLikedDeals() {
-  const raw = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-  
-  if (selectedTakeoverBrand) {
-    const filtered = {};
-    for (const [key, deal] of Object.entries(raw)) {
-      if (deal.brandName === selectedTakeoverBrand) {
-        filtered[key] = deal;
-      }
-    }
-    return filtered;
-  }
-
-  return raw;
-}
-
-function getFilteredDealsFlat() {
-  if (brandTakeover) {
-    return allDealsFlat.filter(deal => deal.brandName === brandTakeover);
-  }
-  return allDealsFlat;
-}
-
-	
 // Inject loading modal into the DOM (this will add the spinner)
 function injectLoadingModal() {
   if (document.getElementById('loading-modal')) return; // Prevent duplicates
@@ -2657,7 +2632,7 @@ function closeSavedListsPopup() {
 
 ////////// START	
 function renderLikedDealsGallery() {
- const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const galleryEl = document.getElementById('likedDealsGallery');
   const sectionEl = document.getElementById('likedDealsSection');
 
@@ -2694,7 +2669,7 @@ function renderLikedDealsGallery() {
 
     
   card.addEventListener('click', () => {
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
  likedDealIndex = likedDealKeys.findIndex(k => k === getDealKey(deal));
 
@@ -2863,7 +2838,7 @@ if (typeof isBrandMode !== 'undefined' && isBrandMode) {
   const dealKey = getDealKey(deal);
   console.log('Setting up like button for:', deal.name, 'Key:', dealKey);
 
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const isLiked = !!likedDeals[dealKey];
 
   console.log('Is this deal already liked?', isLiked);
@@ -3065,12 +3040,10 @@ function highlightTab(buttonId) {
   isLikedMode = false;
   isBrandMode = false;	 
 
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const likedNames = new Set(Object.keys(likedDeals));
 
-  const filteredDeals = getFilteredDealsFlat();	 
-  const unlikedDeals = filteredDeals.filter(deal => !likedNames.has(deal.name)); // Use filteredDeals here
-
+  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals!");
@@ -3083,7 +3056,7 @@ function highlightTab(buttonId) {
 } 
 	
 function showLikedDealsInPopup() {
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   likedDealKeys = Object.keys(likedDeals);
 
   if (likedDealKeys.length === 0) {
@@ -3094,15 +3067,14 @@ function showLikedDealsInPopup() {
   isBrandMode = false;
   isLikedMode = true;
   likedDealIndex = 0;
-  const filteredDeals = getFilteredDealsFlat(); // This ensures you're working with filtered deals
-  const deal = filteredDeals.find(deal => likedDealKeys.includes(deal.name)); // Use filteredDeals here
+  const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
 	
 function goToNextLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex + 1) % likedDealKeys.length;
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
@@ -3110,7 +3082,7 @@ function goToNextLikedDeal() {
 function goToPrevLikedDeal() {
   if (likedDealKeys.length === 0) return;
   likedDealIndex = (likedDealIndex - 1 + likedDealKeys.length) % likedDealKeys.length;
- const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const deal = likedDeals[likedDealKeys[likedDealIndex]];
   openPopup(deal, true);
 }
@@ -3128,7 +3100,7 @@ document.getElementById('showLikedBtn').onclick = () => {
 
 function cleanUpLikedDeals() {
   // Retrieve liked deals from localStorage
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
 
   // Log the data for debugging purposes
  console.log("🧪 allDealsFlat.length before cleanup:", allDealsFlat.length);
@@ -3232,34 +3204,13 @@ function shuffleArray(arr) {
 
 	
 async function loadDeals() {
-  const likedDeals = getFilteredLikedDeals();
+  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');
   const container = document.getElementById('deals-container');
   container.innerHTML = '';
   allBrandsData.length = 0;
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
-
-    // Retrieve takeover brand info from localStorage
-  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-  let isOverrideActive = false; // Default state (no override)
-
-  // Check if takeover brand is active
-  if (selectedTakeoverBrand) {
-    isOverrideActive = true;
-    console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
-  }
-
-  // Handle the override button click to opt-out of takeover mode
-  const overrideButton = document.getElementById('overrideButton');
-  if (overrideButton) {
-    overrideButton.addEventListener('click', () => {
-      // Disable the takeover mode and show all deals again
-      localStorage.removeItem('selectedTakeoverBrand');
-      isOverrideActive = false;
-      loadDeals(); // Reload deals with normal behavior
-    });
-  }
 
   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
@@ -3268,23 +3219,16 @@ async function loadDeals() {
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
 
-    // Skip all sheets if takeover is active, except the takeover sheet
-    if (isOverrideActive && !rows.some(row => row.BrandName === selectedTakeoverBrand)) {
-      console.log(`Skipping sheet ${i} due to active takeover mode.`);
-      continue;
-    }
-
-    const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
-    if (!hasActiveRow) {
-      console.log(`Sheet ${i} has no active rows. Skipping.`);
-      continue;
-    }
-
+ const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
+if (!hasActiveRow) {
+  console.log(`Sheet ${i} has no active rows. Skipping.`);
+  continue;
+}
+	  
     if (rows.error) {
       console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
     }
-
 
     try {
       let currentBrand = '';
@@ -3299,21 +3243,15 @@ async function loadDeals() {
 
       rows.forEach(row => {
         try {
-         if (row.BrandName && row.BrandLogo) {
-  currentBrand = row.BrandName;
-
-  // 🛑 Brand Override Mode Enforcement
-  if (isOverrideActive && currentBrand !== selectedTakeoverBrand) {
-    console.log(`Skipping ${currentBrand} due to active Brand Override (${selectedTakeoverBrand})`);
-    return; // Exit early – skip all further processing for this sheet
-  }
+          if (row.BrandName && row.BrandLogo) {
+            currentBrand = row.BrandName;
             currentLogo = row.BrandLogo;
             currentPrimaryColor = row.PrimaryColor || '#163A5C';
             currentSecondaryColor = row.SecondaryColor || '#2066A7';
             isFavorite = currentBrand === favoriteBrand;
-
-            let isPaidBrand = row.Pro === 'true' || row.Premium === 'true';
-
+            
+	    let isPaidBrand = row.Pro === 'true' || row.Premium === 'true';
+		  
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
 
@@ -3331,33 +3269,46 @@ async function loadDeals() {
               </div>
             `;
 
-            const locationBadge = document.createElement('div');
-            locationBadge.className = 'location-badge';
-            locationBadge.textContent = `📍`;
-            locationBadge.addEventListener('click', (event) => {
-              event.stopPropagation();
-              openBrandLocation(currentBrand);
-            });
+            // 📍 Add location badge
+          const locationBadge = document.createElement('div');
+          locationBadge.className = 'location-badge';
+          locationBadge.textContent = `📍`;
+          locationBadge.addEventListener('click', (event) => {
+          event.stopPropagation(); // Prevents grid from toggling
+          openBrandLocation(currentBrand);
+       });
 
-            const logoContainer = brandDiv.querySelector('.brand-logo-container');
-            if (logoContainer) {
-              logoContainer.appendChild(locationBadge);
-            }
+           const logoContainer = brandDiv.querySelector('.brand-logo-container');
+           if (logoContainer) {
+           logoContainer.appendChild(locationBadge);
+         }
+	  
+           if (isPaidBrand) {
+           const badge = document.createElement('div');
 
-            if (isPaidBrand) {
-              const badge = document.createElement('div');
+           if (row.Pro === 'true') {
+           badge.className = 'badge-pro';
+           badge.textContent = '👑';
+           brandDiv.classList.add('pro-brand-highlight');
+         } else if (row.Premium === 'true') {
+           badge.className = 'badge-premium';
+           badge.textContent = '💎';
+           brandDiv.classList.add('premium-brand-highlight');
+         }
 
-              if (row.Pro === 'true') {
-                badge.className = 'badge-pro';
-                badge.textContent = '👑';
-                brandDiv.classList.add('pro-brand-highlight');
-              } else if (row.Premium === 'true') {
-                badge.className = 'badge-premium';
-                badge.textContent = '💎';
-                brandDiv.classList.add('premium-brand-highlight');
+           brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+         }
+            const expireDateStr = row.ExpiryDate || row.expireDate;
+            const parsedDate = Date.parse(expireDateStr);
+
+            if (isNaN(parsedDate) || parsedDate < Date.now()) {
+              const el = document.getElementById(timerId);
+              if (el) {
+                el.textContent = '⏳ Coming soon';
+                el.classList.add('countdown-upcoming');
               }
-
-              brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+            } else {
+              startBrandCountdown(expireDateStr, timerId);
             }
 
             brandSection.appendChild(brandDiv);
@@ -3368,54 +3319,51 @@ async function loadDeals() {
             brandSection.appendChild(grid);
 
             brandDiv.style.cursor = 'pointer';
-
-            // Capture a reference to the local deals for this brand
-            const localDeals = brandDeals;
-
-            brandDiv.addEventListener('click', () => {
-              const isOpen = grid.style.display === 'grid';
-
-              if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
-                currentlyOpenGrid.style.display = 'none';
-              }
-
-              grid.style.display = isOpen ? 'none' : 'grid';
-
-              if (!isOpen) {
-                // 🧹 Clear grid before adding shuffled items
-                grid.innerHTML = '';
-
-                // 🎲 Shuffle the current brand's deals on open
-                const shuffled = shuffleArray([...localDeals]);
-                shuffled.forEach((d, index) => {
-                  d.element.style.animationDelay = `${index * 50}ms`;
-                  d.element.classList.add('deal-item');
-                  grid.appendChild(d.element);
-                });
-
-                // Optional scroll logic
-                const headerHeight = 70;
-                const likedDealsSection = document.getElementById('likedDealsSection');
-                const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
-                const extraOffset = likedVisible ? 5 : 0;
-                const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
-                window.scrollTo({ top, behavior: 'smooth' });
-              }
-
-              currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
-            });
-
-            // Apply the brand takeover logic (show only selected brand's deals if takeover is active)
-            
-		  if (!isOverrideActive || (isOverrideActive && currentBrand === selectedTakeoverBrand)) {
-  container.appendChild(brandSection);
-} else {
-  // If Override Mode is active and the brand is not the selected takeover brand, skip it
-  console.log(`Brand "${currentBrand}" skipped due to brand override mode.`);
-}
-
-
 		  
+           // Capture a reference to the local deals for this brand
+const localDeals = brandDeals;
+
+brandDiv.addEventListener('click', () => {
+  const isOpen = grid.style.display === 'grid';
+
+  if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+    currentlyOpenGrid.style.display = 'none';
+  }
+
+  grid.style.display = isOpen ? 'none' : 'grid';
+
+  if (!isOpen) {
+    // 🧹 Clear grid before adding shuffled items
+    grid.innerHTML = '';
+
+      // 🎲 Shuffle the current brand's deals on open
+     const shuffled = shuffleArray([...localDeals]);
+     shuffled.forEach((d, index) => {
+       d.element.style.animationDelay = `${index * 50}ms`;
+       d.element.classList.add('deal-item');
+       grid.appendChild(d.element);
+     });
+
+    // Optional scroll logic
+    const headerHeight = 70;
+    const likedDealsSection = document.getElementById('likedDealsSection');
+    const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+    const extraOffset = likedVisible ? 5 : 0;
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+});
+
+            container.appendChild(brandSection);
+
+            if (expireDateStr) {
+              expireDate = new Date(expireDateStr);
+              if (!isNaN(expireDate)) {
+                startBrandCountdown(expireDate, timerId);
+              }
+            }
 
             allBrandsData.push({
               brand: currentBrand,
@@ -3427,9 +3375,9 @@ async function loadDeals() {
               primaryColor: currentPrimaryColor,
               secondaryColor: currentSecondaryColor,
               isFavorite,
-              isPaidBrand: row.Pro === 'true' || row.Premium === 'true',
+	      isPaidBrand: row.Pro === 'true' || row.Premium === 'true',
               isPro: row.Pro === 'true',
-              Pro: row.Pro, 
+	      Pro: row.Pro, 
               Premium: row.Premium    
             });
           }
@@ -3504,27 +3452,38 @@ async function loadDeals() {
       console.warn('Error processing a sheet:', sheetErr);
     }
   }
+	
+// 1. Precompute bestDiscount and timeRemaining ONCE
 
-  // Now, the rest of your logic for sorting brands, precomputing best discounts, etc.
-  allBrandsData.forEach(brandData => {
-    shuffleArray(brandData.deals);
-    brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
-    brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
-    brandData.timeRemaining = brandData.expireDate
-      ? new Date(brandData.expireDate).getTime() - Date.now()
-      : Infinity;
-  });
+allBrandsData.forEach(brandData => {
 
-  allBrandsData.sort((a, b) => {
-    if (b.bestDiscount !== a.bestDiscount) {
-      return b.bestDiscount - a.bestDiscount;
-    }
-    return a.timeRemaining - b.timeRemaining;
-  });
+	// Shuffle deals on page load
+shuffleArray(brandData.deals);
+	
+  // Append shuffled deals to the grid
+  brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
 
-  container.innerHTML = '';
+  // Compute best discount (still based on actual data)
+  brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
 
- // Create and append the "no deals" message (hidden by default)
+  // Time remaining to expiry
+  brandData.timeRemaining = brandData.expireDate
+    ? new Date(brandData.expireDate).getTime() - Date.now()
+    : Infinity;
+});
+
+// Sort brands as usual
+allBrandsData.sort((a, b) => {
+  if (b.bestDiscount !== a.bestDiscount) {
+    return b.bestDiscount - a.bestDiscount;
+  }
+  return a.timeRemaining - b.timeRemaining;
+});
+
+// 3. Clear container and continue
+container.innerHTML = '';
+
+// Create and append the "no deals" message (hidden by default)
 const noDealsMessage = document.createElement('div');
 noDealsMessage.id = 'noDealsMessage';
 noDealsMessage.textContent = '🚫 No deals available right now. Please check back later!';
@@ -3624,7 +3583,6 @@ allBrandsData.forEach(brandData => {
     cleanUpLikedDeals();
   }, 3000);
 }
-	
 
 function toSemiTransparent(color, alpha = 0.5) {
   color = color.trim();
