@@ -3216,19 +3216,7 @@ async function loadDeals() {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  
-    // Retrieve takeover brand info from localStorage
-  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-  let isOverrideActive = false; // Default state (no override)
-
-  // Check if takeover brand is active
-  if (selectedTakeoverBrand) {
-    isOverrideActive = true;
-    console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
-  }
-
-  // Handle the override button click to opt-out of takeover mode
-// Restore takeover brand after 1 hour if expired
+  // 🕓 Step 1: Restore takeover brand if override has expired
 const overrideUntil = parseInt(sessionStorage.getItem('overrideTakeoverUntil'), 10);
 const now = Date.now();
 
@@ -3243,9 +3231,17 @@ if (overrideUntil && now >= overrideUntil) {
   sessionStorage.removeItem('originalTakeoverBrand');
 }
 
+// ✅ Step 2: Now get takeover brand AFTER restoration
+const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
+let isOverrideActive = false;
 
+if (selectedTakeoverBrand) {
+  isOverrideActive = true;
+  console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
+}
 
-  const allResponses = await Promise.all(
+// ✅ Step 3: Continue with deal loading
+   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
   );
 
