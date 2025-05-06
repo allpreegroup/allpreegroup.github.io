@@ -3240,7 +3240,15 @@ async function loadDeals() {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  
+    // Retrieve takeover brand info from localStorage
+  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
+  let isOverrideActive = false; // Default state (no override)
+
+  // Check if takeover brand is active
+  if (selectedTakeoverBrand) {
+    isOverrideActive = true;
+    console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
+  }
 
   // Handle the override button click to opt-out of takeover mode
   const overrideButton = document.getElementById('overrideButton');
@@ -3253,13 +3261,18 @@ async function loadDeals() {
     });
   }
 
-	/*
   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
   );
 
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
+
+    // Skip all sheets if takeover is active, except the takeover sheet
+    if (isOverrideActive && !rows.some(row => row.BrandName === selectedTakeoverBrand)) {
+      console.log(`Skipping sheet ${i} due to active takeover mode.`);
+      continue;
+    }
 
     const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
     if (!hasActiveRow) {
@@ -3270,48 +3283,8 @@ async function loadDeals() {
     if (rows.error) {
       console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
-    } */
+    }
 
-
-
-const allResponses = await Promise.all(
-  sheetUrls.map(url => fetchWithTimeout(url))
-);
-
-const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-let isOverrideActive = false;
-
-// Check if takeover brand is active
-if (selectedTakeoverBrand) {
-  isOverrideActive = true;
-  console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
-}
-
-for (let i = 0; i < allResponses.length; i++) {
-  const rows = allResponses[i];
-
-  // If takeover mode is active, don't load any other deals
-  if (isOverrideActive) {
-    console.log('Takeover mode active: Skipping all other sheets.');
-    continue;  // Skip all other sheets if takeover is active
-  }
-
-  const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
-  if (!hasActiveRow) {
-    console.log(`Sheet ${i} has no active rows. Skipping.`);
-    continue;
-  }
-
-  if (rows.error) {
-    console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
-    continue;
-  }
-
-  // Process the sheet if no takeover mode or the sheet is valid
-  // Insert your existing logic here for processing rows
-
-
-	
 
     try {
       let currentBrand = '';
