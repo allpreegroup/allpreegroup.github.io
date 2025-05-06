@@ -3812,16 +3812,16 @@ function hideSpinner() {
   let startY = 0;
   let endY = 0;
 
-  popup.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      startY = e.touches[0].clientY;
-    }
-  });
+ popup.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    startY = e.touches[0].clientY;
+  }
+}, { passive: true });
 
-  popup.addEventListener('touchend', (e) => {
-    endY = e.changedTouches[0].clientY;
-    handleSwipe();
-  });
+popup.addEventListener('touchend', (e) => {
+  endY = e.changedTouches[0].clientY;
+  handleSwipe();
+}, { passive: true });
 
   function handleSwipe() {
   const deltaY = endY - startY;
