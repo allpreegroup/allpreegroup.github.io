@@ -2793,29 +2793,48 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   if (!badgeContainer) return console.warn('No badge container in popup');
 
   // Remove old badges
-  badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove());
+ // Remove old badges (including any future types)
+badgeContainer.querySelectorAll('.badge-premium, .badge-pro, .badge-starter, .badge-exclusive')
+  .forEach(el => el.remove());
 
-  if (brandInfo && (brandInfo.Pro === 'True' || brandInfo.Premium === 'True')) {
-    const badge = document.createElement('div');
+if (brandInfo) {
+  // Normalize case to avoid mismatches like 'True' vs 'true'
+  const isPro = brandInfo.Pro?.toLowerCase() === 'true';
+  const isPremium = brandInfo.Premium?.toLowerCase() === 'true';
+  const isStarter = brandInfo.Starter?.toLowerCase() === 'true';
+  const isExclusive = brandInfo.Exclusive?.toLowerCase() === 'true';
 
-    if (brandInfo.Pro === 'true') {
-      badge.className = 'badge-pro';
-      badge.textContent = '👑';
-    } else if (brandInfo.Premium === 'True') {
-      badge.className = 'badge-premium';
-      badge.textContent = '💎';
-    }
+  let badge;
 
+  if (isExclusive) {
+    badge = document.createElement('div');
+    badge.className = 'badge-exclusive';
+    badge.textContent = '🏆';
+  } else if (isStarter) {
+    badge = document.createElement('div');
+    badge.className = 'badge-starter';
+    badge.textContent = '🎁';
+  } else if (isPro) {
+    badge = document.createElement('div');
+    badge.className = 'badge-pro';
+    badge.textContent = '👑';
+  } else if (isPremium) {
+    badge = document.createElement('div');
+    badge.className = 'badge-premium';
+    badge.textContent = '💎';
+  }
+
+  if (badge) {
     badgeContainer.appendChild(badge);
     console.log('Badge added to popup:', badge.outerHTML);
   } else {
-    console.log('No Pro or Premium flag found in brandInfo:', brandInfo);
+    console.log('No matching badge type found for brandInfo:', brandInfo);
   }
-  }, 100);
-	
-  if (brandInfo?.expireDate) {
-    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
-  }
+}
+
+if (brandInfo?.expireDate) {
+  startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+}
 
   const backArrow = document.getElementById('popupBack');
   backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
