@@ -1383,6 +1383,22 @@ function getFilteredLikedDeals() {
   return raw;
 }
 
+function getFilteredCartItems() {
+  const raw = JSON.parse(localStorage.getItem('cartItems') || '{}');
+  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
+
+  if (selectedTakeoverBrand) {
+    const filtered = {};
+    for (const [key, deal] of Object.entries(raw)) {
+      if (deal.brandName === selectedTakeoverBrand) {
+        filtered[key] = deal;
+      }
+    }
+    return filtered;
+  }
+
+  return raw;
+}
 	
 // Inject loading modal into the DOM (this will add the spinner)
 function injectLoadingModal() {
