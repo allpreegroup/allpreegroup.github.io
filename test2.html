@@ -3094,7 +3094,8 @@ function showLikedDealsInPopup() {
   isBrandMode = false;
   isLikedMode = true;
   likedDealIndex = 0;
-  const deal = likedDeals[likedDealKeys[likedDealIndex]];
+  const filteredDeals = getFilteredDealsFlat(); // This ensures you're working with filtered deals
+  const deal = filteredDeals.find(deal => likedDealKeys.includes(deal.name)); // Use filteredDeals here
   openPopup(deal, true);
 }
 	
