@@ -3226,8 +3226,8 @@ async function loadDeals() {
   // Handle the override button click to opt-out of takeover mode
   const overrideButton = document.getElementById('overrideButton');
   if (overrideButton) {
-    overrideButton.addEventListener('click', () => {
-    localStorage.removeItem('selectedTakeoverBrand');
+   overrideButton.addEventListener('click', () => {
+    sessionStorage.setItem('overrideTakeover', 'true'); // Temporary override
     isOverrideActive = false;
     loadDeals(); // Reload deals with normal behavior
     });
