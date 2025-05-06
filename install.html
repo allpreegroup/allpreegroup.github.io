@@ -1064,6 +1064,13 @@ ADR:;;${contactDetails.address}`;
       if (brand) {
         localStorage.setItem('selectedTakeoverBrand', decodeURIComponent(brand));
         localStorage.removeItem('disableTakeover');
+
+        // Cloak the URL by removing query params
+        if (window.history.replaceState) {
+          const newUrl = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+
         console.log('Takeover brand set to:', decodeURIComponent(brand));
       } else {
         console.warn('No brand specified in URL. Nothing was set.');
