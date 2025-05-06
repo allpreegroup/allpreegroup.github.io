@@ -233,6 +233,21 @@ height: 60px;
       position: relative;
       cursor: pointer;
     }
+
+	.deal-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+	 
+		 
     .deal-grid {
       display: grid;
       grid-auto-flow: column;
@@ -1039,7 +1054,39 @@ height: 20%;
 
 body.no-scroll {
   overflow: hidden;
-}			 
+}	
+		 
+#loading-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10005;
+  display: none;
+}
+
+#loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1216,6 +1263,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
+				 
+				  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
 
@@ -1317,6 +1366,21 @@ async function loadSheetUrls() {
 
 loadSheetUrls();
 
+// Inject loading modal into the DOM (this will add the spinner)
+function injectLoadingModal() {
+  if (document.getElementById('loading-modal')) return; // Prevent duplicates
+
+  const modal = document.createElement('div');
+  modal.id = 'loading-modal';
+  modal.style.display = 'none'; // Initial hidden state
+  modal.innerHTML = `
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Loading...</div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+	
 /////////// ADMIN	
 const tapZone = document.createElement('div');
  tapZone.id = 'secretTapZone';
@@ -1341,7 +1405,10 @@ const adminPanel = document.createElement('div');
 adminPanel.id = 'adminPanel';
 adminPanel.style.display = 'none';
 adminPanel.innerHTML = `
+
+<a href="https://www.allpree.com/add"><button>Add Products</button> </a>
  
+ <hr />
   <div> <strong>Select Top Rank Slot:</strong><br/>  
   <div id="rankSlotButtonsContainer">
   ${[1, 2, 3, 4, 5].map(i => `<button class="rankSlotBtn" data-slot="${i - 1}"> ${i}</button>`).join(' ')}
@@ -1367,7 +1434,7 @@ document.body.addEventListener('click', () => {
   const now = Date.now();
   if (now - lastTapTime < 600) {
     tapCount++;
-    if (tapCount >= 5) {
+    if (tapCount >= 13) {
       tapCount = 0;
       showAdminPanel();
     }
@@ -2032,6 +2099,8 @@ function clearBrandCart(brand) {
     popup.innerHTML = `<div style="text-align:center;">📝 Your shopping list is empty.</div>`;
   }
 }
+
+// Location utilities
 	
 
 function saveLocation(coords) {
@@ -2040,52 +2109,6 @@ function saveLocation(coords) {
 
 function getSavedLocation() {
   return localStorage.getItem('userLocation');
-}
-
-function showLoadingMessage(message) {
-  let loading = document.getElementById('loading-message');
-  if (!loading) {
-    loading = document.createElement('div');
-    loading.id = 'loading-message';
-    loading.style = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      font-size: 14px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      z-index: 10003;
-    `;
-
-    const closeBtn = document.createElement('span');
-    closeBtn.textContent = '✖';
-    closeBtn.style = `
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: bold;
-    `;
-    closeBtn.onclick = hideLoadingMessage;
-    loading.appendChild(closeBtn);
-
-    const messageP = document.createElement('p');
-    messageP.id = 'loading-text';
-    messageP.style = 'margin-top: 20px;';
-    loading.appendChild(messageP);
-
-    document.body.appendChild(loading);
-  }
-  document.getElementById('loading-text').textContent = message;
-}
-
-function hideLoadingMessage() {
-  const el = document.getElementById('loading-message');
-  if (el) el.remove();
 }
 
 async function loadBrandLocations() {
@@ -2126,32 +2149,37 @@ async function showCartWithLocations() {
 
 async function ensureUserLocation() {
   const saved = getSavedLocation();
-  if (saved) return true;
 
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      showLoadingMessage("Geolocation is not supported by your browser.");
+      showSpinner("Geolocation is not supported by your browser.");
       return resolve(false);
     }
 
-    showLoadingMessage("We need your location to continue...");
+    showSpinner("Loading brand locations. Please wait...");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        hideLoadingMessage();
-        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-        saveLocation(coords);
+        hideSpinner();
+        const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
+
+        // Only save if user has moved significantly or no saved location
+        if (!saved || hasMovedSignificantly(saved, currentCoords)) {
+          saveLocation(currentCoords);
+        }
+
         resolve(true);
       },
       (err) => {
-        hideLoadingMessage();
+        hideSpinner();
         console.warn("User denied location or error occurred", err);
-        showLoadingMessage("Location denied. Please allow location access to continue.");
-        setTimeout(hideLoadingMessage, 3000);
+        showSpinner("Location denied. Please allow location access to continue.");
+        setTimeout(hideSpinner, 3000);
         resolve(false);
       }
     );
   });
 }
+
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
@@ -2178,8 +2206,8 @@ function hasMovedSignificantly(savedLocation, currentLocation) {
 
 function handleLocationClick(coordinates) {
   if (!coordinates) {
-    showLoadingMessage("Sorry, this location is not available yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("Sorry, this location is not available yet.");
+    setTimeout(hideSpinner, 3000);
     return;
   }
   closeLocationPopup();
@@ -2188,12 +2216,12 @@ function handleLocationClick(coordinates) {
 
 function getUserLocationAndNavigate(destination) {
   const savedLocation = getSavedLocation();
-  showLoadingMessage("Finding your location...");
+  showSpinner("Finding your location...");
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        hideLoadingMessage();
+        hideSpinner();
         const currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`;
         if (!savedLocation || hasMovedSignificantly(savedLocation, currentCoords)) {
           saveLocation(currentCoords);
@@ -2201,15 +2229,15 @@ function getUserLocationAndNavigate(destination) {
         navigateToLocation(destination, currentCoords);
       },
       () => {
-        hideLoadingMessage();
-        showLoadingMessage("Could not retrieve your location.");
-        setTimeout(hideLoadingMessage, 3000);
+        hideSpinner();
+        showSpinner("Could not retrieve your location.");
+        setTimeout(hideSpinner, 3000);
       }
     );
   } else {
-    hideLoadingMessage();
-    showLoadingMessage("Geolocation is not supported by your browser.");
-    setTimeout(hideLoadingMessage, 3000);
+   hideSpinner();
+    showSpinner("Geolocation is not supported by your browser.");
+    setTimeout(hideSpinner, 3000);
   }
 }
 
@@ -2217,21 +2245,23 @@ async function openBrandLocation(brand) {
   if (isNavigating) return;
   isNavigating = true;
 
+const dest = brandLocations[brand];
+
+  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
+    showSpinner("No location set for this brand yet.");
+    setTimeout(hideSpinner, 3000);
+    isNavigating = false;
+    return;
+  }
+
+	
   const allowed = await ensureUserLocation();
   if (!allowed) {
     isNavigating = false;
     return;
   }
 
-  const dest = brandLocations[brand];
-
-  if (!dest || (typeof dest === 'string' && dest.trim() === '') || (typeof dest === 'object' && Object.keys(dest).length === 0)) {
-    showLoadingMessage("No location set for this brand yet.");
-    setTimeout(hideLoadingMessage, 3000);
-    isNavigating = false;
-    return;
-  }
-
+  
   if (typeof dest === 'object') {
     showLocationPopup(dest);
     isNavigating = false;
@@ -2296,8 +2326,8 @@ function showLocationPopup(brandLocations) {
 
 function handleNavigate(coords, origin) {
   if (!coords || coords.trim() === '') {
-    showLoadingMessage("No location set for this location yet.");
-    setTimeout(hideLoadingMessage, 3000);
+    showSpinner("No location set for this location yet.");
+    setTimeout(hideSpinner, 3000);
     return;
   }
   closeLocationPopup();
@@ -2327,6 +2357,24 @@ function navigateToLocation(dest, originCoords = null) {
   window.location.href = url;
 }
 
+	
+
+	 // ✅ Add these here:
+  function showSpinner(message = "Loading...") {
+    const modal = document.getElementById('loading-modal');
+    const text = document.getElementById('loading-text');
+    if (modal && text) {
+      text.textContent = message;
+      modal.style.display = 'flex';
+    }
+  }
+
+  function hideSpinner() {
+    const modal = document.getElementById('loading-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
 
 //////////////
 	
@@ -2737,10 +2785,10 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
     if (brandInfo.Pro === 'true') {
       badge.className = 'badge-pro';
-      badge.textContent = '👑 PRO';
+      badge.textContent = '👑';
     } else if (brandInfo.Premium === 'True') {
       badge.className = 'badge-premium';
-      badge.textContent = '💎 PREMIUM';
+      badge.textContent = '💎';
     }
 
     badgeContainer.appendChild(badge);
@@ -3146,6 +3194,15 @@ async function fetchWithTimeout(url, timeout = 7000) {
 
 // Then inside your main code:
 
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr; // <-- return the shuffled array
+}
+
+	
 async function loadDeals() {
   const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
   const favoriteBrand = localStorage.getItem('selectedFavoriteBrand');
@@ -3231,11 +3288,11 @@ if (!hasActiveRow) {
 
            if (row.Pro === 'true') {
            badge.className = 'badge-pro';
-           badge.textContent = '👑 PRO';
+           badge.textContent = '👑';
            brandDiv.classList.add('pro-brand-highlight');
          } else if (row.Premium === 'true') {
            badge.className = 'badge-premium';
-           badge.textContent = '💎 PRO';
+           badge.textContent = '💎';
            brandDiv.classList.add('premium-brand-highlight');
          }
 
@@ -3262,24 +3319,42 @@ if (!hasActiveRow) {
             brandSection.appendChild(grid);
 
             brandDiv.style.cursor = 'pointer';
-            brandDiv.addEventListener('click', () => {
-              const isOpen = grid.style.display === 'grid';
-              if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
-                currentlyOpenGrid.style.display = 'none';
-              }
-              grid.style.display = isOpen ? 'none' : 'grid';
+		  
+           // Capture a reference to the local deals for this brand
+const localDeals = brandDeals;
 
-              if (!isOpen) {
-                const headerHeight = 70;
-                const likedDealsSection = document.getElementById('likedDealsSection');
-                const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
-                const extraOffset = likedVisible ? 5 : 0;
-                const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
-                window.scrollTo({ top, behavior: 'smooth' });
-              }
+brandDiv.addEventListener('click', () => {
+  const isOpen = grid.style.display === 'grid';
 
-              currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
-            });
+  if (currentlyOpenGrid && currentlyOpenGrid !== grid) {
+    currentlyOpenGrid.style.display = 'none';
+  }
+
+  grid.style.display = isOpen ? 'none' : 'grid';
+
+  if (!isOpen) {
+    // 🧹 Clear grid before adding shuffled items
+    grid.innerHTML = '';
+
+      // 🎲 Shuffle the current brand's deals on open
+     const shuffled = shuffleArray([...localDeals]);
+     shuffled.forEach((d, index) => {
+       d.element.style.animationDelay = `${index * 50}ms`;
+       d.element.classList.add('deal-item');
+       grid.appendChild(d.element);
+     });
+
+    // Optional scroll logic
+    const headerHeight = 70;
+    const likedDealsSection = document.getElementById('likedDealsSection');
+    const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
+    const extraOffset = likedVisible ? 5 : 0;
+    const top = brandDiv.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  currentlyOpenGrid = grid.style.display === 'grid' ? grid : null;
+});
 
             container.appendChild(brandSection);
 
@@ -3379,24 +3454,25 @@ if (!hasActiveRow) {
   }
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
+
 allBrandsData.forEach(brandData => {
-  let best = 0;
-  for (const deal of brandData.deals) {
-    if (deal.percentOff > best) {
-      best = deal.percentOff;
-    }
-  }
-  brandData.bestDiscount = best;
 
-  brandData.timeRemaining = brandData.expireDate
-    ? brandData.expireDate.getTime() - Date.now()
-    : Infinity;
-
-  // Add this part to append the deals to the grid
+	// Shuffle deals on page load
+shuffleArray(brandData.deals);
+	
+  // Append shuffled deals to the grid
   brandData.deals.forEach(d => brandData.grid.appendChild(d.element));
+
+  // Compute best discount (still based on actual data)
+  brandData.bestDiscount = Math.max(...brandData.deals.map(d => d.percentOff));
+
+  // Time remaining to expiry
+  brandData.timeRemaining = brandData.expireDate
+    ? new Date(brandData.expireDate).getTime() - Date.now()
+    : Infinity;
 });
 
-// 2. Then sort brands based on precomputed values
+// Sort brands as usual
 allBrandsData.sort((a, b) => {
   if (b.bestDiscount !== a.bestDiscount) {
     return b.bestDiscount - a.bestDiscount;
@@ -3421,7 +3497,6 @@ if (allDealsFlat.length === 0) {
   document.getElementById('noDealsMessage').style.display = 'block';
 }
 	
-
   let likedDealsSection = document.getElementById('likedDealsSection');
   if (!likedDealsSection) {
     likedDealsSection = document.createElement('div');
@@ -3475,7 +3550,7 @@ for (let i = 1; i <= 5; i++) {
     if (match && !promotedBrands.includes(match)) {
       const badge = document.createElement('div');
       badge.className = 'top-ranked-badge';
-      badge.textContent = `📣${i}`;
+      badge.textContent = `🌟${i}`;
 
       const logoContainer = match.section.querySelector('.brand-logo-container');
       if (logoContainer) logoContainer.appendChild(badge);
@@ -3612,7 +3687,42 @@ function startBrandCountdown(expireDate, elementId) {
   };
 	
   loadDeals();
-		
+
+	
+function injectLoadingModal() {
+  if (document.getElementById('loading-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'loading-modal';
+  modal.style.display = 'none';
+  modal.innerHTML = `
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Loading...</div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+// Call it on load
+injectLoadingModal(); // or use DOMContentLoaded if needed
+
+	
+function showSpinner(message = "Loading...") {
+  const modal = document.getElementById('loading-modal');
+  const text = document.getElementById('loading-text');
+  if (modal && text) {
+    text.textContent = message;
+    modal.style.display = 'flex';
+  }
+}
+
+function hideSpinner() {
+  const modal = document.getElementById('loading-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
 	function addPopupSwipeListeners() {
   const popup = document.getElementById('popup');
   let startY = 0;
