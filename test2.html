@@ -1383,21 +1383,10 @@ function getFilteredLikedDeals() {
   return raw;
 }
 
-function getFilteredCartItems() {
-  const raw = JSON.parse(localStorage.getItem('cartItems') || '{}');
+function getFilteredDealsFlat() {
   const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-
-  if (selectedTakeoverBrand) {
-    const filtered = {};
-    for (const [key, deal] of Object.entries(raw)) {
-      if (deal.brandName === selectedTakeoverBrand) {
-        filtered[key] = deal;
-      }
-    }
-    return filtered;
-  }
-
-  return raw;
+  if (!selectedTakeoverBrand) return allDealsFlat;
+  return allDealsFlat.filter(deal => deal.brandName === selectedTakeoverBrand);
 }
 	
 // Inject loading modal into the DOM (this will add the spinner)
@@ -3077,6 +3066,7 @@ function highlightTab(buttonId) {
   const likedDeals = getFilteredLikedDeals();
   const likedNames = new Set(Object.keys(likedDeals));
 
+  const filteredDeals = getFilteredDealsFlat();	 
   const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
 
   if (unlikedDeals.length === 0) {
