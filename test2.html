@@ -251,7 +251,7 @@ height: 60px;
     .deal-grid {
       display: grid;
       grid-auto-flow: column;
-      grid-template-rows: repeat(2, 1fr); /* 2 rows */
+      grid-template-rows: repeat(1, 1fr); /* 2 rows */
       grid-auto-columns: 54.2%;  
        
        margin-left: -5px;
@@ -262,6 +262,10 @@ height: 60px;
       scroll-snap-type: x mandatory;
       padding: 10px 20px;  /*Slightly more padding for breathing room */
       scrollbar-width: none; /* Firefox */
+    }
+		 
+    .deal-grid.takeover-active {
+      grid-template-rows: repeat(2, 1fr); /* 2 rows for takeover */
     }
     .deal-grid::-webkit-scrollbar {
       display: none; /* Chrome, Safari */
@@ -3224,14 +3228,30 @@ async function loadDeals() {
   }
 
   // Handle the override button click to opt-out of takeover mode
-  const overrideButton = document.getElementById('overrideButton');
-  if (overrideButton) {
-   overrideButton.addEventListener('click', () => {
-    sessionStorage.setItem('overrideTakeover', 'true'); // Temporary override
+ // Handle the override button click to temporarily opt out of takeover mode
+const overrideButton = document.getElementById('overrideButton');
+if (overrideButton) {
+  overrideButton.addEventListener('click', () => {
+    const originalTakeover = localStorage.getItem('selectedTakeoverBrand');
+
+    if (originalTakeover) {
+      // Save the original takeover brand temporarily
+      sessionStorage.setItem('originalTakeoverBrand', originalTakeover);
+
+      // Set a 1-hour override period
+      const oneHourFromNow = Date.now() + 3600 * 1000;
+      sessionStorage.setItem('overrideTakeoverUntil', oneHourFromNow.toString());
+
+      // Remove takeover brand temporarily
+      localStorage.removeItem('selectedTakeoverBrand');
+    }
+
+    // Disable takeover mode and reload the app
     isOverrideActive = false;
-    loadDeals(); // Reload deals with normal behavior
-    });
-  }
+    loadDeals(); // Your app's reload/init logic
+  });
+}
+
 
   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
@@ -3536,7 +3556,8 @@ if (allDealsFlat.length === 0) {
 
   renderLikedDealsGallery();
 
- const isTakeover = selectedTakeoverBrand && !sessionStorage.getItem('overrideTakeover');
+	
+const isTakeover = selectedTakeoverBrand !== null;
 
 const takeoverBrandData = isTakeover
   ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
