@@ -3069,7 +3069,8 @@ function highlightTab(buttonId) {
   const likedNames = new Set(Object.keys(likedDeals));
 
   const filteredDeals = getFilteredDealsFlat();	 
-  const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
+  const unlikedDeals = filteredDeals.filter(deal => !likedNames.has(deal.name)); // Use filteredDeals here
+
 
   if (unlikedDeals.length === 0) {
     alert("You've liked all the deals!");
