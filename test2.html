@@ -3616,11 +3616,11 @@ for (let i = 1; i <= 5; i++) {
 	
   promotedBrands.forEach(b => container.appendChild(b.section));
 
-// 3. Append remaining brands sorted by discount, skipping takeover, favorite, and promoted
+// 3. Append remaining brands sorted by discount, skipping takeover, favorite, and promoted brands
 const promotedSet = new Set(promotedBrands.map(b => b.brand));
 allBrandsData.forEach(brandData => {
-  // Include takeover brand regardless of favorite or promoted status
-  if (brandData.brand === selectedTakeoverBrand || (!brandData.isFavorite && !promotedSet.has(brandData.brand))) {
+  // Skip favorite brands, promoted brands, and the takeover brand
+  if (brandData.brand !== selectedTakeoverBrand && !brandData.isFavorite && !promotedSet.has(brandData.brand)) {
     // Add hottest discount badge only to the best discount brand
     if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
       const badge = document.createElement('div');
@@ -3634,6 +3634,7 @@ allBrandsData.forEach(brandData => {
     container.appendChild(brandData.section);
   }
 });
+
 
 		
   setTimeout(() => {
