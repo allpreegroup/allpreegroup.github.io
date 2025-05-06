@@ -3537,11 +3537,20 @@ if (allDealsFlat.length === 0) {
   renderLikedDealsGallery();
 
   
-  const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
-  if (favoriteBrandData) {
+ const isTakeover = selectedTakeoverBrand && !sessionStorage.getItem('overrideTakeover');
+
+const takeoverBrandData = isTakeover
+  ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
+  : null;
+
+const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
+
+const brandToShow = takeoverBrandData || favoriteBrandData;
+
+if (brandToShow) {
     const favBadge = document.createElement('div');
     favBadge.className = 'favorite-brand-badge';
-    favBadge.textContent = '⭐ Featured Brand';
+    favBadge.textContent = isTakeover ? '💥 Exclusive Brand' : '⭐ Featured Brand';
     const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
     favBadge.style.backgroundColor = primaryColor;
     favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
@@ -3560,11 +3569,25 @@ if (allDealsFlat.length === 0) {
       }, 1000);
     }
 
-    favoriteBrandData.grid.style.display = 'grid';
-    currentlyOpenGrid = favoriteBrandData.grid;
-    container.appendChild(favoriteBrandData.section);
-  }
+   brandToShow.grid.style.display = 'grid';
+currentlyOpenGrid = brandToShow.grid;
+container.appendChild(brandToShow.section);
 
+if (isTakeover) {
+  const overrideBtn = document.createElement('button');
+  overrideBtn.textContent = 'Show All Other Brands';
+  overrideBtn.id = 'overrideButton';
+  overrideBtn.className = 'override-button';
+  overrideBtn.style.margin = '1rem auto';
+  overrideBtn.style.display = 'block';
+
+  overrideBtn.addEventListener('click', () => {
+    sessionStorage.setItem('overrideTakeover', 'true');
+    location.reload();
+  });
+
+  container.appendChild(overrideBtn);
+}
 
 // 2. Find and render promoted brands (rankedSlot1–5)
 const promotedBrands = [];
