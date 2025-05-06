@@ -3228,29 +3228,21 @@ async function loadDeals() {
   }
 
   // Handle the override button click to opt-out of takeover mode
- // Handle the override button click to temporarily opt out of takeover mode
-const overrideButton = document.getElementById('overrideButton');
-if (overrideButton) {
-  overrideButton.addEventListener('click', () => {
-    const originalTakeover = localStorage.getItem('selectedTakeoverBrand');
+// Restore takeover brand after 1 hour if expired
+const overrideUntil = parseInt(sessionStorage.getItem('overrideTakeoverUntil'), 10);
+const now = Date.now();
 
-    if (originalTakeover) {
-      // Save the original takeover brand temporarily
-      sessionStorage.setItem('originalTakeoverBrand', originalTakeover);
+if (overrideUntil && now >= overrideUntil) {
+  const originalTakeover = sessionStorage.getItem('originalTakeoverBrand');
+  if (originalTakeover) {
+    localStorage.setItem('selectedTakeoverBrand', originalTakeover);
+  }
 
-      // Set a 1-hour override period
-      const oneHourFromNow = Date.now() + 3600 * 1000;
-      sessionStorage.setItem('overrideTakeoverUntil', oneHourFromNow.toString());
-
-      // Remove takeover brand temporarily
-      localStorage.removeItem('selectedTakeoverBrand');
-    }
-
-    // Disable takeover mode and reload the app
-    isOverrideActive = false;
-    loadDeals(); // Your app's reload/init logic
-  });
+  // Cleanup
+  sessionStorage.removeItem('overrideTakeoverUntil');
+  sessionStorage.removeItem('originalTakeoverBrand');
 }
+
 
 
   const allResponses = await Promise.all(
@@ -3596,20 +3588,29 @@ if (brandToShow) {
   container.appendChild(brandToShow.section);
 
   if (isTakeover) {
-    const overrideBtn = document.createElement('button');
-    overrideBtn.textContent = 'Show All Other Brands';
-    overrideBtn.id = 'overrideButton';
-    overrideBtn.className = 'override-button';
-    overrideBtn.style.margin = '1rem auto';
-    overrideBtn.style.display = 'block';
+  const overrideBtn = document.createElement('button');
+  overrideBtn.textContent = 'Show All Other Brands';
+  overrideBtn.id = 'overrideButton';
+  overrideBtn.className = 'override-button';
+  overrideBtn.style.margin = '1rem auto';
+  overrideBtn.style.display = 'block';
 
-    overrideBtn.addEventListener('click', () => {
-      sessionStorage.setItem('overrideTakeover', 'true');
-      location.reload();
-    });
+  overrideBtn.addEventListener('click', () => {
+    const originalTakeover = localStorage.getItem('selectedTakeoverBrand');
 
-    container.appendChild(overrideBtn);
-  }
+    if (originalTakeover) {
+      sessionStorage.setItem('originalTakeoverBrand', originalTakeover);
+      const oneHourFromNow = Date.now() + 3600 * 1000;
+      sessionStorage.setItem('overrideTakeoverUntil', oneHourFromNow.toString());
+      localStorage.removeItem('selectedTakeoverBrand');
+    }
+
+    location.reload();
+  });
+
+  container.appendChild(overrideBtn);
+}
+
 }
 
 
