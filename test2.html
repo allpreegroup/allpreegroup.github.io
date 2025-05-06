@@ -3242,13 +3242,12 @@ if (selectedTakeoverBrand) {
 }
 
 // Then update the class on the grid
-const dealGrid = document.querySelector('.deal-grid');
-if (dealGrid) {
-  if (isTakeover) {
-    dealGrid.classList.add('takeover-active');
-  } else {
-    dealGrid.classList.remove('takeover-active');
-  }
+const takeoverBrandData = isTakeover
+  ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
+  : null;
+
+if (takeoverBrandData && takeoverBrandData.grid) {
+  takeoverBrandData.grid.classList.add('takeover-active');
 }
 
 
