@@ -3364,9 +3364,16 @@ async function loadDeals() {
             });
 
             // Apply the brand takeover logic (show only selected brand's deals if takeover is active)
-            if (!isOverrideActive || (isOverrideActive && currentBrand === selectedTakeoverBrand)) {
-              container.appendChild(brandSection);
-            }
+            
+		  if (!isOverrideActive || (isOverrideActive && currentBrand === selectedTakeoverBrand)) {
+  container.appendChild(brandSection);
+} else {
+  // If Override Mode is active and the brand is not the selected takeover brand, skip it
+  console.log(`Brand "${currentBrand}" skipped due to brand override mode.`);
+}
+
+
+		  
 
             allBrandsData.push({
               brand: currentBrand,
