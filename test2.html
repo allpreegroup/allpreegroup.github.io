@@ -3212,6 +3212,28 @@ async function loadDeals() {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
+  
+    // Retrieve takeover brand info from localStorage
+  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
+  let isOverrideActive = false; // Default state (no override)
+
+  // Check if takeover brand is active
+  if (selectedTakeoverBrand) {
+    isOverrideActive = true;
+    console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
+  }
+
+  // Handle the override button click to opt-out of takeover mode
+  const overrideButton = document.getElementById('overrideButton');
+  if (overrideButton) {
+    overrideButton.addEventListener('click', () => {
+      // Disable the takeover mode and show all deals again
+      localStorage.removeItem('selectedTakeoverBrand');
+      isOverrideActive = false;
+      loadDeals(); // Reload deals with normal behavior
+    });
+  }
+
   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
   );
@@ -3219,12 +3241,18 @@ async function loadDeals() {
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
 
- const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
-if (!hasActiveRow) {
-  console.log(`Sheet ${i} has no active rows. Skipping.`);
-  continue;
-}
-	  
+    // Skip all sheets if takeover is active, except the takeover sheet
+    if (isOverrideActive && !rows.some(row => row.BrandName === selectedTakeoverBrand)) {
+      console.log(`Skipping sheet ${i} due to active takeover mode.`);
+      continue;
+    }
+
+    const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
+    if (!hasActiveRow) {
+      console.log(`Sheet ${i} has no active rows. Skipping.`);
+      continue;
+    }
+
     if (rows.error) {
       console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
