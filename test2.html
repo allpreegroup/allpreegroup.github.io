@@ -3058,7 +3058,7 @@ function highlightTab(buttonId) {
   isLikedMode = false;
   isBrandMode = false;	 
 
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDeals = getFilteredLikedDeals();
   const likedNames = new Set(Object.keys(likedDeals));
 
   const unlikedDeals = allDeals.filter(deal => !likedNames.has(deal.name));
@@ -3074,7 +3074,7 @@ function highlightTab(buttonId) {
 } 
 	
 function showLikedDealsInPopup() {
-  const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
+  const likedDeals = getFilteredLikedDeals();
   likedDealKeys = Object.keys(likedDeals);
 
   if (likedDealKeys.length === 0) {
