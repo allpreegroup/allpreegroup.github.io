@@ -3616,21 +3616,25 @@ for (let i = 1; i <= 5; i++) {
 	
   promotedBrands.forEach(b => container.appendChild(b.section));
 
-// 3. Append remaining brands sorted by discount, skipping favorite and promoted
+// 3. Append remaining brands sorted by discount, skipping takeover, favorite, and promoted
 const promotedSet = new Set(promotedBrands.map(b => b.brand));
 allBrandsData.forEach(brandData => {
+  // Include takeover brand regardless of favorite or promoted status
   if (brandData.brand === selectedTakeoverBrand || (!brandData.isFavorite && !promotedSet.has(brandData.brand))) {
-    // Add hottest discount badge
+    // Add hottest discount badge only to the best discount brand
     if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Discount';
-        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
-      }
-      container.appendChild(brandData.section);
+      const badge = document.createElement('div');
+      badge.className = 'top-deal-badge';
+      badge.textContent = '🔥 Hottest Discount';
+      brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+      brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
     }
-  });
+
+    // Append the brand section to the container
+    container.appendChild(brandData.section);
+  }
+});
+
 		
   setTimeout(() => {
     cleanUpLikedDeals();
