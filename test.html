@@ -102,6 +102,125 @@
 
 <script>
 
+  const panel = document.getElementById("panel");
+  const content = document.getElementById("panelContent");
+  let startY = 0, currentY = 0, panelY = 0, isDragging = false;
+  const screenHeight = window.innerHeight;
+
+  const positions = {
+    full: screenHeight * 0.05,
+    collapsed: screenHeight * 0.86
+  };
+
+  const allowedViews = ["add", "settings", "profile"]; // restrict valid views
+
+  // Set panel position with optional animation
+  function setPanelY(y, animate = true) {
+    panel.style.transition = animate ? "transform 0.3s ease" : "none";
+    panel.style.transform = `translateY(${y}px)`;
+    panelY = y;
+  }
+
+  // Snap to the nearest defined position
+  function closestSnap(y) {
+    const diffs = Object.values(positions).map(p => Math.abs(p - y));
+    const min = Math.min(...diffs);
+    return Object.values(positions)[diffs.indexOf(min)];
+  }
+
+  // Load content dynamically and safely
+  async function loadPanelContent(view) {
+    if (!allowedViews.includes(view)) {
+      console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
+      return;
+    }
+
+    const url = `${view}.html`;
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
+
+      const contentDiv = document.getElementById('panelContent');
+      contentDiv.innerHTML = html;
+
+      // Set dynamic padding to avoid content hiding behind menu
+      const bottomPadding = screenHeight - positions.collapsed;
+      contentDiv.style.paddingBottom = `${bottomPadding}px`;
+
+      // Execute inline scripts
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      tempDiv.querySelectorAll('script').forEach((script) => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src;
+        } else {
+          newScript.textContent = script.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+
+      // Show the panel
+      setPanelY(positions.full);
+    } catch (err) {
+      content.innerHTML = "<p>Error loading content.</p>";
+    }
+  }
+
+  // Handle drag start
+  function startDrag(e) {
+    if (content.scrollTop > 0) return; // only drag if scroll is at top
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    isDragging = true;
+    panel.style.transition = "none";
+  }
+
+  // Handle dragging movement
+  function duringDrag(e) {
+    if (!isDragging) return;
+
+    currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = currentY - startY;
+    const newY = Math.min(positions.collapsed, Math.max(0, panelY + delta)); // Clamp to collapsed
+    panel.style.transform = `translateY(${newY}px)`;
+  }
+
+  // Handle drag end
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const delta = currentY - startY;
+    const newY = Math.max(0, panelY + delta);
+    const snapTo = closestSnap(newY);
+    setPanelY(snapTo);
+  }
+
+  // Attach unified drag listeners
+  ["touchstart", "mousedown"].forEach(evt =>
+    panel.addEventListener(evt, startDrag, { passive: false })
+  );
+  ["touchmove", "mousemove"].forEach(evt =>
+    panel.addEventListener(evt, duringDrag, { passive: false })
+  );
+  ["touchend", "mouseup"].forEach(evt =>
+    panel.addEventListener(evt, endDrag)
+  );
+
+  // Button to load content
+  document.getElementById("addButton").addEventListener("click", () => {
+    loadPanelContent("add");
+  });
+
+  // Set initial panel position after DOM is ready
+  document.addEventListener("DOMContentLoaded", () => {
+    panelY = positions.collapsed;
+    setPanelY(panelY, false);
+  });
+
+
+  
+/*
 const panel = document.getElementById("panel");
 const content = document.getElementById("panelContent");
 let startY = 0, currentY = 0, panelY = 0, isDragging = false;
@@ -128,12 +247,12 @@ function setPanelY(y, animate = true) {
   return Object.values(positions)[diffs.indexOf(min)];
 }
 
-/*  
+ 
 function closestSnap(y) {
   const diffs = Object.values(positions).map(p => Math.abs(p - y));
   return Object.values(positions)[diffs.indexOf(Math.min(...diffs))];
 }
-*/
+
 async function loadPanelContent(view) {
   const url = `${view}.html`;
   try {
@@ -209,7 +328,7 @@ document.getElementById("addButton").addEventListener("click", () => {
 
 
   
- /* Panel Variables and Setup
+  Panel Variables and Setup
 const panel = document.getElementById("panel");
 const content = document.getElementById("panelContent");
 let startY, currentY, panelY = 0.15, isDragging = false;
