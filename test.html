@@ -97,6 +97,7 @@
 </div>
 
 <script>
+  // Panel Variables and Setup
   const panel = document.getElementById("panel");
   const content = document.getElementById("panelContent");
   let startY, currentY, panelY = 0, isDragging = false;
@@ -108,23 +109,58 @@
     collapsed: screenHeight * 0.8
   };
 
+  // Set panel position
   function setPanelY(y, animate = true) {
     panel.style.transition = animate ? "transform 0.3s ease" : "none";
     panel.style.transform = `translateY(${y}px)`;
     panelY = y;
   }
 
+  // Open the panel to mid position
   function openPanel() {
     setPanelY(positions.mid);
   }
 
+  // Find the closest snap position for the panel
   function closestSnap(y) {
     const diffs = Object.values(positions).map(p => Math.abs(p - y));
     const min = Math.min(...diffs);
     return Object.values(positions)[diffs.indexOf(min)];
   }
 
-  // Add event listeners for touch and mouse
+  // Load content dynamically from external HTML files
+  async function loadPanelContent(view) {
+    const url = `${view}.html`;
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
+
+      // Insert the loaded HTML content
+      const contentDiv = document.getElementById('panelContent');
+      contentDiv.innerHTML = html;
+
+      // Execute any inline scripts in the loaded HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      const scripts = tempDiv.querySelectorAll('script');
+      scripts.forEach((script) => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src;
+        } else {
+          newScript.textContent = script.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+
+      // After loading, show the panel
+      setPanelY(positions.mid);
+    } catch (err) {
+      document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
+    }
+  }
+
+  // Panel Dragging Functions
   panel.addEventListener('touchstart', startDrag, { passive: false });
   panel.addEventListener('touchmove', duringDrag, { passive: false });
   panel.addEventListener('touchend', endDrag);
@@ -133,27 +169,26 @@
   panel.addEventListener('mousemove', duringDrag);
   panel.addEventListener('mouseup', endDrag);
 
-  // Prevent default scrolling behavior
+  // Prevent default scrolling behavior while dragging
   function startDrag(e) {
-    e.preventDefault(); // Prevent default behavior (scrolling)
-    if (content.scrollTop > 0) return; // If there’s content scrolling, allow it
+    e.preventDefault(); 
+    if (content.scrollTop > 0) return;
 
-    startY = e.touches ? e.touches[0].clientY : e.clientY; // Get the initial touch/mouse position
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
     isDragging = true;
-    panel.style.transition = 'none'; // Disable transition while dragging
+    panel.style.transition = 'none';
   }
 
   function duringDrag(e) {
     if (!isDragging) return;
-    e.preventDefault(); // Prevent page from moving
+    e.preventDefault();
 
-    currentY = e.touches ? e.touches[0].clientY : e.clientY; // Track touch or mouse movement
-    const delta = currentY - startY; // Calculate movement
+    currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = currentY - startY;
 
-    // Move the panel based on touch/mouse delta
     if (delta > 0) {
-      let newY = Math.min(delta, window.innerHeight * 0.8); // Limit movement
-      panel.style.transform = `translateY(${newY}px)`; // Apply transformation
+      let newY = Math.min(delta, window.innerHeight * 0.8);
+      panel.style.transform = `translateY(${newY}px)`;
     }
   }
 
@@ -161,23 +196,28 @@
     if (!isDragging) return;
 
     isDragging = false;
-    panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
+    panel.style.transition = 'transform 0.3s ease';
 
-    // Decide where to snap the panel
     const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
-    const snapTo = closestSnap(finalY); // Find the closest snap position
-    setPanelY(snapTo); // Set the final position
+    const snapTo = closestSnap(finalY);
+    setPanelY(snapTo);
   }
 
-  // Allow click to open or toggle the panel
+  // Toggle the panel when clicking on the handle
   document.getElementById("handle").addEventListener("click", () => {
     const next = panelY === positions.collapsed ? positions.mid : positions.collapsed;
     setPanelY(next);
   });
 
-  // Initialize position
+  // Initialize the panel collapsed
   setPanelY(positions.collapsed);
+
+  // Example usage: Open the panel and load "add" view when a button is clicked
+  document.getElementById("addButton").addEventListener("click", () => {
+    loadPanelContent("add");  // This loads the content from "add.html"
+  });
 </script>
+
 
   
   <!--
