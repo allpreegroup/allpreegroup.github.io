@@ -82,18 +82,11 @@
   <div class="menu-button">Marketing</div>
 </div>
 
-<div id="panel">
-  <div id="handle"></div>
+<!-- Slide-up panel content area -->  
+<div id="panel" class="slide-up-panel">
+  <div id="handle">⬆️ Slide Up</div>
   <div id="panelContent">
-    <p><strong>Drag me up ⬆️</strong></p>
-    <p>Scrollable content inside the panel...</p>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-    <p>Keep dragging to snap to full screen.</p>
-    <p>More content to scroll...</p>
-    <p>Even more...</p>
-    <p>And more...</p>
-    <p>🔥 Smooth like butter!</p>
-    <p>😎 Try scrolling while panel is expanded.</p>
+    
   </div>
 </div>
 
@@ -177,19 +170,19 @@
 
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     isDragging = true;
-    panel.style.transition = 'none';
+    panel.style.transition = 'none'; // Disable transition during drag
   }
 
   function duringDrag(e) {
     if (!isDragging) return;
-    e.preventDefault();
+    e.preventDefault(); // Prevent page from moving
 
     currentY = e.touches ? e.touches[0].clientY : e.clientY;
     const delta = currentY - startY;
 
     if (delta > 0) {
       let newY = Math.min(delta, window.innerHeight * 0.8);
-      panel.style.transform = `translateY(${newY}px)`;
+      panel.style.transform = `translateY(${newY}px)`; // Apply transformation
     }
   }
 
@@ -197,27 +190,23 @@
     if (!isDragging) return;
 
     isDragging = false;
-    panel.style.transition = 'transform 0.3s ease';
+    panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
 
     const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
     const snapTo = closestSnap(finalY);
     setPanelY(snapTo);
   }
 
-  // Toggle the panel when clicking on the handle
-  document.getElementById("handle").addEventListener("click", () => {
-    const next = panelY === positions.collapsed ? positions.mid : positions.collapsed;
-    setPanelY(next);
+  // Trigger for opening and loading content into the panel
+  document.getElementById("addButton").addEventListener("click", () => {
+    setPanelY(positions.mid); // Open the panel before loading content
+    loadPanelContent("add");  // Load "add.html" content after panel opens
   });
 
   // Initialize the panel collapsed
   setPanelY(positions.collapsed);
-
-  // Example usage: Open the panel and load "add" view when a button is clicked
-  document.getElementById("addButton").addEventListener("click", () => {
-    loadPanelContent("add");  // This loads the content from "add.html"
-  });
 </script>
+
 
 
   
