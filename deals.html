@@ -1477,6 +1477,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ GOOD: Set initial panel position immediately
   panelY = positions.collapsed;
   setPanelY(panelY, false);
+
+ function adjustContentPadding() {
+  const bottomMenu = document.getElementById('bottomMenu');
+  const mainContent = document.getElementById('deals-container');
+
+  if (bottomMenu && mainContent) {
+    const menuHeight = bottomMenu.offsetHeight;
+    mainContent.style.paddingBottom = `${menuHeight + 20}px`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', adjustContentPadding);
+window.addEventListener('resize', adjustContentPadding);
+
+	
 });
 
 /////// END	
