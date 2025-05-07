@@ -13,22 +13,23 @@
       overflow-x: hidden;
     }
 
-    #bottomMenu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #f0f8ff;
-      padding: 10px;
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      border-top: 2px solid #ccc;
-      z-index: 9999;
-    }
+   #bottomMenu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f0f8ff;
+  padding: 10px;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  border-top: 2px solid #ccc;
+  z-index: 9999;
+}
 
-    #bottomMenu > button {
-  flex: 0 0 auto;
+#bottomMenu > button {
+  flex: 0 0 auto !important; /* ← stronger enforcement */
   padding: 8px 16px;
   background: #007bff;
   color: white;
@@ -36,6 +37,9 @@
   border-radius: 20px;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-block;
+  width: auto !important;   /* ← reset any 100% width from outside */
+  max-width: max-content;
 }
 
     #slideUpPanel {
