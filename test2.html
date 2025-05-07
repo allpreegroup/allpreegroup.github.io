@@ -1606,53 +1606,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 /////////// ADMIN
 
-// Create the tapZone div
-const tapZone = document.createElement('div');
-tapZone.id = 'secretTapZone';
-
-// Style the tapZone to make it visible
-Object.assign(tapZone.style, {
-  position: 'fixed',
-  bottom: '5px',
-  left: '25px',
-  width: '50px',
-  height: '50px',
-  zIndex: '9999',
-  background: 'transparent',
-  border: '2px solid #007bff', // Visible border
-  borderRadius: '10px', // Rounded corners for style
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  cursor: 'pointer'
-});
-
-// Add some text or icon to make it clear it's a button
-const lockIcon = document.createElement('span');
-lockIcon.innerHTML = '🔒'; // You can use any icon or text
-lockIcon.style.fontSize = '24px';
-tapZone.appendChild(lockIcon);
-
-// Append to the body
-document.body.appendChild(tapZone);
-
-// Variable to track lock status
-let isLocked = true;
-
-// Function to unlock or lock the tapZone
-function toggleLock() {
-  isLocked = !isLocked;
-  if (isLocked) {
-    tapZone.style.background = 'transparent'; // Locked state: transparent
-    lockIcon.innerHTML = '🔒'; // Lock icon
-  } else {
-    tapZone.style.background = '#007bff'; // Unlocked state: blue background
-    lockIcon.innerHTML = '🔓'; // Unlock icon
-  }
-}
-
-// Add click event to toggle lock
-tapZone.addEventListener('click', toggleLock);
 
 /*	
 const tapZone = document.createElement('div');
@@ -1703,6 +1656,8 @@ document.body.appendChild(adminPanel);
 // Show/hide with 5 clicks
 let tapCount = 0;
 let lastTapTime = 0;
+const lockButton = document.getElementById('lockButton');
+	
 document.body.addEventListener('click', () => {
   const now = Date.now();
   if (now - lastTapTime < 600) {
