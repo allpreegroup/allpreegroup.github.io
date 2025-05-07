@@ -112,6 +112,7 @@
 <body>
 
  <div id="bottomMenu">
+   <button onclick="loadPanelContent('menu#drinks')">Drinks</button>
   <div class="menu-button" onclick="loadPanelContent('add')">Add</div>
   <div class="menu-button" onclick="loadPanelContent('membership')">Membership</div>
   <div class="menu-button" onclick="loadPanelContent('menu')">Menu</div>
@@ -126,6 +127,13 @@
   
   <!-- Fixed Header -->
   <div id="panelHeader">My Panel Header</div>
+  <div class="panel-tabs">
+  <button onclick="switchPanelTab('tab1')">Tab 1</button>
+  <button onclick="switchPanelTab('tab2')">Tab 2</button>
+ </div>
+ <div id="tab1" class="panel-tab">...</div>
+ <div id="tab2" class="panel-tab" style="display:none">...</div>
+
 
   <!-- Scrollable content area -->
   <div id="slideUpPanelContent" class="panel-content">Loading...</div>
@@ -188,6 +196,10 @@ function endDrag() {
   translateY = 0;
 }
 
+function switchPanelTab(id) {
+  document.querySelectorAll('.panel-tab').forEach(el => el.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
 
     
     panelHandle.addEventListener('touchstart', (e) => {
