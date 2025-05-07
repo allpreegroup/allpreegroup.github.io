@@ -20,6 +20,68 @@
       margin-top: 20px;
       padding: 20px;
     }
+
+ #bottomMenu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      z-index: 1000;
+    }
+
+#bottomMenu::-webkit-scrollbar {
+  display: none; /* Chrome & Safari */
+}
+ 
+    .menu-button {
+      background: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      flex: 0 0 auto;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 90vh;
+      background: white;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      transform: translateY(80%);
+      transition: transform 0.3s ease;
+      z-index: 999;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #handle {
+      width: 50px;
+      height: 5px;
+      background: #bbb;
+      border-radius: 10px;
+      margin: 8px auto;
+    }
+    
+    #panelContent {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+		 
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -1281,7 +1343,17 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
-				 
+	<div id="bottomMenu">
+	<div id="lockButton" class="menu-button">🔒</div>
+  <div id="addButton" class="menu-button">Add</div>
+  <div class="menu-button" onclick="openPanel()">Demo</div>
+
+</div>
+
+<!-- Slide-up panel content area -->  
+<div id="panel" class="slide-up-panel">
+  <div id="handle"></div>
+  <div id="panelContent">			 
 				  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -1399,8 +1471,190 @@ function injectLoadingModal() {
   
   document.body.appendChild(modal);
 }
+
+
+////// START
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Panel Variables and Setup
+  const panel = document.getElementById("panel");
+  const content = document.getElementById("panelContent");
+  let startY, currentY, panelY = 0.15, isDragging = false;
+  const screenHeight = window.innerHeight;
+
+  const positions = {
+    full: 0.15,
+    mid: screenHeight * 0.15,
+    collapsed: screenHeight * 0.86
+  };
+
+  // Set panel position
+  function setPanelY(y, animate = true) {
+    panel.style.transition = animate ? "transform 0.3s ease" : "none";
+    panel.style.transform = `translateY(${y}px)`;
+    panelY = y;
+  }
+
+  // Open the panel to mid position
+  function openPanel() {
+    setPanelY(positions.full);
+  }
+
+  // Find the closest snap position for the panel
+  function closestSnap(y) {
+    const diffs = Object.values(positions).map(p => Math.abs(p - y));
+    const min = Math.min(...diffs);
+    return Object.values(positions)[diffs.indexOf(min)];
+  }
+
+  // Load content dynamically from external HTML files
+  async function loadPanelContent(view) {
+    const url = `${view}.html`; // URL of the content to load
+    try {
+      const res = await fetch(url); // Fetch the content
+      const html = await res.text(); // Get the HTML content as text
+
+      const contentDiv = document.getElementById('panelContent');
+      contentDiv.innerHTML = html; // Insert the content into the panel
+
+      // Execute any inline scripts in the loaded HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html; // Create a temporary div to hold the content and scripts
+      const scripts = tempDiv.querySelectorAll('script');
+      scripts.forEach((script) => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src; // If the script has a src attribute, use it
+        } else {
+          newScript.textContent = script.textContent; // Otherwise, use the script's content
+        }
+        document.body.appendChild(newScript); // Append the new script to the document body
+      });
+
+      // After loading, show the panel
+      setPanelY(positions.full);
+
+    } catch (err) {
+      // In case of an error, show an error message
+      document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
+    }
+  }
+
+  // Panel Dragging Functions
+  panel.addEventListener('touchstart', startDrag, { passive: false });
+  panel.addEventListener('touchmove', duringDrag, { passive: false });
+  panel.addEventListener('touchend', endDrag);
+
+  panel.addEventListener('mousedown', startDrag);
+  panel.addEventListener('mousemove', duringDrag);
+  panel.addEventListener('mouseup', endDrag);
+
+  // Prevent default scrolling behavior while dragging
+  function startDrag(e) {
+    e.preventDefault();
+    if (content.scrollTop > 0) return;
+
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    isDragging = true;
+    panel.style.transition = 'none'; // Disable transition during drag
+  }
+
+  function duringDrag(e) {
+    if (!isDragging) return;
+    e.preventDefault(); // Prevent page from moving
+
+    currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = currentY - startY;
+
+    if (delta > 0) {
+      let newY = Math.min(delta, window.innerHeight * 0.8);
+      panel.style.transform = `translateY(${newY}px)`; // Apply transformation
+    }
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+
+    isDragging = false;
+    panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
+
+    const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
+    const snapTo = closestSnap(finalY);
+    setPanelY(snapTo);
+  }
+
+  // Trigger for opening and loading content into the panel
+  document.getElementById("addButton").addEventListener("click", () => {
+    setPanelY(positions.full); // Open the panel before loading content
+    loadPanelContent("add");  // Load "add.html" content after panel opens
+  });
+
+  // Add event listener to prevent drag interference with clicks on interactive content
+  document.getElementById("panelContent").addEventListener("click", (e) => {
+    if (isDragging) {
+      e.stopImmediatePropagation(); // Prevent the drag from interfering with clicks inside content
+    }
+  });
+
+  // Initialize the panel collapsed
+  setPanelY(positions.collapsed);
+});
+
+
+/////// END	
+
 	
-/////////// ADMIN	
+/////////// ADMIN
+
+// Create the tapZone div
+const tapZone = document.createElement('div');
+tapZone.id = 'secretTapZone';
+
+// Style the tapZone to make it visible
+Object.assign(tapZone.style, {
+  position: 'fixed',
+  bottom: '5px',
+  left: '25px',
+  width: '50px',
+  height: '50px',
+  zIndex: '9999',
+  background: 'transparent',
+  border: '2px solid #007bff', // Visible border
+  borderRadius: '10px', // Rounded corners for style
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  cursor: 'pointer'
+});
+
+// Add some text or icon to make it clear it's a button
+const lockIcon = document.createElement('span');
+lockIcon.innerHTML = '🔒'; // You can use any icon or text
+lockIcon.style.fontSize = '24px';
+tapZone.appendChild(lockIcon);
+
+// Append to the body
+document.body.appendChild(tapZone);
+
+// Variable to track lock status
+let isLocked = true;
+
+// Function to unlock or lock the tapZone
+function toggleLock() {
+  isLocked = !isLocked;
+  if (isLocked) {
+    tapZone.style.background = 'transparent'; // Locked state: transparent
+    lockIcon.innerHTML = '🔒'; // Lock icon
+  } else {
+    tapZone.style.background = '#007bff'; // Unlocked state: blue background
+    lockIcon.innerHTML = '🔓'; // Unlock icon
+  }
+}
+
+// Add click event to toggle lock
+tapZone.addEventListener('click', toggleLock);
+
+/*	
 const tapZone = document.createElement('div');
  tapZone.id = 'secretTapZone';
  Object.assign(tapZone.style, {
@@ -1412,7 +1666,7 @@ const tapZone = document.createElement('div');
    zIndex: '9999',
    background: 'transparent'
  });
- document.body.appendChild(tapZone);
+ document.body.appendChild(tapZone); */
 	
 // --- Create the Admin Panel ---
 
@@ -3990,6 +4244,9 @@ addPopupSwipeListeners();
       }, 1000); // wait for fade out
     }, 4500);
   </script>
+
+
+			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
