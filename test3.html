@@ -2,249 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Allpree Barcode Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bottom Menu with Slide-Up Panel</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      max-width: 400px;
-      margin: 2rem auto;
-      padding: 1rem;
+      margin: 0;
+      font-family: sans-serif;
+      overflow-x: hidden;
     }
 
-    .centered-content {
-      text-align: center;
+    .content {
+      padding: 20px;
+      min-height: 100vh;
+      background: #f0f8ff;
     }
 
-    .centered-content img {
-      max-width: 100%;
-      height: auto;
-      margin: 0 auto 10px;
-    }
-
-    .form-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    input, button {
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      width: 80%;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-    }
-
-    #product-info img {
-      max-width: 150px;
-      display: block;
-      margin: 0 auto 10px;
-    }
-
-    #manual-entry {
-      display: none;
-      margin-top: 1rem;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
       width: 100%;
-      padding: 1rem;
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #ddd;
+      z-index: 10;
+    }
+
+    .bottom-nav button {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      font-size: 16px;
+    }
+
+    .slide-up {
+      position: fixed;
+      bottom: -70%;
+      left: 0;
+      width: 100%;
+      height: 70%;
+      background: white;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      transition: bottom 0.3s ease;
+      z-index: 20;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .slide-up.open {
+      bottom: 50px; /* Adjust for nav height */
+    }
+
+    .slide-up .drag-handle {
+      width: 40px;
+      height: 4px;
+      background: #ccc;
+      border-radius: 2px;
+      margin: 0 auto 10px;
     }
   </style>
 </head>
 <body>
-  <div class="form-wrapper">
-    <h2>Scan or Enter Barcode</h2>
-    <input type="text" id="barcode" placeholder="Scan or type barcode" />
-    <button id="lookup-button">🔍 Lookup Product</button>
-    <div id="scanner" style="display:none; width: 100%; max-width: 500px;"></div>
-    <button id="scan-button">📷 Scan</button>
-    <div id="product-info"></div>
-    <button id="refresh-button" style="display:none; margin-top: 1rem;">🔄 Refresh Page</button>
-    <div id="manual-entry">
-      <h3>Add New Product</h3>
-      <input type="text" id="name" placeholder="Product Name" />
-      <input type="text" id="brand" placeholder="Brand" />
-      <input type="text" id="size" placeholder="Size (e.g., 500ml)" />
-      <button id="save-button" disabled>💾 Save Product</button>
-    </div>
+  <div class="content">
+    <h1>Explore Deals</h1>
+    <p>Main content goes here...</p>
   </div>
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
- <script type="module">
-  import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm';
+  <div class="bottom-nav">
+    <button onclick="openPanel()">🏠 Home</button>
+    <button onclick="openPanel()">🔍 Search</button>
+    <button onclick="openPanel()">⭐ Favorites</button>
+  </div>
 
-  window.submitted = false;
-  let codeReader = new BrowserMultiFormatReader();
-  let activeControl = null;
+  <div id="slideUpPanel" class="slide-up">
+    <div class="drag-handle"></div>
+    <h2>Expanded Content</h2>
+    <p>Here you can place pages, tabs, filters, brand information, etc.</p>
+    <p>All without leaving the main page.</p>
+  </div>
 
-  function lookupProduct() {
-    const code = document.getElementById('barcode').value.trim();
-    const productInfo = document.getElementById('product-info');
-    const manualEntry = document.getElementById('manual-entry');
+  <script>
+    const panel = document.getElementById('slideUpPanel');
 
-    productInfo.style.textAlign = 'center';
-
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-    const img = new Image();
-    img.src = imageUrl;
-
-    img.onload = () => {
-      productInfo.innerHTML = `<div class="centered-content"><img src="${imageUrl}" /><p>✅ Image found! Add product info...<br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    img.onerror = () => {
-      productInfo.innerHTML = `<div class="centered-content"><p>❌ No product image found for barcode <br><a href="https://www.google.com/search?q=${encodeURIComponent(code)}" target="_blank" rel="noopener noreferrer">${code}</a></p></div>`;
-      manualEntry.style.display = 'block';
-    };
-
-    fetch('https://opensheet.elk.sh/1uf5usNnFd6XwPtbYuiKUgXNrB55_VWa81VIbut4Cm9g/FormResponses1')
-      .then(res => res.json())
-      .then(data => {
-        const match = data.find(row => row.Barcode?.trim() === code.trim());
-        if (match) {
-          const product = {
-            barcode: code,
-            name: match["Product Name"]?.trim() || '',
-            brand: match.Brand?.trim() || '',
-            size: match.Size?.trim() || '',
-            imageUrl
-          };
-          showProduct(product);
-          document.getElementById('refresh-button').style.display = 'inline-block';
-        }
-      })
-      .catch(err => console.error('Error fetching sheet:', err));
-  }
-
-  function startScanner() {
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.style.display = 'block';
-    scannerEl.innerHTML = '';
-
-    BrowserMultiFormatReader.listVideoInputDevices().then(devices => {
-      const deviceId = devices[0]?.deviceId;
-
-      if (!deviceId) {
-        alert("❌ No camera found.");
-        return;
-      }
-
-      codeReader.decodeFromVideoDevice(deviceId, scannerEl, (result, err, controls) => {
-        if (result) {
-          let code = result.getText();
-          if (code.length === 12) code = "0" + code;
-          document.getElementById('barcode').value = code;
-          stopScanner();
-          lookupProduct();
-        }
-      }).then(controls => {
-        activeControl = controls;
-      });
-    }).catch(err => {
-      console.error("Scanner error:", err);
-      alert("❌ Failed to start scanner.");
-    });
-  }
-
-  function stopScanner() {
-    if (activeControl) {
-      activeControl.stop();
-      activeControl = null;
+    function openPanel() {
+      panel.classList.toggle('open');
     }
-    const scannerEl = document.getElementById('scanner');
-    scannerEl.innerHTML = '';
-    scannerEl.style.display = 'none';
-  }
-
-  function showProduct(product) {
-    document.getElementById('product-info').innerHTML = `<div style="text-align: center;"><img src="${product.imageUrl}" /><h3>${product.name}</h3><p><strong>Brand:</strong> ${product.brand}</p><p><strong>Size:</strong> ${product.size}</p></div>`;
-    document.getElementById('manual-entry').style.display = 'none';
-  }
-
-  function saveProduct() {
-    window.submitted = true;
-    const code = document.getElementById('barcode').value.trim();
-    const imageUrl = `https://raw.githubusercontent.com/allpreegroup/products/refs/heads/main/images/${code}.jpg`;
-
-    const form = document.createElement('form');
-    form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScAPQDqtzTK3xXQAIbZV_XcO-8quOqn4pcLSuzOEGwnc5IL1Q/formResponse';
-    form.method = 'POST';
-    form.target = "hidden_iframe";
-
-    const fields = [
-      { id: 'barcode', name: 'entry.704671786' },
-      { id: 'name', name: 'entry.776500300' },
-      { id: 'brand', name: 'entry.1276633099' },
-      { id: 'size', name: 'entry.875936883' }
-    ];
-
-    for (const { id, name } of fields) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = document.getElementById(id).value.trim();
-      form.appendChild(input);
-    }
-
-    const imageInput = document.createElement('input');
-    imageInput.type = 'hidden';
-    imageInput.name = 'entry.1939692918';
-    imageInput.value = imageUrl;
-    form.appendChild(imageInput);
-
-    document.body.appendChild(form);
-    form.submit();
-
-    document.getElementById('barcode').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('brand').value = '';
-    document.getElementById('size').value = '';
-    document.getElementById('save-button').disabled = true;
-  }
-
-  function checkSaveButtonState() {
-    const name = document.getElementById('name').value.trim();
-    const brand = document.getElementById('brand').value.trim();
-    const size = document.getElementById('size').value.trim();
-    const saveButton = document.getElementById('save-button');
-    saveButton.disabled = !(name && brand && size);
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('name').addEventListener('input', checkSaveButtonState);
-    document.getElementById('brand').addEventListener('input', checkSaveButtonState);
-    document.getElementById('size').addEventListener('input', checkSaveButtonState);
-    document.getElementById('lookup-button').addEventListener('click', lookupProduct);
-    document.getElementById('scan-button').addEventListener('click', startScanner);  // Ensure this is correct
-    document.getElementById('refresh-button').addEventListener('click', () => location.reload());
-    document.getElementById('save-button').addEventListener('click', saveProduct);
-    checkSaveButtonState();
-
-    document.getElementById('hidden_iframe').addEventListener('load', () => {
-      if (window.submitted) {
-        alert('✅ Product added!');
-        window.submitted = false;
-        location.reload();
-      }
-    });
-  });
-
-  window.startScanner = startScanner;
-  window.stopScanner = stopScanner;
-  window.lookupProduct = lookupProduct;
-</script>
-
+  </script>
 </body>
 </html>
