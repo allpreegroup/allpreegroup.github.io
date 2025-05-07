@@ -1221,12 +1221,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<div id="bottomMenu">
   <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
-  <div id="CartButton" style="position: fixed; margin-left: 60px;" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-receipt fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
-  <div id="lockButton" style="margin-left: 120px;" class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>		
-  <div class="menu-button" data-view="add">Add</div>
+  <div id="CartButton" style="margin-left: 60px;" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-receipt fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
+  <div id="lockButton" class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>		
+ <!-- <div class="menu-button" data-view="add">Add</div> -->
   <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Gift Card</div>
   <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Gift Card</div>
-  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	
+<!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
   <div class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i> Refer Others</div>			
   <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i> Saved Lists</div>
   <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div>
@@ -1365,8 +1365,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const screenHeight = window.innerHeight;
 
   const positions = {
-    full: screenHeight * 0.1,
-    collapsed: screenHeight * 0.97
+    full: screenHeight * 0,
+    collapsed: screenHeight * 0.89
   };
 
   const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "profile"]; // restrict valid views
@@ -1477,6 +1477,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ GOOD: Set initial panel position immediately
   panelY = positions.collapsed;
   setPanelY(panelY, false);
+
+// Panel logic
+document.addEventListener('DOMContentLoaded', () => {
+  const panel = document.getElementById("panel");
+  // ... rest of panel script using `positions`
+});
+
+// Padding logic
+document.addEventListener('DOMContentLoaded', () => {
+  const mainContent = document.getElementById('deals-container');
+
+  if (mainContent) {
+    const collapsedOffset = window.innerHeight - positions.collapsed;
+    mainContent.style.paddingBottom = `${collapsedOffset + 20}px`;
+  }
+});
+	
 });
 
 /////// END	
@@ -2713,46 +2730,6 @@ function startPopupCountdown(expireDate, el) {
   popupCountdownInterval = setInterval(updateCountdown, 1000);
 }
 	
-
-/*	
- function startPopupCountdown(expireDate, el) {
-  if (!el || !expireDate) return;
-
-  const parsedDate = Date.parse(expireDate);
-
-  // If date is invalid or already expired
-  if (isNaN(parsedDate) || parsedDate < Date.now()) {
-    el.textContent = "⏳ Coming soon";
-    el.classList.add("countdown-upcoming");
-    return;
-  }
-
-  function updateCountdown() {
-    const now = new Date();
-    const endTime = new Date(parsedDate);
-    const diff = endTime - now;
-
-    if (diff <= 0) {
-      el.textContent = "❌ Deal expired";
-      el.classList.add("countdown-ended");
-      clearInterval(timerInterval);
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-
-    el.textContent = `⏳ ${timeStr}`;
-  }
-
-  updateCountdown();
-  const timerInterval = setInterval(updateCountdown, 1000);
-} */
-
 	
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
