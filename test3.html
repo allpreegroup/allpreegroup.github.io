@@ -91,8 +91,21 @@
       justify-content: center;
     }
 
+    #panelHeader {
+      position: sticky;
+      top: 0;
+      background: #f0f0f0;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 10;
+      border-bottom: 1px solid #ccc;
+    }
+
     .panel-content {
       padding: 20px;
+      max-height: calc(80vh - 70px);
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -106,12 +119,19 @@
   <div class="menu-button" onclick="loadPanelContent('topup')">Topup</div>
   <div class="menu-button" onclick="loadPanelContent('marketing')">Marketing</div>
 </div>
+
+<div id="slideUpPanel">
+  <div id="panelHandle"></div>
+  <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
   
-  <div id="slideUpPanel">
-    <div id="panelHandle"></div>
-    <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
-    <div id="slideUpPanelContent" class="panel-content">Loading...</div>
-  </div>
+  <!-- Fixed Header -->
+  <div id="panelHeader">My Panel Header</div>
+
+  <!-- Scrollable content area -->
+  <div id="slideUpPanelContent" class="panel-content">Loading...</div>
+</div>
+  
+
 
   <script>
     let panel = document.getElementById('slideUpPanel');
