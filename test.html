@@ -124,36 +124,38 @@
   }
 
   // Load content dynamically from external HTML files
-  async function loadPanelContent(view) {
-    const url = `${view}.html`;
-    try {
-      const res = await fetch(url);
-      const html = await res.text();
+async function loadPanelContent(view) {
+  const url = `${view}.html`; // URL of the content to load
+  try {
+    const res = await fetch(url); // Fetch the content
+    const html = await res.text(); // Get the HTML content as text
 
-      // Insert the loaded HTML content
-      const contentDiv = document.getElementById('panelContent');
-      contentDiv.innerHTML = html;
+    const contentDiv = document.getElementById('panelContent');
+    contentDiv.innerHTML = html; // Insert the content into the panel
 
-      // Execute any inline scripts in the loaded HTML
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-      const scripts = tempDiv.querySelectorAll('script');
-      scripts.forEach((script) => {
-        const newScript = document.createElement('script');
-        if (script.src) {
-          newScript.src = script.src;
-        } else {
-          newScript.textContent = script.textContent;
-        }
-        document.body.appendChild(newScript);
-      });
+    // Execute any inline scripts in the loaded HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html; // Create a temporary div to hold the content and scripts
+    const scripts = tempDiv.querySelectorAll('script');
+    scripts.forEach((script) => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src; // If the script has a src attribute, use it
+      } else {
+        newScript.textContent = script.textContent; // Otherwise, use the script's content
+      }
+      document.body.appendChild(newScript); // Append the new script to the document body
+    });
 
-      // After loading, show the panel
-      setPanelY(positions.mid);
-    } catch (err) {
-      document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
-    }
+    // After loading, show the panel
+    setPanelY(positions.mid);
+
+  } catch (err) {
+    // In case of an error, show an error message
+    document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
   }
+}
+
 
   // Panel Dragging Functions
   panel.addEventListener('touchstart', startDrag, { passive: false });
