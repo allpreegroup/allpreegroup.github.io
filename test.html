@@ -41,7 +41,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: 100vh;
+      height: 80vh;
       background: white;
       border-top-left-radius: 16px;
       border-top-right-radius: 16px;
@@ -113,7 +113,7 @@ function setPanelY(y, animate = true) {
 
 // Open the panel to mid position
 function openPanel() {
-  setPanelY(positions.mid);
+  setPanelY(positions.full);
 }
 
 // Find the closest snap position for the panel
@@ -148,7 +148,7 @@ async function loadPanelContent(view) {
     });
 
     // After loading, show the panel
-    setPanelY(positions.mid);
+    setPanelY(positions.full);
 
   } catch (err) {
     // In case of an error, show an error message
@@ -201,7 +201,7 @@ function endDrag() {
 
 // Trigger for opening and loading content into the panel
 document.getElementById("addButton").addEventListener("click", () => {
-  setPanelY(positions.mid); // Open the panel before loading content
+  setPanelY(positions.full); // Open the panel before loading content
   loadPanelContent("add");  // Load "add.html" content after panel opens
 });
 
