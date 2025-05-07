@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       touch-action: pan-y;
+      overflow-x: hidden;
     }
 
     #bottomMenu {
@@ -23,7 +24,7 @@
       gap: 10px;
       overflow-x: auto;
       border-top: 2px solid #ccc;
-      z-index: 9998;
+      z-index: 9999;
     }
 
     #bottomMenu button {
@@ -38,32 +39,34 @@
 
     #slideUpPanel {
       position: fixed;
-      bottom: 0;
+      bottom: 60px;
       left: 0;
       right: 0;
-      height: 60vh;
+      height: 80vh;
       background: white;
       box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      transform: translateY(100%);
+      transform: translateY(calc(80vh - 30px));
       transition: transform 0.3s ease;
-      z-index: 9999;
+      z-index: 9998;
       overflow-y: auto;
       touch-action: none;
     }
 
-    #slideUpPanel.show {
-      transform: translateY(0%);
+    #slideUpPanel.open {
+      transform: translateY(20vh);
     }
 
     #panelHandle {
       width: 50px;
       height: 5px;
-      background: #ccc;
+      background: #999;
       border-radius: 5px;
-      margin: 10px auto;
+      margin: 6px auto 10px;
       cursor: grab;
+      position: relative;
+      top: -10px;
     }
 
     #closePanelBtn {
@@ -72,12 +75,8 @@
       top: 10px;
       background: transparent;
       border: none;
-      font-size: 20px;
+      font-size: 24px;
       cursor: pointer;
-    }
-
-    .hidden {
-      display: none;
     }
 
     .panel-content {
@@ -93,19 +92,20 @@
     <button onclick="loadPanelContent('marketing')">Marketing</button>
   </div>
 
-  <div id="slideUpPanel" class="hidden">
+  <div id="slideUpPanel">
     <div id="panelHandle"></div>
     <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
     <div id="slideUpPanelContent" class="panel-content">Loading...</div>
   </div>
 
   <script>
+    let panel = document.getElementById('slideUpPanel');
+    let panelHandle = document.getElementById('panelHandle');
+
     let startY = 0;
     let currentY = 0;
+    let translateY = 0;
     let isDragging = false;
-
-    const panel = document.getElementById('slideUpPanel');
-    const panelHandle = document.getElementById('panelHandle');
 
     panelHandle.addEventListener('touchstart', (e) => {
       startY = e.touches[0].clientY;
@@ -116,33 +116,31 @@
     panelHandle.addEventListener('touchmove', (e) => {
       if (!isDragging) return;
       currentY = e.touches[0].clientY;
-      const deltaY = currentY - startY;
-      const translateY = Math.min(Math.max(0, deltaY), window.innerHeight);
+      const delta = currentY - startY;
+      translateY = Math.min(Math.max(0, delta), window.innerHeight * 0.8);
       panel.style.transform = `translateY(${translateY}px)`;
     });
 
     panelHandle.addEventListener('touchend', () => {
       isDragging = false;
       panel.style.transition = 'transform 0.3s ease';
-      const translateY = parseInt(panel.style.transform.replace('translateY(', '').replace('px)', ''));
-      if (translateY > window.innerHeight * 0.25) {
+      if (translateY > window.innerHeight * 0.4) {
         hideSlideUpPanel();
       } else {
-        panel.style.transform = 'translateY(0%)';
+        panel.style.transform = 'translateY(20vh)';
       }
     });
 
     function showSlideUpPanel() {
-      panel.classList.add('show');
-      panel.classList.remove('hidden');
+      setTimeout(() => panel.style.transform = 'translateY(20vh)', 10);
     }
 
     function hideSlideUpPanel() {
-      panel.classList.remove('show');
-      setTimeout(() => panel.classList.add('hidden'), 300);
+      panel.style.transform = 'translateY(calc(80vh - 30px))';
     }
 
-    async function loadPanelContent(url) {
+    async function loadPanelContent(view) {
+      const url = `${view}.html`;
       try {
         const res = await fetch(url);
         const html = await res.text();
