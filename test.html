@@ -3,26 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pro Slide-Up Panel</title>
+  <title>Slide-Up Panel Demo</title>
   <style>
-    :root {
-      --primary-color: #007bff;
-      --panel-radius: 20px;
-      --panel-bg: #fff;
-      --glass-bg: rgba(240, 248, 255, 0.75);
-      --blur: blur(10px);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
+      font-family: sans-serif;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f9f9f9;
+      padding: 0;
       touch-action: pan-y;
       overflow-x: hidden;
+      background: #f9f9f9;
     }
 
     #bottomMenu {
@@ -30,51 +19,43 @@
       bottom: 0;
       left: 0;
       right: 0;
-      display: flex;
-      overflow-x: auto;
-      gap: 10px;
+      background: #f0f8ff;
       padding: 10px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--blur);
-      border-top: 1px solid #ccc;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      border-top: 2px solid #ccc;
       z-index: 9999;
-      scroll-snap-type: x mandatory;
     }
 
     .menu-button {
       flex: 0 0 auto;
-      padding: 10px 20px;
-      background: var(--primary-color);
-      color: #fff;
-      border-radius: 999px;
-      font-weight: bold;
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border-radius: 20px;
       cursor: pointer;
-      user-select: none;
       white-space: nowrap;
-      scroll-snap-align: start;
-      transition: transform 0.2s;
-    }
-
-    .menu-button:active {
-      transform: scale(0.95);
+      user-select: none;
+      text-align: center;
+      font-weight: bold;
     }
 
     #slideUpPanel {
       position: fixed;
+      bottom: 50px;
       left: 0;
       right: 0;
-      bottom: 0;
       height: 80vh;
-      background: var(--panel-bg);
-      border-top-left-radius: var(--panel-radius);
-      border-top-right-radius: var(--panel-radius);
-      box-shadow: 0 -8px 16px rgba(0, 0, 0, 0.2);
-      transform: translateY(calc(80vh - 40px));
+      background: white;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      transform: translateY(calc(80vh - 30px));
       transition: transform 0.3s ease;
       z-index: 9998;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
     #slideUpPanel.open {
@@ -82,71 +63,70 @@
     }
 
     #panelHandle {
-      width: 60px;
-      height: 6px;
-      background: #ccc;
-      border-radius: 3px;
-      margin: 8px auto;
+      width: 50px;
+      height: 8px;
+      background: #aaa;
+      border-radius: 4px;
+      margin: 10px auto 6px;
       cursor: grab;
+    }
+
+    #panelHandle:active {
+      background: #666;
+      cursor: grabbing;
     }
 
     #closePanelBtn {
       position: absolute;
       top: 10px;
-      right: 12px;
-      background: #eee;
+      right: 10px;
+      background: #ccc;
       border: none;
-      width: 32px;
-      height: 32px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10000;
       border-radius: 50%;
-      font-size: 18px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      z-index: 10;
     }
 
     #panelHeader {
-      padding: 10px 16px;
-      background: #f7f7f7;
-      font-weight: bold;
+      position: sticky;
+      top: 0;
+      background: #f0f0f0;
+      padding: 12px 20px;
       font-size: 18px;
-      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+      z-index: 10;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .panel-content {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
     }
 
     .panel-tabs {
       display: flex;
-      gap: 6px;
-      padding: 10px 16px;
-    }
-
-    .panel-tabs button {
-      background: #eee;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .panel-tabs button.active {
-      background: var(--primary-color);
-      color: #fff;
+      gap: 10px;
+      padding: 10px;
     }
 
     .panel-tab {
       display: none;
-      padding: 10px 16px;
     }
 
-    #slideUpPanelContent {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
+    .panel-tab.active {
+      display: block;
     }
   </style>
 </head>
 <body>
+
   <div id="bottomMenu">
     <div class="menu-button" onclick="loadPanelContent('add')">Add</div>
     <div class="menu-button" onclick="loadPanelContent('membership')">Membership</div>
@@ -159,98 +139,99 @@
   <div id="slideUpPanel">
     <div id="panelHandle"></div>
     <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
+
     <div id="panelHeader">My Panel Header</div>
     <div class="panel-tabs">
-      <button class="active" onclick="switchPanelTab('tab1', this)">Tab 1</button>
-      <button onclick="switchPanelTab('tab2', this)">Tab 2</button>
+      <button onclick="switchPanelTab('tab1')">Tab 1</button>
+      <button onclick="switchPanelTab('tab2')">Tab 2</button>
     </div>
-    <div id="tab1" class="panel-tab" style="display: block;">Loading tab 1...</div>
-    <div id="tab2" class="panel-tab">Loading tab 2...</div>
-    <div id="slideUpPanelContent">Loading...</div>
+
+    <div id="tab1" class="panel-tab active">This is Tab 1</div>
+    <div id="tab2" class="panel-tab">This is Tab 2</div>
+
+    <div id="slideUpPanelContent" class="panel-content">Loading...</div>
   </div>
 
   <script>
     const panel = document.getElementById('slideUpPanel');
-    const content = document.getElementById('slideUpPanelContent');
+    const panelHandle = document.getElementById('panelHandle');
+    const slideUpPanelContent = document.getElementById('slideUpPanelContent');
 
     let startY = 0;
     let currentY = 0;
+    let deltaY = 0;
     let isDragging = false;
-    let translateY = 0;
 
-    panel.addEventListener('touchstart', startDrag);
-    panel.addEventListener('touchmove', duringDrag);
-    panel.addEventListener('touchend', endDrag);
-    panel.addEventListener('mousedown', startDrag);
-    panel.addEventListener('mousemove', duringDrag);
-    panel.addEventListener('mouseup', endDrag);
-
-    function startDrag(e) {
-      if (content.scrollTop > 0) return;
+    panelHandle.addEventListener('touchstart', (e) => {
+      if (slideUpPanelContent.scrollTop !== 0) return;
       isDragging = true;
-      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      startY = e.touches[0].clientY;
       panel.style.transition = 'none';
-    }
+    });
 
-    function duringDrag(e) {
+    panelHandle.addEventListener('touchmove', (e) => {
       if (!isDragging) return;
-      currentY = e.touches ? e.touches[0].clientY : e.clientY;
-      const delta = currentY - startY;
-      if (delta > 0) {
-        translateY = Math.min(delta, window.innerHeight * 0.8);
-        panel.style.transform = `translateY(${translateY}px)`;
+      currentY = e.touches[0].clientY;
+      deltaY = currentY - startY;
+      if (deltaY > 0) {
+        panel.style.transform = `translateY(calc(20vh + ${deltaY}px))`;
+        e.preventDefault();
       }
-    }
+    });
 
-    function endDrag() {
+    panelHandle.addEventListener('touchend', () => {
       if (!isDragging) return;
       isDragging = false;
       panel.style.transition = 'transform 0.3s ease';
-      if (translateY > window.innerHeight * 0.3) {
+      if (deltaY > window.innerHeight * 0.25) {
         hideSlideUpPanel();
       } else {
-        panel.classList.add('open');
-        panel.style.transform = 'translateY(20vh)';
+        showSlideUpPanel();
       }
-      translateY = 0;
+      deltaY = 0;
+    });
+
+    function showSlideUpPanel() {
+      panel.classList.add('open');
     }
 
     function hideSlideUpPanel() {
       panel.classList.remove('open');
-      panel.style.transform = 'translateY(calc(80vh - 40px))';
     }
 
-    function showSlideUpPanel() {
-      panel.classList.add('open');
-      panel.style.transform = 'translateY(20vh)';
+    function switchPanelTab(id) {
+      document.querySelectorAll('.panel-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
     }
 
     async function loadPanelContent(view) {
+      const url = `${view}.html`;
       try {
-        const res = await fetch(`${view}.html`);
+        const res = await fetch(url);
         const html = await res.text();
-        content.innerHTML = html;
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        temp.querySelectorAll('script').forEach((s) => {
-          const script = document.createElement('script');
-          if (s.src) script.src = s.src;
-          else script.textContent = s.textContent;
-          document.body.appendChild(script);
+
+        const contentDiv = document.getElementById('slideUpPanelContent');
+        contentDiv.innerHTML = html;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const scripts = tempDiv.querySelectorAll('script');
+        scripts.forEach((script) => {
+          const newScript = document.createElement('script');
+          if (script.src) {
+            newScript.src = script.src;
+          } else {
+            newScript.textContent = script.textContent;
+          }
+          document.body.appendChild(newScript);
         });
+
         showSlideUpPanel();
-      } catch (e) {
-        content.innerHTML = '<p>Error loading content.</p>';
+      } catch (err) {
+        document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
       }
     }
-
-    function switchPanelTab(tabId, btn) {
-      document.querySelectorAll('.panel-tab').forEach(t => t.style.display = 'none');
-      document.getElementById(tabId).style.display = 'block';
-      document.querySelectorAll('.panel-tabs button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
   </script>
+
 </body>
 </html>
-
