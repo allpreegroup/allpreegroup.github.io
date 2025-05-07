@@ -1344,10 +1344,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div id="deals-container">Loading deals...</div>
 
 	<div id="bottomMenu">
-	<div id="lockButton" class="menu-button">🔒</div>
+	<div id="lockButton" style=" position: fixed; z-index: 10000; "  class="menu-button ">🔒</div>
 	<div class="menu-button" onclick="openCartPopup()">📝 <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none; ">0</span></div>
         <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()">📝 Saved Lists</div>
        <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()">❤️ Brand</div>
+
+	<div id="refresh-button" class="menu-button" >🔄 </div>
 	
 </div>
 
@@ -1916,28 +1918,6 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-const refreshButton = document.createElement('div');
-refreshButton.id = 'refresh-button';
-refreshButton.style = `
-  position: fixed;
-  bottom: 5px;
-  right: 25px;
-  z-index: 1000;
-  font-size: 15px;
-  background: white;
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  cursor: pointer;
-  text-align: center;
-`;
-refreshButton.innerHTML = `🔄`;
-document.body.appendChild(refreshButton);
-
-refreshButton.addEventListener('click', function() {
-  location.reload();
-});
-
 ///////  ///////// START
 
 
@@ -2264,15 +2244,6 @@ async function showCartWithLocations() {
   await loadBrandLocations();
   openCartPopup();
 }
-	
-/*	
-async function showCartWithLocations() {
-  const allowed = await ensureUserLocation();
-  if (!allowed) return;
-
-  await loadBrandLocations();
-  openCartPopup();
-} */
 
 async function ensureUserLocation() {
   const saved = getSavedLocation();
