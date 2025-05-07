@@ -17,9 +17,75 @@
     body {
       font-family: sans-serif;
       background: #f5f5f5;
-      margin-top: 20px;
+      margin-top: 0px;
       padding: 20px;
+      overscroll-behavior-y: none;
+      overscroll-behavior: none;    
     }
+
+ #bottomMenu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      z-index: 1000;
+    }
+
+#bottomMenu::-webkit-scrollbar {
+  display: none; /* Chrome & Safari */
+}
+ 
+    .menu-button {
+      background: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      flex: 0 0 auto;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100vh;
+      background: white;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      transform: translateY(80%);
+      transition: transform 0.3s ease;
+      z-index: 999;
+       pointer-events: auto;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #handle {
+      width: 80%;
+      height: 5px;
+      background: #bbb;
+      border-radius: 10px;
+      margin: 8px auto;
+    }
+    
+    #panelContent {
+      flex: 1;
+      pointer-events: auto;
+      overflow-y: auto;
+      padding: 16px;
+    }
+		 
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -1134,139 +1200,11 @@ fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
 webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
 <!-- end webpushr tracking code -->
 
-<!-- <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "d4d4a08e-e7f1-49b4-9d7b-0c4c57222df1",
-      safari_web_id: "web.onesignal.auto.2d1085e1-a560-4918-b950-42f254dd8495",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script> -->
-
-<!-- Fullscreen Overlay 
- <div id="fullscreenOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; overflow:auto;">
-   <button onclick="smartBack()" style="
-     position:absolute;
-     top:15px;
-     right:15px;
-     z-index:10000;
-     background:#000;
-     color:#fff;
-     border:none;
-     padding:10px 15px;
-     font-size:16px;
-     border-radius:8px;
-   ">✕ Close</button>
- 
-   <div id="menuContent" style="padding:20px;"></div>
- </div>
- 
- <script>
- function loadMenu() {
-   fetch('https://www.allpree.com/contact')
-     .then(response => response.text())
-     .then(html => {
-       document.getElementById('menuContent').innerHTML = html;
-       document.getElementById('fullscreenOverlay').style.display = 'block';
-     })
-     .catch(err => {
-       alert("Failed to load menu.");
-       console.error(err);
-     });
- }
- 
- function smartBack(fallbackUrl = '/balance') {
-   const previous = document.referrer;
- 
-   if (previous && previous !== window.location.href) {
-     window.location.href = previous;
-   } else {
-     window.location.href = fallbackUrl;
-   }
- }
- 
- </script> -->
-
-
-<nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-             <a href="https://www.allpree.com/contact" onclick="loadMenu(); return false;">   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                  <span class="sr-only">Toggle navigation</span> SIGNUP <!-- <i class="fa-solid fa-bars"></i> -->
-                </button> 
-
-             </a> 
-               
-
-           <!--  <a class="navbar-brand page-scroll" href="https://twitter.com/allpreedotcom"><i class="fa-brands fa-twitter"></i></a>
-             <a class="navbar-brand page-scroll" href="https://instagram.com/allpreedotcom"><i class="fa-brands fa-instagram"></i></a>
-             <a class="navbar-brand page-scroll" href="https://facebook.com/allpreedotcom"><i class="fa-brands fa-facebook"></i></a> -->
-             
-             <!--    <a class="navbar-brand page-scroll" onclick="history.back()"><i class="fa-solid fa-backward"></i></a>  
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/" >CashBack</a> -->
-
-             
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/deals"><i class="fa-solid fa-badge-percent fa-lg"></i></a>
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/generategiftcard" ><i class="fa-solid fa-credit-card fa-lg"></i></a>
-	     <a class="navbar-brand page-scroll" href="https://www.allpree.com/topup" ><i class="fa-solid fa-building-columns fa-lg"></i></a>
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" ><i class="fa-solid fa-piggy-bank fa-lg"></i></a>
-	     <a class="navbar-brand page-scroll" href="https://www.allpree.com/marketing" ><i class="fa-solid fa-share-from-square fa-lg"></i></a>
-              
-	     <!--      <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance" >Balance</a>
-             <a class="navbar-brand page-scroll" href="https://www.allpree.com/vouchers"><strong>Bufa-solid fa-housey eVoucher</strong></a>
-              <a class="navbar-brand page-scroll" href="https://www.allpree.com/invite" >Earn</a>
-              <a class="navbar-brand page-scroll" href="https://www.allpree.com/balance"><strong><i class="fa-solid fa-house"></i> HOME</strong></a>
-               
-            <!--   <a class="navbar-brand page-scroll" href="https://www.allpree.com/join" >Msg HR</a> -->
-
-              
-             
-            <!--   <a class="navbar-brand page-scroll" href="https://www.snapchat.com/add/allpreedotcom"><i class="fa-brands fa-snapchat"></i>&nbsp;</a>
-             
-              <a class="navbar-brand page-scroll" href="https://tiktok.com/@joinwatsapp"><i class="fa-brands fa-tiktok"></i>&nbsp;</a>
-             
-              <a class="navbar-brand page-scroll">&nbsp;<strong>EVERY Day Is Black Friday!</strong></a>  
-      <a class="navbar-brand page-scroll">&nbsp;<strong>Allpree Plus <i class="fa-solid fa-location-plus"></i></strong></a>
-             <a class="navbar-brand page-scroll" href=""><strong><i class="fa-brands fa-whatsapp"></i> eCom <i class="fa-brands fa-btc"></i></strong> - Semi Done For You </a> 
-             	  <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Investors</a>
-              <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Resellers</a>
-             <a class="navbar-brand page-scroll" href=""><i class="fa-solid fa-sack-dollar"></i>&nbsp;Referrals</a> 
-               -->
-              
-             
-             
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling &nbsp; -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <!--  <ul class="nav navbar-nav navbar-right">
-                <li>
-                   <a class="page-scroll" href="https://www.allpree.com/referral-program" >Refer & Earn</a>
-                    </li>
-                    <li>
-                   <a class="page-scroll" href="https://www.allpree.com/list/">All Stores</a>
-                    </li>
-                    <li>
-                  <a class="page-scroll" href="https://www.allpree.com/balance/"><strong>Check Balance</strong></a> 
-                    </li> 
-                </ul> -->
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container-fluid -->
-    </nav>
-
 	<div class="container">
              <div class="row land">
                  <div class="home">     
  			<div class="center">
-                 <div class="col-md-6 home-txt1"> <br>
+                 <div class="col-md-6 home-txt1">
 
  <div id="splash-screen">
     <video autoplay muted playsinline preload="auto">
@@ -1281,8 +1219,25 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
-				 
-				  
+	<div id="bottomMenu">
+  <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
+  <div id="CartButton" style="position: fixed; margin-left: 60px;" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-receipt fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
+  <div id="lockButton" style="margin-left: 120px;" class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>		
+ <!-- <div class="menu-button" data-view="add">Add</div> -->
+  <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Gift Card</div>
+  <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Gift Card</div>
+<!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
+  <div class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i> Refer Others</div>			
+  <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i> Saved Lists</div>
+  <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div>
+</div>
+
+<!-- Slide-up panel content area -->
+<div id="panel" class="slide-up-panel">
+  <div id="handle"></div>
+  <div id="panelContent"></div>
+</div>
+		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
 
@@ -1399,20 +1354,135 @@ function injectLoadingModal() {
   
   document.body.appendChild(modal);
 }
+
+
+////// START
+document.addEventListener('DOMContentLoaded', () => {
+  // Panel Variables and Setup
+  const panel = document.getElementById("panel");
+  const content = document.getElementById("panelContent");
+  let startY = 0, currentY = 0, panelY = 0, isDragging = false;
+  const screenHeight = window.innerHeight;
+
+  const positions = {
+    full: screenHeight * 0.1,
+    collapsed: screenHeight * 0.97
+  };
+
+  const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "profile"]; // restrict valid views
+
+  // Set panel position with optional animation
+  function setPanelY(y, animate = true) {
+    panel.style.transition = animate ? "transform 0.3s ease" : "none";
+    panel.style.transform = `translateY(${y}px)`;
+    panelY = y;
+  }
+
+  // Snap to the nearest defined position
+  function closestSnap(y) {
+    const diffs = Object.values(positions).map(p => Math.abs(p - y));
+    const min = Math.min(...diffs);
+    return Object.values(positions)[diffs.indexOf(min)];
+  }
+
+  // Load content dynamically and safely
+  async function loadPanelContent(view) {
+    if (!allowedViews.includes(view)) {
+      console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
+      return;
+    }
+
+    const url = `${view}.html`;
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
+
+      const contentDiv = document.getElementById('panelContent');
+      contentDiv.innerHTML = html;
+
+      // Set dynamic padding to avoid content hiding behind menu
+      const bottomPadding = screenHeight - positions.collapsed;
+      contentDiv.style.paddingBottom = `${bottomPadding}px`;
+
+      // Execute inline scripts
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      tempDiv.querySelectorAll('script').forEach((script) => {
+        const newScript = document.createElement('script');
+        if (script.src) {
+          newScript.src = script.src;
+        } else {
+          newScript.textContent = script.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+
+      // Show the panel
+      setPanelY(positions.full);
+    } catch (err) {
+      content.innerHTML = "<p>Error loading content.</p>";
+    }
+  }
+
+  // Handle drag start
+  function startDrag(e) {
+    if (content.scrollTop > 0) return; // only drag if scroll is at top
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    isDragging = true;
+    panel.style.transition = "none";
+  }
+
+  // Handle dragging movement
+  function duringDrag(e) {
+    if (!isDragging) return;
+
+    currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = currentY - startY;
+    const newY = Math.min(positions.collapsed, Math.max(0, panelY + delta)); // Clamp to collapsed
+    panel.style.transform = `translateY(${newY}px)`;
+  }
+
+  // Handle drag end
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const delta = currentY - startY;
+    const newY = Math.max(0, panelY + delta);
+    const snapTo = closestSnap(newY);
+    setPanelY(snapTo);
+  }
+
+  // Attach unified drag listeners
+  ["touchstart", "mousedown"].forEach(evt =>
+    panel.addEventListener(evt, startDrag, { passive: false })
+  );
+  ["touchmove", "mousemove"].forEach(evt =>
+    panel.addEventListener(evt, duringDrag, { passive: false })
+  );
+  ["touchend", "mouseup"].forEach(evt =>
+    panel.addEventListener(evt, endDrag)
+  );
+
+  // Dynamically handle button clicks
+  const buttons = document.querySelectorAll('.menu-button[data-view]');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const view = button.getAttribute('data-view');
+      loadPanelContent(view);
+    });
+  });
+
+
+  // ✅ GOOD: Set initial panel position immediately
+  panelY = positions.collapsed;
+  setPanelY(panelY, false);
+});
+
+/////// END	
+
 	
-/////////// ADMIN	
-const tapZone = document.createElement('div');
- tapZone.id = 'secretTapZone';
- Object.assign(tapZone.style, {
-   position: 'fixed',
-   bottom: '5px',
-   left: '25px',
-   width: '50px',
-   height: '50px',
-   zIndex: '9999',
-   background: 'transparent'
- });
- document.body.appendChild(tapZone);
+/////////// ADMIN
 	
 // --- Create the Admin Panel ---
 
@@ -1449,6 +1519,8 @@ document.body.appendChild(adminPanel);
 // Show/hide with 5 clicks
 let tapCount = 0;
 let lastTapTime = 0;
+const lockButton = document.getElementById('lockButton');
+	
 document.body.addEventListener('click', () => {
   const now = Date.now();
   if (now - lastTapTime < 600) {
@@ -1721,81 +1793,8 @@ function getDealKey(deal) {
     .replace(/[^a-z0-9\-]/g, ''); // strip weird characters
 }
 
-const refreshButton = document.createElement('div');
-refreshButton.id = 'refresh-button';
-refreshButton.style = `
-  position: fixed;
-  bottom: 5px;
-  right: 25px;
-  z-index: 1000;
-  font-size: 15px;
-  background: white;
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  cursor: pointer;
-  text-align: center;
-`;
-refreshButton.innerHTML = `🔄`;
-document.body.appendChild(refreshButton);
-
-refreshButton.addEventListener('click', function() {
-  location.reload();
-});
-
-const savedListsButton = document.createElement('div');
-savedListsButton.id = 'saved-lists-button';
-savedListsButton.innerText = '📝 Saved Lists';
-savedListsButton.onclick = openSavedListsPopup;
-savedListsButton.style = `
-  position: fixed;
-  bottom: 5px;
-  right: 160px;
-  z-index: 1000;
-  font-size: 15px;
-  background: #28a745;
-  color: white;
-  border-radius: 50px;
-  padding: 10px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  cursor: pointer;
-  text-align: center;
-`;
-
-document.body.appendChild(savedListsButton);
-
 ///////  ///////// START
 
-document.addEventListener('DOMContentLoaded', () => {
-  initFavoriteBrandIcon();
-  updateFavoriteBrandCount(getTotalFavoriteBrands());
-});
-
-function initFavoriteBrandIcon() {
-  if (!document.getElementById('favorite-brand-icon-container')) {
-    const favoriteBrandIconContainer = document.createElement('div');
-    favoriteBrandIconContainer.id = 'favorite-brand-icon-container';
-    favoriteBrandIconContainer.innerHTML = `
-      <div id="favorite-brand-icon" style="
-        position: fixed;
-        bottom: 5px;
-        right: 115px;
-        z-index: 1000;
-        font-size: 15px;
-        background: white;
-        border-radius: 50%;
-        padding: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
-      ">
-        ❤️
-      </div>
-    `;
-    document.body.appendChild(favoriteBrandIconContainer);
-    document.getElementById('favorite-brand-icon').onclick = openFavoriteBrandPopup;
-    updateFavoriteBrandCount(getTotalFavoriteBrands());
-  }
-}
 
 function updateFavoriteBrandCount(count) {
   const countEl = document.getElementById('favorite-brand-count');
@@ -1988,53 +1987,11 @@ function closeFavoriteBrandPopup() {
 
 ///////  ///////// END	
 
-
-	
 /////// ////////// START
 
 document.addEventListener('DOMContentLoaded', () => {
-  initCartIcon();
   updateCartCount(getTotalCartItems());
 });
-
-function initCartIcon() {
-  if (!document.getElementById('cart-icon-container')) {
-    const cartIconContainer = document.createElement('div');
-    cartIconContainer.id = 'cart-icon-container';
-    cartIconContainer.innerHTML = `
-      <div id="cart-icon" style="
-        position: fixed;
-        bottom: 5px;
-        right: 70px;
-        z-index: 1000;
-        font-size: 15px;
-        background: white;
-        border-radius: 50%;
-        padding: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        cursor: pointer;
-      ">
-        📝
-        <span id="cart-count" style="
-          position: absolute;
-          top: 0;
-          right: 0;
-          transform: translate(50%, -50%);
-          background: red;
-          color: white;
-          border-radius: 50%;
-          padding: 2px 6px;
-          font-size: 12px;
-          display: none;
-        ">0</span>
-      </div>
-    `;
-    document.body.appendChild(cartIconContainer);
-    document.getElementById('cart-icon').onclick = openCartPopup;
-    updateCartCount(getTotalCartItems()); 
-  
-}
-}
 
 document.getElementById('cartBtn').addEventListener('click', (e) => {
   e.stopPropagation(); // Prevents closing the current popup
@@ -3947,6 +3904,9 @@ addPopupSwipeListeners();
       }, 1000); // wait for fade out
     }, 4500);
   </script>
+
+
+			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
