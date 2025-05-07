@@ -1478,19 +1478,21 @@ document.addEventListener('DOMContentLoaded', () => {
   panelY = positions.collapsed;
   setPanelY(panelY, false);
 
- function adjustContentPadding() {
-  const bottomMenu = document.getElementById('bottomMenu');
+// Panel logic
+document.addEventListener('DOMContentLoaded', () => {
+  const panel = document.getElementById("panel");
+  // ... rest of panel script using `positions`
+});
+
+// Padding logic
+document.addEventListener('DOMContentLoaded', () => {
   const mainContent = document.getElementById('deals-container');
 
-  if (bottomMenu && mainContent) {
-    const menuHeight = bottomMenu.offsetHeight;
-    mainContent.style.paddingBottom = `${menuHeight + 20}px`;
+  if (mainContent) {
+    const collapsedOffset = window.innerHeight - positions.collapsed;
+    mainContent.style.paddingBottom = `${collapsedOffset + 20}px`;
   }
-}
-
-document.addEventListener('DOMContentLoaded', adjustContentPadding);
-window.addEventListener('resize', adjustContentPadding);
-
+});
 	
 });
 
