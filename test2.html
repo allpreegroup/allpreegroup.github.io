@@ -1360,6 +1360,7 @@ let isNavigating = false; // Flag to prevent multiple redirects happening at the
 let lastKnownLocation = null;
 let userLocation = null;
 let brandLocations = {}; // Declare at the top of your script
+let popupCountdownInterval = null;
 
 // Initialize the app, calling loadBrandLocations and loadDeals
 async function init() {
@@ -2714,9 +2715,52 @@ function renderLikedDealsGallery() {
 	
  /////////// END
 
+function startPopupCountdown(expireDate, el) {
+  if (!el || !expireDate) return;
+
+  const parsedDate = Date.parse(expireDate);
+
+  // If date is invalid or already expired
+  if (isNaN(parsedDate) || parsedDate < Date.now()) {
+    el.textContent = "⏳ Coming soon";
+    el.classList.add("countdown-upcoming");
+    return;
+  }
+
+  // 🔁 Clear previous countdown interval if it exists
+  if (popupCountdownInterval) {
+    clearInterval(popupCountdownInterval);
+    popupCountdownInterval = null;
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const endTime = new Date(parsedDate);
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      el.textContent = "❌ Deal expired";
+      el.classList.add("countdown-ended");
+      clearInterval(popupCountdownInterval);
+      popupCountdownInterval = null;
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+    el.textContent = `⏳ ${timeStr}`;
+  }
+
+  updateCountdown();
+  popupCountdownInterval = setInterval(updateCountdown, 1000);
+}
 	
 
-	
+/*	
  function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
@@ -2753,7 +2797,7 @@ function renderLikedDealsGallery() {
 
   updateCountdown();
   const timerInterval = setInterval(updateCountdown, 1000);
-}
+} */
 
 	
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
