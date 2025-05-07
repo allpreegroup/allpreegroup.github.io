@@ -143,6 +143,10 @@ async function loadPanelContent(view) {
     const contentDiv = document.getElementById('panelContent');
     contentDiv.innerHTML = html;
 
+    // ⬇ Add dynamic bottom padding based on collapsed position
+    const bottomPadding = screenHeight - positions.collapsed;
+    contentDiv.style.paddingBottom = `${bottomPadding}px`;
+
     // Execute inline scripts
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
