@@ -142,6 +142,54 @@
     let translateY = 0;
     let isDragging = false;
 
+// Add event listeners to the whole panel, not just the handle
+panel.addEventListener('touchstart', startDrag);
+panel.addEventListener('touchmove', duringDrag);
+panel.addEventListener('touchend', endDrag);
+
+panel.addEventListener('mousedown', startDrag);
+panel.addEventListener('mousemove', duringDrag);
+panel.addEventListener('mouseup', endDrag);
+
+// Restrict drag to vertical scroll only if the scrollTop is at the top
+function startDrag(e) {
+  // Prevent vertical drag if content is scrolled
+  if (slideUpPanelContent.scrollTop > 0) return;
+
+  startY = e.touches ? e.touches[0].clientY : e.clientY;
+  isDragging = true;
+  panel.style.transition = 'none';
+}
+
+function duringDrag(e) {
+  if (!isDragging) return;
+
+  currentY = e.touches ? e.touches[0].clientY : e.clientY;
+  const delta = currentY - startY;
+
+  // Allow dragging only downward from rest position
+  if (delta > 0) {
+    translateY = Math.min(delta, window.innerHeight * 0.8);
+    panel.style.transform = `translateY(${translateY}px)`;
+  }
+}
+
+function endDrag() {
+  if (!isDragging) return;
+
+  isDragging = false;
+  panel.style.transition = 'transform 0.3s ease';
+
+  if (translateY > window.innerHeight * 0.2) {
+    hideSlideUpPanel();
+  } else {
+    panel.style.transform = 'translateY(20vh)';
+  }
+  translateY = 0;
+}
+
+
+    
     panelHandle.addEventListener('touchstart', (e) => {
       startY = e.touches[0].clientY;
       isDragging = true;
