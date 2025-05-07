@@ -2,16 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Slide-Up Panel Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smooth Slide-Up Panel</title>
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      padding: 0;
-      touch-action: pan-y;
-      overflow-x: hidden;
-      background: #f9f9f9;
+      font-family: sans-serif;
+      background: #f2f2f2;
     }
 
     #bottomMenu {
@@ -19,219 +16,147 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: #f0f8ff;
-      padding: 10px;
+      background: #ffffff;
       display: flex;
       gap: 10px;
       overflow-x: auto;
-      border-top: 2px solid #ccc;
-      z-index: 9999;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      z-index: 1000;
     }
 
     .menu-button {
-      flex: 0 0 auto;
-      padding: 8px 16px;
       background: #007bff;
       color: white;
+      padding: 8px 16px;
       border-radius: 20px;
+      font-weight: bold;
+      flex: 0 0 auto;
       cursor: pointer;
       white-space: nowrap;
-      user-select: none;
-      text-align: center;
-      font-weight: bold;
     }
 
-    #slideUpPanel {
+    #panel {
       position: fixed;
-      bottom: 50px;
       left: 0;
       right: 0;
-      height: 80vh;
+      bottom: 0;
+      height: 100vh;
       background: white;
-      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      transform: translateY(calc(80vh - 30px));
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      transform: translateY(80%);
       transition: transform 0.3s ease;
-      z-index: 9998;
+      z-index: 999;
+      touch-action: none;
       display: flex;
       flex-direction: column;
     }
 
-    #slideUpPanel.open {
-      transform: translateY(20vh);
-    }
-
-    #panelHandle {
+    #handle {
       width: 50px;
-      height: 8px;
-      background: #aaa;
-      border-radius: 4px;
-      margin: 10px auto 6px;
-      cursor: grab;
+      height: 5px;
+      background: #bbb;
+      border-radius: 10px;
+      margin: 8px auto;
     }
 
-    #panelHandle:active {
-      background: #666;
-      cursor: grabbing;
-    }
-
-    #closePanelBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ccc;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 10000;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #panelHeader {
-      position: sticky;
-      top: 0;
-      background: #f0f0f0;
-      padding: 12px 20px;
-      font-size: 18px;
-      font-weight: bold;
-      z-index: 10;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .panel-content {
-      padding: 20px;
-      overflow-y: auto;
+    #panelContent {
       flex: 1;
-    }
-
-    .panel-tabs {
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-    }
-
-    .panel-tab {
-      display: none;
-    }
-
-    .panel-tab.active {
-      display: block;
+      overflow-y: auto;
+      padding: 16px;
     }
   </style>
 </head>
 <body>
 
-  <div id="bottomMenu">
-    <div class="menu-button" onclick="loadPanelContent('add')">Add</div>
-    <div class="menu-button" onclick="loadPanelContent('membership')">Membership</div>
-    <div class="menu-button" onclick="loadPanelContent('menu')">Menu</div>
-    <div class="menu-button" onclick="loadPanelContent('contact')">Contact</div>
-    <div class="menu-button" onclick="loadPanelContent('topup')">Topup</div>
-    <div class="menu-button" onclick="loadPanelContent('marketing')">Marketing</div>
+<div id="bottomMenu">
+  <div class="menu-button" onclick="openPanel()">Add</div>
+  <div class="menu-button">Membership</div>
+  <div class="menu-button">Menu</div>
+  <div class="menu-button">Contact</div>
+  <div class="menu-button">Topup</div>
+  <div class="menu-button">Marketing</div>
+</div>
+
+<div id="panel">
+  <div id="handle"></div>
+  <div id="panelContent">
+    <p><strong>Drag me up ⬆️</strong></p>
+    <p>Scrollable content inside the panel...</p>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+    <p>Keep dragging to snap to full screen.</p>
+    <p>More content to scroll...</p>
+    <p>Even more...</p>
+    <p>And more...</p>
+    <p>🔥 Smooth like butter!</p>
+    <p>😎 Try scrolling while panel is expanded.</p>
   </div>
+</div>
 
-  <div id="slideUpPanel">
-    <div id="panelHandle"></div>
-    <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
+<script>
+  const panel = document.getElementById("panel");
+  const content = document.getElementById("panelContent");
+  let startY, currentY, panelY = 0, isDragging = false;
+  const screenHeight = window.innerHeight;
 
-    <div id="panelHeader">My Panel Header</div>
-    <div class="panel-tabs">
-      <button onclick="switchPanelTab('tab1')">Tab 1</button>
-      <button onclick="switchPanelTab('tab2')">Tab 2</button>
-    </div>
+  const positions = {
+    full: 0,
+    mid: screenHeight * 0.4,
+    collapsed: screenHeight * 0.8
+  };
 
-    <div id="tab1" class="panel-tab active">This is Tab 1</div>
-    <div id="tab2" class="panel-tab">This is Tab 2</div>
+  function setPanelY(y, animate = true) {
+    panel.style.transition = animate ? "transform 0.3s ease" : "none";
+    panel.style.transform = `translateY(${y}px)`;
+    panelY = y;
+  }
 
-    <div id="slideUpPanelContent" class="panel-content">Loading...</div>
-  </div>
+  function openPanel() {
+    setPanelY(positions.mid);
+  }
 
-  <script>
-    const panel = document.getElementById('slideUpPanel');
-    const panelHandle = document.getElementById('panelHandle');
-    const slideUpPanelContent = document.getElementById('slideUpPanelContent');
+  function closestSnap(y) {
+    const diffs = Object.values(positions).map(p => Math.abs(p - y));
+    const min = Math.min(...diffs);
+    return Object.values(positions)[diffs.indexOf(min)];
+  }
 
-    let startY = 0;
-    let currentY = 0;
-    let deltaY = 0;
-    let isDragging = false;
+  panel.addEventListener("touchstart", (e) => {
+    if (content.scrollTop > 0) return;
+    isDragging = true;
+    startY = e.touches[0].clientY;
+    panel.style.transition = "none";
+  });
 
-    panelHandle.addEventListener('touchstart', (e) => {
-      if (slideUpPanelContent.scrollTop !== 0) return;
-      isDragging = true;
-      startY = e.touches[0].clientY;
-      panel.style.transition = 'none';
-    });
+  panel.addEventListener("touchmove", (e) => {
+    if (!isDragging) return;
+    currentY = e.touches[0].clientY;
+    const delta = currentY - startY;
+    let newY = Math.min(Math.max(panelY + delta, 0), screenHeight);
+    panel.style.transform = `translateY(${newY}px)`;
+  });
 
-    panelHandle.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      currentY = e.touches[0].clientY;
-      deltaY = currentY - startY;
-      if (deltaY > 0) {
-        panel.style.transform = `translateY(calc(20vh + ${deltaY}px))`;
-        e.preventDefault();
-      }
-    });
+  panel.addEventListener("touchend", (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const delta = currentY - startY;
+    const finalY = Math.min(Math.max(panelY + delta, 0), screenHeight);
+    const snapTo = closestSnap(finalY);
+    setPanelY(snapTo);
+  });
 
-    panelHandle.addEventListener('touchend', () => {
-      if (!isDragging) return;
-      isDragging = false;
-      panel.style.transition = 'transform 0.3s ease';
-      if (deltaY > window.innerHeight * 0.25) {
-        hideSlideUpPanel();
-      } else {
-        showSlideUpPanel();
-      }
-      deltaY = 0;
-    });
+  // Allow click to open
+  document.getElementById("handle").addEventListener("click", () => {
+    const next = panelY === positions.collapsed ? positions.mid : positions.collapsed;
+    setPanelY(next);
+  });
 
-    function showSlideUpPanel() {
-      panel.classList.add('open');
-    }
-
-    function hideSlideUpPanel() {
-      panel.classList.remove('open');
-    }
-
-    function switchPanelTab(id) {
-      document.querySelectorAll('.panel-tab').forEach(el => el.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    async function loadPanelContent(view) {
-      const url = `${view}.html`;
-      try {
-        const res = await fetch(url);
-        const html = await res.text();
-
-        const contentDiv = document.getElementById('slideUpPanelContent');
-        contentDiv.innerHTML = html;
-
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        const scripts = tempDiv.querySelectorAll('script');
-        scripts.forEach((script) => {
-          const newScript = document.createElement('script');
-          if (script.src) {
-            newScript.src = script.src;
-          } else {
-            newScript.textContent = script.textContent;
-          }
-          document.body.appendChild(newScript);
-        });
-
-        showSlideUpPanel();
-      } catch (err) {
-        document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
-      }
-    }
-  </script>
+  // Init position
+  setPanelY(positions.collapsed);
+</script>
 
 </body>
 </html>
+
