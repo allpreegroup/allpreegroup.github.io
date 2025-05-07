@@ -173,37 +173,39 @@ panel.addEventListener('mouseup', endDrag);
 
 // Prevent default scrolling behavior while dragging
 function startDrag(e) {
-  e.preventDefault();
   if (content.scrollTop > 0) return;
 
   startY = e.touches ? e.touches[0].clientY : e.clientY;
   isDragging = true;
-  panel.style.transition = 'none'; // Disable transition during drag
+  panel.style.transition = 'none';
+
+  // Only prevent default if dragging
+  if (e.cancelable) e.preventDefault();
 }
 
 function duringDrag(e) {
   if (!isDragging) return;
-  e.preventDefault(); // Prevent page from moving
 
   currentY = e.touches ? e.touches[0].clientY : e.clientY;
   const delta = currentY - startY;
 
   if (delta > 0) {
-    let newY = Math.min(delta, window.innerHeight * 0.8);
-    panel.style.transform = `translateY(${newY}px)`; // Apply transformation
+    const newY = Math.min(delta, window.innerHeight * 0.8);
+    panel.style.transform = `translateY(${newY}px)`;
   }
+
+  if (e.cancelable) e.preventDefault();
 }
 
 function endDrag() {
   if (!isDragging) return;
-
   isDragging = false;
-  panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
 
   const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
   const snapTo = closestSnap(finalY);
   setPanelY(snapTo);
 }
+
 
 // Trigger for opening and loading content into the panel
 document.getElementById("addButton").addEventListener("click", () => {
@@ -214,7 +216,6 @@ document.getElementById("addButton").addEventListener("click", () => {
 // Add event listener to prevent drag interference with clicks on interactive content
 document.getElementById("panelContent").addEventListener("click", (e) => {
   if (isDragging) {
-    e.stopImmediatePropagation(); // Prevent the drag from interfering with clicks inside content
   }
 });
   
