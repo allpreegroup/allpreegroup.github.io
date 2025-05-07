@@ -1345,8 +1345,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<div id="bottomMenu">
 	<div id="lockButton" class="menu-button">🔒</div>
-  <div id="addButton" class="menu-button">Add</div>
-  <div class="menu-button" onclick="openPanel()">Demo</div>
+        <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()">📝 Saved Lists</div>
+       <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()">❤️ Brand</div>
 
 </div>
 
@@ -1605,21 +1605,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	
 /////////// ADMIN
-
-
-/*	
-const tapZone = document.createElement('div');
- tapZone.id = 'secretTapZone';
- Object.assign(tapZone.style, {
-   position: 'fixed',
-   bottom: '5px',
-   left: '25px',
-   width: '50px',
-   height: '50px',
-   zIndex: '9999',
-   background: 'transparent'
- });
- document.body.appendChild(tapZone); */
 	
 // --- Create the Admin Panel ---
 
@@ -1952,59 +1937,8 @@ refreshButton.addEventListener('click', function() {
   location.reload();
 });
 
-const savedListsButton = document.createElement('div');
-savedListsButton.id = 'saved-lists-button';
-savedListsButton.innerText = '📝 Saved Lists';
-savedListsButton.onclick = openSavedListsPopup;
-savedListsButton.style = `
-  position: fixed;
-  bottom: 5px;
-  right: 160px;
-  z-index: 1000;
-  font-size: 15px;
-  background: #28a745;
-  color: white;
-  border-radius: 50px;
-  padding: 10px 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  cursor: pointer;
-  text-align: center;
-`;
-
-document.body.appendChild(savedListsButton);
-
 ///////  ///////// START
 
-document.addEventListener('DOMContentLoaded', () => {
-  initFavoriteBrandIcon();
-  updateFavoriteBrandCount(getTotalFavoriteBrands());
-});
-
-function initFavoriteBrandIcon() {
-  if (!document.getElementById('favorite-brand-icon-container')) {
-    const favoriteBrandIconContainer = document.createElement('div');
-    favoriteBrandIconContainer.id = 'favorite-brand-icon-container';
-    favoriteBrandIconContainer.innerHTML = `
-      <div id="favorite-brand-icon" style="
-        position: fixed;
-        bottom: 5px;
-        right: 115px;
-        z-index: 1000;
-        font-size: 15px;
-        background: white;
-        border-radius: 50%;
-        padding: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
-      ">
-        ❤️
-      </div>
-    `;
-    document.body.appendChild(favoriteBrandIconContainer);
-    document.getElementById('favorite-brand-icon').onclick = openFavoriteBrandPopup;
-    updateFavoriteBrandCount(getTotalFavoriteBrands());
-  }
-}
 
 function updateFavoriteBrandCount(count) {
   const countEl = document.getElementById('favorite-brand-count');
