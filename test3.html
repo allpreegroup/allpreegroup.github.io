@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Slide-Up Panel Demo</title>
   <style>
-    body {
+     body {
       font-family: sans-serif;
       margin: 0;
       padding: 0;
+      touch-action: pan-y;
     }
 
     #bottomMenu {
@@ -49,6 +50,7 @@
       transition: transform 0.3s ease;
       z-index: 9999;
       overflow-y: auto;
+      touch-action: none;
     }
 
     #slideUpPanel.show {
@@ -61,6 +63,17 @@
       background: #ccc;
       border-radius: 5px;
       margin: 10px auto;
+      cursor: grab;
+    }
+
+    #closePanelBtn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
     }
 
     .hidden {
@@ -85,15 +98,45 @@
     <div id="slideUpPanelContent" class="panel-content">Loading...</div>
   </div>
 
-  <script>
+ <script>
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const panel = document.getElementById('slideUpPanel');
+    const panelHandle = document.getElementById('panelHandle');
+
+    panelHandle.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      panel.style.transition = 'none';
+    });
+
+    panelHandle.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+      const translateY = Math.min(Math.max(0, deltaY), window.innerHeight);
+      panel.style.transform = `translateY(${translateY}px)`;
+    });
+
+    panelHandle.addEventListener('touchend', () => {
+      isDragging = false;
+      panel.style.transition = 'transform 0.3s ease';
+      const translateY = parseInt(panel.style.transform.replace('translateY(', '').replace('px)', ''));
+      if (translateY > window.innerHeight * 0.25) {
+        hideSlideUpPanel();
+      } else {
+        panel.style.transform = 'translateY(0%)';
+      }
+    });
+
     function showSlideUpPanel() {
-      const panel = document.getElementById('slideUpPanel');
       panel.classList.add('show');
       panel.classList.remove('hidden');
     }
 
     function hideSlideUpPanel() {
-      const panel = document.getElementById('slideUpPanel');
       panel.classList.remove('show');
       setTimeout(() => panel.classList.add('hidden'), 300);
     }
