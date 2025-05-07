@@ -123,6 +123,91 @@
     return Object.values(positions)[diffs.indexOf(min)];
   }
 
+  // Add event listeners for touch and mouse
+  panel.addEventListener('touchstart', startDrag, { passive: false });
+  panel.addEventListener('touchmove', duringDrag, { passive: false });
+  panel.addEventListener('touchend', endDrag);
+
+  panel.addEventListener('mousedown', startDrag);
+  panel.addEventListener('mousemove', duringDrag);
+  panel.addEventListener('mouseup', endDrag);
+
+  // Prevent default scrolling behavior
+  function startDrag(e) {
+    e.preventDefault(); // Prevent default behavior (scrolling)
+    if (content.scrollTop > 0) return; // If there’s content scrolling, allow it
+
+    startY = e.touches ? e.touches[0].clientY : e.clientY; // Get the initial touch/mouse position
+    isDragging = true;
+    panel.style.transition = 'none'; // Disable transition while dragging
+  }
+
+  function duringDrag(e) {
+    if (!isDragging) return;
+    e.preventDefault(); // Prevent page from moving
+
+    currentY = e.touches ? e.touches[0].clientY : e.clientY; // Track touch or mouse movement
+    const delta = currentY - startY; // Calculate movement
+
+    // Move the panel based on touch/mouse delta
+    if (delta > 0) {
+      let newY = Math.min(delta, window.innerHeight * 0.8); // Limit movement
+      panel.style.transform = `translateY(${newY}px)`; // Apply transformation
+    }
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+
+    isDragging = false;
+    panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
+
+    // Decide where to snap the panel
+    const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
+    const snapTo = closestSnap(finalY); // Find the closest snap position
+    setPanelY(snapTo); // Set the final position
+  }
+
+  // Allow click to open or toggle the panel
+  document.getElementById("handle").addEventListener("click", () => {
+    const next = panelY === positions.collapsed ? positions.mid : positions.collapsed;
+    setPanelY(next);
+  });
+
+  // Initialize position
+  setPanelY(positions.collapsed);
+</script>
+
+  
+  <!--
+<script>
+  const panel = document.getElementById("panel");
+  const content = document.getElementById("panelContent");
+  let startY, currentY, panelY = 0, isDragging = false;
+  const screenHeight = window.innerHeight;
+
+  const positions = {
+    full: 0,
+    mid: screenHeight * 0.4,
+    collapsed: screenHeight * 0.8
+  };
+
+  function setPanelY(y, animate = true) {
+    panel.style.transition = animate ? "transform 0.3s ease" : "none";
+    panel.style.transform = `translateY(${y}px)`;
+    panelY = y;
+  }
+
+  function openPanel() {
+    setPanelY(positions.mid);
+  }
+
+  function closestSnap(y) {
+    const diffs = Object.values(positions).map(p => Math.abs(p - y));
+    const min = Math.min(...diffs);
+    return Object.values(positions)[diffs.indexOf(min)];
+  }
+
   panel.addEventListener("touchstart", (e) => {
     if (content.scrollTop > 0) return;
     isDragging = true;
@@ -156,7 +241,7 @@
   // Init position
   setPanelY(positions.collapsed);
 </script>
-
+-->
 </body>
 </html>
 
