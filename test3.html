@@ -21,30 +21,25 @@
   background: #f0f8ff;
   padding: 10px;
   display: flex;
-  flex-wrap: nowrap;
   gap: 10px;
   overflow-x: auto;
   border-top: 2px solid #ccc;
   z-index: 9999;
 }
 
-#bottomMenu > button {
-  flex-shrink: 0;
-  flex-grow: 0;
-  flex-basis: auto;
-  width: auto !important;
-  min-width: 100px; /* optional: set a baseline if needed */
-  max-width: 150px; /* optional: prevent it from getting too wide */
-  padding: 10px;
+.menu-button {
+  flex: 0 0 auto;
+  padding: 8px 16px;
   background: #007bff;
   color: white;
-  border: none;
   border-radius: 20px;
   cursor: pointer;
   white-space: nowrap;
-  display: inline-block;
+  user-select: none;
   text-align: center;
+  font-weight: bold;
 }
+
 
 
     #slideUpPanel {
@@ -103,15 +98,15 @@
 </head>
 <body>
 
-  <div id="bottomMenu">
-    <button onclick="loadPanelContent('add')">Add</button>
-     <button onclick="loadPanelContent('membership')">Membership</button>
-     <button onclick="loadPanelContent('menu')">Menu</button>
-    <button onclick="loadPanelContent('contact')">Contact</button>
-    <button onclick="loadPanelContent('topup')">Topup</button>
-    <button onclick="loadPanelContent('marketing')">Marketing</button>
-  </div>
-
+ <div id="bottomMenu">
+  <div class="menu-button" onclick="loadPanelContent('add')">Add</div>
+  <div class="menu-button" onclick="loadPanelContent('membership')">Membership</div>
+  <div class="menu-button" onclick="loadPanelContent('menu')">Menu</div>
+  <div class="menu-button" onclick="loadPanelContent('contact')">Contact</div>
+  <div class="menu-button" onclick="loadPanelContent('topup')">Topup</div>
+  <div class="menu-button" onclick="loadPanelContent('marketing')">Marketing</div>
+</div>
+  
   <div id="slideUpPanel">
     <div id="panelHandle"></div>
     <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
