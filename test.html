@@ -106,7 +106,6 @@ const screenHeight = window.innerHeight;
 
 const positions = {
   full: screenHeight * 0.05,
-  mid: screenHeight * 0.5,
   collapsed: screenHeight * 0.87
 };
 
@@ -120,11 +119,18 @@ function setPanelY(y, animate = true) {
   panelY = y;
 }
 
+  function closestSnap(y) {
+  const diffs = Object.values(positions).map(p => Math.abs(p - y));
+  const min = Math.min(...diffs);
+  return Object.values(positions)[diffs.indexOf(min)];
+}
+
+/*  
 function closestSnap(y) {
   const diffs = Object.values(positions).map(p => Math.abs(p - y));
   return Object.values(positions)[diffs.indexOf(Math.min(...diffs))];
 }
-
+*/
 async function loadPanelContent(view) {
   const url = `${view}.html`;
   try {
