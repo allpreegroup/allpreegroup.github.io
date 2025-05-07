@@ -153,6 +153,35 @@
         document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
       }
     }
+    async function loadPanelContent(view) {
+  const url = `${view}.html`;
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+
+    const contentDiv = document.getElementById('slideUpPanelContent');
+    contentDiv.innerHTML = html;
+
+    // Execute inline scripts
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const scripts = tempDiv.querySelectorAll('script');
+    scripts.forEach((script) => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+
+    showSlideUpPanel();
+  } catch (err) {
+    document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
+  }
+}
+
   </script>
 
 </body>
