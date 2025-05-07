@@ -19,6 +19,8 @@
       background: #f5f5f5;
       margin-top: 20px;
       padding: 20px;
+      overscroll-behavior-y: none;
+      overscroll-behavior: none;    
     }
 
  #bottomMenu {
@@ -63,21 +65,24 @@
       transform: translateY(80%);
       transition: transform 0.3s ease;
       z-index: 999;
+       pointer-events: auto;
       touch-action: none;
       display: flex;
       flex-direction: column;
     }
 
     #handle {
-      width: 50px;
+      width: 80%;
       height: 5px;
       background: #bbb;
+      
       border-radius: 10px;
-      margin: 8px auto;
+      margin: 8px auto  16px;
     }
     
     #panelContent {
       flex: 1;
+      pointer-events: auto;
       overflow-y: auto;
       padding: 16px;
     }
@@ -1482,126 +1487,119 @@ document.addEventListener('DOMContentLoaded', () => {
   // Panel Variables and Setup
   const panel = document.getElementById("panel");
   const content = document.getElementById("panelContent");
-  let startY, currentY, panelY = 0.15, isDragging = false;
+  let startY = 0, currentY = 0, panelY = 0, isDragging = false;
   const screenHeight = window.innerHeight;
 
   const positions = {
-    full: 0.15,
-    mid: screenHeight * 0.15,
+    full: screenHeight * 0.05,
     collapsed: screenHeight * 0.86
   };
 
-  // Set panel position
+  const allowedViews = ["add", "settings", "profile"]; // restrict valid views
+
+  // Set panel position with optional animation
   function setPanelY(y, animate = true) {
     panel.style.transition = animate ? "transform 0.3s ease" : "none";
     panel.style.transform = `translateY(${y}px)`;
     panelY = y;
   }
 
-  // Open the panel to mid position
-  function openPanel() {
-    setPanelY(positions.full);
-  }
-
-  // Find the closest snap position for the panel
+  // Snap to the nearest defined position
   function closestSnap(y) {
     const diffs = Object.values(positions).map(p => Math.abs(p - y));
     const min = Math.min(...diffs);
     return Object.values(positions)[diffs.indexOf(min)];
   }
 
-  // Load content dynamically from external HTML files
+  // Load content dynamically and safely
   async function loadPanelContent(view) {
-    const url = `${view}.html`; // URL of the content to load
+    if (!allowedViews.includes(view)) {
+      console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
+      return;
+    }
+
+    const url = `${view}.html`;
     try {
-      const res = await fetch(url); // Fetch the content
-      const html = await res.text(); // Get the HTML content as text
+      const res = await fetch(url);
+      const html = await res.text();
 
       const contentDiv = document.getElementById('panelContent');
-      contentDiv.innerHTML = html; // Insert the content into the panel
+      contentDiv.innerHTML = html;
 
-      // Execute any inline scripts in the loaded HTML
+      // Set dynamic padding to avoid content hiding behind menu
+      const bottomPadding = screenHeight - positions.collapsed;
+      contentDiv.style.paddingBottom = `${bottomPadding}px`;
+
+      // Execute inline scripts
       const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html; // Create a temporary div to hold the content and scripts
-      const scripts = tempDiv.querySelectorAll('script');
-      scripts.forEach((script) => {
+      tempDiv.innerHTML = html;
+      tempDiv.querySelectorAll('script').forEach((script) => {
         const newScript = document.createElement('script');
         if (script.src) {
-          newScript.src = script.src; // If the script has a src attribute, use it
+          newScript.src = script.src;
         } else {
-          newScript.textContent = script.textContent; // Otherwise, use the script's content
+          newScript.textContent = script.textContent;
         }
-        document.body.appendChild(newScript); // Append the new script to the document body
+        document.body.appendChild(newScript);
       });
 
-      // After loading, show the panel
+      // Show the panel
       setPanelY(positions.full);
-
     } catch (err) {
-      // In case of an error, show an error message
-      document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
+      content.innerHTML = "<p>Error loading content.</p>";
     }
   }
 
-  // Panel Dragging Functions
-  panel.addEventListener('touchstart', startDrag, { passive: false });
-  panel.addEventListener('touchmove', duringDrag, { passive: false });
-  panel.addEventListener('touchend', endDrag);
-
-  panel.addEventListener('mousedown', startDrag);
-  panel.addEventListener('mousemove', duringDrag);
-  panel.addEventListener('mouseup', endDrag);
-
-  // Prevent default scrolling behavior while dragging
+  // Handle drag start
   function startDrag(e) {
-    e.preventDefault();
-    if (content.scrollTop > 0) return;
-
+    if (content.scrollTop > 0) return; // only drag if scroll is at top
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     isDragging = true;
-    panel.style.transition = 'none'; // Disable transition during drag
+    panel.style.transition = "none";
   }
 
+  // Handle dragging movement
   function duringDrag(e) {
     if (!isDragging) return;
-    e.preventDefault(); // Prevent page from moving
 
     currentY = e.touches ? e.touches[0].clientY : e.clientY;
     const delta = currentY - startY;
-
-    if (delta > 0) {
-      let newY = Math.min(delta, window.innerHeight * 0.8);
-      panel.style.transform = `translateY(${newY}px)`; // Apply transformation
-    }
+    const newY = Math.min(positions.collapsed, Math.max(0, panelY + delta)); // Clamp to collapsed
+    panel.style.transform = `translateY(${newY}px)`;
   }
 
+  // Handle drag end
   function endDrag() {
     if (!isDragging) return;
-
     isDragging = false;
-    panel.style.transition = 'transform 0.3s ease'; // Enable transition after dragging ends
 
-    const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
-    const snapTo = closestSnap(finalY);
+    const delta = currentY - startY;
+    const newY = Math.max(0, panelY + delta);
+    const snapTo = closestSnap(newY);
     setPanelY(snapTo);
   }
 
-  // Trigger for opening and loading content into the panel
+  // Attach unified drag listeners
+  ["touchstart", "mousedown"].forEach(evt =>
+    panel.addEventListener(evt, startDrag, { passive: false })
+  );
+  ["touchmove", "mousemove"].forEach(evt =>
+    panel.addEventListener(evt, duringDrag, { passive: false })
+  );
+  ["touchend", "mouseup"].forEach(evt =>
+    panel.addEventListener(evt, endDrag)
+  );
+
+  // Button to load content
   document.getElementById("addButton").addEventListener("click", () => {
-    setPanelY(positions.full); // Open the panel before loading content
-    loadPanelContent("add");  // Load "add.html" content after panel opens
+    loadPanelContent("add");
   });
 
-  // Add event listener to prevent drag interference with clicks on interactive content
-  document.getElementById("panelContent").addEventListener("click", (e) => {
-    if (isDragging) {
-      e.stopImmediatePropagation(); // Prevent the drag from interfering with clicks inside content
-    }
+  // Set initial panel position after DOM is ready
+  document.addEventListener("DOMContentLoaded", () => {
+    panelY = positions.collapsed;
+    setPanelY(panelY, false);
   });
-
-  // Initialize the panel collapsed
-  setPanelY(positions.collapsed);
-});
 
 
 /////// END	
