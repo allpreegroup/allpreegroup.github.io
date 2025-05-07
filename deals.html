@@ -251,7 +251,7 @@ height: 60px;
     .deal-grid {
       display: grid;
       grid-auto-flow: column;
-      grid-template-rows: repeat(2, 1fr); /* 2 rows */
+      grid-template-rows: repeat(1, 1fr); /* 2 rows */
       grid-auto-columns: 54.2%;  
        
        margin-left: -5px;
@@ -262,6 +262,10 @@ height: 60px;
       scroll-snap-type: x mandatory;
       padding: 10px 20px;  /*Slightly more padding for breathing room */
       scrollbar-width: none; /* Firefox */
+    }
+		 
+    .deal-grid.takeover-active {
+      grid-template-rows: repeat(2, 1fr); /* 2 rows for takeover */
     }
     .deal-grid::-webkit-scrollbar {
       display: none; /* Chrome, Safari */
@@ -538,12 +542,15 @@ height: 60px;
 }
 		 
 #brandContainer .badge-premium,
+#brandContainer	.badge-starter, 
+#brandContainer .badge-exclusive,	 
 #brandContainer .badge-pro {
   position: absolute;
-  top: -25px;
-  right: -15px;
-  font-size: 12px;
+  top: -30px;
+  right: 4px;
+  font-size: 24px;
   padding: 3px 8px;
+  z-index: 2;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }	
 
@@ -795,20 +802,21 @@ height: 20%;
 }
 		 
 /* Badge styles for premium and pro tiers */
-.badge-premium, .badge-pro {
-  background-color: black;
-  border: 0.2px solid  #000;
+.badge-premium, .badge-pro, .badge-starter, .badge-exclusive {
+  background-color: transparent;
+  border: 0.0px solid  #000;
   color: #fff;
   font-weight: bold;
-  padding: 2px 10px;
+  padding: 0px 0px;
   border-radius: 20px;
   position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 12px;
-  box-shadow: 0 0 8px #f5f5f5;
+  top: -15px;
+  right: 10px;
+  font-size: 24px;
+  z-index: 2;
+  box-shadow: 0 0 0px #f5f5f5;
 }
-
+		 
 .premium-brand-highlight {
   border: 3px solid  #f5f5f5;
   border-radius: 12px;
@@ -822,7 +830,17 @@ height: 20%;
   box-shadow: 0 0 15px  #f5f5f5;
   
 }
+.starter-brand-highlight {
+  border: 3px solid #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 8px #f5f5f5;
+}
 
+.exclusive-brand-highlight {
+  border: 3px solid #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #f5f5f5;
+}
 .brand-logo-container {
   position: absolute; /* Needed for badge positioning */
  
@@ -1342,6 +1360,7 @@ let isNavigating = false; // Flag to prevent multiple redirects happening at the
 let lastKnownLocation = null;
 let userLocation = null;
 let brandLocations = {}; // Declare at the top of your script
+let popupCountdownInterval = null;
 
 // Initialize the app, calling loadBrandLocations and loadDeals
 async function init() {
@@ -2696,10 +2715,7 @@ function renderLikedDealsGallery() {
 	
  /////////// END
 
-	
-
-	
- function startPopupCountdown(expireDate, el) {
+function startPopupCountdown(expireDate, el) {
   if (!el || !expireDate) return;
 
   const parsedDate = Date.parse(expireDate);
@@ -2711,6 +2727,12 @@ function renderLikedDealsGallery() {
     return;
   }
 
+  // 🔁 Clear previous countdown interval if it exists
+  if (popupCountdownInterval) {
+    clearInterval(popupCountdownInterval);
+    popupCountdownInterval = null;
+  }
+
   function updateCountdown() {
     const now = new Date();
     const endTime = new Date(parsedDate);
@@ -2719,7 +2741,8 @@ function renderLikedDealsGallery() {
     if (diff <= 0) {
       el.textContent = "❌ Deal expired";
       el.classList.add("countdown-ended");
-      clearInterval(timerInterval);
+      clearInterval(popupCountdownInterval);
+      popupCountdownInterval = null;
       return;
     }
 
@@ -2729,14 +2752,13 @@ function renderLikedDealsGallery() {
     const seconds = Math.floor((diff / 1000) % 60);
 
     let timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-
     el.textContent = `⏳ ${timeStr}`;
   }
 
   updateCountdown();
-  const timerInterval = setInterval(updateCountdown, 1000);
+  popupCountdownInterval = setInterval(updateCountdown, 1000);
 }
-
+	
 	
 function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
@@ -2773,34 +2795,55 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   const brandInfo = allBrandsData.find(b => b.brand === brandName);
   // Wait for the popup to be fully populated
-  setTimeout(() => {
-  const badgeContainer = document.querySelector('#popup .brand-logo-container');
-  if (!badgeContainer) return console.warn('No badge container in popup');
 
-  // Remove old badges
-  badgeContainer.querySelectorAll('.badge-premium, .badge-pro').forEach(el => el.remove());
+	  setTimeout(() => {
+    const badgeContainer = document.querySelector('#popup .brand-logo-container');
+    if (!badgeContainer) return console.warn('No badge container in popup');
 
-  if (brandInfo && (brandInfo.Pro === 'True' || brandInfo.Premium === 'True')) {
-    const badge = document.createElement('div');
+    // Remove old badges (including any future types)
+    badgeContainer.querySelectorAll('.badge-premium, .badge-pro, .badge-starter, .badge-exclusive')
+      .forEach(el => el.remove());
 
-    if (brandInfo.Pro === 'true') {
-      badge.className = 'badge-pro';
-      badge.textContent = '👑';
-    } else if (brandInfo.Premium === 'True') {
-      badge.className = 'badge-premium';
-      badge.textContent = '💎';
+    if (brandInfo) {
+      // Normalize case to avoid mismatches like 'True' vs 'true'
+      const isPro = brandInfo.Pro?.toLowerCase() === 'true';
+      const isPremium = brandInfo.Premium?.toLowerCase() === 'true';
+      const isStarter = brandInfo.Starter?.toLowerCase() === 'true';
+      const isExclusive = brandInfo.Exclusive?.toLowerCase() === 'true';
+
+      let badge;
+
+      if (isExclusive) {
+        badge = document.createElement('div');
+        badge.className = 'badge-exclusive';
+        badge.textContent = '🏆';
+      } else if (isStarter) {
+        badge = document.createElement('div');
+        badge.className = 'badge-starter';
+        badge.textContent = '🎁';
+      } else if (isPro) {
+        badge = document.createElement('div');
+        badge.className = 'badge-pro';
+        badge.textContent = '👑';
+      } else if (isPremium) {
+        badge = document.createElement('div');
+        badge.className = 'badge-premium';
+        badge.textContent = '💎';
+      }
+
+      if (badge) {
+        badgeContainer.appendChild(badge);
+        console.log('Badge added to popup:', badge.outerHTML);
+      } else {
+        console.log('No matching badge type found for brandInfo:', brandInfo);
+      }
     }
+  }, 100); // ✅ Properly closed
 
-    badgeContainer.appendChild(badge);
-    console.log('Badge added to popup:', badge.outerHTML);
-  } else {
-    console.log('No Pro or Premium flag found in brandInfo:', brandInfo);
-  }
-  }, 100);
-	
-  if (brandInfo?.expireDate) {
-    startPopupCountdown(brandInfo.expireDate, popupTimerEl);
-  }
+
+if (brandInfo?.expireDate) {
+  startPopupCountdown(brandInfo.expireDate, popupTimerEl);
+}
 
   const backArrow = document.getElementById('popupBack');
   backArrow.style.display = window.history.length > 1 ? 'block' : 'none';
@@ -3212,19 +3255,52 @@ async function loadDeals() {
   allDealsFlat.length = 0;
   let currentlyOpenGrid = null;
 
-  const allResponses = await Promise.all(
+  // 🕓 Step 1: Restore takeover brand if override has expired
+const overrideUntil = parseInt(sessionStorage.getItem('overrideTakeoverUntil'), 10);
+const now = Date.now();
+
+if (overrideUntil && now >= overrideUntil) {
+  const originalTakeover = sessionStorage.getItem('originalTakeoverBrand');
+  if (originalTakeover) {
+    localStorage.setItem('selectedTakeoverBrand', originalTakeover);
+  }
+
+  // Cleanup
+  sessionStorage.removeItem('overrideTakeoverUntil');
+  sessionStorage.removeItem('originalTakeoverBrand');
+}
+
+// ✅ Step 2: Now get takeover brand AFTER restoration
+const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
+const isTakeover = selectedTakeoverBrand !== null;
+let isOverrideActive = false;
+
+if (selectedTakeoverBrand) {
+  isOverrideActive = true;
+  console.log(`Takeover mode is active for brand: ${selectedTakeoverBrand}`);
+}
+
+	
+// ✅ Step 3: Continue with deal loading
+   const allResponses = await Promise.all(
     sheetUrls.map(url => fetchWithTimeout(url))
   );
 
   for (let i = 0; i < allResponses.length; i++) {
     const rows = allResponses[i];
 
- const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
-if (!hasActiveRow) {
-  console.log(`Sheet ${i} has no active rows. Skipping.`);
-  continue;
-}
-	  
+    // Skip all sheets if takeover is active, except the takeover sheet
+    if (isOverrideActive && !rows.some(row => row.BrandName === selectedTakeoverBrand)) {
+      console.log(`Skipping sheet ${i} due to active takeover mode.`);
+      continue;
+    }
+
+    const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
+    if (!hasActiveRow) {
+      console.log(`Sheet ${i} has no active rows. Skipping.`);
+      continue;
+    }
+
     if (rows.error) {
       console.warn(`Skipping sheet (timeout or error): ${sheetUrls[i]}`, rows.error);
       continue;
@@ -3250,7 +3326,7 @@ if (!hasActiveRow) {
             currentSecondaryColor = row.SecondaryColor || '#2066A7';
             isFavorite = currentBrand === favoriteBrand;
             
-	    let isPaidBrand = row.Pro === 'true' || row.Premium === 'true';
+	    let isPaidBrand = row.Pro === 'true' || row.Premium === 'true' || row.Starter === 'true' || row.Exclusive === 'true';
 		  
             brandSection = document.createElement('div');
             brandSection.className = 'brand-section';
@@ -3283,21 +3359,30 @@ if (!hasActiveRow) {
            logoContainer.appendChild(locationBadge);
          }
 	  
-           if (isPaidBrand) {
-           const badge = document.createElement('div');
+          if (isPaidBrand) {
+  const badge = document.createElement('div');
 
-           if (row.Pro === 'true') {
-           badge.className = 'badge-pro';
-           badge.textContent = '👑';
-           brandDiv.classList.add('pro-brand-highlight');
-         } else if (row.Premium === 'true') {
-           badge.className = 'badge-premium';
-           badge.textContent = '💎';
-           brandDiv.classList.add('premium-brand-highlight');
-         }
+  if (row.Pro === 'true') {
+    badge.className = 'badge-pro';
+    badge.textContent = '👑';
+    brandDiv.classList.add('pro-brand-highlight');
+  } else if (row.Premium === 'true') {
+    badge.className = 'badge-premium';
+    badge.textContent = '💎';
+    brandDiv.classList.add('premium-brand-highlight');
+  } else if (row.Starter === 'true') {
+    badge.className = 'badge-starter';
+    badge.textContent = '🎁';
+    brandDiv.classList.add('starter-brand-highlight');
+  } else if (row.Exclusive === 'true') {
+    badge.className = 'badge-exclusive';
+    badge.textContent = '🏆';
+    brandDiv.classList.add('exclusive-brand-highlight');
+  }
 
-           brandDiv.querySelector('.brand-logo-container').appendChild(badge);
-         }
+  brandDiv.querySelector('.brand-logo-container').appendChild(badge);
+}
+
             const expireDateStr = row.ExpiryDate || row.expireDate;
             const parsedDate = Date.parse(expireDateStr);
 
@@ -3375,10 +3460,12 @@ brandDiv.addEventListener('click', () => {
               primaryColor: currentPrimaryColor,
               secondaryColor: currentSecondaryColor,
               isFavorite,
-	      isPaidBrand: row.Pro === 'true' || row.Premium === 'true',
+	      isPaidBrand: row.Pro === 'true' || row.Premium === 'true' || row.Starter === 'true' || row.Exclusive === 'true',
               isPro: row.Pro === 'true',
-	      Pro: row.Pro, 
-              Premium: row.Premium    
+              Pro: row.Pro,
+              Premium: row.Premium,
+              Starter: row.Starter,
+              Exclusive: row.Exclusive   
             });
           }
 
@@ -3509,34 +3596,76 @@ if (allDealsFlat.length === 0) {
 
   renderLikedDealsGallery();
 
-  
-  const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
-  if (favoriteBrandData) {
-    const favBadge = document.createElement('div');
-    favBadge.className = 'favorite-brand-badge';
-    favBadge.textContent = '⭐ Featured Brand';
-    const primaryColor = favoriteBrandData.primaryColor?.trim() || '#163A5C';
-    favBadge.style.backgroundColor = primaryColor;
-    favoriteBrandData.section.querySelector('.brand-logo-container').appendChild(favBadge);
+	
 
-    if (favoriteBrandData.secondaryColor) {
-      const brandElement = favoriteBrandData.section.querySelector('.brand');
-      brandElement.classList.add('favorite-brand-highlight');
-      const secondaryColor = favoriteBrandData.secondaryColor.trim();
-      brandElement.style.setProperty('--highlight-border-color', secondaryColor);
 
-      const pulseColor = toSemiTransparent(secondaryColor, 0.6);
-      let pulseActive = true;
-      setInterval(() => {
-        brandElement.style.boxShadow = pulseActive ? `0 0 10px ${secondaryColor}` : `0 0 20px ${pulseColor}`;
-        pulseActive = !pulseActive;
-      }, 1000);
+const takeoverBrandData = isTakeover
+  ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
+  : null;
+
+// 👉 Add the class right after it's defined
+if (takeoverBrandData?.grid) {
+  takeoverBrandData.grid.classList.add('takeover-active');
+}
+
+	
+const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
+
+const brandToShow = takeoverBrandData || favoriteBrandData;
+
+if (brandToShow) {
+  const favBadge = document.createElement('div');
+  favBadge.className = 'favorite-brand-badge';
+  favBadge.textContent = isTakeover ? '💥 Exclusive Brand' : '⭐ Featured Brand';
+  const primaryColor = brandToShow.primaryColor?.trim() || '#163A5C';
+  favBadge.style.backgroundColor = primaryColor;
+  brandToShow.section.querySelector('.brand-logo-container').appendChild(favBadge);
+
+  if (brandToShow.secondaryColor) {
+    const brandElement = brandToShow.section.querySelector('.brand');
+    brandElement.classList.add('favorite-brand-highlight');
+    const secondaryColor = brandToShow.secondaryColor.trim();
+    brandElement.style.setProperty('--highlight-border-color', secondaryColor);
+
+    const pulseColor = toSemiTransparent(secondaryColor, 0.6);
+    let pulseActive = true;
+    setInterval(() => {
+      brandElement.style.boxShadow = pulseActive ? `0 0 10px ${secondaryColor}` : `0 0 20px ${pulseColor}`;
+      pulseActive = !pulseActive;
+    }, 1000);
+  }
+
+  // Auto-open the grid
+  brandToShow.grid.style.display = 'grid';
+  currentlyOpenGrid = brandToShow.grid;
+
+  container.appendChild(brandToShow.section);
+
+  if (isTakeover) {
+  const overrideBtn = document.createElement('button');
+  overrideBtn.textContent = 'Show All Other Brands';
+  overrideBtn.id = 'overrideButton';
+  overrideBtn.className = 'override-button';
+  overrideBtn.style.margin = '1rem auto';
+  overrideBtn.style.display = 'block';
+
+  overrideBtn.addEventListener('click', () => {
+    const originalTakeover = localStorage.getItem('selectedTakeoverBrand');
+
+    if (originalTakeover) {
+      sessionStorage.setItem('originalTakeoverBrand', originalTakeover);
+      const oneHourFromNow = Date.now() + 60 * 1000;
+      sessionStorage.setItem('overrideTakeoverUntil', oneHourFromNow.toString());
+      localStorage.removeItem('selectedTakeoverBrand');
     }
 
-    favoriteBrandData.grid.style.display = 'grid';
-    currentlyOpenGrid = favoriteBrandData.grid;
-    container.appendChild(favoriteBrandData.section);
-  }
+    location.reload();
+  });
+
+  container.appendChild(overrideBtn);
+}
+
+}
 
 
 // 2. Find and render promoted brands (rankedSlot1–5)
@@ -3563,21 +3692,26 @@ for (let i = 1; i <= 5; i++) {
 	
   promotedBrands.forEach(b => container.appendChild(b.section));
 
-// 3. Append remaining brands sorted by discount, skipping favorite and promoted
+// 3. Append remaining brands sorted by discount, skipping takeover, favorite, and promoted brands
 const promotedSet = new Set(promotedBrands.map(b => b.brand));
 allBrandsData.forEach(brandData => {
-  if (!brandData.isFavorite && !promotedSet.has(brandData.brand)) {
-    // Add hottest discount badge
+  // Skip favorite brands, promoted brands, and the takeover brand
+  if (brandData.brand !== selectedTakeoverBrand && !brandData.isFavorite && !promotedSet.has(brandData.brand)) {
+    // Add hottest discount badge only to the best discount brand
     if (brandData.bestDiscount === Math.max(...allBrandsData.map(b => b.bestDiscount))) {
-        const badge = document.createElement('div');
-        badge.className = 'top-deal-badge';
-        badge.textContent = '🔥 Hottest Discount';
-        brandData.section.querySelector('.brand-logo-container').appendChild(badge);
-        brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
-      }
-      container.appendChild(brandData.section);
+      const badge = document.createElement('div');
+      badge.className = 'top-deal-badge';
+      badge.textContent = '🔥 Hottest Discount';
+      brandData.section.querySelector('.brand-logo-container').appendChild(badge);
+      brandData.section.querySelector('.brand').classList.add('top-brand-highlight');
     }
-  });
+
+    // Append the brand section to the container
+    container.appendChild(brandData.section);
+  }
+});
+
+
 		
   setTimeout(() => {
     cleanUpLikedDeals();
@@ -3728,16 +3862,16 @@ function hideSpinner() {
   let startY = 0;
   let endY = 0;
 
-  popup.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      startY = e.touches[0].clientY;
-    }
-  });
+ popup.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    startY = e.touches[0].clientY;
+  }
+}, { passive: true });
 
-  popup.addEventListener('touchend', (e) => {
-    endY = e.changedTouches[0].clientY;
-    handleSwipe();
-  });
+popup.addEventListener('touchend', (e) => {
+  endY = e.changedTouches[0].clientY;
+  handleSwipe();
+}, { passive: true });
 
   function handleSwipe() {
   const deltaY = endY - startY;
