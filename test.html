@@ -98,7 +98,105 @@
 </div>
 
 <script>
- // Panel Variables and Setup
+
+const panel = document.getElementById("panel");
+const content = document.getElementById("panelContent");
+let startY = 0, currentY = 0, panelY = 0, isDragging = false;
+const screenHeight = window.innerHeight;
+
+const positions = {
+  full: screenHeight * 0.15,
+  mid: screenHeight * 0.5,
+  collapsed: screenHeight * 0.86
+};
+
+// Initialize panel at collapsed position
+panelY = positions.collapsed;
+setPanelY(panelY, false);
+
+function setPanelY(y, animate = true) {
+  panel.style.transition = animate ? "transform 0.3s ease" : "none";
+  panel.style.transform = `translateY(${y}px)`;
+  panelY = y;
+}
+
+function closestSnap(y) {
+  const diffs = Object.values(positions).map(p => Math.abs(p - y));
+  return Object.values(positions)[diffs.indexOf(Math.min(...diffs))];
+}
+
+async function loadPanelContent(view) {
+  const url = `${view}.html`;
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+
+    const contentDiv = document.getElementById('panelContent');
+    contentDiv.innerHTML = html;
+
+    // Execute inline scripts
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    tempDiv.querySelectorAll('script').forEach((script) => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+
+    // Show panel
+    setPanelY(positions.full);
+  } catch (err) {
+    content.innerHTML = "<p>Error loading content.</p>";
+  }
+}
+
+function startDrag(e) {
+  // Allow drag only if user started at the very top of scrollable content
+  if (content.scrollTop > 0) return;
+
+  startY = e.touches ? e.touches[0].clientY : e.clientY;
+  isDragging = true;
+  panel.style.transition = "none";
+}
+
+function duringDrag(e) {
+  if (!isDragging) return;
+
+  currentY = e.touches ? e.touches[0].clientY : e.clientY;
+  const delta = currentY - startY;
+
+  // Only allow dragging downward
+  const newY = Math.max(0, panelY + delta);
+  panel.style.transform = `translateY(${newY}px)`;
+}
+
+function endDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const delta = currentY - startY;
+  const newY = Math.max(0, panelY + delta);
+  const snapTo = closestSnap(newY);
+  setPanelY(snapTo);
+}
+
+// Add unified touch + mouse listeners
+["touchstart", "mousedown"].forEach(evt => panel.addEventListener(evt, startDrag, { passive: false }));
+["touchmove", "mousemove"].forEach(evt => panel.addEventListener(evt, duringDrag, { passive: false }));
+["touchend", "mouseup"].forEach(evt => panel.addEventListener(evt, endDrag));
+
+// Load panel content on button click
+document.getElementById("addButton").addEventListener("click", () => {
+  loadPanelContent("add");
+});
+
+
+  
+ /* Panel Variables and Setup
 const panel = document.getElementById("panel");
 const content = document.getElementById("panelContent");
 let startY, currentY, panelY = 0.15, isDragging = false;
@@ -220,7 +318,7 @@ document.getElementById("panelContent").addEventListener("click", (e) => {
 });
   
 // Initialize the panel collapsed
-setPanelY(positions.collapsed);
+setPanelY(positions.collapsed); */
 
 </script>
 
