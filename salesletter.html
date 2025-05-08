@@ -130,7 +130,169 @@
   font-weight: bold;
   color: #0055a5;
 }
+.hidden {
+      display: none !important;
+    }
 
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .topup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .topup-card {
+      max-width: 500px;
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 1.25rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .topup-card:hover {
+      background-color: #f3f4f6;
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+    .topup-option.selected .topup-card {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+    .topup-label {
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    #next-step {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1.25rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.75rem;
+      margin-top: 1.5rem;
+      display: none; /* Initially hidden */
+    }
+    #next-step:hover {
+      background-color: #1d4ed8;
+    }
+
+    .topup-summary {
+      padding: 1.5rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 0.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-size: 1rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* WhatsApp Button */
+    #send-whatsapp {
+      display: block;
+      text-align: center;
+      background-color: #16a34a; /* Tailwind's green-600 */
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      margin-top: 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    #send-whatsapp:hover {
+      background-color: #15803d; /* Tailwind's green-700 */
+    }
+
+    #topup-btn {
+      width: 80%;
+      max-width: 500px;
+      margin: 50px auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 3.25rem;
+      margin-top: 1.5rem;
+    }
+    #topup-btn:hover {
+      background-color: #1d4ed8;
+    }
+ 
+    
+    #toggle-form-btn {
+      width: 80%;
+      max-width: 500px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      display: block;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    #topup-btn:hover {
+      background-color: #1d4ed8;
+    }
 </style>
 
 
@@ -223,5 +385,79 @@
     </table>
 
     <div class="highlight">🏆 The higher your tier, the more Money back you earn.</div>
+
+<button id="topup-btn" class="bg-blue-600 text-white p-2 rounded">
+  Click To Choose
+</button>
+
+<div id="membership-section" class="max-w-3xl mx-auto py-10 px-6 bg-white shadow-xl rounded-lg content">
+
+  <!-- Step 1: Amount Selection -->
+  <div id="membership1" class="space-y-8 hidden">
+   <center> <h3 class="text-3xl font-semibold text-gray-900">Choose Membership Level(s)</h3>
+    <p class="text-lg text-gray-700">Select the membership level,  Click the Bank Transfer Button to continue.</p>  </center>
+
+    <div class="topup-grid" id="topup-grid">
+	<div class="topup-option" data-amount="4200">
+        <div class="topup-card">
+          <span class="topup-label">J$4,200 365-days</span>
+        </div>
+      </div>
+      <div class="topup-option" data-amount="8,400">
+        <div class="topup-card">
+          <span class="topup-label">J$8,400 365-days</span>
+        </div>
+      </div>
+     
+    </div>
+
+    <div id="summary" class="topup-summary mt-4 text-sm text-gray-600"></div>
+
+    <button id="next-step" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6"><i class="fa-solid fa-building-columns fa-lg"></i> Bank Transfer</button>
+  </div>
+
+  <!-- Step 2: Payment Info -->
+  <div id="membership2" class="space-y-8 hidden">
+    <center> <h3 class="text-3xl font-semibold text-gray-900">Send Payment</h3>
+    <p class="text-lg text-gray-700">Send the total amount to the following bank details:</p>  </center>
+    <div class="bg-gray-50 p-6 rounded-lg shadow-md topup-summary">
+      <p><strong class="text-gray-800">Bank Name:</strong> Bank of Nova Scotia Jamaica</p>
+      <p><strong class="text-gray-800">Account Number:</strong> 000603575</p>
+       <p><strong class="text-gray-800">Branch:</strong> Savanna-la-Mar</p>
+      <p><strong class="text-gray-800">Branch Code:</strong> 00265</p>
+       <p><strong class="text-gray-800">Account Type:</strong> JMD</p>   
+      <p><strong class="text-gray-800">Account Name:</strong> Garen Thoms</p>
+      <p><strong class="text-gray-800">Total to send (incl. tax & fee):</strong> <span id="grand-total" class="font-semibold text-xl text-blue-600"></span></p>
+    </div>
+<br>
+   <center>  <p class="text-lg text-gray-700 mt-4">Once you have made payment<br> kindly click on the button below.</p> </center>
+
+    <!-- Payment Confirmation Button -->
+    <button id="toggle-form-btn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 mt-6">
+      I’ve Sent the Payment
+    </button>
+  </div>
+
+  <!-- Step 3: WhatsApp Form + Send -->
+  <div id="membership3" class="hidden">
+ <center> <h3 class="text-3xl font-semibold text-gray-900">Send Details</h3>
+    <p class="text-lg text-gray-700">Kindly fill out the form below and submit to complete your transaction.</p> </center>
+
+    
+    <div class="input-group">
+      <input type="text" id="fullname" placeholder="Full Name" />
+      <input type="text" id="idcode" placeholder="Your ID Code" />
+      <input type="text" id="idtran" placeholder="Payment Trabsaction ID" />
+      <input type="text" id="bankused" placeholder="Your Bank Name" />
+      <input type="date" id="datesent" />
+    </div>
+    <a id="send-whatsapp" href="#" target="_blank" class="next-step block text-center bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-green-700 transition duration-300 mt-8">
+      Send via WhatsApp
+    </a>
+  </div>
+
+</div>
+
+    
   </div>
 </div>
