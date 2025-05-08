@@ -13,7 +13,7 @@ function formatCardNumber(cardNumber) {
 
 function generateQRCode(qrData) {
     const encodedData = encodeURIComponent(qrData);
-    const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H`;
+    const qrUrl = `https://quickchart.io/qr?text=${encodedData}&size=1000&margin=0&ecLevel=H&cb=${Date.now()}`;
 
     document.getElementById("clearBtn").style.display = "inline-block";
 
