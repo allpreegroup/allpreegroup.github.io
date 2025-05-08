@@ -1429,28 +1429,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
    
     // Check if script is already added before appending
+// Check if script is already added before appending
 if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) {
   const script = document.createElement('script');
   script.src = `https://allpree.com/js/${view}.js`;
-  script.defer = true;
+  script.onload = () => {
+    const initFn = `init_${view}`;
+    if (typeof window[initFn] === 'function') {
+      window[initFn]();
+    }
+  };
   document.body.appendChild(script);
+} else {
+  // If already loaded, call the function immediately
+  const initFn = `init_${view}`;
+  if (typeof window[initFn] === 'function') {
+    window[initFn]();
+  }
 }
-
-  // Dynamically find and call the init function for the view
-      window.__viewInit = () => {
-        const initFunctions = Object.keys(window)
-          .filter((key) => key.startsWith('init_') && typeof window[key] === 'function');
-        
-        // Call each matching init function
-        initFunctions.forEach((funcName) => {
-          window[funcName]();  // Call the init function (e.g. init_generategiftcard, init_topup, etc.)
-        });
-      };
-
-      // Execute the view-specific initialization function if defined
-      if (typeof window.__viewInit === 'function') {
-        window.__viewInit();
-      }	  
+	  
 
     // Show the panel
     setPanelY(positions.full);
