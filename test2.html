@@ -1427,10 +1427,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(newScript);
     });
 
-    // Dynamically load the external script (if exists) for the view (like generategiftcard.js)
-    const script = document.createElement('script');
-    script.src = `https://allpree.com/js/${view}.js`; // Dynamically load JS for the current view
-    document.body.appendChild(script);
+   
+    // Check if script is already added before appending
+if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) {
+  const script = document.createElement('script');
+  script.src = `https://allpree.com/js/${view}.js`;
+  script.defer = true;
+  document.body.appendChild(script);
+}
+
 
     // Show the panel
     setPanelY(positions.full);
