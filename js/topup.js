@@ -85,10 +85,10 @@ function init_topup() {
     }
   }
 
-  window.addEventListener("load", () => {
+ 
     restoreStep();
     restoreTopups();
-  });
+
 
   topUpBtn.addEventListener("click", () => {
     topUpBtn.classList.add("hidden");
