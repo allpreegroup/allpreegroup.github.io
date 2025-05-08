@@ -1,4 +1,4 @@
-<script>
+
 const form = document.getElementById("redirectForm");
 const flyer1 = document.getElementById("flyer1");
 const flyerQRCode = document.getElementById("flyerQRCode");
@@ -173,4 +173,3 @@ document.getElementById("clearBtn").addEventListener("click", function () {
     this.style.display = "none";
 });
 	
-</script>
