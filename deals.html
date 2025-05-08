@@ -1366,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const positions = {
     full: screenHeight * 0,
+     mid: screenHeight * 0.8,
     collapsed: screenHeight * 0.89
   };
 
@@ -1378,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   panelY = y;
 
   // Toggle body scroll depending on panel state
-  if (y === positions.full) {
+  if (y === positions.mid) {
     document.body.classList.add('noscroll');
   } else if (y === positions.collapsed) {
     document.body.classList.remove('noscroll');
@@ -1412,7 +1413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set dynamic padding to avoid content hiding behind menu
     const bottomPadding = screenHeight - positions.collapsed;
-    contentDiv.style.paddingBottom = `${bottomPadding + 20}px`;
+    contentDiv.style.paddingBottom = `${bottomPadding + 50}px`;
 
     // Execute inline scripts within the loaded HTML
     const tempDiv = document.createElement('div');
@@ -1450,7 +1451,7 @@ if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) 
 	  
 
     // Show the panel
-    setPanelY(positions.full);
+    setPanelY(positions.mid);
 
   } catch (err) {
     contentDiv.innerHTML = "<p>Error loading content.</p>";
@@ -1525,7 +1526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (mainContent) {
     const collapsedOffset = window.innerHeight - positions.collapsed;
-    mainContent.style.paddingBottom = `${collapsedOffset + 20}px`;
+    mainContent.style.paddingBottom = `${collapsedOffset + 50}px`;
   }
 });
 	
