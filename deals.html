@@ -1372,11 +1372,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "profile"]; // restrict valid views
 
   // Set panel position with optional animation
-  function setPanelY(y, animate = true) {
-    panel.style.transition = animate ? "transform 0.3s ease" : "none";
-    panel.style.transform = `translateY(${y}px)`;
-    panelY = y;
+ function setPanelY(y, animate = true) {
+  panel.style.transition = animate ? "transform 0.3s ease" : "none";
+  panel.style.transform = `translateY(${y}px)`;
+  panelY = y;
+
+  // Toggle body scroll depending on panel state
+  if (y === positions.full) {
+    document.body.classList.add('noscroll');
+  } else if (y === positions.collapsed) {
+    document.body.classList.remove('noscroll');
   }
+}
+
 
   // Snap to the nearest defined position
   function closestSnap(y) {
@@ -1387,42 +1395,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load content dynamically and safely
   async function loadPanelContent(view) {
-    if (!allowedViews.includes(view)) {
-      console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
-      return;
-    }
-
-    const url = `${view}.html`;
-    try {
-      const res = await fetch(url);
-      const html = await res.text();
-
-      const contentDiv = document.getElementById('panelContent');
-      contentDiv.innerHTML = html;
-
-      // Set dynamic padding to avoid content hiding behind menu
-      const bottomPadding = screenHeight - positions.collapsed;
-      contentDiv.style.paddingBottom = `${bottomPadding}px`;
-
-      // Execute inline scripts
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-      tempDiv.querySelectorAll('script').forEach((script) => {
-        const newScript = document.createElement('script');
-        if (script.src) {
-          newScript.src = script.src;
-        } else {
-          newScript.textContent = script.textContent;
-        }
-        document.body.appendChild(newScript);
-      });
-
-      // Show the panel
-      setPanelY(positions.full);
-    } catch (err) {
-      content.innerHTML = "<p>Error loading content.</p>";
-    }
+  if (!allowedViews.includes(view)) {
+    console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
+    return;
   }
+
+  const url = `${view}.html`; // Path to load HTML content based on the view
+
+  try {
+    // Fetch the HTML content
+    const res = await fetch(url);
+    const html = await res.text();
+
+    const contentDiv = document.getElementById('panelContent');
+    contentDiv.innerHTML = html;
+
+    // Set dynamic padding to avoid content hiding behind menu
+    const bottomPadding = screenHeight - positions.collapsed;
+    contentDiv.style.paddingBottom = `${bottomPadding + 20}px`;
+
+    // Execute inline scripts within the loaded HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    tempDiv.querySelectorAll('script').forEach((script) => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+
+   
+    // Check if script is already added before appending
+// Check if script is already added before appending
+if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) {
+  const script = document.createElement('script');
+  script.src = `https://allpree.com/js/${view}.js`;
+  script.onload = () => {
+    const initFn = `init_${view}`;
+    if (typeof window[initFn] === 'function') {
+      window[initFn]();
+    }
+  };
+  document.body.appendChild(script);
+} else {
+  // If already loaded, call the function immediately
+  const initFn = `init_${view}`;
+  if (typeof window[initFn] === 'function') {
+    window[initFn]();
+  }
+}
+	  
+
+    // Show the panel
+    setPanelY(positions.full);
+
+  } catch (err) {
+    contentDiv.innerHTML = "<p>Error loading content.</p>";
+    console.error('Error loading content:', err);
+  }
+}
+
 
   // Handle drag start
   function startDrag(e) {
