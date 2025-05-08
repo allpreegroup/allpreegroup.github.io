@@ -113,7 +113,7 @@ function init_marketing() {
   }
 
   // On page load, check if a referral code is saved and valid
-  window.addEventListener("DOMContentLoaded", () => {
+
     const saved = localStorage.getItem('generatedReferralCode');
     if (saved && !isCodeExpired()) {
       updateFlyersWithCode(saved); // Use saved code if valid
@@ -124,7 +124,7 @@ function init_marketing() {
         if (flyer) flyer.style.display = "none";
       });
     }
-  });
+ 
 
   // Optional: expose downloadFlyer globally if needed
   window.downloadFlyer = downloadFlyer;
