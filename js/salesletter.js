@@ -17,7 +17,7 @@ function init_salesletter() {
     return;
   }
 
-  let selectedTopups = [];
+  let selectedMembership = [];
 
   function formatCurrency(amount) {
     return `JMD ${amount.toLocaleString()}`;
@@ -77,14 +77,14 @@ function init_salesletter() {
     }
   }
 
-  function restoreTopups() {
-    const savedTopups = JSON.parse(localStorage.getItem("selectedMembership") || "[]");
+  function restoreMembership() {
+    const savedMembership = JSON.parse(localStorage.getItem("selectedMembership") || "[]");
     if (Array.isArray(savedMembership)) {
       selectedMembership = savedMembership;
 
       document.querySelectorAll(".topup-option").forEach((el) => {
         const amount = parseInt(el.dataset.amount);
-        if (selectedTopups.includes(amount)) {
+        if (selectedMembership.includes(amount)) {
           el.classList.add("selected");
         } else {
           el.classList.remove("selected");
