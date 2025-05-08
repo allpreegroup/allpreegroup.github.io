@@ -1436,6 +1436,21 @@ if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) 
   document.body.appendChild(script);
 }
 
+  // Dynamically find and call the init function for the view
+      window.__viewInit = () => {
+        const initFunctions = Object.keys(window)
+          .filter((key) => key.startsWith('init_') && typeof window[key] === 'function');
+        
+        // Call each matching init function
+        initFunctions.forEach((funcName) => {
+          window[funcName]();  // Call the init function (e.g. init_generategiftcard, init_topup, etc.)
+        });
+      };
+
+      // Execute the view-specific initialization function if defined
+      if (typeof window.__viewInit === 'function') {
+        window.__viewInit();
+      }	  
 
     // Show the panel
     setPanelY(positions.full);
