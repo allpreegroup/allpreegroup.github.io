@@ -24,7 +24,7 @@ function init_salesletter() {
   }
 
   function calculateTotals() {
-    const total = selectedTopups.reduce((sum, val) => sum + val, 0);
+    const total = selectedMembership.reduce((sum, val) => sum + val, 0);
     if (total === 0) {
       summary.innerHTML = "";
       nextStepBtn.style.display = "none";
@@ -97,7 +97,7 @@ function init_salesletter() {
 
   // Load step + topups on DOM load
   restoreStep();
-  restoreTopups();
+  restoreMembership();
 
   // Button Events
   topUpBtn.addEventListener("click", () => {
