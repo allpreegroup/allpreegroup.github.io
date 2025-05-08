@@ -23,13 +23,30 @@ function init_marketing() {
     return !expiration || Date.now() > parseInt(expiration);
   }
 
-  function updateFlyersWithCode(code) {
-    const formatted = formatReferralCode(code);
+  // Lazy load the html2canvas script
+  function loadHtml2Canvas() {
+    if (typeof html2canvas !== 'undefined') {
+      return; // Skip if already loaded
+    }
 
+    const script = document.createElement('script');
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    script.onload = () => {
+      console.log('html2canvas loaded successfully');
+    };
+    document.body.appendChild(script);
+  }
+
+  function updateFlyersWithCode(code) {
+    // Load html2canvas only when needed (when the user enters the code)
+    loadHtml2Canvas();
+
+    const formatted = formatReferralCode(code);
     localStorage.setItem('generatedReferralCode', formatted);
     const expiresIn7Days = Date.now() + 7 * 24 * 60 * 60 * 1000;
     localStorage.setItem('referralCodeExpiration', expiresIn7Days);
 
+    // Update flyer codes
     ["flyer1Code", "flyer2Code", "flyer3Code"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = formatted;
@@ -71,6 +88,10 @@ function init_marketing() {
   function downloadFlyer(flyerId) {
     const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
     if (!flyer) return;
+
+    // Lazy load html2canvas when the download action occurs
+    loadHtml2Canvas();
+
     html2canvas(flyer, { scale: 2 }).then(canvas => {
       const link = document.createElement("a");
       link.download = `${flyerId}-flyer.png`;
@@ -79,6 +100,7 @@ function init_marketing() {
     });
   }
 
+  // Handle form submission
   const form = document.getElementById("referralForm");
   if (form) {
     form.addEventListener("submit", (e) => {
@@ -90,10 +112,11 @@ function init_marketing() {
     });
   }
 
+  // On page load, check if a referral code is saved and valid
   window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem('generatedReferralCode');
     if (saved && !isCodeExpired()) {
-      updateFlyersWithCode(saved);
+      updateFlyersWithCode(saved); // Use saved code if valid
     } else {
       if (form) form.style.display = "block";
       ["flyer1", "flyer2", "flyer3"].forEach(id => {
