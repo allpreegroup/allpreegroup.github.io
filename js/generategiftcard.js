@@ -69,7 +69,7 @@ function startCountdown() {
     }, 1000);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+
     const savedQR = localStorage.getItem("savedQRData");
     const hasDownloaded = localStorage.getItem("hasDownloadedQR");
 
@@ -86,7 +86,7 @@ window.addEventListener('DOMContentLoaded', () => {
         form.style.display = "block";
         flyer1.style.display = "none";
     }
-});
+
 
 downloadBtn.addEventListener("click", function () {
     if (flyerQRCode.complete) {
