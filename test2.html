@@ -1372,11 +1372,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "profile"]; // restrict valid views
 
   // Set panel position with optional animation
-  function setPanelY(y, animate = true) {
-    panel.style.transition = animate ? "transform 0.3s ease" : "none";
-    panel.style.transform = `translateY(${y}px)`;
-    panelY = y;
+ function setPanelY(y, animate = true) {
+  panel.style.transition = animate ? "transform 0.3s ease" : "none";
+  panel.style.transform = `translateY(${y}px)`;
+  panelY = y;
+
+  // Toggle body scroll depending on panel state
+  if (y === positions.full) {
+    document.body.classList.add('noscroll');
+  } else if (y === positions.collapsed) {
+    document.body.classList.remove('noscroll');
   }
+}
+
 
   // Snap to the nearest defined position
   function closestSnap(y) {
