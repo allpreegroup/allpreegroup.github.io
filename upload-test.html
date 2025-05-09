@@ -75,6 +75,12 @@
     .summary p {
       margin: 0.25rem 0;
     }
+    .filters {
+      margin-bottom: 1rem;
+    }
+    .filters button {
+      margin-right: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -94,7 +100,7 @@
         <input type="text" id="idcode">
       </div>
       <div class="form-group">
-        <label for="code">Phone Number</label>
+        <label for="phone">Phone Number</label>
         <input type="text" id="phone">
       </div>
       <button onclick="loginUser()">Submit</button>
@@ -103,6 +109,10 @@
     <div id="profile-section" class="hidden">
       <h2>Welcome Back</h2>
       <div id="user-summary" class="summary"></div>
+      <div class="filters">
+        <button onclick="sortByDate(true)">Sort by Newest</button>
+        <button onclick="sortByDate(false)">Sort by Oldest</button>
+      </div>
       <div id="user-profile"></div>
       <button class="logout" onclick="logoutUser()">Logout</button>
     </div>
@@ -110,6 +120,7 @@
 
   <script>
     const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
+    let currentEntries = [];
 
     function loginUser() {
       const firstName = document.getElementById('firstName').value.trim();
@@ -130,6 +141,7 @@
           if (matched.length > 0) {
             const userCode = matched[0]['Code'];
             const entries = data.filter(row => row['Code'] === userCode);
+            currentEntries = entries;
             localStorage.setItem('profileUser', JSON.stringify(entries));
             showProfile(entries);
           } else {
@@ -150,17 +162,28 @@
       document.getElementById('profile-section').classList.add('hidden');
     }
 
+    function sortByDate(descending = true) {
+      const sorted = [...currentEntries].sort((a, b) => {
+        const dateA = new Date(a["Top-Up Date"]);
+        const dateB = new Date(b["Top-Up Date"]);
+        return descending ? dateB - dateA : dateA - dateB;
+      });
+      renderProfile(sorted);
+    }
+
     function renderProfile(rows) {
-      const user = rows[0];
-      document.getElementById('user-summary').innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${user["Total Top"]}</p>
-        <p><strong>Total Spend:</strong> J$${user["Total Spend"]}</p>
-        <p><strong>Total Cashback:</strong> J$${user["Total CashBack"]}</p>
-        <p><strong>Confirm Cashback:</strong> J$${user["Confirm CashBack"]}</p>
-        <p><strong>Received Cashback:</strong> J$${user["Receive CashBack"]}</p>
-        <p><strong>Available Cashback:</strong> J$${user["Available CashBack"]}</p>
-      `;
+      const summary = rows.find(r => r['Total Top'] && r['Total Spend']);
+      if (summary) {
+        document.getElementById('user-summary').innerHTML = `
+          <h3>Summary</h3>
+          <p><strong>Total Top-Up:</strong> J$${summary["Total Top"]}</p>
+          <p><strong>Total Spend:</strong> J$${summary["Total Spend"]}</p>
+          <p><strong>Total Cashback:</strong> J$${summary["Total CashBack"]}</p>
+          <p><strong>Confirm Cashback:</strong> J$${summary["Confirm CashBack"]}</p>
+          <p><strong>Received Cashback:</strong> J$${summary["Receive CashBack"]}</p>
+          <p><strong>Available Cashback:</strong> J$${summary["Available CashBack"]}</p>
+        `;
+      }
 
       const entries = rows.map(user => `
         <div class="entry">
@@ -189,7 +212,8 @@
 
     const saved = localStorage.getItem('profileUser');
     if (saved) {
-      showProfile(JSON.parse(saved));
+      currentEntries = JSON.parse(saved);
+      showProfile(currentEntries);
     }
   </script>
 </body>
