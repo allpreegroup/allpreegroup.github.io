@@ -18,7 +18,7 @@
       font-family: sans-serif;
       background: #f5f5f5;
       margin-top: 0px;
-      padding: 20px;
+      padding: 20px 20px 100px 20px; /* top, right, bottom, left */
       overscroll-behavior-y: none;
       overscroll-behavior: none;    
     }
@@ -1223,9 +1223,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
   <div id="CartButton" style="margin-left: 60px;" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-receipt fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
   <div id="lockButton" class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>		
- <!-- <div class="menu-button" data-view="add">Add</div> -->
-  <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Gift Card</div>
-  <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Gift Card</div>
+ <div class="menu-button" data-view="salesletter">Get Deal Plus <i class="fa-solid fa-magnifying-glass-plus fa-lg"></i></div>
+  <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Digital Card</div>
+  <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</div>
 <!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
   <div class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i> Refer Others</div>			
   <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i> Saved Lists</div>
@@ -1235,7 +1235,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <!-- Slide-up panel content area -->
 <div id="panel" class="slide-up-panel">
   <div id="handle"></div>
-  <div id="panelContent"></div>
+  <div id="panelContent">
+
+
+
+	  
+  </div>
 </div>
 		  
  <!-- Popup Overlay -->
@@ -1366,10 +1371,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const positions = {
     full: screenHeight * 0,
+     mid: screenHeight * 0.7,
     collapsed: screenHeight * 0.89
   };
 
-  const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "profile"]; // restrict valid views
+  const allowedViews = ["add", "generategiftcard", "topup", "balance", "marketing", "salesletter",  "profile"]; // restrict valid views
 
   // Set panel position with optional animation
  function setPanelY(y, animate = true) {
@@ -1378,7 +1384,7 @@ document.addEventListener('DOMContentLoaded', () => {
   panelY = y;
 
   // Toggle body scroll depending on panel state
-  if (y === positions.full) {
+  if (y === positions.mid) {
     document.body.classList.add('noscroll');
   } else if (y === positions.collapsed) {
     document.body.classList.remove('noscroll');
@@ -1412,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set dynamic padding to avoid content hiding behind menu
     const bottomPadding = screenHeight - positions.collapsed;
-    contentDiv.style.paddingBottom = `${bottomPadding + 20}px`;
+    contentDiv.style.paddingBottom = `${bottomPadding + 50}px`;
 
     // Execute inline scripts within the loaded HTML
     const tempDiv = document.createElement('div');
@@ -1450,7 +1456,7 @@ if (!document.querySelector(`script[src="https://allpree.com/js/${view}.js"]`)) 
 	  
 
     // Show the panel
-    setPanelY(positions.full);
+    setPanelY(positions.mid);
 
   } catch (err) {
     contentDiv.innerHTML = "<p>Error loading content.</p>";
@@ -1521,13 +1527,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Padding logic
 document.addEventListener('DOMContentLoaded', () => {
-  const mainContent = document.getElementById('deals-container');
+    const mainContent = document.querySelector('.deal-grid'); // you're using this class
 
-  if (mainContent) {
-    const collapsedOffset = window.innerHeight - positions.collapsed;
-    mainContent.style.paddingBottom = `${collapsedOffset + 20}px`;
-  }
-});
+    if (mainContent) {
+      const collapsedOffset = window.innerHeight - positions.collapsed;
+      mainContent.style.paddingBottom = `${collapsedOffset + 50}px`;
+    }
+  });
 	
 });
 
@@ -2777,7 +2783,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const finalPrice = discountPrice - cashbackAmount;
 
   const cashbackEl = document.getElementById('popupCashback');
-  cashbackEl.innerHTML = `CashBack: J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: J$${finalPrice.toLocaleString()} — With Allpree Gift Card ¹²¹ </span>`;
+  cashbackEl.innerHTML = `CashBack: upto J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Final Price: downto J$${finalPrice.toLocaleString()} — With Deal Plus⁺ ¹²¹ </span>`;
 
   document.body.classList.add('noscroll');
 
@@ -3436,7 +3442,7 @@ brandDiv.addEventListener('click', () => {
      });
 
     // Optional scroll logic
-    const headerHeight = 70;
+    const headerHeight = 35;
     const likedDealsSection = document.getElementById('likedDealsSection');
     const likedVisible = likedDealsSection && likedDealsSection.offsetParent !== null;
     const extraOffset = likedVisible ? 5 : 0;
@@ -3882,7 +3888,7 @@ popup.addEventListener('touchend', (e) => {
   function handleSwipe() {
   const deltaY = endY - startY;
 
-  if (isSwiping || Math.abs(deltaY) <= 50) return;
+  if (isSwiping || Math.abs(deltaY) <= 100) return;
 
   isSwiping = true;
 
