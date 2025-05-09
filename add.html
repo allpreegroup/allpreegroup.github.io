@@ -321,6 +321,12 @@ input:focus {
 
      // Bind only once
       newBtn.addEventListener('click', uploadHandler);
+
+      const saveBtn = document.getElementById('save-button');
+  const newSaveBtn = saveBtn.cloneNode(true);
+  saveBtn.replaceWith(newSaveBtn);
+  newSaveBtn.addEventListener('click', saveProduct);
+
       
       const nameInput = document.getElementById('name');
       const brandInput = document.getElementById('brand');
@@ -377,6 +383,10 @@ input:focus {
       document.getElementById('image-upload-step').style.display = 'none';
       document.getElementById('manual-entry').style.display = 'block';
       document.getElementById('save-button').disabled = false;
+
+      document.getElementById('save-button').disabled = false;
+      checkSaveButtonState(); // ensure it reflects form readiness
+
     }
   } catch (err) {
     output.textContent = 'Error:\n' + err.message;
