@@ -1,459 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Smooth Slide-Up Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
   <style>
     body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #f2f2f2;
-      overscroll-behavior-y: none;
-      overscroll-behavior: none;
-    }
-
-    #bottomMenu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #ffffff;
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 10px;
-      border-top: 1px solid #ccc;
-      z-index: 1000;
-    }
-
-#bottomMenu::-webkit-scrollbar {
-  display: none; /* Chrome & Safari */
-}
- 
-    .menu-button {
-      background: #007bff;
+      background-color: #1f2937;
       color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-      flex: 0 0 auto;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    #panel {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 90vh;
-      background: white;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-      transform: translateY(80%);
-      transition: transform 0.3s ease;
-      z-index: 999;
-       pointer-events: auto;
-      touch-action: none;
+      font-family: sans-serif;
+      margin: 0;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
-
-    #handle {
-      width: 80%;
-      height: 5px;
-      background: #bbb;
-      
-      border-radius: 10px;
-      margin: 8px auto  16px;
+    .profile-header {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: #374151;
+      gap: 1rem;
     }
-    
-    #panelContent {
+    .profile-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
+      background-color: #4b5563;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+    .profile-name {
+      font-weight: bold;
+      font-size: 1.125rem;
+    }
+    .profile-handle {
+      color: #9ca3af;
+      font-size: 0.875rem;
+    }
+    .notification {
+      margin-left: auto;
+      position: relative;
+    }
+    .notification span {
+      position: absolute;
+      top: -0.25rem;
+      right: -0.25rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: #ef4444;
+      border-radius: 9999px;
+    }
+    .alert {
+      background-color: #991b1b;
+      border: 1px solid #ef4444;
+      margin: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    .alert button {
+      margin-top: 0.5rem;
+      color: #93c5fd;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .stat-card {
+      background-color: #1d4ed8;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      min-width: 140px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      background-color: #374151;
+      font-size: 0.875rem;
+    }
+    .tabs button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: none;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      font-weight: bold;
+      border-bottom: 2px solid #3b82f6;
+      color: white;
+    }
+    .content {
       flex: 1;
-      pointer-events: auto;
       overflow-y: auto;
-      padding: 16px;
+      padding: 1rem;
+    }
+    .entry {
+      background-color: #374151;
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .entry p {
+      margin: 0.25rem 0;
+    }
+    .entry .amount {
+      color: #f87171;
+      font-weight: bold;
+    }
+    .bottom-nav {
+      background-color: #374151;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.75rem;
+      border-top: 1px solid #4b5563;
+      font-size: 0.875rem;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
   </style>
 </head>
 <body>
-
-<div id="bottomMenu">
-  <div id="addButton" class="menu-button">Add</div>
-  <div class="menu-button" onclick="openPanel()">Demo</div>
-  <div class="menu-button" onclick="openPanel('add')">Add</div>
-  <div class="menu-button" onclick="openPanel()">Membership</div>
-  <div class="menu-button">Menu</div>
-  <div class="menu-button" onclick="openPanel('contact')">Contact</div>
-  <div class="menu-button">Topup</div>
-  <div class="menu-button">Marketing</div>
-</div>
-
-<!-- Slide-up panel content area -->  
-<div id="panel" class="slide-up-panel">
-  <div id="handle"></div>
-  <div id="panelContent">
- 
-    
+  <div class="profile-header">
+    <div class="profile-img">SP</div>
+    <div>
+      <div class="profile-name">Hey Secure Payments</div>
+      <div class="profile-handle">@securepayments</div>
+    </div>
+    <div class="notification">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" />
+      </svg>
+      <span></span>
+    </div>
   </div>
-</div>
 
-<script>
-
-  const panel = document.getElementById("panel");
-  const content = document.getElementById("panelContent");
-  let startY = 0, currentY = 0, panelY = 0, isDragging = false;
-  const screenHeight = window.innerHeight;
-
-  const positions = {
-    full: screenHeight * 0.05,
-    collapsed: screenHeight * 0.86
-  };
-
-  const allowedViews = ["add", "settings", "profile"]; // restrict valid views
-
-  // Set panel position with optional animation
-  function setPanelY(y, animate = true) {
-    panel.style.transition = animate ? "transform 0.3s ease" : "none";
-    panel.style.transform = `translateY(${y}px)`;
-    panelY = y;
-  }
-
-  // Snap to the nearest defined position
-  function closestSnap(y) {
-    const diffs = Object.values(positions).map(p => Math.abs(p - y));
-    const min = Math.min(...diffs);
-    return Object.values(positions)[diffs.indexOf(min)];
-  }
-
-  // Load content dynamically and safely
-  async function loadPanelContent(view) {
-    if (!allowedViews.includes(view)) {
-      console.warn(`[Panel] Blocked attempt to load unknown view: "${view}"`);
-      return;
-    }
-
-    const url = `${view}.html`;
-    try {
-      const res = await fetch(url);
-      const html = await res.text();
-
-      const contentDiv = document.getElementById('panelContent');
-      contentDiv.innerHTML = html;
-
-      // Set dynamic padding to avoid content hiding behind menu
-      const bottomPadding = screenHeight - positions.collapsed;
-      contentDiv.style.paddingBottom = `${bottomPadding}px`;
-
-      // Execute inline scripts
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-      tempDiv.querySelectorAll('script').forEach((script) => {
-        const newScript = document.createElement('script');
-        if (script.src) {
-          newScript.src = script.src;
-        } else {
-          newScript.textContent = script.textContent;
-        }
-        document.body.appendChild(newScript);
-      });
-
-      // Show the panel
-      setPanelY(positions.full);
-    } catch (err) {
-      content.innerHTML = "<p>Error loading content.</p>";
-    }
-  }
-
-  // Handle drag start
-  function startDrag(e) {
-    if (content.scrollTop > 0) return; // only drag if scroll is at top
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    isDragging = true;
-    panel.style.transition = "none";
-  }
-
-  // Handle dragging movement
-  function duringDrag(e) {
-    if (!isDragging) return;
-
-    currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    const delta = currentY - startY;
-    const newY = Math.min(positions.collapsed, Math.max(0, panelY + delta)); // Clamp to collapsed
-    panel.style.transform = `translateY(${newY}px)`;
-  }
-
-  // Handle drag end
-  function endDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-
-    const delta = currentY - startY;
-    const newY = Math.max(0, panelY + delta);
-    const snapTo = closestSnap(newY);
-    setPanelY(snapTo);
-  }
-
-  // Attach unified drag listeners
-  ["touchstart", "mousedown"].forEach(evt =>
-    panel.addEventListener(evt, startDrag, { passive: false })
-  );
-  ["touchmove", "mousemove"].forEach(evt =>
-    panel.addEventListener(evt, duringDrag, { passive: false })
-  );
-  ["touchend", "mouseup"].forEach(evt =>
-    panel.addEventListener(evt, endDrag)
-  );
-
-  // Button to load content
-  document.getElementById("addButton").addEventListener("click", () => {
-    loadPanelContent("add");
-  });
-
-  // ✅ GOOD: Set initial panel position immediately
-panelY = positions.collapsed;
-setPanelY(panelY, false);
-
-
-
-  
-/*
-const panel = document.getElementById("panel");
-const content = document.getElementById("panelContent");
-let startY = 0, currentY = 0, panelY = 0, isDragging = false;
-const screenHeight = window.innerHeight;
-
-const positions = {
-  full: screenHeight * 0.05,
-  collapsed: screenHeight * 0.86
-};
-
-// Initialize panel at collapsed position
-panelY = positions.collapsed;
-setPanelY(panelY, false);
-
-function setPanelY(y, animate = true) {
-  panel.style.transition = animate ? "transform 0.3s ease" : "none";
-  panel.style.transform = `translateY(${y}px)`;
-  panelY = y;
-}
-
-  function closestSnap(y) {
-  const diffs = Object.values(positions).map(p => Math.abs(p - y));
-  const min = Math.min(...diffs);
-  return Object.values(positions)[diffs.indexOf(min)];
-}
-
- 
-function closestSnap(y) {
-  const diffs = Object.values(positions).map(p => Math.abs(p - y));
-  return Object.values(positions)[diffs.indexOf(Math.min(...diffs))];
-}
-
-async function loadPanelContent(view) {
-  const url = `${view}.html`;
-  try {
-    const res = await fetch(url);
-    const html = await res.text();
-
-    const contentDiv = document.getElementById('panelContent');
-    contentDiv.innerHTML = html;
-
-    // ⬇ Add dynamic bottom padding based on collapsed position
-    const bottomPadding = screenHeight - positions.collapsed;
-    contentDiv.style.paddingBottom = `${bottomPadding}px`;
-
-    // Execute inline scripts
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    tempDiv.querySelectorAll('script').forEach((script) => {
-      const newScript = document.createElement('script');
-      if (script.src) {
-        newScript.src = script.src;
-      } else {
-        newScript.textContent = script.textContent;
-      }
-      document.body.appendChild(newScript);
-    });
-
-    // Show panel
-    setPanelY(positions.full);
-  } catch (err) {
-    content.innerHTML = "<p>Error loading content.</p>";
-  }
-}
-
-function startDrag(e) {
-  // Allow drag only if user started at the very top of scrollable content
-  if (content.scrollTop > 0) return;
-
-  startY = e.touches ? e.touches[0].clientY : e.clientY;
-  isDragging = true;
-  panel.style.transition = "none";
-}
-
-function duringDrag(e) {
-  if (!isDragging) return;
-
-  currentY = e.touches ? e.touches[0].clientY : e.clientY;
-  const delta = currentY - startY;
-
-  // Only allow dragging downward
-  const newY = Math.max(0, panelY + delta);
-  panel.style.transform = `translateY(${newY}px)`;
-}
-
-function endDrag() {
-  if (!isDragging) return;
-  isDragging = false;
-
-  const delta = currentY - startY;
-  const newY = Math.max(0, panelY + delta);
-  const snapTo = closestSnap(newY);
-  setPanelY(snapTo);
-}
-
-// Add unified touch + mouse listeners
-["touchstart", "mousedown"].forEach(evt => panel.addEventListener(evt, startDrag, { passive: false }));
-["touchmove", "mousemove"].forEach(evt => panel.addEventListener(evt, duringDrag, { passive: false }));
-["touchend", "mouseup"].forEach(evt => panel.addEventListener(evt, endDrag));
-
-// Load panel content on button click
-document.getElementById("addButton").addEventListener("click", () => {
-  loadPanelContent("add");
-});
-
-
-  
-  Panel Variables and Setup
-const panel = document.getElementById("panel");
-const content = document.getElementById("panelContent");
-let startY, currentY, panelY = 0.15, isDragging = false;
-const screenHeight = window.innerHeight;
-
-const positions = {
-  full: 0.15,
-  mid: screenHeight * 0.15,
-  collapsed: screenHeight * 0.86
-};
-
-// Set panel position
-function setPanelY(y, animate = true) {
-  panel.style.transition = animate ? "transform 0.3s ease" : "none";
-  panel.style.transform = `translateY(${y}px)`;
-  panelY = y;
-}
-
-// Open the panel to mid position
-function openPanel() {
-  setPanelY(positions.full);
-}
-
-// Find the closest snap position for the panel
-function closestSnap(y) {
-  const diffs = Object.values(positions).map(p => Math.abs(p - y));
-  const min = Math.min(...diffs);
-  return Object.values(positions)[diffs.indexOf(min)];
-}
-
-// Load content dynamically from external HTML files
-async function loadPanelContent(view) {
-  const url = `${view}.html`; // URL of the content to load
-  try {
-    const res = await fetch(url); // Fetch the content
-    const html = await res.text(); // Get the HTML content as text
-
-    const contentDiv = document.getElementById('panelContent');
-    contentDiv.innerHTML = html; // Insert the content into the panel
-
-    // Execute any inline scripts in the loaded HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html; // Create a temporary div to hold the content and scripts
-    const scripts = tempDiv.querySelectorAll('script');
-    scripts.forEach((script) => {
-      const newScript = document.createElement('script');
-      if (script.src) {
-        newScript.src = script.src; // If the script has a src attribute, use it
-      } else {
-        newScript.textContent = script.textContent; // Otherwise, use the script's content
-      }
-      document.body.appendChild(newScript); // Append the new script to the document body
-    });
-
-    // After loading, show the panel
-    setPanelY(positions.full);
-
-  } catch (err) {
-    // In case of an error, show an error message
-    document.getElementById('panelContent').innerHTML = '<p>Error loading content.</p>';
-  }
-}
-
-// Panel Dragging Functions
-panel.addEventListener('touchstart', startDrag, { passive: false });
-panel.addEventListener('touchmove', duringDrag, { passive: false });
-panel.addEventListener('touchend', endDrag);
-
-panel.addEventListener('mousedown', startDrag);
-panel.addEventListener('mousemove', duringDrag);
-panel.addEventListener('mouseup', endDrag);
-
-// Prevent default scrolling behavior while dragging
-function startDrag(e) {
-  if (content.scrollTop > 0) return;
-
-  startY = e.touches ? e.touches[0].clientY : e.clientY;
-  isDragging = true;
-  panel.style.transition = 'none';
-
-  // Only prevent default if dragging
-  if (e.cancelable) e.preventDefault();
-}
-
-function duringDrag(e) {
-  if (!isDragging) return;
-
-  currentY = e.touches ? e.touches[0].clientY : e.clientY;
-  const delta = currentY - startY;
-
-  if (delta > 0) {
-    const newY = Math.min(delta, window.innerHeight * 0.8);
-    panel.style.transform = `translateY(${newY}px)`;
-  }
-
-  if (e.cancelable) e.preventDefault();
-}
-
-function endDrag() {
-  if (!isDragging) return;
-  isDragging = false;
-
-  const finalY = Math.min(Math.max(panelY + (currentY - startY), 0), screenHeight);
-  const snapTo = closestSnap(finalY);
-  setPanelY(snapTo);
-}
-
-
-// Trigger for opening and loading content into the panel
-document.getElementById("addButton").addEventListener("click", () => {
-  setPanelY(positions.full); // Open the panel before loading content
-  loadPanelContent("add");  // Load "add.html" content after panel opens
-});
-
-// Add event listener to prevent drag interference with clicks on interactive content
-document.getElementById("panelContent").addEventListener("click", (e) => {
-  if (isDragging) {
-  }
-});
-  
-// Initialize the panel collapsed
-setPanelY(positions.collapsed); */
-
-</script>
-
-
+  <div class="alert">
+    <strong>Your Driver’s License has expired</strong><br>
+    In order to use all features, please resubmit a valid ID.<br>
+    <button>Upload ID</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <p>Cashback Earned</p>
+      <p style="font-size: 1.25rem; font-weight: bold;">$500</p>
+    </div>
+    <div class="stat-card">
+      <p>Brands Added</p>
+      <p style="font-size: 1.25rem; font-weight: bold;">12</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="active">Recent Activity</button>
+    <button>Leaderboard</button>
+    <button>My Brands</button>
+  </div>
+
+  <div class="content">
+    <div class="entry">
+      <p>Flow Top-Up</p>
+      <p style="font-size: 0.75rem; color: #9ca3af;">Feb 29, 2024</p>
+      <p class="amount">- 125 JMD</p>
+    </div>
+    <div class="entry">
+      <p>Digicel Top-Up</p>
+      <p style="font-size: 0.75rem; color: #9ca3af;">Feb 28, 2024</p>
+      <p class="amount">- 200 JMD</p>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button>
+      <span>&#x21C4;</span>
+      <span>Send/Ask</span>
+    </button>
+    <button>
+      <span>&#x25A3;</span>
+      <span>QR</span>
+    </button>
+    <button>
+      <span>&#x25A1;</span>
+      <span>More</span>
+    </button>
+  </div>
 </body>
 </html>
-
