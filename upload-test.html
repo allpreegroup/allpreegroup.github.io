@@ -170,14 +170,16 @@
       document.getElementById('profile-section').classList.add('hidden');
     }
 
-    function sortByDate(descending = true) {
-      const sorted = [...currentEntries].sort((a, b) => {
-        const dateA = new Date(a["Top-Up Date"]);
-        const dateB = new Date(b["Top-Up Date"]);
-        return descending ? dateB - dateA : dateA - dateB;
-      });
-      renderProfile(sorted);
-    }
+    function sortByClosestToZero() {
+  const filtered = currentEntries.filter(entry => Number(entry["Days Left"]) < 0);
+  const sorted = filtered.sort((a, b) => {
+    const valA = Math.abs(Number(a["Days Left"]));
+    const valB = Math.abs(Number(b["Days Left"]));
+    return valA - valB;
+  });
+  renderProfile(sorted);
+}
+
 
    function sortByClosestToZero() {
   const sorted = [...currentEntries].sort((a, b) => {
