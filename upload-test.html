@@ -79,7 +79,7 @@
       </div>
       <div class="form-group">
         <label for="code">Code</label>
-        <input type="text" id="code">
+        <input type="text" id="idcode">
       </div>
       <div class="form-group">
         <label for="phone">Phone Number</label>
@@ -101,6 +101,7 @@
     function loginUser() {
       const firstName = document.getElementById('firstName').value.trim();
       const lastName = document.getElementById('lastName').value.trim();
+       const code = document.getElementById('idcode').value.trim();
       const code = document.getElementById('code').value.trim();
       const phone = document.getElementById('phone').value.trim();
 
@@ -110,7 +111,8 @@
           const matched = data.filter(row => 
             row['First Name'] === firstName &&
             row['Last Name'] === lastName &&
-            row['ID CODE'] === code &&
+            row['ID CODE'] === idcode &&
+            row['Code'] === code &&
             row['Phone Number'] === phone
           );
 
@@ -146,12 +148,12 @@
             </div>
             <div class="entry-col">
              <p><strong>CashBack</strong></p>
-             <p class="subtext">Activation Day <br>${user["activation date"]}</p>
+             <p class="subtext">Activation Date <br>${user["activation date"]}</p>
              <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"].replace('+','')).toLocaleString()}</p>
            </div>
             <div class="entry-col">
-              <p><strong>${user["Days Left"]} Days Left</strong></p>
-              <p class="subtext">(${user["% Reach"]}) Reach<br> ${user["Release Date"]} </p>
+              <p><strong>(${user["% Reach"]}) Reach</strong></p>
+              <p class="subtext">${user["Days Left"]} Days Left <br> ${user["Release Date"]} </p>
               <p class="amount">J$${Number(user["Amount Reached"].replace('+','')).toLocaleString()} </p>
             </div>
           </div>
