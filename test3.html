@@ -70,7 +70,7 @@
       color: gray;
     }
     .amount {
-      font-size: 1.2em;
+      font-size: 1em;
       font-weight: bold;
     }
   </style>
@@ -180,7 +180,7 @@
           <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"].replace('+','')).toLocaleString()}
         `;
       }
-
+      const sortedRows = [...rows].sort((a, b) => new Date(b["Top-Up Date"]) - new Date(a["Top-Up Date"]));
       const entriesHTML = rows.map(user => `
         <div class="entry">
           <div class="entry-grid">
