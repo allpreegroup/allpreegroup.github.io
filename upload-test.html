@@ -110,9 +110,9 @@
       <h2>Welcome Back</h2>
       <div id="user-summary" class="summary"></div>
       <div class="filters">
-        <button onclick="sortByDate(true)">Sort by Newest</button>
-        <button onclick="sortByDate(false)">Sort by Oldest</button>
-        <button onclick="sortByClosestToZero()">Sort Closest to 0</button>
+        <button onclick="sortByDate(true)">Newest</button>
+        <button onclick="sortByDate(false)">Oldest</button>
+        <button onclick="sortByClosestToZero()">Closest</button>
       </div>
       <div id="user-profile"></div>
       <button class="logout" onclick="logoutUser()">Logout</button>
@@ -179,14 +179,14 @@
       renderProfile(sorted);
     }
 
-    function sortByClosestToZero() {
-      const sorted = [...currentEntries].sort((a, b) => {
-        const valA = Math.abs(Number(a["Amount Reached"].replace('+','')));
-        const valB = Math.abs(Number(b["Amount Reached"].replace('+','')));
-        return valA - valB;
-      });
-      renderProfile(sorted);
-    }
+   function sortByClosestToZero() {
+  const sorted = [...currentEntries].sort((a, b) => {
+    const valA = Math.abs(Number(a["Days Left"]));
+    const valB = Math.abs(Number(b["Days Left"]));
+    return valA - valB;
+  });
+  renderProfile(sorted);
+}
 
     function renderProfile(rows) {
       const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
