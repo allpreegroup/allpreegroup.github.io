@@ -164,6 +164,14 @@
 
     function renderProfile(rows) {
       const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+
+      // Sort by Top-Up Date (newest first)
+  const sortedRows = [...rows].sort((a, b) => {
+    const dateA = new Date(a["Top-Up Date"]);
+    const dateB = new Date(b["Top-Up Date"]);
+    return dateB - dateA;
+  });
+      
       const summary = rows.find(r =>
         r['ID CODE'] === loginInfo.idcode &&
         r['Total Top'] && r['Total Spend']
@@ -180,7 +188,7 @@
           <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"].replace('+','')).toLocaleString()}
         `;
       }
-      const sortedRows = [...rows].sort((b, a) => new Date(b["Top-Up Date"]) - new Date(a["Top-Up Date"]));
+      
       const entriesHTML = rows.map(user => `
         <div class="entry">
           <div class="entry-grid">
