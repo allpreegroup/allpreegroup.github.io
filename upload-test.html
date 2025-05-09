@@ -96,7 +96,7 @@
   </div>
 
   <script>
-    const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
+    const SHEET_URL = 'https://opensheet.elk.sh/1rMGRbA3tWoQsBvGxT59K8PQ3vV0RDaD6qEQfNVbyvN0/Sheet1';
 
     function loginUser() {
       const firstName = document.getElementById('firstName').value.trim();
@@ -107,26 +107,26 @@
       fetch(SHEET_URL)
         .then(res => res.json())
         .then(data => {
-          const user = data.find(row => 
+          const matched = data.filter(row => 
             row['First Name'] === firstName &&
             row['Last Name'] === lastName &&
-            row['Code'] === code &&
-            row['Phone'] === phone
+            row['ID CODE'] === code &&
+            row['Phone Number'] === phone
           );
 
-          if (user) {
-            localStorage.setItem('profileUser', JSON.stringify(user));
-            showProfile(user);
+          if (matched.length > 0) {
+            localStorage.setItem('profileUser', JSON.stringify(matched));
+            showProfile(matched);
           } else {
             alert('User not found. Check your info and try again.');
           }
         });
     }
 
-    function showProfile(user) {
+    function showProfile(userRows) {
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('profile-section').classList.remove('hidden');
-      renderProfile(user);
+      renderProfile(userRows);
     }
 
     function logoutUser() {
@@ -135,8 +135,8 @@
       document.getElementById('profile-section').classList.add('hidden');
     }
 
-    function renderProfile(user) {
-      const html = `
+    function renderProfile(rows) {
+      const entries = rows.map(user => `
         <div class="entry">
           <div class="entry-grid">
             <div class="entry-col">
@@ -147,7 +147,7 @@
             <div class="entry-col">
               <p><strong>Cashback</strong></p>
               <p class="subtext">${user["Release Date"]}</p>
-              <p class="amount" style="color: #34d399;">+ ${user["Cashback"]} JMD</p>
+              <p class="amount" style="color: #34d399;">${Number(user["Cashback"].replace('+','')).toLocaleString()} JMD</p>
             </div>
             <div class="entry-col">
               <p><strong>Progress</strong></p>
@@ -156,8 +156,9 @@
             </div>
           </div>
         </div>
-      `;
-      document.getElementById('user-profile').innerHTML = html;
+      `).join('');
+
+      document.getElementById('user-profile').innerHTML = entries;
     }
 
     // Auto login if data exists
