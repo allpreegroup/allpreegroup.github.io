@@ -89,7 +89,12 @@
     <div id="profile-section" class="hidden">
       <button id="logoutBtn" onclick="logoutUser()">Logout</button>
       <div class="summary" id="user-summary"></div>
-      <button id="sortBtn" onclick="sortByClosestToZero()">Sort: Closest to 0 Days</button>
+      <div class="filters">
+        <button id="sortBtn" onclick="sortByDate(true)">Newest</button>
+        <button id="sortBtn" onclick="sortByDate(false)">Oldest</button>
+        <button id="sortBtn" onclick="sortByClosestToZero()">Closest</button>
+      </div>
+      
       <div id="user-profile"></div>
     </div>
   </div>
@@ -139,6 +144,15 @@
       document.getElementById('profile-section').classList.add('hidden');
     }
 
+   function sortByDate(descending = true) {
+      const sorted = [...currentEntries].sort((a, b) => {
+        const dateA = new Date(a["Top-Up Date"]);
+        const dateB = new Date(b["Top-Up Date"]);
+        return descending ? dateB - dateA : dateA - dateB;
+      });
+      renderProfile(sorted);
+    }
+    
     function sortByClosestToZero() {
       const sorted = [...currentEntries].sort((a, b) => {
         const valA = Math.abs(Number(a["Days Left"]));
@@ -172,12 +186,12 @@
           <div class="entry-grid">
             <div class="entry-col">
               <p><strong>Top Up</strong></p>
-              <p class="subtext">${user["Top-Up Date"]}</p>
+              <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
               <p class="amount">J$${user["Top-Up"]}</p>
             </div>
             <div class="entry-col">
               <p><strong>CashBack</strong></p>
-              <p class="subtext">${user["activation date"]}</p>
+              <p class="subtext">Activation Date <br>${user["activation date"]}</p>
               <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"].replace('+','')).toLocaleString()}</p>
             </div>
             <div class="entry-col">
