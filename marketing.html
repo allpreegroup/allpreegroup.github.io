@@ -1,5 +1,170 @@
-
 <style>
+#referral-panel {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  text-align: center;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#referral-panel .flyer {
+  margin: 20px auto;
+  display: inline-block;
+}
+
+#referral-panel .flyer-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#referral-panel .flyer-img {
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+#referral-panel .code-overlay {
+  position: absolute;
+  top: 73%;
+  left: 24%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0px 16px;
+  font-weight: bold;
+  font-size: 1em;
+  white-space: nowrap;
+}
+
+#referral-panel .code-overlay2 {
+  position: absolute;
+  top: 80.8%;
+  left: 70%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0px 16px;
+  font-weight: bold;
+  font-size: 1.3em;
+  white-space: nowrap;
+}
+
+#referral-panel .download-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#referral-panel .download-btn:hover {
+  background-color: #0056b3;
+}
+
+#referral-panel form {
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+#referral-panel input {
+  padding: 8px;
+  margin-top: 10px;
+  width: 200px;
+  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#referral-panel button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#referral-panel button:hover {
+  background-color: #218838;
+}
+</style>
+
+<div id="referral-panel">
+  <hr>
+
+  <div class="flyer" style="display:none;" id="flyer1">
+    <div class="flyer-wrapper">
+      <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 1" class="flyer-img" />
+      <div class="code-overlay" id="flyer1Code"></div>
+    </div>
+    <button class="download-btn" onclick="downloadFlyer('flyer1')" style="display:none;">Download Flyer</button>
+  </div>
+
+  <hr>
+
+  <div class="flyer" style="display:none;" id="flyer2">
+    <div class="flyer-wrapper">
+      <img src="https://www.allpree.com/img/ad2.png" alt="Flyer 2" class="flyer-img" />
+      <div class="code-overlay2" id="flyer2Code"></div>
+    </div>
+    <button class="download-btn" onclick="downloadFlyer('flyer2')" style="display:none;">Download Flyer</button>
+  </div>
+
+  <hr>
+
+  <div class="flyer" style="display:none;" id="flyer3">
+    <div class="flyer-wrapper">
+      <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 3" class="flyer-img" />
+      <div class="code-overlay" id="flyer3Code"></div>
+    </div>
+  </div>
+
+  <center>
+    <button class="download-btn" onclick="downloadFlyer('card')" style="display:none;">Download Flyer</button>
+  </center>
+
+  <form id="referralForm">
+    Still working on this but you can test it out for now<br>
+    <label for="referralCode">Enter Your Referral Code:</label><br>
+    <input type="text" id="referralCode" name="referralCode" required>
+    <button type="submit">Generate Flyers</button>
+  </form>
+
+  <hr>
+
+  <p id="referralText" style="display: none;">Use my referral code ${savedReferralCode} to get started!</p>
+  <hr>
+
+  <a id="referralTextLink" style="display: none;" href="https://wa.me/?text=Check%20out%20my%20referral%20code%20${savedReferralCode}%20to%20get%20started!" target="_blank">
+    Share on WhatsApp
+  </a>
+
+  <hr>
+
+  <center>
+    <button id="referralBtn" class="btn btn-outline btn-xla" data-url="https://wa.me/?text=Check%20out%20my%20referral%20code%20${encodeURIComponent(formattedCode)}%20to%20get%20started!" style="display: none;" target="_blank">
+      <i class="fa-solid fa-computer-mouse"></i> send Whatsapp Msg
+    </button>
+  </center>
+</div>
+
+
+
+
+<!--
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+	
 .flyer {
   margin: 0px auto;
   display: inline-block;
@@ -97,7 +262,7 @@ button:hover {
 
 
  <hr>
-<!-- Hidden until referral code is generated -->
+ Hidden until referral code is generated 
  <div class="flyer" style="display:none;" id="flyer1">
   <div class="flyer-wrapper">
     <img src="https://www.allpree.com/img/ad1.png" alt="Flyer 1" class="flyer-img" />
@@ -122,7 +287,7 @@ button:hover {
 </div>
 <center>  <button class="download-btn" onclick="downloadFlyer('card')" style="display:none;">Download Flyer</button></center> 
 			
-<!-- Referral Code Form -->
+ Referral Code Form 
 <form id="referralForm">
   Still working on this but you can test it out for now <br>
   <label for="referralCode">Enter Your Referral Code:</label>
@@ -146,3 +311,4 @@ button:hover {
 
 <br><br>
 
+-->
