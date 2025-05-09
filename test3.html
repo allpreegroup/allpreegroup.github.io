@@ -189,7 +189,9 @@
         `;
       }
       
-      const entriesHTML = sortedRows.map(user => `
+      const entriesHTML = sortedRows
+  .filter(user => user["activation date"] && user["activation date"].trim() !== "")
+  .map(user => `
         <div class="entry">
           <div class="entry-grid">
             <div class="entry-col">
