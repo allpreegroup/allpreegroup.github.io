@@ -372,17 +372,24 @@ input:focus {
       const error = await res.text();
       output.textContent = 'Upload failed:\n' + error;
     } else {
-      const result = await res.json();
-      output.textContent = `✅ Upload successful!\nURL: ${result.url}`;
-      document.getElementById('image-upload-step').style.display = 'none';
-      document.getElementById('manual-entry').style.display = 'block';
-      document.getElementById('save-button').disabled = false;
+  const result = await res.json();
+  const code = document.getElementById('barcode').value.trim();
+  localStorage.setItem('relookup', code);
+  location.reload();
+}
 
-    }
   } catch (err) {
     output.textContent = 'Error:\n' + err.message;
   }
 }
+window.addEventListener('DOMContentLoaded', () => {
+  const savedCode = localStorage.getItem('relookup');
+  if (savedCode) {
+    document.getElementById('barcode').value = savedCode;
+    localStorage.removeItem('relookup');
+    lookupProduct();
+  }
+});
 
   
   
