@@ -2,278 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Slide-Up Panel Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
-      touch-action: pan-y;
-      overflow-x: hidden;
+      background: #f1f5f9;
+      color: #111;
     }
-
-   #bottomMenu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #f0f8ff;
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  border-top: 2px solid #ccc;
-  z-index: 9999;
-}
-
-.menu-button {
-  flex: 0 0 auto;
-  padding: 8px 16px;
-  background: #007bff;
-  color: white;
-  border-radius: 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  user-select: none;
-  text-align: center;
-  font-weight: bold;
-}
-
-
-
-    #slideUpPanel {
-      position: fixed;
-      bottom: 50px;
-      left: 0;
-      right: 0;
-      height: 80vh;
-      background: white;
-      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      transform: translateY(calc(80vh - 30px));
-      transition: transform 0.3s ease;
-      z-index: 9998;
-      overflow-y: auto;
-      touch-action: pan-y;
-    }
-
-    #slideUpPanel.open {
-      transform: translateY(20vh);
-    }
-
-    #panelHandle {
-      width: 50px;
-      height: 10px;
-      background: #999;
-      border-radius: 5px;
-      margin: 6px auto 10px;
-      cursor: grab;
-      position: relative;
-      top: 0px;
-    }
-
-    #closePanelBtn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: #ccc;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 10000;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #panelHeader {
-      position: sticky;
-      top: 0;
-      background: #f0f0f0;
-      padding: 12px 20px;
-      font-size: 18px;
-      font-weight: bold;
-      z-index: 10;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .panel-content {
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
       padding: 20px;
-      max-height: calc(80vh - 70px);
-      overflow-y: auto;
+    }
+    .hidden {
+      display: none;
+    }
+    h2, h3 {
+      margin: 16px 0 8px;
+    }
+    input {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #10b981;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+    #logoutBtn {
+      background: #ef4444;
+    }
+    #sortBtn {
+      margin-top: 10px;
+      background: #3b82f6;
+    }
+    .summary, .entry {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .entry-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .entry-col {
+      flex: 1;
+    }
+    .subtext {
+      font-size: 0.8em;
+      color: gray;
+    }
+    .amount {
+      font-size: 1.2em;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div id="login-section">
+      <h2>Login</h2>
+      <input id="firstName" placeholder="First Name"/>
+      <input id="lastName" placeholder="Last Name"/>
+      <input id="idcode" placeholder="ID Code"/>
+      <input id="phone" placeholder="Phone Number"/>
+      <button onclick="loginUser()">Login</button>
+    </div>
 
- <div id="bottomMenu">
-  <div class="menu-button" onclick="loadPanelContent('add')">Add</div>
-  <div class="menu-button" onclick="loadPanelContent('membership')">Membership</div>
-  <div class="menu-button" onclick="loadPanelContent('menu')">Menu</div>
-  <div class="menu-button" onclick="loadPanelContent('contact')">Contact</div>
-  <div class="menu-button" onclick="loadPanelContent('topup')">Topup</div>
-  <div class="menu-button" onclick="loadPanelContent('marketing')">Marketing</div>
-</div>
-
-<div id="slideUpPanel">
-  <div id="panelHandle"></div>
-  <button id="closePanelBtn" onclick="hideSlideUpPanel()">&times;</button>
-  
-  <!-- Fixed Header -->
-  <div id="panelHeader">My Panel Header</div>
-  <div class="panel-tabs">
-  <button onclick="switchPanelTab('tab1')">Tab 1</button>
-  <button onclick="switchPanelTab('tab2')">Tab 2</button>
- </div>
- <div id="tab1" class="panel-tab">...</div>
- <div id="tab2" class="panel-tab" style="display:none">...</div>
-
-
-  <!-- Scrollable content area -->
-  <div id="slideUpPanelContent" class="panel-content">Loading...</div>
-</div>
-  
-
+    <div id="profile-section" class="hidden">
+      <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+      <div class="summary" id="user-summary"></div>
+      <button id="sortBtn" onclick="sortByClosestToZero()">Sort: Closest to 0 Days</button>
+      <div id="user-profile"></div>
+    </div>
+  </div>
 
   <script>
-    let panel = document.getElementById('slideUpPanel');
-    let panelHandle = document.getElementById('panelHandle');
+    const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
+    let currentEntries = [];
 
-    let startY = 0;
-    let currentY = 0;
-    let translateY = 0;
-    let isDragging = false;
+    function loginUser() {
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const idcode = document.getElementById('idcode').value.trim();
+      const phone = document.getElementById('phone').value.trim();
 
-// Add event listeners to the whole panel, not just the handle
-panel.addEventListener('touchstart', startDrag);
-panel.addEventListener('touchmove', duringDrag);
-panel.addEventListener('touchend', endDrag);
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          const matched = data.find(row =>
+            row['First Name'] === firstName &&
+            row['Last Name'] === lastName &&
+            row['ID CODE'] === idcode &&
+            row['Phone Number'] === phone
+          );
 
-panel.addEventListener('mousedown', startDrag);
-panel.addEventListener('mousemove', duringDrag);
-panel.addEventListener('mouseup', endDrag);
-
-// Restrict drag to vertical scroll only if the scrollTop is at the top
-function startDrag(e) {
-  // Prevent vertical drag if content is scrolled
-  if (slideUpPanelContent.scrollTop > 0) return;
-
-  startY = e.touches ? e.touches[0].clientY : e.clientY;
-  isDragging = true;
-  panel.style.transition = 'none';
-}
-
-function duringDrag(e) {
-  if (!isDragging) return;
-
-  currentY = e.touches ? e.touches[0].clientY : e.clientY;
-  const delta = currentY - startY;
-
-  // Allow dragging only downward from rest position
-  if (delta > 0) {
-    translateY = Math.min(delta, window.innerHeight * 0.8);
-    panel.style.transform = `translateY(${translateY}px)`;
-  }
-}
-
-function endDrag() {
-  if (!isDragging) return;
-
-  isDragging = false;
-  panel.style.transition = 'transform 0.3s ease';
-
-  if (translateY > window.innerHeight * 0.2) {
-    hideSlideUpPanel();
-  } else {
-    panel.style.transform = 'translateY(20vh)';
-  }
-  translateY = 0;
-}
-
-function switchPanelTab(id) {
-  document.querySelectorAll('.panel-tab').forEach(el => el.style.display = 'none');
-  document.getElementById(id).style.display = 'block';
-}
-
-    
-    panelHandle.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-      isDragging = true;
-      panel.style.transition = 'none';
-    });
-
-    panelHandle.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      currentY = e.touches[0].clientY;
-      const delta = currentY - startY;
-      translateY = Math.min(Math.max(0, delta), window.innerHeight * 0.8);
-      panel.style.transform = `translateY(${translateY}px)`;
-    });
-
-    panelHandle.addEventListener('touchend', () => {
-      isDragging = false;
-      panel.style.transition = 'transform 0.3s ease';
-      if (translateY > window.innerHeight * 0.4) {
-        hideSlideUpPanel();
-      } else {
-        panel.style.transform = 'translateY(20vh)';
-      }
-    });
-
-    function showSlideUpPanel() {
-      setTimeout(() => panel.style.transform = 'translateY(20vh)', 10);
+          if (matched) {
+            const loginInfo = { firstName, lastName, idcode, phone, code: matched['Code'] };
+            localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
+            const userEntries = data.filter(row => row['Code'] === loginInfo.code);
+            currentEntries = userEntries;
+            showProfile(userEntries);
+          } else {
+            alert('User not found. Check your info and try again.');
+          }
+        });
     }
 
-    function hideSlideUpPanel() {
-      panel.style.transform = 'translateY(calc(80vh - 30px))';
+    function showProfile(userRows) {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('profile-section').classList.remove('hidden');
+      renderProfile(userRows);
     }
 
-    async function loadPanelContent(view) {
-      const url = `${view}.html`;
-      try {
-        const res = await fetch(url);
-        const html = await res.text();
-        document.getElementById('slideUpPanelContent').innerHTML = html;
-        showSlideUpPanel();
-      } catch (err) {
-        document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
-      }
+    function logoutUser() {
+      localStorage.removeItem('profileLogin');
+      currentEntries = [];
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('profile-section').classList.add('hidden');
     }
-    async function loadPanelContent(view) {
-  const url = `${view}.html`;
-  try {
-    const res = await fetch(url);
-    const html = await res.text();
 
-    const contentDiv = document.getElementById('slideUpPanelContent');
-    contentDiv.innerHTML = html;
+    function sortByClosestToZero() {
+      const sorted = [...currentEntries].sort((a, b) => {
+        const valA = Math.abs(Number(a["Days Left"]));
+        const valB = Math.abs(Number(b["Days Left"]));
+        return valA - valB;
+      });
+      renderProfile(sorted);
+    }
 
-    // Execute inline scripts
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    const scripts = tempDiv.querySelectorAll('script');
-    scripts.forEach((script) => {
-      const newScript = document.createElement('script');
-      if (script.src) {
-        newScript.src = script.src;
-      } else {
-        newScript.textContent = script.textContent;
+    function renderProfile(rows) {
+      const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+      const summary = rows.find(r =>
+        r['ID CODE'] === loginInfo.idcode &&
+        r['Total Top'] && r['Total Spend']
+      );
+
+      if (summary) {
+        document.getElementById('user-summary').innerHTML = `
+          <h3>Summary</h3>
+          <p><strong>Total Top-Up:</strong> J$${summary["Total Top"]}</p>
+          <p><strong>Total Spend:</strong> J$${summary["Total Spend"]}</p>
+          <p><strong>Total Cashback:</strong> J$${summary["Total CashBack"]}</p>
+          <p><strong>Confirm Cashback:</strong> J$${summary["Confirm CashBack"]}</p>
+          <p><strong>Received Cashback:</strong> J$${summary["Receive CashBack"]}</p>
+          <p><strong>Available Cashback:</strong> J$${summary["Available CashBack"]}</p>
+        `;
       }
-      document.body.appendChild(newScript);
-    });
 
-    showSlideUpPanel();
-  } catch (err) {
-    document.getElementById('slideUpPanelContent').innerHTML = '<p>Error loading content.</p>';
-  }
-}
+      const entriesHTML = rows.map(user => `
+        <div class="entry">
+          <div class="entry-grid">
+            <div class="entry-col">
+              <p><strong>Top Up</strong></p>
+              <p class="subtext">${user["Top-Up Date"]}</p>
+              <p class="amount">J$${user["Top-Up"]}</p>
+            </div>
+            <div class="entry-col">
+              <p><strong>CashBack</strong></p>
+              <p class="subtext">${user["activation date"]}</p>
+              <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"].replace('+','')).toLocaleString()}</p>
+            </div>
+            <div class="entry-col">
+              <p><strong>(${user["% Reach"]}) Reach</strong></p>
+              <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
+              <p class="amount">J$${Number(user["Amount Reached"].replace('+','')).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
 
+      document.getElementById('user-profile').innerHTML = entriesHTML;
+    }
+
+    window.onload = function() {
+      const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+      if (loginInfo) {
+        fetch(SHEET_URL)
+          .then(res => res.json())
+          .then(data => {
+            const userEntries = data.filter(row => row['Code'] === loginInfo.code);
+            currentEntries = userEntries;
+            showProfile(userEntries);
+          });
+      }
+    };
   </script>
-
 </body>
 </html>
