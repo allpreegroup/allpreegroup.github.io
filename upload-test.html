@@ -112,6 +112,7 @@
       <div class="filters">
         <button onclick="sortByDate(true)">Sort by Newest</button>
         <button onclick="sortByDate(false)">Sort by Oldest</button>
+        <button onclick="sortByClosestToZero()">Sort Closest to 0</button>
       </div>
       <div id="user-profile"></div>
       <button class="logout" onclick="logoutUser()">Logout</button>
@@ -171,8 +172,19 @@
       renderProfile(sorted);
     }
 
+    function sortByClosestToZero() {
+      const sorted = [...currentEntries].sort((a, b) => {
+        const valA = Math.abs(Number(a["Amount Reached"].replace('+','')));
+        const valB = Math.abs(Number(b["Amount Reached"].replace('+','')));
+        return valA - valB;
+      });
+      renderProfile(sorted);
+    }
+
     function renderProfile(rows) {
-      const summary = rows.find(r => r['Total Top'] && r['Total Spend']);
+      const storedUser = JSON.parse(localStorage.getItem('profileUser') || '[]');
+      const idcode = storedUser.length ? storedUser[0]['ID CODE'] : null;
+      const summary = rows.find(r => r['ID CODE'] === idcode && r['Total Top'] && r['Total Spend']);
       if (summary) {
         document.getElementById('user-summary').innerHTML = `
           <h3>Summary</h3>
