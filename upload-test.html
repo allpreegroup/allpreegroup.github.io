@@ -107,7 +107,7 @@
     </div>
 
     <div id="profile-section" class="hidden">
-      <h2 id="welcome-message">Welcome Back</h2>
+      <h2>Welcome Back</h2>
       <div id="user-summary" class="summary"></div>
       <div class="filters">
         <button onclick="sortByDate(true)">Sort by Newest</button>
@@ -132,19 +132,25 @@
       fetch(SHEET_URL)
         .then(res => res.json())
         .then(data => {
-          const matched = data.filter(row => 
+          const matched = data.find(row => 
             row['First Name'] === firstName &&
             row['Last Name'] === lastName &&
             row['ID CODE'] === idcode &&
             row['Phone Number'] === phone
           );
 
-          if (matched.length > 0) {
-            const userCode = matched[0]['Code'];
-            const entries = data.filter(row => row['Code'] === userCode);
-            currentEntries = entries;
-            localStorage.setItem('profileUser', JSON.stringify(entries));
-            showProfile(entries);
+          if (matched) {
+            const loginInfo = {
+              firstName,
+              lastName,
+              idcode,
+              phone,
+              code: matched['Code']
+            };
+            localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
+            const userEntries = data.filter(row => row['Code'] === loginInfo.code);
+            currentEntries = userEntries;
+            showProfile(userEntries);
           } else {
             alert('User not found. Check your info and try again.');
           }
@@ -152,15 +158,14 @@
     }
 
     function showProfile(userRows) {
-      const firstName = userRows[0]['First Name'] || 'Back';
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('profile-section').classList.remove('hidden');
-      document.getElementById('welcome-message').textContent = `Welcome back, ${firstName}`;
       renderProfile(userRows);
     }
 
     function logoutUser() {
-      localStorage.removeItem('profileUser');
+      localStorage.removeItem('profileLogin');
+      currentEntries = [];
       document.getElementById('login-section').classList.remove('hidden');
       document.getElementById('profile-section').classList.add('hidden');
     }
@@ -178,15 +183,14 @@
       const sorted = [...currentEntries].sort((a, b) => {
         const valA = Math.abs(Number(a["Amount Reached"].replace('+','')));
         const valB = Math.abs(Number(b["Amount Reached"].replace('+','')));
-        return Math.abs(valA) - Math.abs(valB);
+        return valA - valB;
       });
       renderProfile(sorted);
     }
 
     function renderProfile(rows) {
-      const storedUser = JSON.parse(localStorage.getItem('profileUser') || '[]');
-      const idcode = storedUser.length ? storedUser[0]['ID CODE'] : null;
-      const summary = rows.find(r => r['ID CODE'] === idcode && r['Total Top'] && r['Total Spend']);
+      const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+      const summary = rows.find(r => r['ID CODE'] === loginInfo.idcode && r['Total Top'] && r['Total Spend']);
       if (summary) {
         document.getElementById('user-summary').innerHTML = `
           <h3>Summary</h3>
@@ -224,10 +228,15 @@
       document.getElementById('user-profile').innerHTML = entries;
     }
 
-    const saved = localStorage.getItem('profileUser');
-    if (saved) {
-      currentEntries = JSON.parse(saved);
-      showProfile(currentEntries);
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+    if (loginInfo) {
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          const userEntries = data.filter(row => row['Code'] === loginInfo.code);
+          currentEntries = userEntries;
+          showProfile(userEntries);
+        });
     }
   </script>
 </body>
