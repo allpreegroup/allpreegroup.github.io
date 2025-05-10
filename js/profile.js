@@ -169,5 +169,6 @@ function sortByLatest() {
       hideLoader();
       loginSection.classList.remove('hidden');
     }
-  
+  // BIND the button click properly
+  document.getElementById('login-button').addEventListener('click', loginUser);
 }
