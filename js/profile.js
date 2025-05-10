@@ -1,15 +1,25 @@
 function init_profile() {
   const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
+
   let currentEntries = [];
   let currentSummary = null;
   let isDescending = true;
 
+  // Show and hide loader
   function showLoader() {
     document.getElementById('loading-modal').style.display = 'flex';
   }
 
   function hideLoader() {
     document.getElementById('loading-modal').style.display = 'none';
+  }
+
+  function logoutUser() {
+    localStorage.removeItem('profileLogin');
+    currentEntries = [];
+    currentSummary = null;
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('profile-section').classList.add('hidden');
   }
 
   function loginUser() {
@@ -54,23 +64,10 @@ function init_profile() {
       });
   }
 
-  function logoutUser() {
-    localStorage.removeItem('profileLogin');
-    currentEntries = [];
-    currentSummary = null;
-    document.getElementById('login-section').classList.remove('hidden');
-    document.getElementById('profile-section').classList.add('hidden');
-  }
-
   function showProfile(userRows, summaryRow) {
     document.getElementById('login-section').classList.add('hidden');
     document.getElementById('profile-section').classList.remove('hidden');
     renderProfile(userRows, summaryRow);
-
-    // 🔁 Bind buttons AFTER DOM is visible
-    document.getElementById('logout-button')?.addEventListener('click', logoutUser);
-    document.getElementById('sort-latest-button')?.addEventListener('click', sortByLatest);
-    document.getElementById('sort-negative-one-button')?.addEventListener('click', sortByClosestToNegativeOne);
   }
 
   function renderProfile(rows, summary) {
@@ -82,16 +79,18 @@ function init_profile() {
       <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
     `;
 
-    document.getElementById('user-summary').innerHTML = `
-      <h3>Summary</h3>
-      <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-      <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-    `;
+    if (summary) {
+      document.getElementById('user-summary').innerHTML = `
+        <h3>Summary</h3>
+        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      `;
+    }
 
     const entriesHTML = rows.map(user => `
       <div class="entry">
@@ -143,12 +142,15 @@ function init_profile() {
     renderProfile(sorted, currentSummary);
   }
 
-  // Auto-login logic
+  // Event listeners
+  document.getElementById('login-button').addEventListener('click', loginUser);
+  document.getElementById('sort-latest-button').addEventListener('click', sortByLatest);
+  document.getElementById('sort-negative-one-button').addEventListener('click', sortByClosestToNegativeOne);
+  window.logoutUser = logoutUser; // Expose logout globally for button onclick
+
+  // Auto-login
   showLoader();
   const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-  const loginSection = document.getElementById('login-section');
-  const profileSection = document.getElementById('profile-section');
-
   if (loginInfo) {
     fetch(SHEET_URL)
       .then(res => res.json())
@@ -160,13 +162,13 @@ function init_profile() {
         currentEntries = userEntries;
         currentSummary = summaryRow;
         hideLoader();
-        showProfile(userEntries, summaryRow);
+        document.getElementById('profile-section').classList.remove('hidden');
+        renderProfile(userEntries, summaryRow);
       });
   } else {
     hideLoader();
-    loginSection.classList.remove('hidden');
+    document.getElementById('login-section').classList.remove('hidden');
   }
-
-  // 🔁 Always bind login button once DOM is ready
-  document.getElementById('login-button')?.addEventListener('click', loginUser);
 }
+
+document.addEventListener('DOMContentLoaded', init_profile);
