@@ -2,6 +2,7 @@ function init_profile() {
   const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
   let currentEntries = [];
   let currentSummary = null;
+  let isDescending = true;
 
   function showLoader() {
     document.getElementById('loading-modal').style.display = 'flex';
@@ -53,22 +54,23 @@ function init_profile() {
       });
   }
 
-  function showProfile(userRows, summaryRow) {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('profile-section').classList.remove('hidden');
-    renderProfile(userRows, summaryRow);
-
-    document.getElementById('logout-button')?.addEventListener('click', logoutUser);
-    document.getElementById('sort-latest-button')?.addEventListener('click', sortByLatest);
-    document.getElementById('sort-negative-one-button')?.addEventListener('click', sortByClosestToNegativeOne);
-  }
-
   function logoutUser() {
     localStorage.removeItem('profileLogin');
     currentEntries = [];
     currentSummary = null;
     document.getElementById('login-section').classList.remove('hidden');
     document.getElementById('profile-section').classList.add('hidden');
+  }
+
+  function showProfile(userRows, summaryRow) {
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('profile-section').classList.remove('hidden');
+    renderProfile(userRows, summaryRow);
+
+    // 🔁 Bind buttons AFTER DOM is visible
+    document.getElementById('logout-button')?.addEventListener('click', logoutUser);
+    document.getElementById('sort-latest-button')?.addEventListener('click', sortByLatest);
+    document.getElementById('sort-negative-one-button')?.addEventListener('click', sortByClosestToNegativeOne);
   }
 
   function renderProfile(rows, summary) {
@@ -80,18 +82,16 @@ function init_profile() {
       <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
     `;
 
-    if (summary) {
-      document.getElementById('user-summary').innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      `;
-    }
+    document.getElementById('user-summary').innerHTML = `
+      <h3>Summary</h3>
+      <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+      <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+    `;
 
     const entriesHTML = rows.map(user => `
       <div class="entry">
@@ -118,8 +118,6 @@ function init_profile() {
     document.getElementById('user-profile').innerHTML = entriesHTML;
   }
 
-  let isDescending = true;
-
   function sortByLatest() {
     isDescending = !isDescending;
     const sorted = [...currentEntries].sort((a, b) => {
@@ -145,7 +143,7 @@ function init_profile() {
     renderProfile(sorted, currentSummary);
   }
 
-  // Auto login on page load
+  // Auto-login logic
   showLoader();
   const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
   const loginSection = document.getElementById('login-section');
@@ -162,14 +160,13 @@ function init_profile() {
         currentEntries = userEntries;
         currentSummary = summaryRow;
         hideLoader();
-        profileSection.classList.remove('hidden');
-        renderProfile(userEntries, summaryRow);
+        showProfile(userEntries, summaryRow);
       });
   } else {
     hideLoader();
     loginSection.classList.remove('hidden');
   }
 
-  // BIND the button click properly
-  document.getElementById('login-button').addEventListener('click', loginUser);  
+  // 🔁 Always bind login button once DOM is ready
+  document.getElementById('login-button')?.addEventListener('click', loginUser);
 }
