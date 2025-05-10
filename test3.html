@@ -253,7 +253,7 @@
 </head>
 <body>
   <div class="container">
-    <div id="login-section">
+    <div id="login-section" class="hidden">
       <h2>Login</h2>
       <input id="firstName" placeholder="First Name"/>
       <input id="lastName" placeholder="Last Name"/>
@@ -263,13 +263,13 @@
     </div>
 
     <div id="profile-section" class="hidden">
-      <button id="logoutBtn" onclick="logoutUser()">Logout</button>
-<br>
+      
     <div id="user-profile-header" class="user-header-card">
       
+      <button id="logoutBtn" onclick="logoutUser()">Logout</button>
     </div>
 
-      <div id="loading-message" class="loading hidden">Loading your profile...</div>
+     
       <div class="summary" id="user-summary"></div>
       <div class="filters">
         <button id="sortBtn" onclick="sortByDate(false)">Oldest</button>
@@ -280,6 +280,10 @@
     </div>
   </div>
 
+<div id="app-loading" class="loading">Loading...</div>
+
+
+  
 <script>
   const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
   let currentEntries = [];
@@ -361,7 +365,7 @@
         <h3>Summary</h3>
         <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback:</strong> J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
         <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
          <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
@@ -396,10 +400,13 @@
   }
 
   // Auto login if session is saved
-  window.onload = function () {
+ window.onload = function () {
   const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+  const loader = document.getElementById('app-loading');
+  const loginSection = document.getElementById('login-section');
+  const profileSection = document.getElementById('profile-section');
+
   if (loginInfo) {
-    document.getElementById('loading-message').classList.remove('hidden'); // Show loading
     fetch(SHEET_URL)
       .then(res => res.json())
       .then(data => {
@@ -408,11 +415,17 @@
           row['Code'] === loginInfo.code && row['activation date']
         );
         currentEntries = userEntries;
-        document.getElementById('loading-message').classList.add('hidden'); // Hide loading
+
+        loader.classList.add('hidden');
+        profileSection.classList.remove('hidden');
         showProfile(userEntries, summaryRow);
       });
+  } else {
+    loader.classList.add('hidden');
+    loginSection.classList.remove('hidden');
   }
 };
+
 
 </script>
 
