@@ -300,12 +300,10 @@
       <div class="summary" id="user-summary"></div>
       
       <div class="filters">
-
-
-        <button onclick="sortByDate(true)">Sort ↓</button>
-<button onclick="sortByDate(false)">Sort ↑</button>
+<button onclick="sortByLatest()">Sort ↓↑</button>
 <button onclick="sortByClosestToNegativeOne()">Sort -1</button>
 
+     
 
 </div>
       
@@ -318,10 +316,10 @@
   <div id="loading-spinner"></div>
   <p>Loading...</p>
 </div>
-<script>
+
+  <script>
   const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
   let currentEntries = [];
-  let currentSummary = null;
 
   // Show and hide loader
   function showLoader() {
@@ -364,7 +362,6 @@
           );
 
           currentEntries = userEntries;
-          currentSummary = summaryRow;
           hideLoader();
           showProfile(userEntries, summaryRow);
         } else {
@@ -383,7 +380,6 @@
   function logoutUser() {
     localStorage.removeItem('profileLogin');
     currentEntries = [];
-    currentSummary = null;
     document.getElementById('login-section').classList.remove('hidden');
     document.getElementById('profile-section').classList.add('hidden');
   }
@@ -408,7 +404,7 @@
         <h3>Summary</h3>
         <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()}</strong></p>
         <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
@@ -441,24 +437,26 @@
     document.getElementById('user-profile').innerHTML = entriesHTML;
   }
 
-  function sortByDate(descending = true) {
+  // Sort Functions
+  function sortByLatest() {
     const sorted = [...currentEntries].sort((a, b) => {
       const dateA = new Date(a["Top-Up Date"]);
       const dateB = new Date(b["Top-Up Date"]);
-      return descending ? dateB - dateA : dateA - dateB;
+      return dateB - dateA;
     });
-    renderProfile(sorted, currentSummary);
+    renderProfile(sorted);
   }
 
   function sortByClosestToNegativeOne() {
     const sorted = [...currentEntries].sort((a, b) => {
-      const valA = Math.abs(Number(a["Amount Reached"]?.replace('+', '') || 0) + 1);
-      const valB = Math.abs(Number(b["Amount Reached"]?.replace('+', '') || 0) + 1);
-      return valA - valB;
+      const valA = Number(a["Days Left"]);
+      const valB = Number(b["Days Left"]);
+      return Math.abs(valA + 1) - Math.abs(valB + 1);
     });
-    renderProfile(sorted, currentSummary);
+    renderProfile(sorted);
   }
 
+  // Auto login
   window.onload = function () {
     showLoader();
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
@@ -474,8 +472,6 @@
             row['Code'] === loginInfo.code && row['activation date']
           );
           currentEntries = userEntries;
-          currentSummary = summaryRow;
-
           hideLoader();
           profileSection.classList.remove('hidden');
           showProfile(userEntries, summaryRow);
@@ -486,6 +482,7 @@
     }
   };
 </script>
+
 
 
 
