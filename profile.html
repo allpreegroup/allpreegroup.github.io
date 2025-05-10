@@ -1,6 +1,5 @@
 <style>
-  
-  :root {
+  #user-panel {
     --primary: #10b981;
     --danger: #ef4444;
     --info: #3b82f6;
@@ -8,28 +7,25 @@
     --card-bg: #ffffff;
     --text: #111827;
     --muted: #6b7280;
-  }
 
-  body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
     background: var(--bg);
     color: var(--text);
   }
 
-  .container {
+  #user-panel .container {
     max-width: 480px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 10px 10px;
   }
 
-  h2, h3 {
+  #user-panel h2,
+  #user-panel h3 {
     margin: 16px 0 8px;
     font-weight: 600;
   }
 
-  input {
+  #user-panel input {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
@@ -37,10 +33,10 @@
     border-radius: 10px;
     font-size: 16px;
     background-color: #fff;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
   }
 
-  button {
+  #user-panel button {
     width: 100%;
     padding: 14px;
     background: var(--primary);
@@ -55,160 +51,158 @@
     transition: background 0.3s;
   }
 
-  button:hover {
+  #user-panel button:hover {
     background: #0e9e6e;
   }
 
-  #logoutBtn {
+  #user-panel #logoutBtn {
     background: var(--danger);
   }
 
-  #logoutBtn:hover {
+  #user-panel #logoutBtn:hover {
     background: #dc2626;
   }
 
-  .filters button {
+  #user-panel .filters button {
     margin-top: 10px;
     background: var(--info);
   }
 
-  .filters {
+  #user-panel .filters {
     display: flex;
     gap: 10px;
     justify-content: center;
     margin: 16px 0;
   }
 
-  .user-header-card {
+  #user-panel .user-header-card {
     background-color: var(--card-bg);
     padding: 1.2rem;
     border-radius: 1.2rem;
     margin-bottom: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   }
 
-  .user-header-card h2 {
+  #user-panel .user-header-card h2 {
     margin-bottom: 0.3rem;
     font-size: 20px;
   }
 
-  .user-header-card p {
+  #user-panel .user-header-card p {
     margin: 0.3rem 0;
     color: var(--muted);
     font-size: 14px;
   }
 
-  #loading-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10005;
-  display: none;
-}
-
-#loading-spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #333;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-
-  .hidden {
+  #user-panel #loading-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10005;
     display: none;
   }
 
-  .summary, .entry {
+  #user-panel #loading-spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #333;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  #user-panel .hidden {
+    display: none;
+  }
+
+  #user-panel .summary,
+  #user-panel .entry {
     background: var(--card-bg);
     border-radius: 14px;
     padding: 18px;
     margin-top: 16px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.04);
   }
 
-  .summary h3 {
+  #user-panel .summary h3 {
     margin-bottom: 10px;
   }
 
-  .summary p {
+  #user-panel .summary p {
     margin: 6px 0;
     color: var(--text);
     font-size: 15px;
   }
 
-  .entry-grid {
+  #user-panel .entry-grid {
     display: flex;
     justify-content: space-between;
     gap: 12px;
   }
 
-  .entry-col {
+  #user-panel .entry-col {
     flex: 1;
   }
 
-  .subtext {
+  #user-panel .subtext {
     font-size: 13px;
     color: var(--muted);
     margin: 4px 0;
   }
 
-  .amount {
+  #user-panel .amount {
     font-size: 15px;
     font-weight: 600;
   }
 </style>
 
+<div id="user-panel">
   <div class="container">
     <div id="login-section" class="hidden">
-      <h2>Login</h2>
-    <form id="login-form">
-    <input type="password" id="password" placeholder="Enter your password" required />
-    <button type="submit" id="login-button">Login</button>
-  </form>
-  <p><a href="#" id="forgot-password">Forgot password?</a></p>
+      <h2>Topup & CashBask Login</h2>
+      <form id="login-form">
+        <input type="password" id="password" placeholder="Enter your password" required />
+        <button type="submit" id="login-button">Login</button>
+      </form>
+      <p><a href="#" id="forgot-password">Forgot password?</a></p>
     </div>
 
     <div id="profile-section" class="hidden">
+      <button id="logoutBtn" onclick="logoutUser()">Logout</button>
 
+      <div id="user-profile-header" class="user-header-card"></div>
 
-    <button id="logoutBtn" onclick="logoutUser()">Logout</button>
-      
-    <div id="user-profile-header" class="user-header-card">
-      
-    </div>
-
-     
       <div class="summary" id="user-summary"></div>
-      
+
       <div class="filters">
-<button id="sort-latest-button">Sort ↓↑</button>
-<button id="sort-negative-one-button">Pay Out Next</button>
+        <button id="sort-latest-button">Sort ↓↑</button>
+        <button id="sort-negative-one-button">Pay Out Next</button>
+      </div>
 
-     
-
-</div>
-      
       <div id="user-profile"></div>
     </div>
   </div>
 
-
-<div id="loading-modal">
-  <div id="loading-spinner"></div>
-  <p>Loading...</p>
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading...</p>
+  </div>
 </div>
