@@ -444,15 +444,21 @@
     renderProfile(sorted, currentSummary);
   }
 
-  // Sort by closest to -1 in "Days Left"
   function sortByClosestToNegativeOne() {
-    const sorted = [...currentEntries].sort((a, b) => {
-      const daysA = parseInt(a["Days Left"]);
-      const daysB = parseInt(b["Days Left"]);
-      return Math.abs(daysA + 1) - Math.abs(daysB + 1);
-    });
-    renderProfile(sorted, currentSummary);
-  }
+  const filtered = currentEntries.filter(entry => {
+    const days = parseInt(entry["Days Left"]);
+    return days < 0; // Keep only negative values
+  });
+
+  const sorted = filtered.sort((a, b) => {
+    const daysA = parseInt(a["Days Left"]);
+    const daysB = parseInt(b["Days Left"]);
+    return Math.abs(daysA + 1) - Math.abs(daysB + 1); // Closest to -1
+  });
+
+  renderProfile(sorted, currentSummary);
+}
+
 
   // Auto login on page load
   window.onload = function () {
