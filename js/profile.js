@@ -140,7 +140,16 @@ function init_profile() {
   });
 
   // Event listeners
-  document.getElementById('login-button').addEventListener('click', loginUser);
+  document.getElementById('login-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const password = document.getElementById('password').value.trim();
+  if (!password) {
+    alert('Please enter your password.');
+    return;
+  }
+  loginUser();
+});
+
   document.getElementById('sort-latest-button').addEventListener('click', sortByLatest);
   document.getElementById('sort-negative-one-button').addEventListener('click', sortByClosestToNegativeOne);
   window.logoutUser = logoutUser;
