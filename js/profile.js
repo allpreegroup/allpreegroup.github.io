@@ -21,39 +21,41 @@ function init_profile() {
     document.getElementById('profile-section').classList.add('hidden');
   }
 
-  function loginUser() {
-    showLoader();
-    const password = document.getElementById('password').value.trim();
+  function loginUser(password) {
+  showLoader();
 
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        const summaryRow = data.find(row => row['Password'] === password);
+  fetch(SHEET_URL)
+    .then(res => res.json())
+    .then(data => {
+      const summaryRow = data.find(row =>
+        row['Password'] === password
+      );
 
-        if (summaryRow) {
-          const loginInfo = {
-            firstName: summaryRow['First Name'],
-            lastName: summaryRow['Last Name'],
-            idcode: summaryRow['ID CODE'],
-            phone: summaryRow['Phone Number'],
-            code: summaryRow['ID CODE']
-          };
-          localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
+      if (summaryRow) {
+        const loginInfo = {
+          firstName: summaryRow['First Name'],
+          lastName: summaryRow['Last Name'],
+          idcode: summaryRow['ID CODE'],
+          phone: summaryRow['Phone Number'],
+          code: summaryRow['ID CODE']
+        };
+        localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
 
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
+        const userEntries = data.filter(row =>
+          row['Code'] === loginInfo.code && row['activation date']
+        );
 
-          currentEntries = userEntries;
-          currentSummary = summaryRow;
-          hideLoader();
-          showProfile(userEntries, summaryRow);
-        } else {
-          hideLoader();
-          alert('Incorrect password. Please try again.');
-        }
-      });
-  }
+        currentEntries = userEntries;
+        currentSummary = summaryRow;
+        hideLoader();
+        showProfile(userEntries, summaryRow);
+      } else {
+        hideLoader();
+        alert('Invalid password. Please try again.');
+      }
+    });
+}
+
 
   function showProfile(userRows, summaryRow) {
     document.getElementById('login-section').classList.add('hidden');
@@ -142,12 +144,17 @@ function init_profile() {
   // Event listeners
   document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  const password = document.getElementById('password').value.trim();
+
+  const passwordInput = document.getElementById('password');
+  const password = passwordInput.value.trim();
+
   if (!password) {
-    alert('Please enter your password.');
+    passwordInput.focus();
+    alert('Password is required.');
     return;
   }
-  loginUser();
+
+  loginUser(password); // pass it to your login function
 });
 
   document.getElementById('sort-latest-button').addEventListener('click', sortByLatest);
