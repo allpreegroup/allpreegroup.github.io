@@ -99,7 +99,7 @@ function init_profile() {
           </div>
           <div class="entry-col">
             <p><strong>(${user["% Reach"]})</strong></p>
-            <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
+            <p class="subtext">${user["Days Left"]} Dys Left<br>${user["Release Date"]}</p>
             <p class="amount">J$${Number(user["Amount Reached"]?.replace('+', '') || 0).toLocaleString()}</p>
           </div>
         </div>
