@@ -99,6 +99,132 @@
     </div>
   </div>
 
+<script>
+  const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
+  let currentEntries = [];
+
+  function loginUser() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const idcode = document.getElementById('idcode').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(data => {
+        // Find the summary row using ID CODE
+        const summaryRow = data.find(row =>
+          row['First Name'] === firstName &&
+          row['Last Name'] === lastName &&
+          row['ID CODE'] === idcode &&
+          row['Phone Number'] === phone
+        );
+
+        if (summaryRow) {
+          const loginInfo = {
+            firstName,
+            lastName,
+            idcode,
+            phone,
+            code: summaryRow['ID CODE']  // Use ID CODE to match transactions
+          };
+          localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
+
+          // Only include transaction rows where 'Code' matches and activation date exists
+          const userEntries = data.filter(row =>
+            row['Code'] === loginInfo.code && row['activation date']
+          );
+
+          currentEntries = userEntries;
+          showProfile(userEntries, summaryRow);
+        } else {
+          alert('User not found. Check your info and try again.');
+        }
+      });
+  }
+
+  function showProfile(userRows, summaryRow) {
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('profile-section').classList.remove('hidden');
+    renderProfile(userRows, summaryRow);
+  }
+
+  function logoutUser() {
+    localStorage.removeItem('profileLogin');
+    currentEntries = [];
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('profile-section').classList.add('hidden');
+  }
+
+  function renderProfile(rows, summary) {
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+
+    // Sort by Top-Up Date DESCENDING
+    const sortedRows = [...rows].sort((a, b) => {
+      const dateA = new Date(a["Top-Up Date"]);
+      const dateB = new Date(b["Top-Up Date"]);
+      return dateB - dateA;
+    });
+
+    // Render Summary if exists
+    if (summary) {
+      document.getElementById('user-summary').innerHTML = `
+        <h3>Summary</h3>
+        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p style="color: #34d399;"><strong>Total Cashback:</strong> J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      `;
+    }
+
+    // Render Transactions
+    const entriesHTML = sortedRows.map(user => `
+      <div class="entry">
+        <div class="entry-grid">
+          <div class="entry-col">
+            <p><strong>Top Up</strong></p>
+            <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
+            <p class="amount">J$${user["Top-Up"]}</p>
+          </div>
+          <div class="entry-col">
+            <p><strong>CashBack</strong></p>
+            <p class="subtext">Activated Date<br>${user["activation date"]}</p>
+            <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
+          </div>
+          <div class="entry-col">
+            <p><strong>(${user["% Reach"]})</strong></p>
+            <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
+            <p class="amount">J$${Number(user["Amount Reached"]?.replace('+', '') || 0).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('user-profile').innerHTML = entriesHTML;
+  }
+
+  // Auto login if session is saved
+  window.onload = function () {
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+    if (loginInfo) {
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+          const userEntries = data.filter(row =>
+            row['Code'] === loginInfo.code && row['activation date']
+          );
+          currentEntries = userEntries;
+          showProfile(userEntries, summaryRow);
+        });
+    }
+  };
+</script>
+
+
+  <!--
   <script>
     const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
     let currentEntries = [];
@@ -228,6 +354,6 @@
           });
       }
     };
-  </script>
+  </script> -->
 </body>
 </html>
