@@ -317,9 +317,10 @@
   <p>Loading...</p>
 </div>
 
-  <script>
+ <script>
   const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
   let currentEntries = [];
+  let currentSummary = null; // NEW: Save summary row globally
 
   // Show and hide loader
   function showLoader() {
@@ -362,6 +363,7 @@
           );
 
           currentEntries = userEntries;
+          currentSummary = summaryRow;
           hideLoader();
           showProfile(userEntries, summaryRow);
         } else {
@@ -380,18 +382,13 @@
   function logoutUser() {
     localStorage.removeItem('profileLogin');
     currentEntries = [];
+    currentSummary = null;
     document.getElementById('login-section').classList.remove('hidden');
     document.getElementById('profile-section').classList.add('hidden');
   }
 
   function renderProfile(rows, summary) {
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-
-    const sortedRows = [...rows].sort((a, b) => {
-      const dateA = new Date(a["Top-Up Date"]);
-      const dateB = new Date(b["Top-Up Date"]);
-      return dateB - dateA;
-    });
 
     document.getElementById('user-profile-header').innerHTML = `
       <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
@@ -404,7 +401,7 @@
         <h3>Summary</h3>
         <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()}</strong></p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
         <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
         <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
@@ -412,7 +409,7 @@
       `;
     }
 
-    const entriesHTML = sortedRows.map(user => `
+    const entriesHTML = rows.map(user => `
       <div class="entry">
         <div class="entry-grid">
           <div class="entry-col">
@@ -437,26 +434,27 @@
     document.getElementById('user-profile').innerHTML = entriesHTML;
   }
 
-  // Sort Functions
-  function sortByLatest() {
+  // Sort by latest (newest first by default)
+  function sortByLatest(descending = true) {
     const sorted = [...currentEntries].sort((a, b) => {
       const dateA = new Date(a["Top-Up Date"]);
       const dateB = new Date(b["Top-Up Date"]);
-      return dateB - dateA;
+      return descending ? dateB - dateA : dateA - dateB;
     });
-    renderProfile(sorted);
+    renderProfile(sorted, currentSummary);
   }
 
+  // Sort by closest to -1 in "Days Left"
   function sortByClosestToNegativeOne() {
     const sorted = [...currentEntries].sort((a, b) => {
-      const valA = Number(a["Days Left"]);
-      const valB = Number(b["Days Left"]);
-      return Math.abs(valA + 1) - Math.abs(valB + 1);
+      const daysA = parseInt(a["Days Left"]);
+      const daysB = parseInt(b["Days Left"]);
+      return Math.abs(daysA + 1) - Math.abs(daysB + 1);
     });
-    renderProfile(sorted);
+    renderProfile(sorted, currentSummary);
   }
 
-  // Auto login
+  // Auto login on page load
   window.onload = function () {
     showLoader();
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
@@ -472,9 +470,10 @@
             row['Code'] === loginInfo.code && row['activation date']
           );
           currentEntries = userEntries;
+          currentSummary = summaryRow;
           hideLoader();
           profileSection.classList.remove('hidden');
-          showProfile(userEntries, summaryRow);
+          renderProfile(userEntries, summaryRow);
         });
     } else {
       hideLoader();
@@ -482,6 +481,7 @@
     }
   };
 </script>
+
 
 
 
