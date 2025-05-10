@@ -1,4 +1,4 @@
-function init_generategiftcard() {
+function init_profile() {
    const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
   let currentEntries = [];
   let currentSummary = null; // NEW: Save summary row globally
