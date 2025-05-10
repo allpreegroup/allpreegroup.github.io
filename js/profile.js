@@ -49,6 +49,7 @@ function init_profile() {
         currentSummary = summaryRow;
         hideLoader();
         showProfile(userEntries, summaryRow);
+        sortByLatest();
       } else {
         hideLoader();
         alert('Invalid password. Please try again.');
@@ -177,6 +178,7 @@ function init_profile() {
         hideLoader();
         document.getElementById('profile-section').classList.remove('hidden');
         renderProfile(userEntries, summaryRow);
+        sortByLatest();
       });
   } else {
     hideLoader();
