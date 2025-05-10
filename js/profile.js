@@ -167,5 +167,8 @@ function init_profile() {
   }
 
   // BIND the button click properly
-  document.getElementById('login-button').addEventListener('click', loginUser);
+  document.getElementById('login-button').addEventListener('click', loginUser);  
+  document.getElementById('logout-button').addEventListener('click', logoutUser);
+  document.getElementById('sort-latest-button').addEventListener('click', sortByLatest);
+  document.getElementById('sort-negative-one-button').addEventListener('click', sortByClosestToNegativeOne);
 }
