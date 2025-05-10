@@ -318,7 +318,17 @@
   let currentEntries = [];
   let currentSummary = null;
 
+  // Show and hide loader
+  function showLoader() {
+    document.getElementById('loading-modal').style.display = 'flex';
+  }
+
+  function hideLoader() {
+    document.getElementById('loading-modal').style.display = 'none';
+  }
+
   function loginUser() {
+    showLoader();
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const idcode = document.getElementById('idcode').value.trim();
@@ -335,7 +345,13 @@
         );
 
         if (summaryRow) {
-          const loginInfo = { firstName, lastName, idcode, phone, code: summaryRow['ID CODE'] };
+          const loginInfo = {
+            firstName,
+            lastName,
+            idcode,
+            phone,
+            code: summaryRow['ID CODE']
+          };
           localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
 
           const userEntries = data.filter(row =>
@@ -343,18 +359,20 @@
           );
 
           currentEntries = userEntries;
+          currentSummary = summaryRow;
+          hideLoader();
           showProfile(userEntries, summaryRow);
         } else {
+          hideLoader();
           alert('User not found. Check your info and try again.');
         }
       });
   }
 
   function showProfile(userRows, summaryRow) {
-    currentSummary = summaryRow;
     document.getElementById('login-section').classList.add('hidden');
     document.getElementById('profile-section').classList.remove('hidden');
-    renderProfile(userRows);
+    renderProfile(userRows, summaryRow);
   }
 
   function logoutUser() {
@@ -365,7 +383,7 @@
     document.getElementById('profile-section').classList.add('hidden');
   }
 
-  function renderProfile(rows) {
+  function renderProfile(rows, summary) {
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
 
     const sortedRows = [...rows].sort((a, b) => {
@@ -377,19 +395,19 @@
     document.getElementById('user-profile-header').innerHTML = `
       <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
       <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
-      <p><strong>Sponsor:</strong> ${currentSummary?.["Sponsor"] || "Not Available"}</p>
+      <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
     `;
 
-    if (currentSummary) {
+    if (summary) {
       document.getElementById('user-summary').innerHTML = `
         <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${Number(currentSummary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Total Spend:</strong> J$${Number(currentSummary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(currentSummary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-        <p><strong>Confirm Cashback:</strong> J$${Number(currentSummary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Received Cashback:</strong> J$${Number(currentSummary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Pending Cashback:</strong> J$${Number(currentSummary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Available Cashback:</strong> J$${Number(currentSummary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
       `;
     }
 
@@ -424,21 +442,21 @@
       const dateB = new Date(b["Top-Up Date"]);
       return descending ? dateB - dateA : dateA - dateB;
     });
-    renderProfile(sorted);
+    renderProfile(sorted, currentSummary);
   }
 
   function sortByClosestToNegativeOne() {
     const sorted = [...currentEntries].sort((a, b) => {
-      const valA = Math.abs(Number(a["Amount Reached"].replace('+','')) + 1);
-      const valB = Math.abs(Number(b["Amount Reached"].replace('+','')) + 1);
+      const valA = Math.abs(Number(a["Amount Reached"]?.replace('+', '') || 0) + 1);
+      const valB = Math.abs(Number(b["Amount Reached"]?.replace('+', '') || 0) + 1);
       return valA - valB;
     });
-    renderProfile(sorted);
+    renderProfile(sorted, currentSummary);
   }
 
   window.onload = function () {
+    showLoader();
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-    const loader = document.getElementById('app-loading');
     const loginSection = document.getElementById('login-section');
     const profileSection = document.getElementById('profile-section');
 
@@ -453,16 +471,17 @@
           currentEntries = userEntries;
           currentSummary = summaryRow;
 
-          loader.classList.add('hidden');
+          hideLoader();
           profileSection.classList.remove('hidden');
-          renderProfile(userEntries);
+          showProfile(userEntries, summaryRow);
         });
     } else {
-      loader.classList.add('hidden');
+      hideLoader();
       loginSection.classList.remove('hidden');
     }
   };
 </script>
+
 
 
   <!--
