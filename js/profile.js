@@ -3,7 +3,7 @@ function init_profile() {
 
   let currentEntries = [];
   let currentSummary = null;
-  let isDescending = true;
+  let isDescending = false;
 
   function showLoader() {
     document.getElementById('loading-modal').style.display = 'flex';
