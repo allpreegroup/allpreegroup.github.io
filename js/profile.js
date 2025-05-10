@@ -1,9 +1,8 @@
 function init_profile() {
-   const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
+  const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
   let currentEntries = [];
-  let currentSummary = null; // NEW: Save summary row globally
+  let currentSummary = null;
 
-  // Show and hide loader
   function showLoader() {
     document.getElementById('loading-modal').style.display = 'flex';
   }
@@ -115,60 +114,58 @@ function init_profile() {
     document.getElementById('user-profile').innerHTML = entriesHTML;
   }
 
- let isDescending = true; // Track current sort order
+  let isDescending = true;
 
-function sortByLatest() {
-  isDescending = !isDescending; // Flip the sort direction
-  const sorted = [...currentEntries].sort((a, b) => {
-    const dateA = new Date(a["Top-Up Date"]);
-    const dateB = new Date(b["Top-Up Date"]);
-    return isDescending ? dateB - dateA : dateA - dateB;
-  });
-  renderProfile(sorted, currentSummary);
-}
-
+  function sortByLatest() {
+    isDescending = !isDescending;
+    const sorted = [...currentEntries].sort((a, b) => {
+      const dateA = new Date(a["Top-Up Date"]);
+      const dateB = new Date(b["Top-Up Date"]);
+      return isDescending ? dateB - dateA : dateA - dateB;
+    });
+    renderProfile(sorted, currentSummary);
+  }
 
   function sortByClosestToNegativeOne() {
-  const filtered = currentEntries.filter(entry => {
-    const days = parseInt(entry["Days Left"]);
-    return days < 0; // Keep only negative values
-  });
+    const filtered = currentEntries.filter(entry => {
+      const days = parseInt(entry["Days Left"]);
+      return days < 0;
+    });
 
-  const sorted = filtered.sort((a, b) => {
-    const daysA = parseInt(a["Days Left"]);
-    const daysB = parseInt(b["Days Left"]);
-    return Math.abs(daysA + 1) - Math.abs(daysB + 1); // Closest to -1
-  });
+    const sorted = filtered.sort((a, b) => {
+      const daysA = parseInt(a["Days Left"]);
+      const daysB = parseInt(b["Days Left"]);
+      return Math.abs(daysA + 1) - Math.abs(daysB + 1);
+    });
 
-  renderProfile(sorted, currentSummary);
-}
-
+    renderProfile(sorted, currentSummary);
+  }
 
   // Auto login on page load
- 
-    showLoader();
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-    const loginSection = document.getElementById('login-section');
-    const profileSection = document.getElementById('profile-section');
+  showLoader();
+  const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+  const loginSection = document.getElementById('login-section');
+  const profileSection = document.getElementById('profile-section');
 
-    if (loginInfo) {
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-          currentEntries = userEntries;
-          currentSummary = summaryRow;
-          hideLoader();
-          profileSection.classList.remove('hidden');
-          renderProfile(userEntries, summaryRow);
-        });
-    } else {
-      hideLoader();
-      loginSection.classList.remove('hidden');
-    }
+  if (loginInfo) {
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(data => {
+        const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+        const userEntries = data.filter(row =>
+          row['Code'] === loginInfo.code && row['activation date']
+        );
+        currentEntries = userEntries;
+        currentSummary = summaryRow;
+        hideLoader();
+        profileSection.classList.remove('hidden');
+        renderProfile(userEntries, summaryRow);
+      });
+  } else {
+    hideLoader();
+    loginSection.classList.remove('hidden');
+  }
+
   // BIND the button click properly
   document.getElementById('login-button').addEventListener('click', loginUser);
 }
