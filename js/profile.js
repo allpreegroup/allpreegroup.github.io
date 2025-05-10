@@ -89,12 +89,12 @@ function init_profile() {
         <div class="entry-grid">
           <div class="entry-col">
             <p><strong>Top Up</strong></p>
-            <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
+            <p class="subtext">Top Up On<br>${user["Top-Up Date"]}</p>
             <p class="amount">J$${user["Top-Up"]}</p>
           </div>
           <div class="entry-col">
             <p><strong>CashBack</strong></p>
-            <p class="subtext">Activated Date<br>${user["activation date"]}</p>
+            <p class="subtext">Activated On<br>${user["activation date"]}</p>
             <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
           </div>
           <div class="entry-col">
