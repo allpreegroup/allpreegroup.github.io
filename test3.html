@@ -313,7 +313,159 @@
   <div id="loading-spinner"></div>
   <p>Loading...</p>
 </div>
-  
+<script>
+  const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
+  let currentEntries = [];
+  let currentSummary = null;
+
+  function loginUser() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const idcode = document.getElementById('idcode').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(data => {
+        const summaryRow = data.find(row =>
+          row['First Name'] === firstName &&
+          row['Last Name'] === lastName &&
+          row['ID CODE'] === idcode &&
+          row['Phone Number'] === phone
+        );
+
+        if (summaryRow) {
+          const loginInfo = { firstName, lastName, idcode, phone, code: summaryRow['ID CODE'] };
+          localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
+
+          const userEntries = data.filter(row =>
+            row['Code'] === loginInfo.code && row['activation date']
+          );
+
+          currentEntries = userEntries;
+          showProfile(userEntries, summaryRow);
+        } else {
+          alert('User not found. Check your info and try again.');
+        }
+      });
+  }
+
+  function showProfile(userRows, summaryRow) {
+    currentSummary = summaryRow;
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('profile-section').classList.remove('hidden');
+    renderProfile(userRows);
+  }
+
+  function logoutUser() {
+    localStorage.removeItem('profileLogin');
+    currentEntries = [];
+    currentSummary = null;
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('profile-section').classList.add('hidden');
+  }
+
+  function renderProfile(rows) {
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+
+    const sortedRows = [...rows].sort((a, b) => {
+      const dateA = new Date(a["Top-Up Date"]);
+      const dateB = new Date(b["Top-Up Date"]);
+      return dateB - dateA;
+    });
+
+    document.getElementById('user-profile-header').innerHTML = `
+      <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
+      <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
+      <p><strong>Sponsor:</strong> ${currentSummary?.["Sponsor"] || "Not Available"}</p>
+    `;
+
+    if (currentSummary) {
+      document.getElementById('user-summary').innerHTML = `
+        <h3>Summary</h3>
+        <p><strong>Total Top-Up:</strong> J$${Number(currentSummary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Total Spend:</strong> J$${Number(currentSummary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(currentSummary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+        <p><strong>Confirm Cashback:</strong> J$${Number(currentSummary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Received Cashback:</strong> J$${Number(currentSummary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Pending Cashback:</strong> J$${Number(currentSummary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+        <p><strong>Available Cashback:</strong> J$${Number(currentSummary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      `;
+    }
+
+    const entriesHTML = sortedRows.map(user => `
+      <div class="entry">
+        <div class="entry-grid">
+          <div class="entry-col">
+            <p><strong>Top Up</strong></p>
+            <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
+            <p class="amount">J$${user["Top-Up"]}</p>
+          </div>
+          <div class="entry-col">
+            <p><strong>CashBack</strong></p>
+            <p class="subtext">Activated Date<br>${user["activation date"]}</p>
+            <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
+          </div>
+          <div class="entry-col">
+            <p><strong>(${user["% Reach"]})</strong></p>
+            <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
+            <p class="amount">J$${Number(user["Amount Reached"]?.replace('+', '') || 0).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('user-profile').innerHTML = entriesHTML;
+  }
+
+  function sortByDate(descending = true) {
+    const sorted = [...currentEntries].sort((a, b) => {
+      const dateA = new Date(a["Top-Up Date"]);
+      const dateB = new Date(b["Top-Up Date"]);
+      return descending ? dateB - dateA : dateA - dateB;
+    });
+    renderProfile(sorted);
+  }
+
+  function sortByClosestToNegativeOne() {
+    const sorted = [...currentEntries].sort((a, b) => {
+      const valA = Math.abs(Number(a["Amount Reached"].replace('+','')) + 1);
+      const valB = Math.abs(Number(b["Amount Reached"].replace('+','')) + 1);
+      return valA - valB;
+    });
+    renderProfile(sorted);
+  }
+
+  window.onload = function () {
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+    const loader = document.getElementById('app-loading');
+    const loginSection = document.getElementById('login-section');
+    const profileSection = document.getElementById('profile-section');
+
+    if (loginInfo) {
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+          const userEntries = data.filter(row =>
+            row['Code'] === loginInfo.code && row['activation date']
+          );
+          currentEntries = userEntries;
+          currentSummary = summaryRow;
+
+          loader.classList.add('hidden');
+          profileSection.classList.remove('hidden');
+          renderProfile(userEntries);
+        });
+    } else {
+      loader.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+    }
+  };
+</script>
+
+
+  <!--
 <script>
   const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
   let currentEntries = [];
@@ -468,7 +620,7 @@
       loginSection.classList.remove('hidden');
     }
   };
-</script>
+</script> -->
 
 </body>
 </html>
