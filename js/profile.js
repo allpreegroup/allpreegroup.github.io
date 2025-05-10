@@ -5,7 +5,6 @@ function init_profile() {
   let currentSummary = null;
   let isDescending = true;
 
-  // Show and hide loader
   function showLoader() {
     document.getElementById('loading-modal').style.display = 'flex';
   }
@@ -24,27 +23,19 @@ function init_profile() {
 
   function loginUser() {
     showLoader();
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const idcode = document.getElementById('idcode').value.trim();
-    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value.trim();
 
     fetch(SHEET_URL)
       .then(res => res.json())
       .then(data => {
-        const summaryRow = data.find(row =>
-          row['First Name'] === firstName &&
-          row['Last Name'] === lastName &&
-          row['ID CODE'] === idcode &&
-          row['Phone Number'] === phone
-        );
+        const summaryRow = data.find(row => row['Password'] === password);
 
         if (summaryRow) {
           const loginInfo = {
-            firstName,
-            lastName,
-            idcode,
-            phone,
+            firstName: summaryRow['First Name'],
+            lastName: summaryRow['Last Name'],
+            idcode: summaryRow['ID CODE'],
+            phone: summaryRow['Phone Number'],
             code: summaryRow['ID CODE']
           };
           localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
@@ -59,7 +50,7 @@ function init_profile() {
           showProfile(userEntries, summaryRow);
         } else {
           hideLoader();
-          alert('User not found. Check your info and try again.');
+          alert('Incorrect password. Please try again.');
         }
       });
   }
@@ -79,18 +70,16 @@ function init_profile() {
       <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
     `;
 
-    if (summary) {
-      document.getElementById('user-summary').innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      `;
-    }
+    document.getElementById('user-summary').innerHTML = `
+      <h3>Summary</h3>
+      <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+      <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+    `;
 
     const entriesHTML = rows.map(user => `
       <div class="entry">
@@ -142,11 +131,19 @@ function init_profile() {
     renderProfile(sorted, currentSummary);
   }
 
+  // Forgot password WhatsApp link
+  document.getElementById('forgot-password')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const waNumber = '18761234567'; // Replace with your number
+    const message = encodeURIComponent("Hi, I forgot my cashback login password. Can you help me retrieve it?");
+    window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+  });
+
   // Event listeners
   document.getElementById('login-button').addEventListener('click', loginUser);
   document.getElementById('sort-latest-button').addEventListener('click', sortByLatest);
   document.getElementById('sort-negative-one-button').addEventListener('click', sortByClosestToNegativeOne);
-  window.logoutUser = logoutUser; // Expose logout globally for button onclick
+  window.logoutUser = logoutUser;
 
   // Auto-login
   showLoader();
