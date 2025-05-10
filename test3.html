@@ -66,7 +66,14 @@
   color: #4b5563;
 }
 
-
+.loading {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+}
+.hidden {
+  display: none;
+}
     
     .summary, .entry {
       background: white;
@@ -111,10 +118,9 @@
       
     </div>
 
-      
+      <div id="loading-message" class="loading hidden">Loading your profile...</div>
       <div class="summary" id="user-summary"></div>
       <div class="filters">
-        <button id="sortBtn" onclick="sortByDate(true)">Newest</button>
         <button id="sortBtn" onclick="sortByDate(false)">Oldest</button>
         <button id="sortBtn" onclick="sortByClosestToZero()">Closest</button>
       </div>
@@ -240,20 +246,23 @@
 
   // Auto login if session is saved
   window.onload = function () {
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-    if (loginInfo) {
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-          currentEntries = userEntries;
-          showProfile(userEntries, summaryRow);
-        });
-    }
-  };
+  const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+  if (loginInfo) {
+    document.getElementById('loading-message').classList.remove('hidden'); // Show loading
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(data => {
+        const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+        const userEntries = data.filter(row =>
+          row['Code'] === loginInfo.code && row['activation date']
+        );
+        currentEntries = userEntries;
+        document.getElementById('loading-message').classList.add('hidden'); // Hide loading
+        showProfile(userEntries, summaryRow);
+      });
+  }
+};
+
 </script>
 
 </body>
