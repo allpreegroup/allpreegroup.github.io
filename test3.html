@@ -56,6 +56,7 @@
     border-radius: 10px;
     font-size: 16px;
     margin-top: 12px;
+    margin-bottom: 12px;
     cursor: pointer;
     transition: background 0.3s;
   }
@@ -103,12 +104,36 @@
     font-size: 14px;
   }
 
-  .loading {
-    text-align: center;
-    font-weight: 500;
-    font-size: 16px;
-    padding: 12px;
-  }
+  #loading-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10005;
+  display: none;
+}
+
+#loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 
   .hidden {
     display: none;
@@ -263,32 +288,47 @@
     </div>
 
     <div id="profile-section" class="hidden">
+
+
+    <button id="logoutBtn" onclick="logoutUser()">Logout</button>
       
     <div id="user-profile-header" class="user-header-card">
       
-      <button id="logoutBtn" onclick="logoutUser()">Logout</button>
     </div>
 
      
       <div class="summary" id="user-summary"></div>
+      
       <div class="filters">
-        <button id="sortBtn" onclick="sortByDate(false)">Oldest</button>
-        <button id="sortBtn" onclick="sortByClosestToZero()">Closest</button>
-      </div>
+  <button id="sortOldestBtn" onclick="sortByDate(false)">Oldest</button>
+  <button id="sortClosestBtn" onclick="sortByClosestToZero()">Closest</button>
+</div>
       
       <div id="user-profile"></div>
     </div>
   </div>
 
-<div id="app-loading" class="loading">Loading...</div>
 
-
+<div id="loading-modal">
+  <div id="loading-spinner"></div>
+  <p>Loading...</p>
+</div>
   
 <script>
   const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
   let currentEntries = [];
+  
+// Show and hide loader
+  function showLoader() {
+    document.getElementById('loading-modal').style.display = 'flex';
+  }
+
+  function hideLoader() {
+    document.getElementById('loading-modal').style.display = 'none';
+  }
 
   function loginUser() {
+    showLoader();
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const idcode = document.getElementById('idcode').value.trim();
@@ -321,8 +361,10 @@
           );
 
           currentEntries = userEntries;
+         hideLoader();
           showProfile(userEntries, summaryRow);
         } else {
+          hideLoader();
           alert('User not found. Check your info and try again.');
         }
       });
@@ -399,34 +441,33 @@
     document.getElementById('user-profile').innerHTML = entriesHTML;
   }
 
-  // Auto login if session is saved
- window.onload = function () {
-  const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-  const loader = document.getElementById('app-loading');
-  const loginSection = document.getElementById('login-section');
-  const profileSection = document.getElementById('profile-section');
+ // Auto login on page load
+  window.onload = function () {
+    showLoader();
 
-  if (loginInfo) {
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
-        const userEntries = data.filter(row =>
-          row['Code'] === loginInfo.code && row['activation date']
-        );
-        currentEntries = userEntries;
+    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+    const loginSection = document.getElementById('login-section');
+    const profileSection = document.getElementById('profile-section');
 
-        loader.classList.add('hidden');
-        profileSection.classList.remove('hidden');
-        showProfile(userEntries, summaryRow);
-      });
-  } else {
-    loader.classList.add('hidden');
-    loginSection.classList.remove('hidden');
-  }
-};
+    if (loginInfo) {
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+          const userEntries = data.filter(row =>
+            row['Code'] === loginInfo.code && row['activation date']
+          );
+          currentEntries = userEntries;
 
-
+          hideLoader();
+          profileSection.classList.remove('hidden');
+          showProfile(userEntries, summaryRow);
+        });
+    } else {
+      hideLoader();
+      loginSection.classList.remove('hidden');
+    }
+  };
 </script>
 
 </body>
