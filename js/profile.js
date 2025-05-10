@@ -145,7 +145,7 @@ function sortByLatest() {
 
 
   // Auto login on page load
-  window.onload = function () {
+ 
     showLoader();
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
     const loginSection = document.getElementById('login-section');
@@ -169,5 +169,5 @@ function sortByLatest() {
       hideLoader();
       loginSection.classList.remove('hidden');
     }
-  };
+  
 }
