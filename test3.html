@@ -50,6 +50,24 @@
       margin-top: 10px;
       background: #3b82f6;
     }
+
+    .user-header-card {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.user-header-card h2 {
+  margin-bottom: 0.5rem;
+}
+.user-header-card p {
+  margin: 0.2rem 0;
+  color: #4b5563;
+}
+
+
+    
     .summary, .entry {
       background: white;
       border-radius: 12px;
@@ -88,6 +106,12 @@
 
     <div id="profile-section" class="hidden">
       <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+
+    <div id="user-profile-header" class="user-header-card">
+      
+    </div>
+
+      
       <div class="summary" id="user-summary"></div>
       <div class="filters">
         <button id="sortBtn" onclick="sortByDate(true)">Newest</button>
@@ -166,6 +190,14 @@
       return dateB - dateA;
     });
 
+   // Render Profile Header Info
+   document.getElementById('user-header').innerHTML = `
+  <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
+  <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
+  <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
+  `;
+
+    
     // Render Summary if exists
     if (summary) {
       document.getElementById('user-summary').innerHTML = `
@@ -224,137 +256,5 @@
   };
 </script>
 
-
-  <!--
-  <script>
-    const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
-    let currentEntries = [];
-
-    function loginUser() {
-      const firstName = document.getElementById('firstName').value.trim();
-      const lastName = document.getElementById('lastName').value.trim();
-      const idcode = document.getElementById('idcode').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          const matched = data.find(row =>
-            row['First Name'] === firstName &&
-            row['Last Name'] === lastName &&
-            row['ID CODE'] === idcode &&
-            row['Phone Number'] === phone
-          );
-
-          if (matched) {
-            const loginInfo = { firstName, lastName, idcode, phone, code: idcode };
-            localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
-            const userEntries = data.filter(row => row['Code'] === loginInfo.code);
-            currentEntries = userEntries;
-            showProfile(userEntries);
-          } else {
-            alert('User not found. Check your info and try again.');
-          }
-        });
-    }
-
-    function showProfile(userRows) {
-      document.getElementById('login-section').classList.add('hidden');
-      document.getElementById('profile-section').classList.remove('hidden');
-      renderProfile(userRows);
-    }
-
-    function logoutUser() {
-      localStorage.removeItem('profileLogin');
-      currentEntries = [];
-      document.getElementById('login-section').classList.remove('hidden');
-      document.getElementById('profile-section').classList.add('hidden');
-    }
-
-   function sortByDate(descending = true) {
-      const sorted = [...currentEntries].sort((a, b) => {
-        const dateA = new Date(a["Top-Up Date"]);
-        const dateB = new Date(b["Top-Up Date"]);
-        return descending ? dateB - dateA : dateA - dateB;
-      });
-      renderProfile(sorted);
-    }
-    
-    function sortByClosestToZero() {
-      const sorted = [...currentEntries].sort((a, b) => {
-        const valA = Math.abs(Number(a["Days Left"]));
-        const valB = Math.abs(Number(b["Days Left"]));
-        return valA - valB;
-      });
-      renderProfile(sorted);
-    }
-
-    function renderProfile(rows) {
-      const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-
-      // Sort by Top-Up Date (newest first)
-  const sortedRows = [...rows].sort((a, b) => {
-    const dateA = new Date(a["Top-Up Date"]);
-    const dateB = new Date(b["Top-Up Date"]);
-    return dateB - dateA;
-  });
-      
-      const summary = rows.find(r =>
-        r['ID CODE'] === loginInfo.idcode &&
-        r['Total Top'] && r['Total Spend']
-      );
-
-      if (summary) {
-        document.getElementById('user-summary').innerHTML = `
-          <h3>Summary</h3>
-          <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"].replace('+','')).toLocaleString()}
-          <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"].replace('+','')).toLocaleString()}
-          <p style="color: #34d399;"><strong>Total Cashback:</strong> J$${Number(summary["Total CashBack"].replace('+','')).toLocaleString()}
-          <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"].replace('+','')).toLocaleString()}
-          <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"].replace('+','')).toLocaleString()}
-          <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"].replace('+','')).toLocaleString()}
-        `;
-      }
-      
-      const entriesHTML = sortedRows
-  .filter(user => user["activation date"] && user["activation date"].trim() !== "")
-  .map(user => `
-        <div class="entry">
-          <div class="entry-grid">
-            <div class="entry-col">
-              <p><strong>Top Up</strong></p>
-              <p class="subtext">Top Up Day <br>${user["Top-Up Date"]}</p>
-              <p class="amount">J$${user["Top-Up"]}</p>
-            </div>
-            <div class="entry-col">
-              <p><strong>CashBack</strong></p>
-              <p class="subtext">Activated Day<br>${user["activation date"]}</p>
-              <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"].replace('+','')).toLocaleString()}</p>
-            </div>
-            <div class="entry-col">
-              <p><strong>(${user["% Reach"]})</strong></p>
-              <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
-              <p class="amount">J$${Number(user["Amount Reached"].replace('+','')).toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById('user-profile').innerHTML = entriesHTML;
-    }
-
-    window.onload = function() {
-      const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-      if (loginInfo) {
-        fetch(SHEET_URL)
-          .then(res => res.json())
-          .then(data => {
-            const userEntries = data.filter(row => row['Code'] === loginInfo.code);
-            currentEntries = userEntries;
-            showProfile(userEntries);
-          });
-      }
-    };
-  </script> -->
 </body>
 </html>
