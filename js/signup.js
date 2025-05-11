@@ -98,14 +98,13 @@ function init_signup() {
   });
 
   // Show spinner on form submit
-  // Unified handler for successful signup
   function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
 
-  loader.style.display = "none";
+  
   signupForm.querySelector('button[type="submit"]').disabled = false;
-
+  document.getElementById("loading-modal").style.display = "none"; // hide spinner
   const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
@@ -142,10 +141,11 @@ function init_signup() {
 
   // Form submit behavior
   signupForm.addEventListener("submit", (e) => {
+  document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
   if (window.submitted) return; // prevent double submit
   window.submitted = true;
 
-  loader.style.display = "flex";
+ 
   signupForm.querySelector('button[type="submit"]').disabled = true;
 
   console.log("Form submitted - loader shown");
