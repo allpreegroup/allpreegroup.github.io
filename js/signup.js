@@ -9,7 +9,7 @@ function init_signup() {
   const welcomeText = document.getElementById("welcomeText");
   const loader = document.getElementById("loading-modal");
 
-  
+  let iframeHasLoadedOnce = false;
   window.submitted = false;
 
   // Show welcome if already signed up
