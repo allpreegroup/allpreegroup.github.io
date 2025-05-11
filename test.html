@@ -7,46 +7,16 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
     .hidden { display: none; }
-    .form-section, .invite-section {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .col-md-6 {
-  width: 48%;
-  display: inline-block;
-  vertical-align: top;
-  margin-right: 4%;
-}
-
-.col-md-6:nth-child(2n) {
-  margin-right: 0;
-}
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-    }
-    button {
-      padding: 10px 20px;
-      background: green;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+    .form-section, .invite-section { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    input, select { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
     button:disabled { background: grey; }
     .error { color: red; }
-    .one_of_the_boxes { margin-bottom: 15px; }
-    .col-md-6 {
-      width: 48%;
-      display: inline-block;
-      vertical-align: top;
+    .form-row { display: flex; justify-content: space-between; gap: 4%; flex-wrap: wrap; }
+    .col-md-6 { flex: 1 1 48%; }
+    @media (max-width: 600px) {
+      .col-md-6 { flex: 1 1 100%; }
     }
-    .icon_box { margin-bottom: 5px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/crs-country-js@1.0.4/crs-country.min.js"></script>
 </head>
@@ -62,31 +32,35 @@
 <div class="form-section hidden" id="signupFormSection">
   <h2>Sign Up</h2>
   <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse" method="post">
-
+    
     <!-- Auto-fill from invite -->
     <input type="hidden" name="entry.1092645840" id="field_ID">
     <input type="hidden" name="entry.2034350499" id="field_Code">
 
-    <!-- User inputs -->
-   <div class="col-md-6">
-  <input type="text" name="entry.1502543154" placeholder="First Name" required>
-</div>
-<div class="col-md-6">
-  <input type="text" name="entry.166208811" placeholder="Last Name" required>
-</div>
-<br style="clear:both;">
+    <!-- Name Fields -->
+    <div class="form-row">
+      <div class="col-md-6">
+        <input type="text" name="entry.1502543154" placeholder="First Name" required>
+      </div>
+      <div class="col-md-6">
+        <input type="text" name="entry.166208811" placeholder="Last Name" required>
+      </div>
+    </div>
 
+    <!-- Email -->
     <input type="email" name="emailAddress" placeholder="Email Address" required>
 
-    <input type="tel" name="entry.1897494140" id="whatsappNumber" placeholder="WhatsApp Number (+1876...)" required>
-    <small style="color: gray;">Enter your WhatsApp number. It will auto-format to start with +1876.</small>
+    <!-- WhatsApp Phone -->
+    <input type="tel" name="entry.1897494140" placeholder="WhatsApp Number (e.g. +18761234567)" required pattern="^\+\d{10,15}$" title="Enter a valid WhatsApp number starting with + and country code">
 
+    <!-- Gender -->
     <select name="entry.208508536" required>
       <option value="">Select Gender</option>
       <option>Male</option>
       <option>Female</option>
     </select>
 
+    <!-- Birth Year -->
     <select name="entry.577240945" required>
       <option value="">Birth Year</option>
       <script>
@@ -97,17 +71,19 @@
       </script>
     </select>
 
-    <!-- Country & Region -->
-    <div class="col-md-6">
-      <div class="one_of_the_boxes">
-        <div class="icon_box country-icon"></div>
-        <select name="entry.1890405601" class="crs-country" data-whitelist="JM" data-blacklist="CD,CG,SH,GS" data-region-id="seven"></select>
+    <!-- Country & Region Selection -->
+    <div class="form-row">
+      <div class="col-md-6">
+        <div class="one_of_the_boxes">
+          <div class="icon_box country-icon"></div>
+          <select name="entry.1890405601" class="crs-country" data-whitelist="JM" data-blacklist="CD,CG,SH,GS" data-region-id="seven"></select>
+        </div>
       </div>
-    </div>
-    <div class="col-md-6">
-      <div class="one_of_the_boxes">
-        <div class="icon_box location"></div>
-        <select name="entry.341957417" id="seven" data-default-value=""></select>
+      <div class="col-md-6">
+        <div class="one_of_the_boxes">
+          <div class="icon_box location"></div>
+          <select name="entry.341957417" id="seven" data-default-value=""></select>
+        </div>
       </div>
     </div>
 
@@ -119,22 +95,26 @@
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){ window.location='/thankyou/'; }"></iframe>
 
 <script>
+  const inviteBtn = document.getElementById('validateBtn');
+  const inviteInput = document.getElementById('inviteCodeInput');
+  const errorText = document.getElementById('inviteError');
+  const formSection = document.getElementById('signupFormSection');
   let submitted = false;
 
-  document.getElementById('validateBtn').onclick = async () => {
-    const code = document.getElementById('inviteCodeInput').value.trim().toUpperCase();
-    const errorText = document.getElementById('inviteError');
+  inviteBtn.onclick = async () => {
+    const code = inviteInput.value.trim().toUpperCase();
     if (!code) return;
 
     try {
       const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
       const data = await res.json();
+
       const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
 
       if (match) {
         document.getElementById('field_ID').value = `ID ${code}`;
         document.getElementById('field_Code').value = code;
-        document.getElementById('signupFormSection').classList.remove('hidden');
+        formSection.classList.remove('hidden');
         document.querySelector('.invite-section').classList.add('hidden');
         errorText.style.display = "none";
       } else {
@@ -145,16 +125,6 @@
       errorText.style.display = "block";
     }
   };
-
-  // WhatsApp phone number formatter
-  const phoneInput = document.getElementById("whatsappNumber");
-  phoneInput.addEventListener("input", () => {
-    let raw = phoneInput.value.replace(/\D/g, "");
-    if (!raw.startsWith("1876")) {
-      raw = "1876" + raw.replace(/^1876/, "");
-    }
-    phoneInput.value = `+${raw}`;
-  });
 </script>
 
 </body>
