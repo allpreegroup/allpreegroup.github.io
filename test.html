@@ -22,6 +22,7 @@
     }
     .row { display: flex; gap: 10px; }
     .row .half { flex: 1; }
+    .helper { font-size: 0.9em; color: #555; margin-top: -8px; margin-bottom: 10px; }
     button {
       padding: 10px 20px;
       background: green;
@@ -60,9 +61,11 @@
 
     <input type="email" name="emailAddress" placeholder="Email Address" required>
 
-    <input type="tel" name="entry.1897494140" placeholder="WhatsApp Number (e.g. +18761234567)" required
+    <input type="tel" name="entry.1897494140" id="whatsappNumber"
+           placeholder="WhatsApp Number (e.g. +18761234567)" required
            pattern="^\+[0-9]{10,15}$"
-           title="Enter a valid WhatsApp number with country code (e.g. +18761234567)">
+           title="Enter a valid WhatsApp number with + and country code">
+    <div class="helper">Please enter your WhatsApp number starting with a + sign and country code. Example: +18761234567</div>
 
     <select name="entry.208508536" required>
       <option value="">Select Gender</option>
@@ -74,12 +77,13 @@
       <option value="">Birth Year</option>
     </select>
 
-    <!-- Country and Parish -->
-    <input type="text" name="entry.1890405601" value="Jamaica" readonly>
-
-    <select name="entry.341957417" id="parishSelect" required>
-      <option value="">Select Parish</option>
-    </select>
+    <!-- Country & Parish Side by Side -->
+    <div class="row">
+      <input type="text" name="entry.1890405601" value="Jamaica" readonly class="half">
+      <select name="entry.341957417" id="parishSelect" required class="half">
+        <option value="">Select Parish</option>
+      </select>
+    </div>
 
     <button type="submit">Agree and Continue</button>
   </form>
@@ -95,7 +99,6 @@
   const formSection = document.getElementById('signupFormSection');
   let submitted = false;
 
-  // Invitation Code Check
   inviteBtn.onclick = async () => {
     const code = inviteInput.value.trim().toUpperCase();
     if (!code) return;
@@ -120,7 +123,7 @@
     }
   };
 
-  // Populate Birth Year
+  // Birth Year Options
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -130,7 +133,7 @@
     birthYearSelect.appendChild(option);
   }
 
-  // Populate Parish Dropdown
+  // Parish Options
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -141,6 +144,19 @@
     option.value = p;
     option.textContent = p;
     parishSelect.appendChild(option);
+  });
+
+  // Auto-fix WhatsApp number if user forgets +1
+  const whatsappInput = document.getElementById("whatsappNumber");
+  whatsappInput.addEventListener("blur", () => {
+    let num = whatsappInput.value.trim();
+    if (!num.startsWith("+")) {
+      if (num.length === 10) {
+        whatsappInput.value = "+1" + num;
+      } else if (num.length === 11 && num.startsWith("1")) {
+        whatsappInput.value = "+" + num;
+      }
+    }
   });
 </script>
 
