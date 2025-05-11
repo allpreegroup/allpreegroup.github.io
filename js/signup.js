@@ -155,7 +155,7 @@ function init_signup() {
   });
 
   // Detect successful submission via iframe load
-let iframeHasLoadedOnce = false;
+
 
 hiddenIframe.onload = function () {
   if (!window.submitted) return; // Only trigger if form was submitted
