@@ -148,10 +148,6 @@ function init_signup() {
     loader.style.display = "flex";
     signupForm.querySelector('button[type="submit"]').disabled = true;
 
-    // Fallback if iframe load never triggers
-    setTimeout(() => {
-      if (window.submitted) handleSuccessfulSignup();
-    }, 4000);
   });
 
   // Detect successful submission via iframe load
