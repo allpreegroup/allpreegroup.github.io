@@ -2,203 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Invitation Sign-Up</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Profile</title>
   <style>
-    body {
-      background-color: #1f2937;
-      color: white;
-      font-family: sans-serif;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .profile-header {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      background-color: #374151;
-      gap: 1rem;
-    }
-    .profile-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 9999px;
-      background-color: #4b5563;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.25rem;
-    }
-    .profile-name {
-      font-weight: bold;
-      font-size: 1.125rem;
-    }
-    .profile-handle {
-      color: #9ca3af;
-      font-size: 0.875rem;
-    }
-    .notification {
-      margin-left: auto;
-      position: relative;
-    }
-    .notification span {
-      position: absolute;
-      top: -0.25rem;
-      right: -0.25rem;
-      width: 0.5rem;
-      height: 0.5rem;
-      background-color: #ef4444;
-      border-radius: 9999px;
-    }
-    .alert {
-      background-color: #991b1b;
-      border: 1px solid #ef4444;
-      margin: 1rem;
-      padding: 0.75rem;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
-    }
-    .alert button {
-      margin-top: 0.5rem;
-      color: #93c5fd;
-      text-decoration: underline;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    .stats {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding: 1rem;
-    }
-    .stat-card {
-      background-color: #1d4ed8;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      min-width: 140px;
-    }
-    .tabs {
-      display: flex;
-      justify-content: space-around;
-      background-color: #374151;
-      font-size: 0.875rem;
-    }
-    .tabs button {
-      padding: 0.5rem 1rem;
-      border: none;
-      background: none;
-      color: #9ca3af;
-      cursor: pointer;
-    }
-    .tabs button.active {
-      font-weight: bold;
-      border-bottom: 2px solid #3b82f6;
-      color: white;
-    }
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-    }
-    .entry {
-      background-color: #374151;
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-    .entry p {
-      margin: 0.25rem 0;
-    }
-    .entry .amount {
-      color: #f87171;
-      font-weight: bold;
-    }
-    .bottom-nav {
-      background-color: #374151;
-      display: flex;
-      justify-content: space-around;
-      padding: 0.75rem;
-      border-top: 1px solid #4b5563;
-      font-size: 0.875rem;
-    }
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .hidden { display: none; }
+    .form-section, .invite-section { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    input, select { width: 100%; padding: 10px; margin: 10px 0; }
+    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
+    button:disabled { background: grey; }
+    .error { color: red; }
   </style>
 </head>
 <body>
-  <div class="profile-header">
-    <div class="profile-img">SP</div>
-    <div>
-      <div class="profile-name">Hey Secure Payments</div>
-      <div class="profile-handle">@securepayments</div>
-    </div>
-    <div class="notification">
-      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" />
-      </svg>
-      <span></span>
-    </div>
-  </div>
 
-  <div class="alert">
-    <strong>Your Driver’s License has expired</strong><br>
-    In order to use all features, please resubmit a valid ID.<br>
-    <button>Upload ID</button>
-  </div>
+<div class="invite-section">
+  <h2>Enter Invitation Code</h2>
+  <input type="text" id="inviteCodeInput" placeholder="Enter your code (e.g. J388640)" required />
+  <button id="validateBtn">Continue</button>
+  <p class="error" id="inviteError" style="display:none;">Invalid invitation code. Please try again.</p>
+</div>
 
-  <div class="stats">
-    <div class="stat-card">
-      <p>Cashback Earned</p>
-      <p style="font-size: 1.25rem; font-weight: bold;">$500</p>
-    </div>
-    <div class="stat-card">
-      <p>Brands Added</p>
-      <p style="font-size: 1.25rem; font-weight: bold;">12</p>
-    </div>
-  </div>
+<div class="form-section hidden" id="signupFormSection">
+  <h2>Sign Up</h2>
+  <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse" method="post">
+    
+    <!-- Auto-fill these with JS -->
+    <input type="hidden" name="entry.1092645840" id="field_ID">
+    <input type="hidden" name="entry.2034350499" id="field_Code">
+    
+    <!-- Standard inputs -->
+    <input type="text" name="entry.1502543154" placeholder="First Name" required>
+    <input type="text" name="entry.166208811" placeholder="Last Name" required>
+    <input type="email" name="emailAddress" placeholder="Email Address" required>
+    <input type="tel" name="entry.1897494140" placeholder="Phone Number" required>
+    
+    <select name="entry.208508536" required>
+      <option value="">Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
 
-  <div class="tabs">
-    <button class="active">Recent Activity</button>
-    <button>Leaderboard</button>
-    <button>My Brands</button>
-  </div>
+    <select name="entry.577240945" required>
+      <option value="">Birth Year</option>
+      <script>
+        const yearSelect = new Date().getFullYear();
+        for (let y = yearSelect - 50; y <= yearSelect - 10; y++) {
+          document.write(`<option>${y}</option>`);
+        }
+      </script>
+    </select>
 
-  <div class="content">
-    <div class="entry">
-      <p>Flow Top-Up</p>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Feb 29, 2024</p>
-      <p class="amount">- 125 JMD</p>
-    </div>
-    <div class="entry">
-      <p>Digicel Top-Up</p>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Feb 28, 2024</p>
-      <p class="amount">- 200 JMD</p>
-    </div>
-  </div>
+    <br><button type="submit">Agree and Continue</button>
+  </form>
+</div>
 
-  <div class="bottom-nav">
-    <button>
-      <span>&#x21C4;</span>
-      <span>Send/Ask</span>
-    </button>
-    <button>
-      <span>&#x25A3;</span>
-      <span>QR</span>
-    </button>
-    <button>
-      <span>&#x25A1;</span>
-      <span>More</span>
-    </button>
-  </div>
+<!-- Hidden iframe for Google Form redirect -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='/thankyou/';}"></iframe>
+
+<script>
+  const inviteBtn = document.getElementById('validateBtn');
+  const inviteInput = document.getElementById('inviteCodeInput');
+  const errorText = document.getElementById('inviteError');
+  const formSection = document.getElementById('signupFormSection');
+  let submitted = false;
+
+  inviteBtn.onclick = async () => {
+    const code = inviteInput.value.trim().toUpperCase();
+    if (!code) return;
+
+    try {
+      const res = await fetch("https://opensheet.vercel.app/YOUR_SHEET_ID/Sheet1");
+      const data = await res.json();
+      const match = data.find(row => row.Code?.toUpperCase() === code);
+
+      if (match) {
+        // Valid code – show form and inject values
+        document.getElementById('field_ID').value = `ID ${code}`;
+        document.getElementById('field_Code').value = code;
+        formSection.classList.remove('hidden');
+        document.querySelector('.invite-section').classList.add('hidden');
+        errorText.style.display = "none";
+      } else {
+        errorText.style.display = "block";
+      }
+    } catch (e) {
+      console.error("Error checking code:", e);
+      errorText.style.display = "block";
+    }
+  };
+</script>
+
 </body>
 </html>
