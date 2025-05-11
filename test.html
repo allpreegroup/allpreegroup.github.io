@@ -7,18 +7,31 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
     .hidden { display: none; }
-    .form-section, .invite-section { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    input, select { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
+    .form-section, .invite-section {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .row { display: flex; gap: 10px; }
+    .row .half { flex: 1; }
+    button {
+      padding: 10px 20px;
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
     button:disabled { background: grey; }
     .error { color: red; }
-    .form-row { display: flex; justify-content: space-between; gap: 4%; flex-wrap: wrap; }
-    .col-md-6 { flex: 1 1 48%; }
-    @media (max-width: 600px) {
-      .col-md-6 { flex: 1 1 100%; }
-    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/crs-country-js@1.0.4/crs-country.min.js"></script>
 </head>
 <body>
 
@@ -31,68 +44,49 @@
 
 <div class="form-section hidden" id="signupFormSection">
   <h2>Sign Up</h2>
-  <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse" method="post">
-    
+  <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true"
+    action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse"
+    method="post">
+
     <!-- Auto-fill from invite -->
     <input type="hidden" name="entry.1092645840" id="field_ID">
     <input type="hidden" name="entry.2034350499" id="field_Code">
 
-    <!-- Name Fields -->
-    <div class="form-row">
-      <div class="col-md-6">
-        <input type="text" name="entry.1502543154" placeholder="First Name" required>
-      </div>
-      <div class="col-md-6">
-        <input type="text" name="entry.166208811" placeholder="Last Name" required>
-      </div>
+    <!-- Name Inputs Side by Side -->
+    <div class="row">
+      <input type="text" name="entry.1502543154" placeholder="First Name" required class="half">
+      <input type="text" name="entry.166208811" placeholder="Last Name" required class="half">
     </div>
 
-    <!-- Email -->
     <input type="email" name="emailAddress" placeholder="Email Address" required>
 
-    <!-- WhatsApp Phone -->
-    <input type="tel" name="entry.1897494140" placeholder="WhatsApp Number (e.g. +18761234567)" required pattern="^\+\d{10,15}$" title="Enter a valid WhatsApp number starting with + and country code">
+    <input type="tel" name="entry.1897494140" placeholder="WhatsApp Number (e.g. +18761234567)" required
+           pattern="^\+[0-9]{10,15}$"
+           title="Enter a valid WhatsApp number with country code (e.g. +18761234567)">
 
-    <!-- Gender -->
     <select name="entry.208508536" required>
       <option value="">Select Gender</option>
       <option>Male</option>
       <option>Female</option>
     </select>
 
-    <!-- Birth Year -->
-    <select name="entry.577240945" required>
+    <select name="entry.577240945" id="birthYearSelect" required>
       <option value="">Birth Year</option>
-      <script>
-        const yearSelect = new Date().getFullYear();
-        for (let y = yearSelect - 50; y <= yearSelect - 10; y++) {
-          document.write(`<option>${y}</option>`);
-        }
-      </script>
     </select>
 
-    <!-- Country & Region Selection -->
-    <div class="form-row">
-      <div class="col-md-6">
-        <div class="one_of_the_boxes">
-          <div class="icon_box country-icon"></div>
-          <select name="entry.1890405601" class="crs-country" data-whitelist="JM" data-blacklist="CD,CG,SH,GS" data-region-id="seven"></select>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="one_of_the_boxes">
-          <div class="icon_box location"></div>
-          <select name="entry.341957417" id="seven" data-default-value=""></select>
-        </div>
-      </div>
-    </div>
+    <!-- Country and Parish -->
+    <input type="text" name="entry.1890405601" value="Jamaica" readonly>
 
-    <br style="clear:both;">
+    <select name="entry.341957417" id="parishSelect" required>
+      <option value="">Select Parish</option>
+    </select>
+
     <button type="submit">Agree and Continue</button>
   </form>
 </div>
 
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){ window.location='/thankyou/'; }"></iframe>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"
+        onload="if(submitted){ window.location='/thankyou/'; }"></iframe>
 
 <script>
   const inviteBtn = document.getElementById('validateBtn');
@@ -101,6 +95,7 @@
   const formSection = document.getElementById('signupFormSection');
   let submitted = false;
 
+  // Invitation Code Check
   inviteBtn.onclick = async () => {
     const code = inviteInput.value.trim().toUpperCase();
     if (!code) return;
@@ -108,7 +103,6 @@
     try {
       const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
       const data = await res.json();
-
       const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
 
       if (match) {
@@ -125,6 +119,29 @@
       errorText.style.display = "block";
     }
   };
+
+  // Populate Birth Year
+  const birthYearSelect = document.getElementById("birthYearSelect");
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear - 50; y <= currentYear - 10; y++) {
+    const option = document.createElement("option");
+    option.value = y;
+    option.textContent = y;
+    birthYearSelect.appendChild(option);
+  }
+
+  // Populate Parish Dropdown
+  const parishes = [
+    "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
+    "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
+  ];
+  const parishSelect = document.getElementById("parishSelect");
+  parishes.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p;
+    option.textContent = p;
+    parishSelect.appendChild(option);
+  });
 </script>
 
 </body>
