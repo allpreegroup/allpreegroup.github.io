@@ -45,7 +45,7 @@
 
 <div class="form-section hidden" id="signupFormSection">
   <h2>Sign Up</h2>
-   <script type="text/javascript">var submitted=false;</script>
+  
   <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse"
     method="post">
 
@@ -92,14 +92,15 @@
   </form>
 </div>
 
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){ window.location='/thankyou/'; }"></iframe>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(window.submitted){ window.location='/thankyou/'; }"></iframe>
+
 
 <script>
   const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
   const errorText = document.getElementById('inviteError');
   const formSection = document.getElementById('signupFormSection');
-  let submitted = false;
+  window.submitted = false; // global submitted flag
 
   inviteBtn.onclick = async () => {
     const code = inviteInput.value.trim().toUpperCase();
@@ -148,18 +149,15 @@
     parishSelect.appendChild(option);
   });
 
-  // Auto-fix WhatsApp number if user forgets +1
-  // WhatsApp phone number formatter (Jamaica)
-const phoneInput = document.getElementById("whatsappNumber");
+  // WhatsApp number auto-format for Jamaica
+  const phoneInput = document.getElementById("whatsappNumber");
 
   phoneInput.addEventListener("input", () => {
     const value = phoneInput.value;
     const expectedPrefix = "+1876";
 
-    // Check how many characters match the expected prefix
     let actualPrefix = value.slice(0, expectedPrefix.length);
     let rest = value.slice(expectedPrefix.length);
-
     let fixedPrefix = "";
 
     for (let i = 0; i < expectedPrefix.length; i++) {
@@ -174,8 +172,8 @@ const phoneInput = document.getElementById("whatsappNumber");
       phoneInput.value = fixedPrefix + rest;
     }
   });
-
 </script>
+
 
 </body>
 </html>
