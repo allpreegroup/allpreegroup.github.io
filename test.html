@@ -150,11 +150,16 @@
   // WhatsApp phone number formatter (Jamaica)
 const phoneInput = document.getElementById("whatsappNumber");
 phoneInput.addEventListener("input", () => {
-  let raw = phoneInput.value.replace(/\D/g, ""); // remove non-digits
-  if (!raw.startsWith("1876")) {
-    raw = "1876" + raw.replace(/^1876/, ""); // ensure 1876 prefix
+  const val = phoneInput.value;
+  
+  // Only modify if it doesn't already start with +1876
+  if (!val.startsWith("+1876")) {
+    let digits = val.replace(/\D/g, ""); // remove non-digits
+    if (!digits.startsWith("1876")) {
+      digits = "1876" + digits.replace(/^1876/, "");
+    }
+    phoneInput.value = `+${digits}`;
   }
-  phoneInput.value = `+${raw}`;
 });
 
 </script>
