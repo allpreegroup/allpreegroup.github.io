@@ -149,18 +149,29 @@
   // Auto-fix WhatsApp number if user forgets +1
   // WhatsApp phone number formatter (Jamaica)
 const phoneInput = document.getElementById("whatsappNumber");
-phoneInput.addEventListener("input", () => {
-  const val = phoneInput.value;
-  
-  // Only modify if it doesn't already start with +1876
-  if (!val.startsWith("+1876")) {
-    let digits = val.replace(/\D/g, ""); // remove non-digits
-    if (!digits.startsWith("1876")) {
-      digits = "1876" + digits.replace(/^1876/, "");
+
+  phoneInput.addEventListener("input", () => {
+    const value = phoneInput.value;
+    const expectedPrefix = "+1876";
+
+    // Check how many characters match the expected prefix
+    let actualPrefix = value.slice(0, expectedPrefix.length);
+    let rest = value.slice(expectedPrefix.length);
+
+    let fixedPrefix = "";
+
+    for (let i = 0; i < expectedPrefix.length; i++) {
+      if (actualPrefix[i] !== expectedPrefix[i]) {
+        fixedPrefix += expectedPrefix[i];
+      } else {
+        fixedPrefix += actualPrefix[i];
+      }
     }
-    phoneInput.value = `+${digits}`;
-  }
-});
+
+    if (fixedPrefix !== actualPrefix) {
+      phoneInput.value = fixedPrefix + rest;
+    }
+  });
 
 </script>
 
