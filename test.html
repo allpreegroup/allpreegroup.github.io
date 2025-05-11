@@ -32,6 +32,42 @@
     }
     button:disabled { background: grey; }
     .error { color: red; }
+
+	  #user-panel #loading-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10005;
+  display: none;
+}
+
+#user-panel #loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
   </style>
 </head>
 <body>
@@ -91,7 +127,12 @@
     <button type="submit">Agree and Continue</button>
   </form>
 </div>
-
+<div id="user-panel">
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading, please wait...</p>
+  </div>
+</div>
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(window.submitted){ window.location='/thankyou/'; }"></iframe>
 
 
@@ -103,28 +144,33 @@
   window.submitted = false; // global submitted flag
 
   inviteBtn.onclick = async () => {
-    const code = inviteInput.value.trim().toUpperCase();
-    if (!code) return;
+  const code = inviteInput.value.trim().toUpperCase();
+  if (!code) return;
 
-    try {
-      const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
-      const data = await res.json();
-      const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
+  const loader = document.getElementById("loading-modal");
+  loader.style.display = "flex"; // show spinner
 
-      if (match) {
-        document.getElementById('field_ID').value = `ID ${code}`;
-        document.getElementById('field_Code').value = code;
-        formSection.classList.remove('hidden');
-        document.querySelector('.invite-section').classList.add('hidden');
-        errorText.style.display = "none";
-      } else {
-        errorText.style.display = "block";
-      }
-    } catch (e) {
-      console.error("Error checking code:", e);
+  try {
+    const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+    const data = await res.json();
+    const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
+
+    if (match) {
+      document.getElementById('field_ID').value = `ID ${code}`;
+      document.getElementById('field_Code').value = code;
+      formSection.classList.remove('hidden');
+      document.querySelector('.invite-section').classList.add('hidden');
+      errorText.style.display = "none";
+    } else {
       errorText.style.display = "block";
     }
-  };
+  } catch (e) {
+    console.error("Error checking code:", e);
+    errorText.style.display = "block";
+  } finally {
+    loader.style.display = "none"; // hide spinner
+  }
+};
 
   // Birth Year Options
   const birthYearSelect = document.getElementById("birthYearSelect");
