@@ -157,12 +157,7 @@ function init_signup() {
   // Detect successful submission via iframe load
 hiddenIframe.onload = function () {
   if (!window.submitted) return; // Only trigger if form was submitted
-
-  if (!iframeHasLoadedOnce) {
-    iframeHasLoadedOnce = true; // Skip first load (before form submit)
-    return;
-  }
-
+console.log("Iframe loaded, calling handleSuccessfulSignup");
   handleSuccessfulSignup();
 };
 
