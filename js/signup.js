@@ -116,23 +116,23 @@ function init_signup() {
 
   // Show a custom message instead of default welcome
   welcomeDiv.innerHTML = `
-    <div style="text-align:center; padding: 20px;">
-      <h2>✅ You’re In, <strong>${firstName}!</strong></h2>
-      <p><strong>BE SMART. Shop Clever. Get Paid.</strong><br>
-      It’s time to make money while shopping in Jamaica!</p>
+    <div style="text-align:left; padding: 20px;">
+      <h3>✅ You’re In</h3>
+      <h2><strong>BE SMART. SHOP CLEVER. GET PAID.</strong><br>
+      It’s time to make money while shopping in Jamaica!</h2><br>
 
-      <p><strong>Dear ${firstName},</strong><br>
-      Are you tired of shopping without ever getting anything back?<br><br>
-      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account — just for buying what you already need?<br><br>
+      <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
+      Tired of going shopping and walking away with nothing but your receipts?<br><br>
+      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
       Now you can.</p>
 
-      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>free digital eGift Card</strong>.</p>
+      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
 
       <p><strong>Unlock Lifetime Income</strong><br>
-      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong> — simply by sharing it.</p>
+      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
 
       <p>One-time setup. Lifetime earnings.<br>
-      No gimmicks — just real cashback and real opportunity.</p>
+      No gimmicks, just real cashback and real opportunity.</p>
 
       <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
     </div>
@@ -156,10 +156,7 @@ function init_signup() {
 
   // Detect successful submission via iframe load
   hiddenIframe.onload = function () {
-    if (!iframeHasLoadedOnce) {
-      iframeHasLoadedOnce = true;
-      return;
-    }
+    console.log("Iframe loaded, calling handleSuccessfulSignup");
     handleSuccessfulSignup();
   };
 }
