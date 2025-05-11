@@ -100,23 +100,45 @@ function init_signup() {
   // Show spinner on form submit
   // Unified handler for successful signup
   function handleSuccessfulSignup() {
-    if (!window.submitted) return;
-    window.submitted = false;
+  if (!window.submitted) return;
+  window.submitted = false;
 
-    loader.style.display = "none";
-    signupForm.querySelector('button[type="submit"]').disabled = false;
+  loader.style.display = "none";
+  signupForm.querySelector('button[type="submit"]').disabled = false;
 
-    const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
-    localStorage.setItem("signedUpUser", firstName);
+  const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
+  localStorage.setItem("signedUpUser", firstName);
 
-    document.querySelector('.invite-section').classList.add('hidden');
-    formSection.classList.add('hidden');
-    welcomeText.textContent = `Welcome, ${firstName}! Thanks for signing up.`;
-    welcomeDiv.classList.remove('hidden');
+  document.querySelector('.invite-section').classList.add('hidden');
+  formSection.classList.add('hidden');
 
-    const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
-    if (targetBtn) targetBtn.click();
-  }
+  welcomeDiv.classList.remove('hidden');
+
+  // Show a custom message instead of default welcome
+  welcomeDiv.innerHTML = `
+    <div style="text-align:center; padding: 20px;">
+      <h2>✅ You’re In, <strong>${firstName}!</strong></h2>
+      <p><strong>BE SMART. Shop Clever. Get Paid.</strong><br>
+      It’s time to make money while shopping in Jamaica!</p>
+
+      <p><strong>Dear ${firstName},</strong><br>
+      Are you tired of shopping without ever getting anything back?<br><br>
+      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account — just for buying what you already need?<br><br>
+      Now you can.</p>
+
+      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>free digital eGift Card</strong>.</p>
+
+      <p><strong>Unlock Lifetime Income</strong><br>
+      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong> — simply by sharing it.</p>
+
+      <p>One-time setup. Lifetime earnings.<br>
+      No gimmicks — just real cashback and real opportunity.</p>
+
+      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
+    </div>
+  `;
+}
+
 
   // Form submit behavior
   signupForm.addEventListener("submit", () => {
