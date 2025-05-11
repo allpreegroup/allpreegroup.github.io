@@ -147,17 +147,16 @@
   });
 
   // Auto-fix WhatsApp number if user forgets +1
-  const whatsappInput = document.getElementById("whatsappNumber");
-  whatsappInput.addEventListener("blur", () => {
-    let num = whatsappInput.value.trim();
-    if (!num.startsWith("+")) {
-      if (num.length === 10) {
-        whatsappInput.value = "+1" + num;
-      } else if (num.length === 11 && num.startsWith("1")) {
-        whatsappInput.value = "+" + num;
-      }
-    }
-  });
+  // WhatsApp phone number formatter (Jamaica)
+const phoneInput = document.getElementById("whatsappNumber");
+phoneInput.addEventListener("input", () => {
+  let raw = phoneInput.value.replace(/\D/g, ""); // remove non-digits
+  if (!raw.startsWith("1876")) {
+    raw = "1876" + raw.replace(/^1876/, ""); // ensure 1876 prefix
+  }
+  phoneInput.value = `+${raw}`;
+});
+
 </script>
 
 </body>
