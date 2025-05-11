@@ -1,3 +1,4 @@
+ var submitted = false;
 function init_signup() {
   const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
@@ -8,8 +9,6 @@ function init_signup() {
   const welcomeDiv = document.getElementById("welcomeMessage");
   const welcomeText = document.getElementById("welcomeText");
   const loader = document.getElementById("loading-modal");
-
-  window.submitted = false;
 
   // Show welcome if already signed up
   const savedUser = localStorage.getItem("signedUpUser");
@@ -98,8 +97,8 @@ function init_signup() {
 
   // Show spinner on form submit
   function handleSuccessfulSignup() {
-  if (!window.submitted) return;
-  window.submitted = false;
+   if (!submitted) return;
+    submitted = false; // Reset the submitted flag
 
   
   signupForm.querySelector('button[type="submit"]').disabled = false;
@@ -139,26 +138,24 @@ function init_signup() {
 
 
   // Form submit behavior
+ // Form submit behavior
   signupForm.addEventListener("submit", (e) => {
- 
-  if (window.submitted) return; // prevent double submit
-  window.submitted = true;
- document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
-  signupForm.querySelector('button[type="submit"]').disabled = true;
-  console.log("Form submitted - loader shown");
+    if (submitted) return; // prevent double submit
+    submitted = true;
+    document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
+    signupForm.querySelector('button[type="submit"]').disabled = true;
+    console.log("Form submitted - loader shown");
     
     // Fallback if iframe load never triggers
     setTimeout(() => {
-      if (window.submitted) handleSuccessfulSignup();
+      if (submitted) handleSuccessfulSignup();
     }, 5000);
-});
-  
+  });
+
   // Detect successful submission via iframe load
-hiddenIframe.onload = function () {
-   if (!window.submitted) return; // Only trigger if form was submitted
-  console.log("Iframe loaded, calling handleSuccessfulSignup"); 
-  handleSuccessfulSignup();
-};
-
+  hiddenIframe.onload = function () {
+    if (!submitted) return; // Only trigger if form was submitted
+    console.log("Iframe loaded, calling handleSuccessfulSignup");
+    handleSuccessfulSignup();
+  };
 }
-
