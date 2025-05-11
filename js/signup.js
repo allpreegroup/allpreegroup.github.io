@@ -85,10 +85,11 @@ const inviteBtn = document.getElementById('validateBtn');
   });
 
   // Show spinner on form submit
-  signupForm.addEventListener("submit", () => {
-    formSpinner.style.display = "block";
-    window.submitted = true;
-  });
+ signupForm.addEventListener("submit", () => {
+  document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
+  window.submitted = true;
+});
+
 
  let iframeHasLoadedOnce = false;
 
