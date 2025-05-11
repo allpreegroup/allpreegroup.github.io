@@ -1,0 +1,132 @@
+ <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .hidden { display: none; }
+    .form-section, .invite-section {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .row { display: flex; gap: 10px; }
+    .row .half { flex: 1; }
+    .helper { font-size: 0.9em; color: #555; margin-top: -8px; margin-bottom: 10px; }
+    button {
+      padding: 10px 20px;
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled { background: grey; }
+    .error { color: red; }
+
+	  #user-panel #loading-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10005;
+  display: none;
+}
+
+#user-panel #loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #333;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+  </style>
+
+<div class="invite-section">
+  <h2>Enter Invitation Code</h2>
+  <input type="text" id="inviteCodeInput" placeholder="Enter your code (e.g. J388640)" required />
+  <button id="validateBtn">Continue</button>
+  <p class="error" id="inviteError" style="display:none;">Invalid invitation code. Please try again.</p>
+</div>
+
+<div class="form-section hidden" id="signupFormSection">
+  <h2>Sign Up</h2>
+  
+  <form id="signupForm"
+      action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse"
+      method="post"
+      target="hidden_iframe">
+
+    <!-- Auto-fill from invite -->
+     <input type="hidden" name="entry.1092645840" id="field_ID">
+     <input type="hidden" name="entry.2034350499" id="field_Code">
+     <input  name="entry.297851038" type="hidden" value="">
+     <input  name="entry.663913627" type="hidden" value="Digital Free">
+     <input  name="entry.218867361" type="hidden" value="Basic Free">
+
+    <!-- Name Inputs Side by Side -->
+    <div class="row">
+      <input type="text" name="entry.1502543154" placeholder="First Name" required class="half">
+      <input type="text" name="entry.166208811" placeholder="Last Name" required class="half">
+    </div>
+
+    <input type="text" name="emailAddress" placeholder="Email Address" required>
+
+    <input type="tel" name="entry.1897494140" id="whatsappNumber"
+           placeholder="WhatsApp Number (e.g. +18761234567)" required
+           pattern="^\+[0-9]{10,15}$"
+           title="Enter a valid WhatsApp number with + and country code">
+    <div class="helper">Please enter your WhatsApp number starting with a + sign and country code. Example: +18761234567</div>
+
+	  <div class="row">
+    <select name="entry.208508536" type="text" required>
+      <option value="">Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+
+    <select name="entry.577240945" id="birthYearSelect" type="text" required>
+      <option value="">Birth Year</option>
+    </select>
+   </div>
+	  
+    <!-- Country & Parish Side by Side -->
+    <div class="row">
+      <input type="text" name="entry.1890405601" value="Jamaica" readonly class="half">
+      <select name="entry.341957417" id="parishSelect" required class="half">
+        <option value="">Select Parish</option>
+      </select>
+    </div>
+
+    <button type="submit">Agree and Continue</button>
+  </form>
+</div>
+<div id="user-panel">
+  <div id="loading-modal">
+    <div id="loading-spinner"></div>
+    <p>Loading, please wait...</p>
+  </div>
+</div>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
