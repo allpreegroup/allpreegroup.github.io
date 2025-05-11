@@ -140,10 +140,10 @@ function init_signup() {
 
   // Form submit behavior
   signupForm.addEventListener("submit", (e) => {
-  document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
+ 
   if (window.submitted) return; // prevent double submit
   window.submitted = true;
-
+ document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
   signupForm.querySelector('button[type="submit"]').disabled = true;
   console.log("Form submitted - loader shown");
     
@@ -155,12 +155,7 @@ function init_signup() {
   
   // Detect successful submission via iframe load
 hiddenIframe.onload = function () {
-  
-  if (!iframeHasLoadedOnce) {
-      iframeHasLoadedOnce = true;
-      return; // skip initial iframe load
-  }  
-
+   if (!window.submitted) return; // Only trigger if form was submitted
   console.log("Iframe loaded, calling handleSuccessfulSignup"); 
   handleSuccessfulSignup();
 };
