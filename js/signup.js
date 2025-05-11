@@ -150,7 +150,7 @@ function init_signup() {
     // Fallback if iframe load never triggers
     setTimeout(() => {
       if (window.submitted) handleSuccessfulSignup();
-    }, 4000);
+    }, 5000);
 });
   
   // Detect successful submission via iframe load
