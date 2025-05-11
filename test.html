@@ -82,14 +82,16 @@
 <div class="form-section hidden" id="signupFormSection">
   <h2>Sign Up</h2>
   
-  <form id="signupForm" target="hidden_iframe" onsubmit="submitted=true" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse"
-    method="post">
+  <form id="signupForm"
+      action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse"
+      method="post"
+      target="hidden_iframe">
 
     <!-- Auto-fill from invite -->
      <input type="hidden" name="entry.1092645840" id="field_ID">
      <input type="hidden" name="entry.2034350499" id="field_Code">
      <input  name="entry.297851038" type="hidden" value="">
-		 <input  name="entry.663913627" type="hidden" value="Digital Free">
+     <input  name="entry.663913627" type="hidden" value="Digital Free">
      <input  name="entry.218867361" type="hidden" value="Basic Free">
 
     <!-- Name Inputs Side by Side -->
@@ -106,6 +108,7 @@
            title="Enter a valid WhatsApp number with + and country code">
     <div class="helper">Please enter your WhatsApp number starting with a + sign and country code. Example: +18761234567</div>
 
+	  <div class="row">
     <select name="entry.208508536" type="text" required>
       <option value="">Select Gender</option>
       <option>Male</option>
@@ -115,7 +118,8 @@
     <select name="entry.577240945" id="birthYearSelect" type="text" required>
       <option value="">Birth Year</option>
     </select>
-
+   </div>
+	  
     <!-- Country & Parish Side by Side -->
     <div class="row">
       <input type="text" name="entry.1890405601" value="Jamaica" readonly class="half">
@@ -133,9 +137,110 @@
     <p>Loading, please wait...</p>
   </div>
 </div>
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(window.submitted){ window.location='/thankyou/'; }"></iframe>
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
 
+<script>
+  const inviteBtn = document.getElementById('validateBtn');
+  const inviteInput = document.getElementById('inviteCodeInput');
+  const errorText = document.getElementById('inviteError');
+  const formSection = document.getElementById('signupFormSection');
+  const formSpinner = document.getElementById("formSpinner");
+  const signupForm = document.getElementById("signupForm");
+  const hiddenIframe = document.getElementById("hidden_iframe");
+
+  window.submitted = false;
+
+  // Validate Invite Code
+  inviteBtn.onclick = async () => {
+    const code = inviteInput.value.trim().toUpperCase();
+    if (!code) return;
+
+    const loader = document.getElementById("loading-modal");
+    loader.style.display = "flex"; // Show invite spinner
+
+    try {
+      const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+      const data = await res.json();
+      const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
+
+      if (match) {
+        document.getElementById('field_ID').value = `ID ${code}`;
+        document.getElementById('field_Code').value = code;
+        formSection.classList.remove('hidden');
+        document.querySelector('.invite-section').classList.add('hidden');
+        errorText.style.display = "none";
+      } else {
+        errorText.style.display = "block";
+      }
+    } catch (e) {
+      console.error("Error checking code:", e);
+      errorText.style.display = "block";
+    } finally {
+      loader.style.display = "none";
+    }
+  };
+
+  // Auto-generate birth years
+  const birthYearSelect = document.getElementById("birthYearSelect");
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear - 50; y <= currentYear - 10; y++) {
+    const option = document.createElement("option");
+    option.value = y;
+    option.textContent = y;
+    birthYearSelect.appendChild(option);
+  }
+
+  // Parish dropdown
+  const parishes = [
+    "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
+    "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
+  ];
+  const parishSelect = document.getElementById("parishSelect");
+  parishes.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p;
+    option.textContent = p;
+    parishSelect.appendChild(option);
+  });
+
+  // Auto-format WhatsApp numbers
+  const phoneInput = document.getElementById("whatsappNumber");
+  phoneInput.addEventListener("input", () => {
+    const value = phoneInput.value;
+    const expectedPrefix = "+1876";
+    let actualPrefix = value.slice(0, expectedPrefix.length);
+    let rest = value.slice(expectedPrefix.length);
+    let fixedPrefix = "";
+
+    for (let i = 0; i < expectedPrefix.length; i++) {
+      if (actualPrefix[i] !== expectedPrefix[i]) {
+        fixedPrefix += expectedPrefix[i];
+      } else {
+        fixedPrefix += actualPrefix[i];
+      }
+    }
+
+    if (fixedPrefix !== actualPrefix) {
+      phoneInput.value = fixedPrefix + rest;
+    }
+  });
+
+  // Show spinner on form submit
+  signupForm.addEventListener("submit", () => {
+    formSpinner.style.display = "block";
+    window.submitted = true;
+  });
+
+  // Redirect after iframe submission
+  hiddenIframe.onload = function () {
+    if (window.submitted) {
+      window.location.href = "/thankyou/";
+    }
+  };
+</script>
+
+<!--	
 <script>
   const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
@@ -219,7 +324,7 @@
     }
   });
 </script>
-
+-->
 
 </body>
 </html>
