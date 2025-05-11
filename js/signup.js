@@ -7,10 +7,12 @@ function init_signup() {
   const hiddenIframe = document.getElementById("hidden_iframe");
   const welcomeDiv = document.getElementById("welcomeMessage");
   const welcomeText = document.getElementById("welcomeText");
+  const loader = document.getElementById("loading-modal");
 
+  let iframeHasLoadedOnce = false;
   window.submitted = false;
 
-  // Show welcome message if already signed up
+  // Show welcome if already signed up
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
     document.querySelector('.invite-section').classList.add('hidden');
@@ -96,39 +98,46 @@ function init_signup() {
   });
 
   // Show spinner on form submit
+  // Unified handler for successful signup
+  function handleSuccessfulSignup() {
+    if (!window.submitted) return;
+    window.submitted = false;
+
+    loader.style.display = "none";
+    signupForm.querySelector('button[type="submit"]').disabled = false;
+
+    const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
+    localStorage.setItem("signedUpUser", firstName);
+
+    document.querySelector('.invite-section').classList.add('hidden');
+    formSection.classList.add('hidden');
+    welcomeText.textContent = `Welcome, ${firstName}! Thanks for signing up.`;
+    welcomeDiv.classList.remove('hidden');
+
+    const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
+    if (targetBtn) targetBtn.click();
+  }
+
+  // Form submit behavior
   signupForm.addEventListener("submit", () => {
-    document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
+    if (window.submitted) return; // prevent double submit
     window.submitted = true;
+
+    loader.style.display = "flex";
+    signupForm.querySelector('button[type="submit"]').disabled = true;
+
+    // Fallback if iframe load never triggers
+    setTimeout(() => {
+      if (window.submitted) handleSuccessfulSignup();
+    }, 4000);
   });
 
-  let iframeHasLoadedOnce = false;
-
+  // Detect successful submission via iframe load
   hiddenIframe.onload = function () {
     if (!iframeHasLoadedOnce) {
       iframeHasLoadedOnce = true;
-      return; // skip initial iframe load
+      return;
     }
-
-    if (window.submitted) {
-      document.getElementById("loading-modal").style.display = "none"; // hide spinner
-
-      // Get first name from form
-      const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
-
-      // Save to localStorage
-      localStorage.setItem("signedUpUser", firstName);
-
-      // Hide form and invite
-      document.querySelector('.invite-section').classList.add('hidden');
-      formSection.classList.add('hidden');
-
-      // Show welcome
-      welcomeText.textContent = `Welcome, ${firstName}! Thanks for signing up.`;
-      welcomeDiv.classList.remove('hidden');
-
-      // Optional menu click
-      const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
-      if (targetBtn) targetBtn.click();
-    }
+    handleSuccessfulSignup();
   };
 }
