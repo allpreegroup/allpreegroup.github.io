@@ -1,13 +1,24 @@
 function init_signup() {
-const inviteBtn = document.getElementById('validateBtn');
+  const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
   const errorText = document.getElementById('inviteError');
   const formSection = document.getElementById('signupFormSection');
- 
   const signupForm = document.getElementById("signupForm");
   const hiddenIframe = document.getElementById("hidden_iframe");
+  const welcomeDiv = document.getElementById("welcomeMessage");
+  const welcomeText = document.getElementById("welcomeText");
 
   window.submitted = false;
+
+  // Show welcome message if already signed up
+  const savedUser = localStorage.getItem("signedUpUser");
+  if (savedUser) {
+    document.querySelector('.invite-section').classList.add('hidden');
+    formSection.classList.add('hidden');
+    welcomeText.textContent = `Welcome back, ${savedUser}!`;
+    welcomeDiv.classList.remove('hidden');
+    return;
+  }
 
   // Validate Invite Code
   inviteBtn.onclick = async () => {
@@ -85,25 +96,39 @@ const inviteBtn = document.getElementById('validateBtn');
   });
 
   // Show spinner on form submit
- signupForm.addEventListener("submit", () => {
-  document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
-  window.submitted = true;
-});
+  signupForm.addEventListener("submit", () => {
+    document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
+    window.submitted = true;
+  });
 
+  let iframeHasLoadedOnce = false;
 
- let iframeHasLoadedOnce = false;
+  hiddenIframe.onload = function () {
+    if (!iframeHasLoadedOnce) {
+      iframeHasLoadedOnce = true;
+      return; // skip initial iframe load
+    }
 
-hiddenIframe.onload = function () {
-  if (!iframeHasLoadedOnce) {
-    iframeHasLoadedOnce = true;
-    return; // skip initial iframe load
-  }
+    if (window.submitted) {
+      document.getElementById("loading-modal").style.display = "none"; // hide spinner
 
-  if (window.submitted) {
-    document.getElementById("loading-modal").style.display = "none"; // hide spinner
+      // Get first name from form
+      const firstName = signupForm.querySelector('input[name="entry.1502543154"]')?.value || "there";
 
-    const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
-    if (targetBtn) targetBtn.click(); // simulate user click
-  }
-};
+      // Save to localStorage
+      localStorage.setItem("signedUpUser", firstName);
+
+      // Hide form and invite
+      document.querySelector('.invite-section').classList.add('hidden');
+      formSection.classList.add('hidden');
+
+      // Show welcome
+      welcomeText.textContent = `Welcome, ${firstName}! Thanks for signing up.`;
+      welcomeDiv.classList.remove('hidden');
+
+      // Optional menu click
+      const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
+      if (targetBtn) targetBtn.click();
+    }
+  };
 }
