@@ -141,15 +141,15 @@ function init_signup() {
 
 
   // Form submit behavior
-  signupForm.addEventListener("submit", () => {
-    if (window.submitted) return; // prevent double submit
-    window.submitted = true;
+  signupForm.addEventListener("submit", (e) => {
+  if (window.submitted) return; // prevent double submit
+  window.submitted = true;
 
-    loader.style.display = "flex";
-    signupForm.querySelector('button[type="submit"]').disabled = true;
+  loader.style.display = "flex";
+  signupForm.querySelector('button[type="submit"]').disabled = true;
 
-  });
-
+  console.log("Form submitted - loader shown");
+});
   // Detect successful submission via iframe load
 hiddenIframe.onload = function () {
   if (!window.submitted) return; // Only trigger if form was submitted
