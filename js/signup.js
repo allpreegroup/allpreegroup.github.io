@@ -209,22 +209,11 @@ function handleSuccessfulSignup() {
 
         <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with our <strong>➕ Deal Plus⁺ Program</strong>.</p>
 
-        <p><strong>Unlock Lifetime Income</strong><br>
-        Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
+       <p>No gimmicks, just real money sent straight to your bank account.</p>
 
-        <p>One-time setup. Lifetime earnings.<br>
-        No gimmicks, just real cashback and real opportunity.</p>
-
-        <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
+    
       </div>
     `;
 
-// Add listener to button so it works when clicked
-const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
-if (targetBtn) {
-  targetBtn.addEventListener('click', () => {
-    showView('salesletter');
-  });
-}
   }
 }
