@@ -1,4 +1,4 @@
- var submitted = false;
+
 function init_signup() {
   const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
@@ -136,26 +136,25 @@ function init_signup() {
   `;
 }
 
-
-  // Form submit behavior
- // Form submit behavior
-  signupForm.addEventListener("submit", (e) => {
-    if (submitted) return; // prevent double submit
-    submitted = true;
-    document.getElementById("loading-modal").style.display = "flex"; // reuse invite spinner
-    signupForm.querySelector('button[type="submit"]').disabled = true;
-    console.log("Form submitted - loader shown");
-    
-    // Fallback if iframe load never triggers
-    setTimeout(() => {
-      if (submitted) handleSuccessfulSignup();
-    }, 5000);
+ // Show spinner on form submit
+  signupForm.addEventListener("submit", () => {
+    formSpinner.style.display = "block";
+    window.submitted = true;
   });
 
-  // Detect successful submission via iframe load
-  hiddenIframe.onload = function () {
-    if (!submitted) return; // Only trigger if form was submitted
-    console.log("Iframe loaded, calling handleSuccessfulSignup");
-    handleSuccessfulSignup();
-  };
+ let iframeHasLoadedOnce = false;
+
+hiddenIframe.onload = function () {
+  if (!iframeHasLoadedOnce) {
+    iframeHasLoadedOnce = true;
+    return; // skip initial iframe load
+  }
+
+  if (window.submitted) {
+    document.getElementById("loading-modal").style.display = "none"; // hide spinner
+
+    const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
+    if (targetBtn) targetBtn.click(); // simulate user click
+  }
+};
 }
