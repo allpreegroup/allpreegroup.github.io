@@ -8,8 +8,12 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  
-  window.submitted = true;
+  // Trigger welcome message after successful iframe submission
+  hiddenIframe.onload = () => {
+    if (window.submitted) {
+      handleSuccessfulSignup();
+    }
+  };
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -95,46 +99,17 @@ function init_signup() {
   });
 
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
-
-/* hiddenIframe.onload = () => {
-  console.log("iframe loaded");
-
-
- if (!iframeHasLoadedOnce) {
-    // First load: iframe just initialized
-    console.log("First iframe load, init only");
-    iframeHasLoadedOnce = true;
-    return;
-  }
-  
-  // First iframe load (page load), just mark it initialized
-  if (!iframeInitialized) {
-    iframeInitialized = true;
-    console.log("First iframe load, init only");
-    return;
-  }
-
-  // Only handle submit after first load is done
-  if (window.submitted) {
-    console.log("iframe onload: calling success handler");
-    handleSuccessfulSignup();
-  } else {
-    console.log("iframe onload, but submitted = false. Skipping.");
-  }
-}; */
-
 }
 
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
-  window.submitted = true;
-  
+
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
   form.target = 'hidden_iframe';
-   
+
   const fields = [
     { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
     { name: 'entry.2034350499', value: document.getElementById('field_Code').value },
@@ -161,17 +136,17 @@ function submitSignupForm() {
   });
 
   document.body.appendChild(form);
- 
-   console.log("Form appended to body, now submitting...");
+
+  console.log("Form appended to body, now submitting...");
   setTimeout(() => {
-  console.log("Submitting form to iframe...");
-  form.submit();
-}, 100);
+    console.log("Submitting form to iframe...");
+    window.submitted = true;
+    form.submit();
+  }, 100);
 }
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-  window.submitted = true;
 
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
@@ -208,6 +183,6 @@ function handleSuccessfulSignup() {
       <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
     </div>
   `;
-  
 }
+
 document.addEventListener('DOMContentLoaded', init_signup);
