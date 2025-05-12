@@ -8,6 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
+  let iframeInitialized = false;
   let iframeHasLoadedOnce = false;
   window.submitted = false;
 
@@ -96,16 +97,26 @@ function init_signup() {
 
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 
+
 hiddenIframe.onload = () => {
   console.log("iframe loaded");
-  if (!window.submitted || !iframeHasLoadedOnce) {
-    console.log("Skipping: not submitted or first load");
-    iframeHasLoadedOnce = true;
+
+  // First iframe load (page load), just mark it initialized
+  if (!iframeInitialized) {
+    iframeInitialized = true;
+    console.log("First iframe load, init only");
     return;
   }
-  console.log("iframe onload: calling success handler");
-  handleSuccessfulSignup();
+
+  // Only handle submit after first load is done
+  if (window.submitted) {
+    console.log("iframe onload: calling success handler");
+    handleSuccessfulSignup();
+  } else {
+    console.log("iframe onload, but submitted = false. Skipping.");
+  }
 };
+
 
 
 }
