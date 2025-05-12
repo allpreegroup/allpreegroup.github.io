@@ -97,7 +97,6 @@ function init_signup() {
 
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 
-
 hiddenIframe.onload = () => {
   console.log("iframe loaded");
 
