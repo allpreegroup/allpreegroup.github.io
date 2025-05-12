@@ -110,6 +110,12 @@ function init_signup() {
   document.getElementById("submitSignupBtn").addEventListener("click", () => {
     submitSignupForm();
     formSubmitted = true; // Set flag after click
+
+    setTimeout(() => {
+      console.log("Second hard click");
+      submitSignupForm();
+    }, 500);
+
   });
 }
 
