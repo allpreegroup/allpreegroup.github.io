@@ -256,20 +256,21 @@ function handleSuccessfulSignup() {
       
       Tired of going shopping and walking away with just your receipts and <strong>no good discounts</strong> from big & small retailers?<br><br>
       
-      What if you don't have to worry about discounts anymore and just let us work to get back <strong>up to 49% off your money</strong> in cash to send to <strong>your bank account</strong>, but you have to wait <strong>121 days</strong> for the settlement?<br><br>
-      Now you can.</p>
+      What if you don't have to worry about discounts anymore<br><br>Let us work to get back <strong>up to 49% off your money</strong> in cash to send to <strong>your bank account</strong>, but you have to wait <strong>121 days</strong> for the settlement?<br><br>
+      If you want.</p>
 
       <p>It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, it connects you to <strong>300+ merchants</strong> across Jamaica.</p>
 
-      <p><strong>Unlock Lifetime Income</strong><br>
-      By sharing our app with your friends, family, or even your enemy, and earn <strong>recurring commissions for life</strong>, every time they spend, for as long as they use the system.</p>
+      <h3><center>Unlock Lifetime Income</center></h3><br>
+      <p>By <strong>sharing our app</strong> with your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, every time they spend, for as long as they are using the system.</p>
 
-      <p>No gimmicks, just real money sent straight to your bank account with the right opportunity to earn a little extra.</p>
+      <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
 
+<center>
      <button id="seeHowItWorks" class="menu-button" data-view="salesletter-dummy">
   👉 See How It Works
 </button>
-
+</center>
 
     </div>
   `;
