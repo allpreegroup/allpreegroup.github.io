@@ -115,10 +115,10 @@ function init_signup() {
 
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
-  if (submitBtn) submitBtn.disabled = true;
-
   const iframe = document.getElementById('hidden_iframe');
-  iframe.src = 'about:blank'; // reset iframe
+
+  iframe.src = 'about:blank'; // reset iframe for clean load
+  window.submitted = false;
 
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
@@ -151,10 +151,16 @@ function submitSignupForm() {
 
   document.body.appendChild(form);
 
+  // Ensure the form is in the DOM before submitting
   setTimeout(() => {
     form.submit();
+    window.submitted = true;
+
+    // Disable button AFTER submitting
+    if (submitBtn) submitBtn.disabled = true;
   }, 100);
 }
+
 
 function handleSuccessfulSignup() {
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
