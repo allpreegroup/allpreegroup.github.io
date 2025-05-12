@@ -8,7 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  let formSubmitted = false;
+  window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -19,12 +19,13 @@ function init_signup() {
     return;
   }
 
+  // Set iframe load listener for one-time success handling
   if (hiddenIframe) {
-    hiddenIframe.onload = function () {
-      if (formSubmitted) {
-        console.log("iframe loaded, completing signup...");
+    hiddenIframe.onload = () => {
+      if (window.submitted) {
+        console.log("iframe load detected, calling handleSuccessfulSignup...");
         handleSuccessfulSignup();
-        formSubmitted = false;
+        window.submitted = false; // reset for future attempts
       }
     };
   }
@@ -33,7 +34,7 @@ function init_signup() {
     const code = inviteInput.value.trim().toUpperCase();
     if (!code) return;
 
-    loader.style.display = "flex";
+    loader.style.display = "flex"; // Show the loading spinner
 
     try {
       const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
@@ -53,72 +54,24 @@ function init_signup() {
       console.error("Error checking code:", e);
       errorText.style.display = "block";
     } finally {
-      loader.style.display = "none";
+      loader.style.display = "none"; // Hide the loader after fetch is done
     }
   };
 
-  // Populate birth years
-  const birthYearSelect = document.getElementById("birthYearSelect");
-  const currentYear = new Date().getFullYear();
-  for (let y = currentYear - 50; y <= currentYear - 10; y++) {
-    const option = document.createElement("option");
-    option.value = y;
-    option.textContent = y;
-    birthYearSelect.appendChild(option);
-  }
-
-  // Country
-  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
-  const countrySelect = document.getElementById("countrySelect");
-  countries.forEach(c => {
-    const option = document.createElement("option");
-    option.value = c;
-    option.textContent = c;
-    countrySelect.appendChild(option);
-  });
-
-  // Parish
-  const parishes = [
-    "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
-    "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
-  ];
-  const parishSelect = document.getElementById("parishSelect");
-  parishes.forEach(p => {
-    const option = document.createElement("option");
-    option.value = p;
-    option.textContent = p;
-    parishSelect.appendChild(option);
-  });
-
-  // Phone number formatting
-  const phoneInput = document.getElementById("whatsappNumber");
-  phoneInput.addEventListener("input", () => {
-    const expectedPrefix = "+1876";
-    const actualPrefix = phoneInput.value.slice(0, expectedPrefix.length);
-    const rest = phoneInput.value.slice(expectedPrefix.length);
-
-    let fixedPrefix = "";
-    for (let i = 0; i < expectedPrefix.length; i++) {
-      fixedPrefix += actualPrefix[i] !== expectedPrefix[i] ? expectedPrefix[i] : actualPrefix[i];
-    }
-
-    if (fixedPrefix !== actualPrefix) {
-      phoneInput.value = fixedPrefix + rest;
-    }
-  });
-
-  document.getElementById("submitSignupBtn").addEventListener("click", () => {
-    submitSignupForm();
-    formSubmitted = true; // Set flag after click
-  });
+  document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 }
 
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
-  const iframe = document.getElementById('hidden_iframe');
+  if (submitBtn) submitBtn.disabled = true;
 
-  iframe.src = 'about:blank'; // reset iframe for clean load
-  window.submitted = false;
+  // Show the loading spinner
+  const loader = document.getElementById("loading-modal");
+  loader.style.display = "flex";
+
+  // Submit the form data to Google Form via iframe
+  const iframe = document.getElementById('hidden_iframe');
+  iframe.src = 'about:blank'; // reset iframe to ensure clean load
 
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
@@ -151,25 +104,39 @@ function submitSignupForm() {
 
   document.body.appendChild(form);
 
-  // Ensure the form is in the DOM before submitting
+  // Submit form first time (to send data to Google Sheets)
   setTimeout(() => {
     form.submit();
     window.submitted = true;
-
-    // Disable button AFTER submitting
-    if (submitBtn) submitBtn.disabled = true;
+    console.log("First form submission triggered");
   }, 100);
+
+  // After a small delay (to give time for the first submission to process)
+  setTimeout(() => {
+    // Submit the form again to ensure data is properly added to Google Sheets
+    form.submit();
+    console.log("Second form submission triggered");
+  }, 500); // Adjust the delay if necessary (500ms for now)
+  
+  // Hide the loader and show the welcome message once everything is done
+  setTimeout(() => {
+    loader.style.display = "none"; // Hide the loader
+    handleSuccessfulSignup(); // Show the welcome message
+  }, 1000); // Give some time for both submissions to complete
 }
 
-
 function handleSuccessfulSignup() {
+  if (!window.submitted) return;
+  window.submitted = false; // prevent duplicate calls
+
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
-  document.getElementById("loading-modal").style.display = "none";
+  // Hide sections
   document.querySelector('.invite-section')?.classList.add('hidden');
   document.getElementById('signupFormSection')?.classList.add('hidden');
 
+  // Show welcome message
   const welcomeDiv = document.getElementById("welcomeMessage");
   if (welcomeDiv) {
     welcomeDiv.classList.remove('hidden');
