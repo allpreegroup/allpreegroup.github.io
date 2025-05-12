@@ -9,7 +9,7 @@ function init_signup() {
   const hiddenIframe = document.getElementById("hidden_iframe");
 
   
-  window.submitted = false;
+  window.submitted = true;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -171,10 +171,10 @@ function submitSignupForm() {
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-  window.submitted = false;
+  window.submitted = true;
 
   const submitBtn = document.querySelector('button[type="submit"]');
-  if (submitBtn) submitBtn.disabled = false;
+  if (submitBtn) submitBtn.disabled = true;
 
   document.getElementById("loading-modal").style.display = "none";
 
