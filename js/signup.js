@@ -8,7 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  window.submitted = false;
+  let formSubmitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -19,13 +19,12 @@ function init_signup() {
     return;
   }
 
-  // Set iframe load listener for one-time success handling
   if (hiddenIframe) {
-    hiddenIframe.onload = () => {
-      if (window.submitted) {
-        console.log("iframe load detected, calling handleSuccessfulSignup...");
+    hiddenIframe.onload = function () {
+      if (formSubmitted) {
+        console.log("iframe loaded, completing signup...");
         handleSuccessfulSignup();
-        window.submitted = false; // reset for future attempts
+        formSubmitted = false;
       }
     };
   }
@@ -58,7 +57,7 @@ function init_signup() {
     }
   };
 
-  // Birth Year
+  // Populate birth years
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -91,7 +90,7 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
-  // Phone prefix enforcement
+  // Phone number formatting
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -108,17 +107,19 @@ function init_signup() {
     }
   });
 
-  document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
+  document.getElementById("submitSignupBtn").addEventListener("click", () => {
+    submitSignupForm();
+    formSubmitted = true; // Set flag after click
+  });
 }
-
 
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
   const iframe = document.getElementById('hidden_iframe');
-  iframe.src = 'about:blank'; // reset iframe to ensure clean load
-  
+  iframe.src = 'about:blank'; // reset iframe
+
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
@@ -141,7 +142,6 @@ function submitSignupForm() {
   ];
 
   fields.forEach(({ name, value }) => {
-    console.log(`Submitting ${name}: ${value}`);
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = name;
@@ -149,30 +149,21 @@ function submitSignupForm() {
     form.appendChild(input);
   });
 
- document.body.appendChild(form);
+  document.body.appendChild(form);
 
   setTimeout(() => {
     form.submit();
-    window.submitted = true;
   }, 100);
 }
 
-
 function handleSuccessfulSignup() {
-  if (!window.submitted) return;
-  window.submitted = false; // prevent duplicate calls
-
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
-  // Hide loader if showing
   document.getElementById("loading-modal").style.display = "none";
-
-  // Hide sections
   document.querySelector('.invite-section')?.classList.add('hidden');
   document.getElementById('signupFormSection')?.classList.add('hidden');
 
-  // Show welcome message
   const welcomeDiv = document.getElementById("welcomeMessage");
   if (welcomeDiv) {
     welcomeDiv.classList.remove('hidden');
@@ -200,5 +191,3 @@ function handleSuccessfulSignup() {
     `;
   }
 }
-
-
