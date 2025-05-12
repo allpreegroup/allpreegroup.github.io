@@ -19,13 +19,12 @@ function init_signup() {
     return;
   }
 
-  // Set iframe load listener for one-time success handling
   if (hiddenIframe) {
     hiddenIframe.onload = () => {
       if (window.submitted) {
         console.log("iframe load detected, calling handleSuccessfulSignup...");
         handleSuccessfulSignup();
-        window.submitted = false; // reset for future attempts
+        window.submitted = false;
       }
     };
   }
@@ -58,7 +57,6 @@ function init_signup() {
     }
   };
 
-  // Birth Year
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -68,7 +66,6 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  // Country
   const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
@@ -78,7 +75,6 @@ function init_signup() {
     countrySelect.appendChild(option);
   });
 
-  // Parish
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -91,7 +87,6 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
-  // Phone prefix enforcement
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -108,24 +103,35 @@ function init_signup() {
     }
   });
 
+  // Main button that triggers actual submit click twice
   document.getElementById("submitSignupBtn").addEventListener("click", () => {
-    submitSignupForm();
+    const realSubmitBtn = document.querySelector('button[type="submit"]');
+    if (!realSubmitBtn) return;
 
-    // Second submit after 1 second to ensure Google Sheets catches it
+    // First click
+    realSubmitBtn.click();
+
+    // Second click after a short delay
     setTimeout(() => {
-      console.log("Triggering second submission...");
-      submitSignupForm();
+      console.log("Triggering second HARD click...");
+      realSubmitBtn.click();
     }, 1000);
   });
+
+  // Hidden button's event actually builds and submits the form
+  const actualBtn = document.querySelector('button[type="submit"]');
+  if (actualBtn) {
+    actualBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      submitSignupForm();
+    });
+  }
 }
 
 
 function submitSignupForm() {
-  const submitBtn = document.querySelector('button[type="submit"]');
-  if (submitBtn) submitBtn.disabled = true;
-
   const iframe = document.getElementById('hidden_iframe');
-  iframe.src = 'about:blank'; // reset iframe to ensure clean load
+  iframe.src = 'about:blank';
 
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
@@ -167,7 +173,7 @@ function submitSignupForm() {
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-  window.submitted = false; // prevent duplicate calls
+  window.submitted = false;
 
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
