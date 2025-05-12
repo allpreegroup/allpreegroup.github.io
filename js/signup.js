@@ -120,10 +120,6 @@ function submitSignupForm() {
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
   form.target = 'hidden_iframe';
-
-  form.addEventListener('submit', () => {
-  window.submitted = true;
-  });
   
   const fields = [
     { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
@@ -151,6 +147,8 @@ function submitSignupForm() {
   });
 
   document.body.appendChild(form);
+  // Set flag BEFORE submitting
+  window.submitted = true;
    console.log("Form appended to body, now submitting...");
   form.submit();
 }
