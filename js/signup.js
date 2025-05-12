@@ -1,4 +1,3 @@
-
 function init_signup() {
   const inviteBtn = document.getElementById('validateBtn');
   const inviteInput = document.getElementById('inviteCodeInput');
