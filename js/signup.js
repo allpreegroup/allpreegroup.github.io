@@ -66,7 +66,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
+  const countries = ["Jamaica"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
     const option = document.createElement("option");
@@ -187,8 +187,19 @@ function handleSuccessfulSignup() {
     welcomeDiv.classList.remove('hidden');
     welcomeDiv.innerHTML = `
       <div style="text-align:left; padding: 20px;">
-        <h3>✅ You’re In</h3>
-        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+        <h3 style="
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ff6ec4, #7873f5, #4ade80);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-top: 30px;
+  animation: pop 0.6s ease-in-out;
+">
+ ${firstName} 🎉 Congratulations On Signing Up! 🎉
+</h3>
+        <center> <h2><strong>  <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
         It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
         <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
