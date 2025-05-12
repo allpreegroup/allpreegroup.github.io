@@ -187,8 +187,8 @@ function handleSuccessfulSignup() {
     welcomeDiv.classList.remove('hidden');
     welcomeDiv.innerHTML = `
       <div style="text-align:left; padding: 20px;">
-        <h3>✅ You’re In</h3>
-        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+        <h3>${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
+        <center> <h2><strong> ${firstName} <br>BE SMART.<br> SHOP CLEVER. <br>GET PAID.</strong><br><br>
         It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
         <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
