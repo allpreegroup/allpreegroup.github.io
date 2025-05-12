@@ -162,7 +162,10 @@ function submitSignupForm() {
   document.body.appendChild(form);
  
    console.log("Form appended to body, now submitting...");
+  setTimeout(() => {
+  console.log("Submitting form to iframe...");
   form.submit();
+}, 100);
 }
 
 function handleSuccessfulSignup() {
