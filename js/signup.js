@@ -57,7 +57,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
+  const countries = ["Jamaica"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
     const option = document.createElement("option");
@@ -195,23 +195,24 @@ function handleSuccessfulSignup() {
   margin-top: 30px;
   animation: pop 0.6s ease-in-out;
 ">${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
-      <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong><br><br>
-      It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
+      <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h2>
+      <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
 
-      <p><strong>${firstName}</strong>, I know you are a savvy shopper<br>
-      Tired of going shopping and walking away with nothing but your receipts?<br><br>
-      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
+      <p><strong>${firstName}</strong>, I know you are a savvy shopper<br><br>
+      
+      Tired of going shopping and walking away with just your receipts and no good discounts from big & small retailers?<br><br>
+      
+      What if you don't have to worry about discounts anymore and just let us work to get back <strong>up to 49% off your money</strong> in cash to send to your bank account, but you have to wait 121 days for the settlement?<br><br>
       Now you can.</p>
 
-      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
+      <p>It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, it connects you to <strong>300+ merchants across Jamaica</strong>.</p>
 
       <p><strong>Unlock Lifetime Income</strong><br>
       Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
 
-      <p>One-time setup. Lifetime earnings.<br>
-      No gimmicks, just real cashback and real opportunity.</p>
+      <p>No gimmicks, just real money sent straight to your bank account.</p>
 
-      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
+      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 See How It Works</button>
     </div>
   `;
   
