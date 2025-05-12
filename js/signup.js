@@ -111,16 +111,19 @@ hiddenIframe.onload = () => {
 }
 
 function submitSignupForm() {
-  window.submitted = true;
-  document.getElementById("loading-modal").style.display = "flex";
+   
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
+  window.submitted = true;
+
+  document.getElementById("loading-modal").style.display = "flex";
+  
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
   form.target = 'hidden_iframe';
-  
+   
   const fields = [
     { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
     { name: 'entry.2034350499', value: document.getElementById('field_Code').value },
@@ -147,8 +150,7 @@ function submitSignupForm() {
   });
 
   document.body.appendChild(form);
-  // Set flag BEFORE submitting
-  window.submitted = true;
+ 
    console.log("Form appended to body, now submitting...");
   form.submit();
 }
