@@ -187,8 +187,8 @@ function handleSuccessfulSignup() {
     welcomeDiv.classList.remove('hidden');
     welcomeDiv.innerHTML = `
       <div style="text-align:left; padding: 20px;">
-        <h3>${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
-        <center> <h2><strong> ${firstName} <br>BE SMART.<br> SHOP CLEVER. <br>GET PAID.</strong><br><br>
+        <h3>✅ You’re In</h3>
+        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
         It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
         <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
@@ -198,7 +198,11 @@ function handleSuccessfulSignup() {
 
         <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
 
-        <p>No gimmicks, just real money sent straight to your bank account.</p>
+        <p><strong>Unlock Lifetime Income</strong><br>
+        Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
+
+        <p>One-time setup. Lifetime earnings.<br>
+        No gimmicks, just real cashback and real opportunity.</p>
 
         <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
       </div>
