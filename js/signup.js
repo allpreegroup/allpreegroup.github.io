@@ -185,11 +185,20 @@ function handleSuccessfulSignup() {
 
   welcomeDiv.innerHTML = `
     <div style="text-align:left; padding: 20px;">
-      <h3>✅ You’re In</h3>
-      <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+       <h3 style="
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ff6ec4, #7873f5, #4ade80);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-top: 30px;
+  animation: pop 0.6s ease-in-out;
+">${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
+      <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong><br><br>
       It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
-      <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
+      <p><strong>${firstName}</strong>, I know you are a savvy shopper<br>
       Tired of going shopping and walking away with nothing but your receipts?<br><br>
       What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
       Now you can.</p>
