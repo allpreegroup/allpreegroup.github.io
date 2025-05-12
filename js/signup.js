@@ -34,7 +34,7 @@ function init_signup() {
     const code = inviteInput.value.trim().toUpperCase();
     if (!code) return;
 
-    loader.style.display = "flex"; // Show the loading spinner
+    loader.style.display = "flex";
 
     try {
       const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
@@ -54,11 +54,11 @@ function init_signup() {
       console.error("Error checking code:", e);
       errorText.style.display = "block";
     } finally {
-      loader.style.display = "none"; // Hide the loader after fetch is done
+      loader.style.display = "none";
     }
   };
 
-  // Birth Year Dropdown
+  // Birth Year
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -68,7 +68,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  // Country Dropdown
+  // Country
   const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
@@ -78,7 +78,7 @@ function init_signup() {
     countrySelect.appendChild(option);
   });
 
-  // Parish Dropdown
+  // Parish
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -91,7 +91,7 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
-  // Phone Prefix Enforcement
+  // Phone prefix enforcement
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -108,18 +108,22 @@ function init_signup() {
     }
   });
 
-  document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
+  document.getElementById("submitSignupBtn").addEventListener("click", () => {
+    submitSignupForm();
+
+    // Second submit after 1 second to ensure Google Sheets catches it
+    setTimeout(() => {
+      console.log("Triggering second submission...");
+      submitSignupForm();
+    }, 1000);
+  });
 }
+
 
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
-  // Show the loading spinner
-  const loader = document.getElementById("loading-modal");
-  loader.style.display = "flex";
-
-  // Submit the form data to Google Form via iframe
   const iframe = document.getElementById('hidden_iframe');
   iframe.src = 'about:blank'; // reset iframe to ensure clean load
 
@@ -154,26 +158,12 @@ function submitSignupForm() {
 
   document.body.appendChild(form);
 
-  // Submit form first time (to send data to Google Sheets)
   setTimeout(() => {
     form.submit();
     window.submitted = true;
-    console.log("First form submission triggered");
   }, 100);
-
-  // After a small delay (to give time for the first submission to process)
-  setTimeout(() => {
-    // Submit the form again to ensure data is properly added to Google Sheets
-    form.submit();
-    console.log("Second form submission triggered");
-  }, 500); // Adjust the delay if necessary (500ms for now)
-  
-  // Hide the loader and show the welcome message once everything is done
-  setTimeout(() => {
-    loader.style.display = "none"; // Hide the loader
-    handleSuccessfulSignup(); // Show the welcome message
-  }, 1000); // Give some time for both submissions to complete
 }
+
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
@@ -182,11 +172,10 @@ function handleSuccessfulSignup() {
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
-  // Hide sections
+  document.getElementById("loading-modal").style.display = "none";
   document.querySelector('.invite-section')?.classList.add('hidden');
   document.getElementById('signupFormSection')?.classList.add('hidden');
 
-  // Show welcome message
   const welcomeDiv = document.getElementById("welcomeMessage");
   if (welcomeDiv) {
     welcomeDiv.classList.remove('hidden');
