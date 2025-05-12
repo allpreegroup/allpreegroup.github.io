@@ -199,15 +199,15 @@ function handleSuccessfulSignup() {
 ">
  ${firstName} 🎉 Congratulations On Signing Up! 🎉
 </h3>
-        <center> <h2><strong>  <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+        <center> <h2><strong>  <br>BE SMART.<br> SHOP CLEVER. <br>GET PAID.</strong><br><br>
         It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
-        <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
+        <p><strong>${firstName}</strong>, I know you are a savvy shopper<br>
         Tired of going shopping and walking away with nothing but your receipts?<br><br>
         What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
         Now you can.</p>
 
-        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
+        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with our <strong>➕ Deal Plus⁺ Program</strong>.</p>
 
         <p><strong>Unlock Lifetime Income</strong><br>
         Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
@@ -218,5 +218,13 @@ function handleSuccessfulSignup() {
         <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
       </div>
     `;
+
+// Add listener to button so it works when clicked
+const targetBtn = document.querySelector('.menu-button[data-view="salesletter"]');
+if (targetBtn) {
+  targetBtn.addEventListener('click', () => {
+    showView('salesletter');
+  });
+}
   }
 }
