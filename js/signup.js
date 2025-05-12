@@ -66,7 +66,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  const countries = ["Jamaica"];
+  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
     const option = document.createElement("option");
@@ -187,33 +187,21 @@ function handleSuccessfulSignup() {
     welcomeDiv.classList.remove('hidden');
     welcomeDiv.innerHTML = `
       <div style="text-align:left; padding: 20px;">
-        <h3 style="
-  font-size: 1.2rem;
-  font-weight: bold;
-  background: linear-gradient(90deg, #ff6ec4, #7873f5, #4ade80);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-align: center;
-  margin-top: 30px;
-  animation: pop 0.6s ease-in-out;
-">
- ${firstName} 🎉 Congratulations On Signing Up! 🎉
-</h3>
-        <center> <h2><strong>  <br>BE SMART.<br> SHOP CLEVER. <br>GET PAID.</strong><br><br>
+        <h3>✅ You’re In</h3>
+        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
         It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
-        <p><strong>${firstName}</strong>, I know you are a savvy shopper<br>
+        <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
         Tired of going shopping and walking away with nothing but your receipts?<br><br>
         What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
         Now you can.</p>
 
-        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with our <strong>➕ Deal Plus⁺ Program</strong>.</p>
+        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
 
-       <p>No gimmicks, just real money sent straight to your bank account.</p>
+        <p>No gimmicks, just real money sent straight to your bank account.</p>
 
-    
+        <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
       </div>
     `;
-
   }
 }
