@@ -8,12 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  // Trigger welcome message after successful iframe submission
-  hiddenIframe.onload = () => {
-    if (window.submitted) {
-      handleSuccessfulSignup();
-    }
-  };
+  window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -22,6 +17,17 @@ function init_signup() {
     welcomeText.textContent = `Welcome back, ${savedUser}!`;
     welcomeDiv.classList.remove('hidden');
     return;
+  }
+
+  // Set iframe load listener for one-time success handling
+  if (hiddenIframe) {
+    hiddenIframe.onload = () => {
+      if (window.submitted) {
+        console.log("iframe load detected, calling handleSuccessfulSignup...");
+        handleSuccessfulSignup();
+        window.submitted = false; // reset for future attempts
+      }
+    };
   }
 
   inviteBtn.onclick = async () => {
@@ -52,6 +58,7 @@ function init_signup() {
     }
   };
 
+  // Birth Year
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -61,6 +68,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
+  // Country
   const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
@@ -70,6 +78,7 @@ function init_signup() {
     countrySelect.appendChild(option);
   });
 
+  // Parish
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -82,6 +91,7 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
+  // Phone prefix enforcement
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -101,10 +111,14 @@ function init_signup() {
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 }
 
+
 function submitSignupForm() {
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
+  const iframe = document.getElementById('hidden_iframe');
+  iframe.src = 'about:blank'; // reset iframe to ensure clean load
+  
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
@@ -135,55 +149,56 @@ function submitSignupForm() {
     form.appendChild(input);
   });
 
-  document.body.appendChild(form);
+ document.body.appendChild(form);
 
-  console.log("Form appended to body, now submitting...");
   setTimeout(() => {
-  console.log("Submitting form to iframe...");
-  form.submit();
-  window.submitted = true; // Moved AFTER form.submit
-}, 100);
-
+    form.submit();
+    window.submitted = true;
+  }, 100);
 }
+
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-
-  const submitBtn = document.querySelector('button[type="submit"]');
-  if (submitBtn) submitBtn.disabled = true;
-
-  document.getElementById("loading-modal").style.display = "none";
+  window.submitted = false; // prevent duplicate calls
 
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
-  document.querySelector('.invite-section').classList.add('hidden');
-  document.getElementById('signupFormSection').classList.add('hidden');
+  // Hide loader if showing
+  document.getElementById("loading-modal").style.display = "none";
+
+  // Hide sections
+  document.querySelector('.invite-section')?.classList.add('hidden');
+  document.getElementById('signupFormSection')?.classList.add('hidden');
+
+  // Show welcome message
   const welcomeDiv = document.getElementById("welcomeMessage");
-  welcomeDiv.classList.remove('hidden');
+  if (welcomeDiv) {
+    welcomeDiv.classList.remove('hidden');
+    welcomeDiv.innerHTML = `
+      <div style="text-align:left; padding: 20px;">
+        <h3>✅ You’re In</h3>
+        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+        It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
-  welcomeDiv.innerHTML = `
-    <div style="text-align:left; padding: 20px;">
-      <h3>✅ You’re In</h3>
-      <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
-      It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
+        <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
+        Tired of going shopping and walking away with nothing but your receipts?<br><br>
+        What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
+        Now you can.</p>
 
-      <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
-      Tired of going shopping and walking away with nothing but your receipts?<br><br>
-      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
-      Now you can.</p>
+        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
 
-      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
+        <p><strong>Unlock Lifetime Income</strong><br>
+        Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
 
-      <p><strong>Unlock Lifetime Income</strong><br>
-      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
+        <p>One-time setup. Lifetime earnings.<br>
+        No gimmicks, just real cashback and real opportunity.</p>
 
-      <p>One-time setup. Lifetime earnings.<br>
-      No gimmicks, just real cashback and real opportunity.</p>
-
-      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
-    </div>
-  `;
+        <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
+      </div>
+    `;
+  }
 }
 
-document.addEventListener('DOMContentLoaded', init_signup);
+
