@@ -106,7 +106,9 @@ function init_signup() {
 function submitSignupForm() {
   window.submitted = true;
   document.getElementById("loading-modal").style.display = "flex";
-  document.querySelector('button[type="submit"]').disabled = true;
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
 
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
@@ -145,7 +147,9 @@ function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
 
-  document.querySelector('button[type="submit"]').disabled = false;
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = false;
+
   document.getElementById("loading-modal").style.display = "none";
 
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
@@ -159,8 +163,8 @@ function handleSuccessfulSignup() {
   welcomeDiv.innerHTML = `
     <div style="text-align:left; padding: 20px;">
       <h3>✅ You’re In</h3>
-      <h2><strong>BE SMART. SHOP CLEVER. GET PAID.</strong><br>
-      It’s time to make money while shopping in Jamaica!</h2><br>
+      <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+      It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
       <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
       Tired of going shopping and walking away with nothing but your receipts?<br><br>
