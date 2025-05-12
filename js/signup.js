@@ -8,7 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  window.submitted = false;
+  let formSubmitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -20,10 +20,11 @@ function init_signup() {
   }
 
   if (hiddenIframe) {
-    hiddenIframe.onload = () => {
-      if (window.submitted) {
+    hiddenIframe.onload = function () {
+      if (formSubmitted) {
+        console.log("iframe loaded, completing signup...");
         handleSuccessfulSignup();
-        window.submitted = false;
+        formSubmitted = false;
       }
     };
   }
@@ -56,6 +57,7 @@ function init_signup() {
     }
   };
 
+  // Populate birth years
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -65,6 +67,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
+  // Country
   const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
@@ -74,6 +77,7 @@ function init_signup() {
     countrySelect.appendChild(option);
   });
 
+  // Parish
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -86,6 +90,7 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
+  // Phone number formatting
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -102,29 +107,18 @@ function init_signup() {
     }
   });
 
-  // Main submit button triggers actual submit twice
   document.getElementById("submitSignupBtn").addEventListener("click", () => {
-    const realSubmitBtn = document.querySelector('button[type="submit"]');
-    if (!realSubmitBtn) return;
-
-    realSubmitBtn.click(); // First click (user)
-    
-    setTimeout(() => {
-      console.log("Hard second click!");
-      realSubmitBtn.click(); // Second click (system)
-    }, 1200);
+    submitSignupForm();
+    formSubmitted = true; // Set flag after click
   });
-
-  // Real submit button triggers our function (no preventDefault now)
-  const actualBtn = document.querySelector('button[type="submit"]');
-  if (actualBtn) {
-    actualBtn.addEventListener("click", submitSignupForm);
-  }
 }
 
 function submitSignupForm() {
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
   const iframe = document.getElementById('hidden_iframe');
-  iframe.src = 'about:blank';
+  iframe.src = 'about:blank'; // reset iframe
 
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
@@ -159,14 +153,10 @@ function submitSignupForm() {
 
   setTimeout(() => {
     form.submit();
-    window.submitted = true;
   }, 100);
 }
 
 function handleSuccessfulSignup() {
-  if (!window.submitted) return;
-  window.submitted = false;
-
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
