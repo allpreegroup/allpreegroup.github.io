@@ -22,7 +22,6 @@ function init_signup() {
   if (hiddenIframe) {
     hiddenIframe.onload = () => {
       if (window.submitted) {
-        console.log("iframe load detected, calling handleSuccessfulSignup...");
         handleSuccessfulSignup();
         window.submitted = false;
       }
@@ -103,32 +102,25 @@ function init_signup() {
     }
   });
 
-  // Main button that triggers actual submit twice
+  // Main submit button triggers actual submit twice
   document.getElementById("submitSignupBtn").addEventListener("click", () => {
     const realSubmitBtn = document.querySelector('button[type="submit"]');
     if (!realSubmitBtn) return;
 
-    // Simulate second HARD click
+    realSubmitBtn.click(); // First click (user)
+    
     setTimeout(() => {
-      console.log("Triggering second HARD click...");
-      realSubmitBtn.dispatchEvent(new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      }));
-    }, 800);
+      console.log("Hard second click!");
+      realSubmitBtn.click(); // Second click (system)
+    }, 1200);
   });
 
-  // Real hidden submit button logic
+  // Real submit button triggers our function (no preventDefault now)
   const actualBtn = document.querySelector('button[type="submit"]');
   if (actualBtn) {
-    actualBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      submitSignupForm();
-    });
+    actualBtn.addEventListener("click", submitSignupForm);
   }
 }
-
 
 function submitSignupForm() {
   const iframe = document.getElementById('hidden_iframe');
@@ -171,7 +163,6 @@ function submitSignupForm() {
   }, 100);
 }
 
-
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
@@ -189,8 +180,8 @@ function handleSuccessfulSignup() {
     welcomeDiv.innerHTML = `
       <div style="text-align:left; padding: 20px;">
         <h3>✅ You’re In</h3>
-        <center><h2><strong>${firstName}<br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
-        It’s Time To Make Money While Shopping In Jamaica!</h2><br></center>
+        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+        It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
         <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
         Tired of going shopping and walking away with nothing but your receipts?<br><br>
