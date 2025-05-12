@@ -107,16 +107,21 @@ function init_signup() {
     }
   });
 
-  document.getElementById("submitSignupBtn").addEventListener("click", () => {
-    submitSignupForm();
-    formSubmitted = true; // Set flag after click
+  let secondClickTriggered = false;
+
+document.getElementById("submitSignupBtn").addEventListener("click", () => {
+  submitSignupForm();
+  formSubmitted = true;
+
+  if (!secondClickTriggered) {
+    secondClickTriggered = true;
 
     setTimeout(() => {
-      console.log("Second hard click");
-      submitSignupForm();
-    }, 500);
-
-  });
+      console.log("Hardcoded second click");
+      document.getElementById("submitSignupBtn").click();
+    }, 1500); // 1.5 seconds later
+  }
+});
 }
 
 function submitSignupForm() {
