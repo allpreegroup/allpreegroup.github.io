@@ -94,13 +94,18 @@ function init_signup() {
     }
   });
 
-  hiddenIframe.onload = () => {
-    if (!window.submitted || !iframeHasLoadedOnce) {
-      iframeHasLoadedOnce = true;
-      return;
-    }
-    handleSuccessfulSignup();
-  };
+  document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
+
+hiddenIframe.onload = () => {
+  console.log("iframe loaded");
+  if (!window.submitted || !iframeHasLoadedOnce) {
+    iframeHasLoadedOnce = true;
+    return;
+  }
+  console.log("Form submission complete, calling handler");
+  handleSuccessfulSignup();
+};
+
 }
 
 function submitSignupForm() {
@@ -131,6 +136,7 @@ function submitSignupForm() {
   ];
 
   fields.forEach(({ name, value }) => {
+    console.log(`Submitting ${name}: ${value}`);
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = name;
@@ -181,5 +187,6 @@ function handleSuccessfulSignup() {
       <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
     </div>
   `;
+  
 }
 document.addEventListener('DOMContentLoaded', init_signup);
