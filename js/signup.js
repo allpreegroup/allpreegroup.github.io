@@ -58,6 +58,56 @@ function init_signup() {
     }
   };
 
+  // Birth Year Dropdown
+  const birthYearSelect = document.getElementById("birthYearSelect");
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear - 50; y <= currentYear - 10; y++) {
+    const option = document.createElement("option");
+    option.value = y;
+    option.textContent = y;
+    birthYearSelect.appendChild(option);
+  }
+
+  // Country Dropdown
+  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
+  const countrySelect = document.getElementById("countrySelect");
+  countries.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c;
+    option.textContent = c;
+    countrySelect.appendChild(option);
+  });
+
+  // Parish Dropdown
+  const parishes = [
+    "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
+    "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
+  ];
+  const parishSelect = document.getElementById("parishSelect");
+  parishes.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p;
+    option.textContent = p;
+    parishSelect.appendChild(option);
+  });
+
+  // Phone Prefix Enforcement
+  const phoneInput = document.getElementById("whatsappNumber");
+  phoneInput.addEventListener("input", () => {
+    const expectedPrefix = "+1876";
+    const actualPrefix = phoneInput.value.slice(0, expectedPrefix.length);
+    const rest = phoneInput.value.slice(expectedPrefix.length);
+
+    let fixedPrefix = "";
+    for (let i = 0; i < expectedPrefix.length; i++) {
+      fixedPrefix += actualPrefix[i] !== expectedPrefix[i] ? expectedPrefix[i] : actualPrefix[i];
+    }
+
+    if (fixedPrefix !== actualPrefix) {
+      phoneInput.value = fixedPrefix + rest;
+    }
+  });
+
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 }
 
