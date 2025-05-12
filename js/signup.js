@@ -8,8 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  let iframeInitialized = false;
-  let iframeHasLoadedOnce = false;
+  
   window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
