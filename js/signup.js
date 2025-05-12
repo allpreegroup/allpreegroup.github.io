@@ -130,6 +130,51 @@ document.addEventListener('click', function (event) {
 }
 
 function submitSignupForm() {
+  const requiredFields = [
+    { name: 'entry.1502543154', label: 'First Name' },
+    { name: 'entry.166208811', label: 'Last Name' },
+    { name: 'emailAddress', label: 'Email' },
+    { id: 'whatsappNumber', label: 'WhatsApp Number' },
+    { name: 'entry.208508536', label: 'Gender' },
+    { id: 'birthYearSelect', label: 'Birth Year' },
+    { id: 'countrySelect', label: 'Country' },
+    { id: 'parishSelect', label: 'Parish' }
+  ];
+
+  let missingFields = [];
+
+  // Reset previous highlights
+  const allFields = document.querySelectorAll('input, select');
+  allFields.forEach(field => {
+    field.style.border = ''; // Reset the border color
+    field.style.backgroundColor = ''; // Reset the background color
+  });
+
+  requiredFields.forEach(field => {
+    let value;
+    let element;
+    if (field.id) {
+      element = document.getElementById(field.id);
+      value = element?.value.trim();
+    } else if (field.name) {
+      element = document.querySelector(`[name="${field.name}"]`);
+      value = element?.value.trim();
+    }
+    if (!value) {
+      missingFields.push(field.label);
+      // Highlight the empty field
+      if (element) {
+        element.style.border = '2px solid red';
+        element.style.backgroundColor = '#f8d7da'; // Light red background
+      }
+    }
+  });
+
+  if (missingFields.length > 0) {
+    alert(`Please complete the following fields:\n\n- ${missingFields.join('\n- ')}`);
+    return;
+  }
+  
   document.getElementById("submitError").style.display = "block";
    
   const submitBtn = document.querySelector('button[type="submit"]');
