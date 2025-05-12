@@ -179,3 +179,4 @@ function handleSuccessfulSignup() {
     </div>
   `;
 }
+document.addEventListener('DOMContentLoaded', init_signup);
