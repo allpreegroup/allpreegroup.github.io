@@ -96,7 +96,7 @@ function init_signup() {
 
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 
-hiddenIframe.onload = () => {
+/* hiddenIframe.onload = () => {
   console.log("iframe loaded");
 
 
@@ -121,7 +121,7 @@ hiddenIframe.onload = () => {
   } else {
     console.log("iframe onload, but submitted = false. Skipping.");
   }
-};
+}; */
 
 }
 
