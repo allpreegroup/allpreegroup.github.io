@@ -62,6 +62,22 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
+  // Country dropdown
+const countries = [
+  "Jamaica", 
+  "Trinidad and Tobago", 
+  "Barbados", 
+  "Bahamas", 
+  "Saint Lucia"
+];
+const countrySelect = document.getElementById("countrySelect");
+countries.forEach(c => {
+  const option = document.createElement("option");
+  option.value = c;
+  option.textContent = c;
+  countrySelect.appendChild(option);
+});
+  
   // Parish dropdown
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
@@ -137,14 +153,17 @@ function init_signup() {
   }
 
   // Form submit behavior
-  signupForm.addEventListener("submit", () => {
+  signupForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
     if (window.submitted) return;
     window.submitted = true;
 
     loader.style.display = "flex";
     signupForm.querySelector('button[type="submit"]').disabled = true;
 
-    // Fallback if iframe load doesn't trigger
+    submitSignupForm();
+
     setTimeout(() => {
       if (window.submitted) handleSuccessfulSignup();
     }, 4000);
@@ -155,13 +174,49 @@ function init_signup() {
     if (!window.submitted) return;
     if (!iframeHasLoadedOnce) {
       iframeHasLoadedOnce = true;
-      return; // skip first load (on page load)
+      return; // skip initial load
     }
 
     console.log("Iframe loaded, completing signup");
     handleSuccessfulSignup();
   };
+
+  // Function to dynamically submit form
+  function submitSignupForm() {
+    const form = document.createElement('form');
+    form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
+    form.method = 'POST';
+    form.target = 'hidden_iframe';
+
+    const fields = [
+      { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
+      { name: 'entry.2034350499', value: document.getElementById('field_Code').value },
+      { name: 'entry.297851038', value: '' },
+      { name: 'entry.663913627', value: 'Digital Free' },
+      { name: 'entry.218867361', value: 'Basic Free' },
+      { name: 'entry.1502543154', value: document.querySelector('[name="entry.1502543154"]').value },
+      { name: 'entry.166208811', value: document.querySelector('[name="entry.166208811"]').value },
+      { name: 'emailAddress', value: document.querySelector('[name="emailAddress"]').value },
+      { name: 'entry.1897494140', value: document.getElementById('whatsappNumber').value },
+      { name: 'entry.208508536', value: document.querySelector('[name="entry.208508536"]').value },
+      { name: 'entry.577240945', value: document.getElementById('birthYearSelect').value },
+      { name: 'entry.1890405601', value: document.getElementById('countrySelect').value },
+      { name: 'entry.341957417', value: document.getElementById('parishSelect').value }
+    ];
+
+    fields.forEach(({ name, value }) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  }
 }
+
 
 
 
