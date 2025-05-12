@@ -116,7 +116,16 @@ hiddenIframe.onload = () => {
   }
 };
 
-
+document.addEventListener('click', function (event) {
+    if (event.target.closest('#seeHowItWorks')) {
+      const realButton = document.querySelector('.menu-button[data-view="salesletter"]:not(#seeHowItWorks)');
+      if (realButton) {
+        realButton.click();
+      } else {
+        console.error('Target action button not found.');
+      }
+    }
+  });
 
 }
 
@@ -166,16 +175,6 @@ function submitSignupForm() {
   form.submit();
 }
 
-document.getElementById('seeHowItWorks').addEventListener('click', function () {
-    // Find the target button with the action
-    const realButton = document.querySelector('.menu-button[data-view="salesletter"]:not(#seeHowItWorks)');
-    if (realButton) {
-      realButton.click();
-    } else {
-      console.error('Target action button not found.');
-    }
-  });
-
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
@@ -222,7 +221,10 @@ function handleSuccessfulSignup() {
 
       <p>No gimmicks, just real money sent straight to your bank account with the right opportunity to earn a little extra.</p>
 
-      <button style="margin-top:20px;" id="seeHowItWorks" class="menu-button" data-view="salesletter">👉 See How It Works</button>
+     <button id="seeHowItWorks" class="menu-button" data-view="salesletter-dummy">
+  👉 See How It Works
+</button>
+
 
     </div>
   `;
