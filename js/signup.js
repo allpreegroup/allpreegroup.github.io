@@ -139,10 +139,11 @@ function submitSignupForm() {
 
   console.log("Form appended to body, now submitting...");
   setTimeout(() => {
-    console.log("Submitting form to iframe...");
-    window.submitted = true;
-    form.submit();
-  }, 100);
+  console.log("Submitting form to iframe...");
+  form.submit();
+  window.submitted = true; // Moved AFTER form.submit
+}, 100);
+
 }
 
 function handleSuccessfulSignup() {
