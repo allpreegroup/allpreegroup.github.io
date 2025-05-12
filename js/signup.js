@@ -124,8 +124,6 @@ hiddenIframe.onload = () => {
   }
 };
 
-
-
 }
 
 function submitSignupForm() {
