@@ -127,10 +127,8 @@ hiddenIframe.onload = () => {
 }
 
 function submitSignupForm() {
-   
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
-
   window.submitted = true;
 
  // document.getElementById("loading-modal").style.display = "flex";
