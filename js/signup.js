@@ -99,12 +99,14 @@ function init_signup() {
 hiddenIframe.onload = () => {
   console.log("iframe loaded");
   if (!window.submitted || !iframeHasLoadedOnce) {
+    console.log("Skipping: not submitted or first load");
     iframeHasLoadedOnce = true;
     return;
   }
-  console.log("Form submission complete, calling handler");
+  console.log("iframe onload: calling success handler");
   handleSuccessfulSignup();
 };
+
 
 }
 
@@ -117,7 +119,7 @@ function submitSignupForm() {
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
-  form.target = 'hidden_iframe';
+  // form.target = 'hidden_iframe';
 
   const fields = [
     { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
@@ -145,6 +147,7 @@ function submitSignupForm() {
   });
 
   document.body.appendChild(form);
+   console.log("Form appended to body, now submitting...");
   form.submit();
 }
 
