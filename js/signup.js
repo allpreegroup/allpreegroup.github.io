@@ -166,6 +166,16 @@ function submitSignupForm() {
   form.submit();
 }
 
+document.getElementById('seeHowItWorks').addEventListener('click', function () {
+    // Find the target button with the action
+    const realButton = document.querySelector('.menu-button[data-view="salesletter"]:not(#seeHowItWorks)');
+    if (realButton) {
+      realButton.click();
+    } else {
+      console.error('Target action button not found.');
+    }
+  });
+
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
@@ -200,19 +210,20 @@ function handleSuccessfulSignup() {
 
       <p><strong>${firstName}</strong>, I know you are a savvy shopper<br><br>
       
-      Tired of going shopping and walking away with just your receipts and no good discounts from big & small retailers?<br><br>
+      Tired of going shopping and walking away with just your receipts and <strong>no good discounts</strong> from big & small retailers?<br><br>
       
-      What if you don't have to worry about discounts anymore and just let us work to get back <strong>up to 49% off your money</strong> in cash to send to your bank account, but you have to wait 121 days for the settlement?<br><br>
+      What if you don't have to worry about discounts anymore and just let us work to get back <strong>up to 49% off your money</strong> in cash to send to <strong>your bank account</strong>, but you have to wait <strong>121 days</strong> for the settlement?<br><br>
       Now you can.</p>
 
-      <p>It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, it connects you to <strong>300+ merchants across Jamaica</strong>.</p>
+      <p>It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, it connects you to <strong>300+ merchants</strong> across Jamaica.</p>
 
       <p><strong>Unlock Lifetime Income</strong><br>
-      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
+      By sharing our app with your friends, family, or even your enemy, and earn <strong>recurring commissions for life</strong>, every time they spend, for as long as they use the system.</p>
 
-      <p>No gimmicks, just real money sent straight to your bank account.</p>
+      <p>No gimmicks, just real money sent straight to your bank account with the right opportunity to earn a little extra.</p>
 
-      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 See How It Works</button>
+      <button style="margin-top:20px;" id="seeHowItWorks" class="menu-button" data-view="salesletter">👉 See How It Works</button>
+
     </div>
   `;
   
