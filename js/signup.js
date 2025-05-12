@@ -9,7 +9,7 @@ function init_signup() {
   const hiddenIframe = document.getElementById("hidden_iframe");
 
   window.submitted = false;
-
+  
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
     document.querySelector('.invite-section').classList.add('hidden');
@@ -66,7 +66,7 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
+  const countries = ["Jamaica"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
     const option = document.createElement("option");
