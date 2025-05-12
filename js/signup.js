@@ -8,7 +8,9 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  let formSubmitted = false;
+  let iframeInitialized = false;
+  let iframeHasLoadedOnce = false;
+  window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
   if (savedUser) {
@@ -17,16 +19,6 @@ function init_signup() {
     welcomeText.textContent = `Welcome back, ${savedUser}!`;
     welcomeDiv.classList.remove('hidden');
     return;
-  }
-
-  if (hiddenIframe) {
-    hiddenIframe.onload = function () {
-      if (formSubmitted) {
-        console.log("iframe loaded, completing signup...");
-        handleSuccessfulSignup();
-        formSubmitted = false;
-      }
-    };
   }
 
   inviteBtn.onclick = async () => {
@@ -57,7 +49,6 @@ function init_signup() {
     }
   };
 
-  // Populate birth years
   const birthYearSelect = document.getElementById("birthYearSelect");
   const currentYear = new Date().getFullYear();
   for (let y = currentYear - 50; y <= currentYear - 10; y++) {
@@ -67,7 +58,6 @@ function init_signup() {
     birthYearSelect.appendChild(option);
   }
 
-  // Country
   const countries = ["Jamaica", "Trinidad and Tobago", "Barbados", "Bahamas", "Saint Lucia"];
   const countrySelect = document.getElementById("countrySelect");
   countries.forEach(c => {
@@ -77,7 +67,6 @@ function init_signup() {
     countrySelect.appendChild(option);
   });
 
-  // Parish
   const parishes = [
     "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
     "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
@@ -90,7 +79,6 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
-  // Phone number formatting
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -107,33 +95,46 @@ function init_signup() {
     }
   });
 
-  let clickCount = 0;
+  document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 
-document.getElementById("submitSignupBtn").addEventListener("click", () => {
-  clickCount++;
 
-  if (clickCount === 1) {
-    alert("Please confirm your information and click the button again.");
+hiddenIframe.onload = () => {
+  console.log("iframe loaded");
+
+  // First iframe load (page load), just mark it initialized
+  if (!iframeInitialized) {
+    iframeInitialized = true;
+    console.log("First iframe load, init only");
     return;
   }
 
-  formSubmitted = true;
-  submitSignupForm();
-});
+  // Only handle submit after first load is done
+  if (window.submitted) {
+    console.log("iframe onload: calling success handler");
+    handleSuccessfulSignup();
+  } else {
+    console.log("iframe onload, but submitted = false. Skipping.");
+  }
+};
+
+
+
 }
 
 function submitSignupForm() {
+   
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
 
-  const iframe = document.getElementById('hidden_iframe');
-  iframe.src = 'about:blank'; // reset iframe
+  window.submitted = true;
 
+  document.getElementById("loading-modal").style.display = "flex";
+  
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
   form.method = 'POST';
   form.target = 'hidden_iframe';
-
+   
   const fields = [
     { name: 'entry.1092645840', value: document.getElementById('field_ID').value },
     { name: 'entry.2034350499', value: document.getElementById('field_Code').value },
@@ -151,6 +152,7 @@ function submitSignupForm() {
   ];
 
   fields.forEach(({ name, value }) => {
+    console.log(`Submitting ${name}: ${value}`);
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = name;
@@ -159,44 +161,49 @@ function submitSignupForm() {
   });
 
   document.body.appendChild(form);
-
-  setTimeout(() => {
-    form.submit();
-  }, 100);
+ 
+   console.log("Form appended to body, now submitting...");
+  form.submit();
 }
 
 function handleSuccessfulSignup() {
+  if (!window.submitted) return;
+  window.submitted = false;
+
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = false;
+
+  document.getElementById("loading-modal").style.display = "none";
+
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
-  document.getElementById("loading-modal").style.display = "none";
-  document.querySelector('.invite-section')?.classList.add('hidden');
-  document.getElementById('signupFormSection')?.classList.add('hidden');
-
+  document.querySelector('.invite-section').classList.add('hidden');
+  document.getElementById('signupFormSection').classList.add('hidden');
   const welcomeDiv = document.getElementById("welcomeMessage");
-  if (welcomeDiv) {
-    welcomeDiv.classList.remove('hidden');
-    welcomeDiv.innerHTML = `
-      <div style="text-align:left; padding: 20px;">
-        <h3>✅ You’re In</h3>
-        <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
-        It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
+  welcomeDiv.classList.remove('hidden');
 
-        <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
-        Tired of going shopping and walking away with nothing but your receipts?<br><br>
-        What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
-        Now you can.</p>
+  welcomeDiv.innerHTML = `
+    <div style="text-align:left; padding: 20px;">
+      <h3>✅ You’re In</h3>
+      <center> <h2><strong> ${firstName} <br>BE SMART. SHOP CLEVER. GET PAID.</strong><br><br>
+      It’s Time To Make Money While Shopping In Jamaica!</h2><br> </center>
 
-        <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
+      <p><strong>Dear ${firstName}</strong>, I know you are a savvy shopper<br>
+      Tired of going shopping and walking away with nothing but your receipts?<br><br>
+      What if you could earn <strong>up to 49% cashback</strong>, sent straight to your bank account, just for buying what you already need?<br><br>
+      Now you can.</p>
 
-        <p><strong>Unlock Lifetime Income</strong><br>
-        Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
+      <p>Our Cashback Program connects you to <strong>300+ merchants across Jamaica</strong>, and it all starts with your <strong>Digital Card</strong>.</p>
 
-        <p>One-time setup. Lifetime earnings.<br>
-        No gimmicks, just real cashback and real opportunity.</p>
+      <p><strong>Unlock Lifetime Income</strong><br>
+      Love the program? You’ll get the chance to <strong>become a partner</strong> and earn <strong>recurring commissions for life</strong>, simply by sharing it.</p>
 
-        <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
-      </div>
-    `;
-  }
+      <p>One-time setup. Lifetime earnings.<br>
+      No gimmicks, just real cashback and real opportunity.</p>
+
+      <button style="margin-top:20px;" class="menu-button" data-view="salesletter">👉 Show Me How It Works</button>
+    </div>
+  `;
+  
 }
