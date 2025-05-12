@@ -100,6 +100,14 @@ function init_signup() {
 hiddenIframe.onload = () => {
   console.log("iframe loaded");
 
+
+ if (!iframeHasLoadedOnce) {
+    // First load: iframe just initialized
+    console.log("First iframe load, init only");
+    iframeHasLoadedOnce = true;
+    return;
+  }
+  
   // First iframe load (page load), just mark it initialized
   if (!iframeInitialized) {
     iframeInitialized = true;
