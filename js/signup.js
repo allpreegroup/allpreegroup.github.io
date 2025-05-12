@@ -121,6 +121,7 @@ hiddenIframe.onload = () => {
 }
 
 function submitSignupForm() {
+  document.getElementById("submitError").style.display = "block";
    
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
