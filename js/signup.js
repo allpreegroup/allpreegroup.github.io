@@ -107,20 +107,18 @@ function init_signup() {
     }
   });
 
-  let secondClickTriggered = false;
+  let clickCount = 0;
 
 document.getElementById("submitSignupBtn").addEventListener("click", () => {
-  submitSignupForm();
-  formSubmitted = true;
+  clickCount++;
 
-  if (!secondClickTriggered) {
-    secondClickTriggered = true;
-
-    setTimeout(() => {
-      console.log("Hardcoded second click");
-      document.getElementById("submitSignupBtn").click();
-    }, 1500); // 1.5 seconds later
+  if (clickCount === 1) {
+    alert("Please confirm your information and click the button again.");
+    return;
   }
+
+  formSubmitted = true;
+  submitSignupForm();
 });
 }
 
