@@ -133,7 +133,7 @@ function submitSignupForm() {
 
   window.submitted = true;
 
-  document.getElementById("loading-modal").style.display = "flex";
+ // document.getElementById("loading-modal").style.display = "flex";
   
   const form = document.createElement('form');
   form.action = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse';
