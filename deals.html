@@ -9,7 +9,13 @@
  <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
-
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+	<link rel="web-app-origin-association" href="/web-app-origin-association">
+   <link rel="manifest" href="https://www.allpree.com/manifest.json">
   
      <title>See Today's Deals</title>
 	
@@ -1169,7 +1175,79 @@ body.no-scroll {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+#a2hs-popup {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 99999;
+      font-family: sans-serif;
+    }
+    #a2hs-popup .content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #a2hs-install-btn {
+      background: #0071ce;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #a2hs-close {
+      margin-left: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .section {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 700px;
+      margin: 20px auto;
+    }
+    .columns2 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
 
+    .column2 {
+      flex: 1 1 45%;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      background: #ffff;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .emoji2 {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+   
+    .content2 h1 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .content2 p {
+      margin: 0;
+      font-size: 1.0rem;
+      line-height: 1.5;
+    }
 		 
   </style>
   
@@ -1205,7 +1283,39 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="home">     
  			<div class="center">
                  <div class="col-md-6 home-txt1">
-
+			 
+<div id="a2hs-popup" style="display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      right: 20px;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 99999;
+      font-family: sans-serif;
+">
+  <div class="section" style="display: flex; align-items: center; margin-bottom: 16px;">
+    <div class="emoji2" style="font-size: 2rem; margin-right: 12px;">
+  <img src="https://www.allpree.com/img/AllPreepwaapp.png" alt="AllPree App Icon" style="height: 88px; width: 88px; border-radius: 10px;" />
+</div>
+    <div class="content2">
+      <h1 style="font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0 0 0px 0;"> Allpree</h1>
+      <p style="font-size: 0.95rem; margin: 0;">Local Deals.</p>
+    </div>
+  </div>
+   Get full access to all local deals, exclusive offers, and shopping tools, no account needed. Register any time. <br><br>
+  <div id="a2hs-message" style="margin-bottom: 16px;">
+    <!-- This will be filled dynamically for Android or iOS -->
+  </div>
+  <div style="display: flex; justify-content: flex-end;">
+    <button id="a2hs-install-btn" style="margin-right: 10px;">Install</button>
+    <button id="a2hs-close">×</button>
+  </div>
+</div>
+			 
  <div id="splash-screen">
     <video autoplay muted playsinline preload="auto">
       <source src="https://www.allpree.com/img/allpree%20Video.mp4" type="video/mp4">
@@ -3966,7 +4076,100 @@ addPopupSwipeListeners();
     }, 4500);
   </script>
 
+<script>
+  let deferredPrompt;
 
+  const IOS_STORAGE_KEY = 'iosPwaLastSeen';
+  const IOS_DAYS_LIMIT = 30;
+
+  function isIos() {
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  }
+
+  function isInStandaloneMode() {
+    return ('standalone' in window.navigator) && window.navigator.standalone;
+  }
+
+  function daysSince(dateString) {
+    const previous = new Date(dateString);
+    const now = new Date();
+    const diffTime = now - previous;
+    return diffTime / (1000 * 60 * 60 * 24);
+  }
+
+  function showPopup() {
+    if (!localStorage.getItem('a2hsShown')) {
+      document.getElementById('a2hs-popup').style.display = 'block';
+    }
+  }
+
+  // Android: Capture A2HS event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    setTimeout(() => {
+      document.getElementById('a2hs-message').innerHTML = `
+       <strong>Install This App, It's Free <br>-- No App Store <br>-- No Play Store <br>-- No Downloads</strong><br><br>
+        Add to your home screen for fast, instant access!
+      `;
+      document.getElementById('a2hs-install-btn').style.display = 'inline-block';
+      showPopup();
+    }, 10000);
+  });
+
+  // iOS: Show custom message if not in standalone and not seen in 30 days
+  window.addEventListener('load', () => {
+    if (isIos()) {
+      if (isInStandaloneMode()) {
+        // User opened the app in standalone — update timestamp
+        localStorage.setItem(IOS_STORAGE_KEY, new Date().toISOString());
+      } else {
+        const lastSeen = localStorage.getItem(IOS_STORAGE_KEY);
+        const shouldShowPrompt = !lastSeen || daysSince(lastSeen) >= IOS_DAYS_LIMIT;
+
+        if (shouldShowPrompt) {
+          setTimeout(() => {
+            document.getElementById('a2hs-message').innerHTML = `
+              <strong>Install This App, It's Free <br>-- No App Store <br>-- No Play Store <br>-- No Downloads</strong><br><br>
+              Add to your home screen for fast, instant access!
+              <br><br>
+              Tap the <span style="font-weight: bold;">Share</span> icon
+              <span style="font-size: 1.2rem;">📤</span> and then select <strong>"Add to Home Screen"</strong>.
+            `;
+            document.getElementById('a2hs-install-btn').style.display = 'none';
+            showPopup();
+          }, 10000);
+        }
+      }
+    }
+  });
+
+  // Android install button
+  document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      console.log('User response:', result.outcome);
+      document.getElementById('a2hs-popup').style.display = 'none';
+      localStorage.setItem('a2hsShown', 'true');
+      deferredPrompt = null;
+    }
+  });
+
+  // Close button
+  document.getElementById('a2hs-close').addEventListener('click', () => {
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'false'); // So it can show again next time
+  });
+
+  // Android: If installed
+  window.addEventListener('appinstalled', () => {
+    console.log('App was installed');
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'true');
+  });
+</script>
 			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
