@@ -111,9 +111,9 @@ hiddenIframe.onload = () => {
   // Only handle submit after first load is done
   if (window.submitted) {
     console.log("iframe onload: calling success handler");
-    window.submitted = false; // Reset it here
     handleSuccessfulSignup(); // Handles UI only
-    fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
+     window.submitted = false; // Reset it here
+    
   } else {
     console.log("iframe onload, but submitted = false. Skipping.");
   }
@@ -222,7 +222,6 @@ ADR:;;${contactDetails.address}`;
     document.getElementById("fallbackQR").style.opacity = 1;
   }, 500);
 }
-
 
     actionDiv.innerHTML = `
       <button onclick="tryIntentFallback()">Click & Save</button>
@@ -390,6 +389,7 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
 
     </div>
   `; 
+  fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
 }
 
 async function fetchStatsAndUpdateUI() {
