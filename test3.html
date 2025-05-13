@@ -141,7 +141,7 @@
 </div>
 
   
-  <script>
+ <script>
   let deferredPrompt;
 
   function isIos() {
@@ -153,19 +153,18 @@
   }
 
   function showPopup() {
-    // Only show if not already installed AND not dismissed in this session
     if (!localStorage.getItem('a2hsShown')) {
       document.getElementById('a2hs-popup').style.display = 'block';
     }
   }
 
+  // Android: Capture A2HS event
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Android-specific popup
     setTimeout(() => {
-      document.getElementById('a2hs-message').innerHTML = ` 
+      document.getElementById('a2hs-message').innerHTML = `
         <strong>Get the app</strong><br>
         Install this app for faster access anytime.
       `;
@@ -174,13 +173,14 @@
     }, 3000);
   });
 
-  // iOS fallback
+  // iOS: Show custom message with instruction
   window.addEventListener('load', () => {
     if (isIos() && !isInStandaloneMode()) {
       setTimeout(() => {
-        document.getElementById('a2hs-message').innerHTML = ` 
+        document.getElementById('a2hs-message').innerHTML = `
           <strong>Install this app</strong><br>
-          Tap <span style="font-weight: bold;">Share</span> and then <strong>"Add to Home Screen"</strong>.
+          Tap the <span style="font-weight: bold;">Share</span> icon
+          <span style="font-size: 1.2rem;">📤</span> and then select <strong>"Add to Home Screen"</strong>.
         `;
         document.getElementById('a2hs-install-btn').style.display = 'none';
         showPopup();
@@ -188,7 +188,7 @@
     }
   });
 
-  // Install button (Android)
+  // Android install button
   document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
@@ -203,16 +203,17 @@
   // Close button
   document.getElementById('a2hs-close').addEventListener('click', () => {
     document.getElementById('a2hs-popup').style.display = 'none';
-    localStorage.setItem('a2hsShown', 'false');
+    localStorage.setItem('a2hsShown', 'false'); // So it can show again next visit
   });
 
-  // If installed, hide the popup
+  // If installed (Android), hide permanently
   window.addEventListener('appinstalled', () => {
     console.log('App was installed');
     document.getElementById('a2hs-popup').style.display = 'none';
     localStorage.setItem('a2hsShown', 'true');
   });
 </script>
+
 
 
 </body>
