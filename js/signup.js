@@ -29,6 +29,7 @@ function init_signup() {
     try {
       const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
       const data = await res.json();
+      
       const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
 
       if (match) {
@@ -343,6 +344,7 @@ function handleSuccessfulSignup() {
   welcomeDiv.classList.remove('hidden');
 
   welcomeDiv.innerHTML = `
+  fetchStatsAndUpdateUI();
     <div style="text-align:left; padding: 20px;">
        <h3 style="
   font-size: 1.2rem;
@@ -358,16 +360,25 @@ function handleSuccessfulSignup() {
       <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
 
       <p><strong>${firstName}</strong>, I know you are a savvy shopper<br><br>
-      
-      Tired of going shopping and walking away with just your receipts and <strong>no good discounts</strong> from big & small retailers?<br><br>
-      
-      What if you don't have to worry about discounts anymore<br><br>Let us work to get back <strong>up to 49% off your money</strong> in cash to send to <strong>your bank account</strong>, but you have to wait <strong>121 days</strong> for the settlement?<br><br>
-      If you want.</p>
+     
+Tired of going shopping and walking away with just your receipts and <strong>no real discounts</strong> from big or small retailers?<br><br>
 
-      <p>It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, it connects you to <strong>300+ merchants</strong> across Jamaica.</p>
+What if you could stop worrying about discounts and start <strong>earning cash back</strong> instead? 💸 With our system, you can get back <strong>up to 49%</strong> of what you spend, sent straight to your <strong>bank account</strong>. All it takes is <strong>121 days</strong> to settle. No stress, no strings.<br><br>
 
-      <h3><center>Unlock Lifetime Income</center></h3><br>
-      <p>By <strong>sharing our app</strong> with your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, every time they spend, for as long as they are using the system.</p>
+Sounds too good to miss, right?
+</p>
+
+<p>
+It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, giving you exclusive access to over <strong>300+ merchants</strong> across Jamaica.<br><br>
+
+But here’s the real magic: <strong>You don’t need to wait for any special deals.</strong> Deal Plus⁺ works on <strong>every purchase</strong>, from <strong>any merchant</strong>, automatically turning your everyday spending into real money back.<br><br>
+
+So far, our members have saved <strong id='savedAmount'>loading...</strong>, that’s real cash returned from a total spend of <strong id='spentAmount'>loading...</strong>! <strong>${firstName}</strong>, imagine what you could be saving just by shopping like you already do.<br><br>
+
+And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
+</p>
+      <h3><center>Plus Unlock Lifetime Income</center></h3><br>
+      <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
 
       <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
 
@@ -382,4 +393,29 @@ function handleSuccessfulSignup() {
   
 }
 
+async function fetchStatsAndUpdateUI() {
+  try {
+    const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+    const data = await response.json();
+
+    let totalSaved = 0;
+    let totalSpent = 0;
+
+    data.forEach(row => {
+      const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
+      const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
+      totalSaved += isNaN(saved) ? 0 : saved;
+      totalSpent += isNaN(spent) ? 0 : spent;
+    });
+
+    const savedEl = document.getElementById("savedAmount");
+    const spentEl = document.getElementById("spentAmount");
+
+    if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+    if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+  }
+}
 
