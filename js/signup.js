@@ -361,7 +361,7 @@ ADR:;;${contactDetails.address}`;
   actionDiv.innerHTML = `
     <p>Scan the QR or use the button to download and import</p><br>
     <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-   <br> <button onclick="generateVCF()">D/L & Imp</button>
+   <br><br> <button onclick="generateVCF()">D/L & Imp</button>
   `;
 
   // Fade in the QR code after a short delay for smooth transition
