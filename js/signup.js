@@ -376,7 +376,7 @@ So far, our members have saved <strong id='savedAmount'>loading...</strong>, tha
 
 And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
 </p>
-      <h3><center>Plus Unlock Lifetime Income</center></h3><br>
+      <h4><center>Plus Unlock Lifetime Income</center></h4><br>
       <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
 
       <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
