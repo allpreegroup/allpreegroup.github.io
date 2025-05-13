@@ -124,45 +124,78 @@
 
 
   <script>
-    let deferredPrompt;
+  let deferredPrompt;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
+  function isIos() {
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  }
 
-      // Show after delay or based on engagement
-      const pageViews = parseInt(localStorage.getItem('pageViews') || '0') + 0;
-      localStorage.setItem('pageViews', pageViews);
+  function isInStandaloneMode() {
+    return ('standalone' in window.navigator) && window.navigator.standalone;
+  }
 
-      if (pageViews >= 0) {
-        setTimeout(() => {
-          document.getElementById('a2hs-popup').style.display = 'block';
-        }, 3000); // Optional: wait 3 seconds
-      }
-    });
+  function showPopup() {
+    // Only show if not already installed AND not dismissed in this session
+    if (!localStorage.getItem('a2hsShown')) {
+      document.getElementById('a2hs-popup').style.display = 'block';
+    }
+  }
 
-    // Install button logic
-    document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const result = await deferredPrompt.userChoice;
-        console.log('User response:', result.outcome);
-        document.getElementById('a2hs-popup').style.display = 'none';
-        deferredPrompt = null;
-      }
-    });
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
 
-    // Close popup manually
-    document.getElementById('a2hs-close').addEventListener('click', () => {
+    // Android-specific popup
+    setTimeout(() => {
+      document.getElementById('a2hs-message').innerHTML = `
+        <strong>Get the app</strong><br>
+        Install this app for faster access anytime.
+      `;
+      document.getElementById('a2hs-install-btn').style.display = 'inline-block';
+      showPopup();
+    }, 3000);
+  });
+
+  // iOS fallback
+  window.addEventListener('load', () => {
+    if (isIos() && !isInStandaloneMode()) {
+      setTimeout(() => {
+        document.getElementById('a2hs-message').innerHTML = `
+          <strong>Install this app</strong><br>
+          Tap <span style="font-weight: bold;">Share</span> and then <strong>"Add to Home Screen"</strong>.
+        `;
+        document.getElementById('a2hs-install-btn').style.display = 'none';
+        showPopup();
+      }, 3000);
+    }
+  });
+
+  // Install button (Android)
+  document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      console.log('User response:', result.outcome);
       document.getElementById('a2hs-popup').style.display = 'none';
-    });
+      localStorage.setItem('a2hsShown', 'true');
+      deferredPrompt = null;
+    }
+  });
 
-    // Hide popup if already installed
-    window.addEventListener('appinstalled', () => {
-      console.log('App was installed');
-      document.getElementById('a2hs-popup').style.display = 'none';
-    });
-  </script>
+  // Close button
+  document.getElementById('a2hs-close').addEventListener('click', () => {
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'false');
+  });
+
+  // If installed, hide the popup
+  window.addEventListener('appinstalled', () => {
+    console.log('App was installed');
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'true');
+  });
+</script>
+
 
 </body>
 </html>
