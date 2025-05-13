@@ -3,654 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>User Profile</title>
-
-<style>
-  :root {
-    --primary: #10b981;
-    --danger: #ef4444;
-    --info: #3b82f6;
-    --bg: #f1f5f9;
-    --card-bg: #ffffff;
-    --text: #111827;
-    --muted: #6b7280;
-  }
-
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-    color: var(--text);
-  }
-
-  .container {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 24px 16px;
-  }
-
-  h2, h3 {
-    margin: 16px 0 8px;
-    font-weight: 600;
-  }
-
-  input {
-    width: 92.5%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 16px;
-    background-color: #fff;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
-  }
-
-  button {
-    width: 100%;
-    padding: 14px;
-    background: var(--primary);
-    border: none;
-    color: white;
-    font-weight: bold;
-    border-radius: 10px;
-    font-size: 16px;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  button:hover {
-    background: #0e9e6e;
-  }
-
-  #logoutBtn {
-    background: var(--danger);
-  }
-
-  #logoutBtn:hover {
-    background: #dc2626;
-  }
-
-  .filters button {
-    margin-top: 10px;
-    background: var(--info);
-  }
-
-  .filters {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 16px 0;
-  }
-
-  .user-header-card {
-    background-color: var(--card-bg);
-    padding: 1.2rem;
-    border-radius: 1.2rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-
-  .user-header-card h2 {
-    margin-bottom: 0.3rem;
-    font-size: 20px;
-  }
-
-  .user-header-card p {
-    margin: 0.3rem 0;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  #loading-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10005;
-  display: none;
-}
-
-#loading-spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #333;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-
-  .hidden {
-    display: none;
-  }
-
-  .summary, .entry {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 18px;
-    margin-top: 16px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.04);
-  }
-
-  .summary h3 {
-    margin-bottom: 10px;
-  }
-
-  .summary p {
-    margin: 6px 0;
-    color: var(--text);
-    font-size: 15px;
-  }
-
-  .entry-grid {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .entry-col {
-    flex: 1;
-  }
-
-  .subtext {
-    font-size: 13px;
-    color: var(--muted);
-    margin: 4px 0;
-  }
-
-  .amount {
-    font-size: 15px;
-    font-weight: 600;
-  }
-</style>
-
-  
- <!-- <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f1f5f9;
-      color: #111;
-    }
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .hidden {
+  <title>My PWA</title>
+  <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+   <link rel="manifest" href="https://www.allpree.com/manifest.json">
+  <meta name="theme-color" content="#0071ce"/>
+  <style>
+    #a2hs-popup {
       display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 10000;
+      font-family: sans-serif;
     }
-    h2, h3 {
-      margin: 16px 0 8px;
+    #a2hs-popup .content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    input {
-      display: block;
-      width: 92%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #10b981;
+    #a2hs-install-btn {
+      background: #0071ce;
+      color: #fff;
       border: none;
-      color: white;
-      border-radius: 6px;
-      font-size: 16px;
-      margin-top: 12px;
+      padding: 10px 16px;
+      border-radius: 4px;
       cursor: pointer;
     }
-    #logoutBtn {
-      background: #ef4444;
+    #a2hs-close {
+      margin-left: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
     }
-    #sortBtn {
-      margin-top: 10px;
-      background: #3b82f6;
+  </style>
+ 
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("https://www.allpree.com/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
     }
-
-    .user-header-card {
-  background-color: #ffffff;
-  padding: 1rem;
-  border-radius: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-.user-header-card h2 {
-  margin-bottom: 0.5rem;
-}
-.user-header-card p {
-  margin: 0.2rem 0;
-  color: #4b5563;
-}
-
-.loading {
-  text-align: center;
-  font-weight: bold;
-  margin-top: 20px;
-}
-.hidden {
-  display: none;
-}
-    
-    .summary, .entry {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 16px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    .entry-grid {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .entry-col {
-      flex: 1;
-    }
-    .subtext {
-      font-size: 0.8em;
-      color: gray;
-    }
-    .amount {
-      font-size: 1em;
-      font-weight: bold;
-    }
-  </style> -->
+</script>	
 </head>
 <body>
-  <div class="container">
-    <div id="login-section" class="hidden">
-      <h2>Login</h2>
-      <input id="firstName" placeholder="First Name"/>
-      <input id="lastName" placeholder="Last Name"/>
-      <input id="idcode" placeholder="ID Code"/>
-      <input id="phone" placeholder="Phone Number"/>
-      <button onclick="loginUser()">Login</button>
-    </div>
 
-    <div id="profile-section" class="hidden">
+  <h1>Welcome to My PWA</h1>
 
-
-    <button id="logoutBtn" onclick="logoutUser()">Logout</button>
-      
-    <div id="user-profile-header" class="user-header-card">
-      
-    </div>
-
-     
-      <div class="summary" id="user-summary"></div>
-      
-      <div class="filters">
-<button onclick="sortByLatest()">Sort ↓↑</button>
-<button onclick="sortByClosestToNegativeOne()">Pay Out Next</button>
-
-     
-
-</div>
-      
-      <div id="user-profile"></div>
+  <!-- A2HS Custom Popup -->
+  <div id="a2hs-popup">
+    <div class="content">
+      <div>
+        <strong>Get the app</strong><br>
+        Install this app for faster access anytime.
+      </div>
+      <div>
+        <button id="a2hs-install-btn">Install</button>
+        <button id="a2hs-close">×</button>
+      </div>
     </div>
   </div>
 
+  <script>
+    let deferredPrompt;
 
-<div id="loading-modal">
-  <div id="loading-spinner"></div>
-  <p>Loading...</p>
-</div>
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
 
- <script>
-  const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
-  let currentEntries = [];
-  let currentSummary = null; // NEW: Save summary row globally
+      // Show after delay or based on engagement
+      const pageViews = parseInt(localStorage.getItem('pageViews') || '0') + 1;
+      localStorage.setItem('pageViews', pageViews);
 
-  // Show and hide loader
-  function showLoader() {
-    document.getElementById('loading-modal').style.display = 'flex';
-  }
-
-  function hideLoader() {
-    document.getElementById('loading-modal').style.display = 'none';
-  }
-
-  function loginUser() {
-    showLoader();
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const idcode = document.getElementById('idcode').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        const summaryRow = data.find(row =>
-          row['First Name'] === firstName &&
-          row['Last Name'] === lastName &&
-          row['ID CODE'] === idcode &&
-          row['Phone Number'] === phone
-        );
-
-        if (summaryRow) {
-          const loginInfo = {
-            firstName,
-            lastName,
-            idcode,
-            phone,
-            code: summaryRow['ID CODE']
-          };
-          localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
-
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-
-          currentEntries = userEntries;
-          currentSummary = summaryRow;
-          hideLoader();
-          showProfile(userEntries, summaryRow);
-        } else {
-          hideLoader();
-          alert('User not found. Check your info and try again.');
-        }
-      });
-  }
-
-  function showProfile(userRows, summaryRow) {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('profile-section').classList.remove('hidden');
-    renderProfile(userRows, summaryRow);
-  }
-
-  function logoutUser() {
-    localStorage.removeItem('profileLogin');
-    currentEntries = [];
-    currentSummary = null;
-    document.getElementById('login-section').classList.remove('hidden');
-    document.getElementById('profile-section').classList.add('hidden');
-  }
-
-  function renderProfile(rows, summary) {
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-
-    document.getElementById('user-profile-header').innerHTML = `
-      <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
-      <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
-      <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
-    `;
-
-    if (summary) {
-      document.getElementById('user-summary').innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      `;
-    }
-
-    const entriesHTML = rows.map(user => `
-      <div class="entry">
-        <div class="entry-grid">
-          <div class="entry-col">
-            <p><strong>Top Up</strong></p>
-            <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
-            <p class="amount">J$${user["Top-Up"]}</p>
-          </div>
-          <div class="entry-col">
-            <p><strong>CashBack</strong></p>
-            <p class="subtext">Activated Date<br>${user["activation date"]}</p>
-            <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
-          </div>
-          <div class="entry-col">
-            <p><strong>(${user["% Reach"]})</strong></p>
-            <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
-            <p class="amount">J$${Number(user["Amount Reached"]?.replace('+', '') || 0).toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    document.getElementById('user-profile').innerHTML = entriesHTML;
-  }
-
- let isDescending = true; // Track current sort order
-
-function sortByLatest() {
-  isDescending = !isDescending; // Flip the sort direction
-  const sorted = [...currentEntries].sort((a, b) => {
-    const dateA = new Date(a["Top-Up Date"]);
-    const dateB = new Date(b["Top-Up Date"]);
-    return isDescending ? dateB - dateA : dateA - dateB;
-  });
-  renderProfile(sorted, currentSummary);
-}
-
-
-  function sortByClosestToNegativeOne() {
-  const filtered = currentEntries.filter(entry => {
-    const days = parseInt(entry["Days Left"]);
-    return days < 0; // Keep only negative values
-  });
-
-  const sorted = filtered.sort((a, b) => {
-    const daysA = parseInt(a["Days Left"]);
-    const daysB = parseInt(b["Days Left"]);
-    return Math.abs(daysA + 1) - Math.abs(daysB + 1); // Closest to -1
-  });
-
-  renderProfile(sorted, currentSummary);
-}
-
-
-  // Auto login on page load
-  window.onload = function () {
-    showLoader();
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-    const loginSection = document.getElementById('login-section');
-    const profileSection = document.getElementById('profile-section');
-
-    if (loginInfo) {
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-          currentEntries = userEntries;
-          currentSummary = summaryRow;
-          hideLoader();
-          profileSection.classList.remove('hidden');
-          renderProfile(userEntries, summaryRow);
-        });
-    } else {
-      hideLoader();
-      loginSection.classList.remove('hidden');
-    }
-  };
-</script>
-
-
-
-
-
-  <!--
-<script>
-  const SHEET_URL = 'https://opensheet.elk.sh/1jq9Fq5xAvv8KP2E3_smFiH1kGKVlNo3XO4JGS4Di4wo/appdata';
-  let currentEntries = [];
-  
-// Show and hide loader
-  function showLoader() {
-    document.getElementById('loading-modal').style.display = 'flex';
-  }
-
-  function hideLoader() {
-    document.getElementById('loading-modal').style.display = 'none';
-  }
-
-  function loginUser() {
-    showLoader();
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const idcode = document.getElementById('idcode').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-
-    fetch(SHEET_URL)
-      .then(res => res.json())
-      .then(data => {
-        // Find the summary row using ID CODE
-        const summaryRow = data.find(row =>
-          row['First Name'] === firstName &&
-          row['Last Name'] === lastName &&
-          row['ID CODE'] === idcode &&
-          row['Phone Number'] === phone
-        );
-
-        if (summaryRow) {
-          const loginInfo = {
-            firstName,
-            lastName,
-            idcode,
-            phone,
-            code: summaryRow['ID CODE']  // Use ID CODE to match transactions
-          };
-          localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
-
-          // Only include transaction rows where 'Code' matches and activation date exists
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-
-          currentEntries = userEntries;
-         hideLoader();
-          showProfile(userEntries, summaryRow);
-        } else {
-          hideLoader();
-          alert('User not found. Check your info and try again.');
-        }
-      });
-  }
-
-  function showProfile(userRows, summaryRow) {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('profile-section').classList.remove('hidden');
-    renderProfile(userRows, summaryRow);
-  }
-
-  function logoutUser() {
-    localStorage.removeItem('profileLogin');
-    currentEntries = [];
-    document.getElementById('login-section').classList.remove('hidden');
-    document.getElementById('profile-section').classList.add('hidden');
-  }
-
-  function renderProfile(rows, summary) {
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-
-    // Sort by Top-Up Date DESCENDING
-    const sortedRows = [...rows].sort((a, b) => {
-      const dateA = new Date(a["Top-Up Date"]);
-      const dateB = new Date(b["Top-Up Date"]);
-      return dateB - dateA;
+      if (pageViews >= 3) {
+        setTimeout(() => {
+          document.getElementById('a2hs-popup').style.display = 'block';
+        }, 3000); // Optional: wait 3 seconds
+      }
     });
 
-   // Render Profile Header Info
-  document.getElementById('user-profile-header').innerHTML = `
-  <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
-  <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
-  <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
-  `;
+    // Install button logic
+    document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const result = await deferredPrompt.userChoice;
+        console.log('User response:', result.outcome);
+        document.getElementById('a2hs-popup').style.display = 'none';
+        deferredPrompt = null;
+      }
+    });
 
-    
-    // Render Summary if exists
-    if (summary) {
-      document.getElementById('user-summary').innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-        <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-         <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-        <p><strong>Available Cashback:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      `;
-    }
+    // Close popup manually
+    document.getElementById('a2hs-close').addEventListener('click', () => {
+      document.getElementById('a2hs-popup').style.display = 'none';
+    });
 
-    // Render Transactions
-    const entriesHTML = sortedRows.map(user => `
-      <div class="entry">
-        <div class="entry-grid">
-          <div class="entry-col">
-            <p><strong>Top Up</strong></p>
-            <p class="subtext">Top Up Date <br>${user["Top-Up Date"]}</p>
-            <p class="amount">J$${user["Top-Up"]}</p>
-          </div>
-          <div class="entry-col">
-            <p><strong>CashBack</strong></p>
-            <p class="subtext">Activated Date<br>${user["activation date"]}</p>
-            <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
-          </div>
-          <div class="entry-col">
-            <p><strong>(${user["% Reach"]})</strong></p>
-            <p class="subtext">${user["Days Left"]} Days Left<br>${user["Release Date"]}</p>
-            <p class="amount">J$${Number(user["Amount Reached"]?.replace('+', '') || 0).toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    document.getElementById('user-profile').innerHTML = entriesHTML;
-  }
-
- // Auto login on page load
-  window.onload = function () {
-    showLoader();
-
-    const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
-    const loginSection = document.getElementById('login-section');
-    const profileSection = document.getElementById('profile-section');
-
-    if (loginInfo) {
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
-          const userEntries = data.filter(row =>
-            row['Code'] === loginInfo.code && row['activation date']
-          );
-          currentEntries = userEntries;
-
-          hideLoader();
-          profileSection.classList.remove('hidden');
-          showProfile(userEntries, summaryRow);
-        });
-    } else {
-      hideLoader();
-      loginSection.classList.remove('hidden');
-    }
-  };
-</script> -->
+    // Hide popup if already installed
+    window.addEventListener('appinstalled', () => {
+      console.log('App was installed');
+      document.getElementById('a2hs-popup').style.display = 'none';
+    });
+  </script>
 
 </body>
 </html>
