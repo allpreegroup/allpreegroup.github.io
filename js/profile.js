@@ -134,6 +134,20 @@ function init_profile() {
     renderProfile(sorted, currentSummary);
   }
 
+document.addEventListener('click', function (event) {
+    // Check if the click was on the #account link or within it
+    const accountLink = event.target.closest('#account');
+    if (accountLink) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      const realButton = document.querySelector('.menu-button[data-view="signup"]:not(#account)');
+      if (realButton) {
+        realButton.click();
+      } else {
+        console.error('Target action button not found.');
+      }
+    }
+  });
+  
   // Forgot password WhatsApp link
   document.getElementById('forgot-password')?.addEventListener('click', (e) => {
     e.preventDefault();
