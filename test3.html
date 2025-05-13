@@ -123,27 +123,20 @@
 </div> -->
 
 
-<div id="a2hs-popup" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: white; border: 1px solid #ccc; padding: 16px; z-index: 1000;">
-  <div class="content" style="display: flex; justify-content: space-between; align-items: center;">
-    <div id="a2hs-message">
-      <div class="section">
-       <div class="column2">
-        <div class="emoji2">📲</div>
-        <div class="content2">
-        <h1>Install The App, It's Free </h1>
-<p>Get full access to all local deals, exclusive offers, and shopping tools, no account needed. After 7 days, register to keep the savings going.</p>
-
-        </div>
-      </div>
-      
-      
-      <strong>Get the app</strong><br>
-      Install this app for faster access anytime.
+<div id="a2hs-popup" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: white; border: 1px solid #ccc; padding: 16px; z-index: 1000; max-width: 600px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-radius: 10px;">
+  <div class="section" style="display: flex; align-items: center; margin-bottom: 16px;">
+    <div class="emoji2" style="font-size: 2rem; margin-right: 12px;">📲</div>
+    <div class="content2">
+      <h1 style="margin: 0 0 8px 0;">Install The App, It's Free</h1>
+      <p style="margin: 0;">Get full access to all local deals, exclusive offers, and shopping tools, no account needed. After 7 days, register to keep the savings going.</p>
     </div>
-    <div>
-      <button id="a2hs-install-btn" style="margin-right: 8px;">Install</button>
-      <button id="a2hs-close">×</button>
-    </div>
+  </div>
+  <div id="a2hs-message" style="margin-bottom: 16px;">
+    <!-- This will be filled dynamically for Android or iOS -->
+  </div>
+  <div style="display: flex; justify-content: flex-end;">
+    <button id="a2hs-install-btn" style="margin-right: 10px;">Install</button>
+    <button id="a2hs-close">×</button>
   </div>
 </div>
 
@@ -172,18 +165,7 @@
 
     // Android-specific popup
     setTimeout(() => {
-      document.getElementById('a2hs-message').innerHTML = `
-       
-        <div class="section">
-       <div class="column2">
-        <div class="emoji2">📲</div>
-        <div class="content2">
-        <h1>Install The App, It's Free </h1>
-<p>Get full access to all local deals, exclusive offers, and shopping tools, no account needed. After 7 days, register to keep the savings going.</p>
-
-        </div>
-      </div>
-        
+      document.getElementById('a2hs-message').innerHTML = ` 
         <strong>Get the app</strong><br>
         Install this app for faster access anytime.
       `;
@@ -196,18 +178,7 @@
   window.addEventListener('load', () => {
     if (isIos() && !isInStandaloneMode()) {
       setTimeout(() => {
-        document.getElementById('a2hs-message').innerHTML = `
-         
-          <div class="section">
-       <div class="column2">
-        <div class="emoji2">📲</div>
-        <div class="content2">
-        <h1>Install The App, It's Free </h1>
-<p>Get full access to all local deals, exclusive offers, and shopping tools, no account needed. After 7 days, register to keep the savings going.</p>
-
-        </div>
-      </div>
-          
+        document.getElementById('a2hs-message').innerHTML = ` 
           <strong>Install this app</strong><br>
           Tap <span style="font-weight: bold;">Share</span> and then <strong>"Add to Home Screen"</strong>.
         `;
