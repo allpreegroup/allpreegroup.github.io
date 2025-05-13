@@ -111,7 +111,9 @@ hiddenIframe.onload = () => {
   // Only handle submit after first load is done
   if (window.submitted) {
     console.log("iframe onload: calling success handler");
-    handleSuccessfulSignup();
+    window.submitted = false; // Reset it here
+    handleSuccessfulSignup(); // Handles UI only
+    fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
   } else {
     console.log("iframe onload, but submitted = false. Skipping.");
   }
@@ -328,7 +330,6 @@ function submitSignupForm() {
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-  window.submitted = false;
 
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = false;
@@ -364,7 +365,7 @@ Tired of going shopping and walking away with just your receipts and <strong>no 
 
 What if you could stop worrying about discounts and start <strong>earning cash back</strong> instead? 💸 With our system, you can get back <strong>up to 49%</strong> of what you spend, sent straight to your <strong>bank account</strong>. All it takes is <strong>121 days</strong> to settle. No stress, no strings.<br><br>
 
-Sounds too good to miss, right?
+Sounds too good to miss, right?<br>
 </p>
 
 <p>
@@ -376,7 +377,7 @@ So far, our members have saved <strong id='savedAmount'>loading...</strong>, tha
 
 And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
 </p>
-      <h4><center>Plus Unlock Lifetime Income</center></h4><br>
+      <h4><center>Plus Unlock Lifetime Income</center></h4>
       <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
 
       <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
@@ -388,8 +389,7 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
 </center>
 
     </div>
-  `;
- fetchStatsAndUpdateUI(); 
+  `; 
 }
 
 async function fetchStatsAndUpdateUI() {
