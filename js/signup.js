@@ -130,6 +130,7 @@ document.addEventListener('click', function (event) {
 }
 
 function submitSignupForm() {
+  document.activeElement.blur();
   const requiredFields = [
     { name: 'entry.1502543154', label: 'First Name' },
     { name: 'entry.166208811', label: 'Last Name' },
