@@ -335,6 +335,7 @@ function handleSuccessfulSignup() {
   welcomeDiv.classList.remove('hidden');
 
   welcomeDiv.innerHTML = `
+   fetchStatsAndUpdateUI(); 
     <div style="text-align:left; padding: 20px;">
        <h3 style="
   font-size: 1.2rem;
@@ -380,7 +381,7 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
 
     </div>
   `; 
-  fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success  
+  // Run stats fetch separately AFTER success  
 }
 
 async function fetchStatsAndUpdateUI() {
