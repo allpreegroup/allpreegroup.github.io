@@ -320,7 +320,7 @@ function submitSignupForm() {
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
-
+  window.submitted = false;
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = false;
 
