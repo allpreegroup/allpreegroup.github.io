@@ -71,7 +71,7 @@ function init_profile() {
       <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
       <p><strong>ID Code:</strong> ${loginInfo.idcode}</p>
       <p><strong>Sponsor:</strong> ${summary["Sponsor"] || "Not Available"}</p>
-       <p><strong>Membership:</strong> ${summary["Level"]} ${summary["Days Left"]} </p>
+       <p><strong>Membership:</strong> ${summary["Level"]} ${summary["DaysLeft"]} </p>
     `;
 
     document.getElementById('user-summary').innerHTML = `
