@@ -218,7 +218,9 @@ function submitSignupForm() {
   document.body.appendChild(form);
  
    console.log("Form appended to body, now submitting...");
+  setTimeout(() => {
   form.submit();
+}, 100); // Delay helps Android finish processing
 }
 
 function handleSuccessfulSignup() {
