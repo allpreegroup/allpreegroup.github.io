@@ -8,7 +8,6 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-//  let iframeInitialized = false;
   window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
@@ -382,10 +381,8 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
     </div>
   `; 
   fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
-   // Delay the reset
-    setTimeout(() => {
-      window.submitted = false;
-    }, 5000); // Adjust timing if needed
+  window.submitted = false;
+   
 }
 
 async function fetchStatsAndUpdateUI() {
