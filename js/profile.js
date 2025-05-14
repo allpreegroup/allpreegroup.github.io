@@ -135,27 +135,31 @@ function init_profile() {
   }
 
 
-document.addEventListener('click', function (event) {
-    if (event.target.closest('#topupcard')) {
-      const realButton = document.querySelector('.menu-button[data-view="topup"]:not(#topupcard)');
-      if (realButton) {
-        realButton.click();
-      } else {
-        console.error('Target action button not found.');
-      }
-    }
+  document.querySelectorAll('.tab-button').forEach(button => {
+  button.addEventListener('click', () => {
+    const target = button.getAttribute('data-tab');
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.add('hidden');
+    });
+    document.getElementById(target).classList.remove('hidden');
   });
+});
 
-  document.addEventListener('click', function (event) {
-    if (event.target.closest('#giftcard')) {
-      const realButton = document.querySelector('.menu-button[data-view="generategiftcard"]:not(#giftcard)');
-      if (realButton) {
-        realButton.click();
-      } else {
-        console.error('Target action button not found.');
-      }
-    }
-  });
+document.addEventListener('click', function (event) {
+  if (event.target.closest('#topupcard')) {
+    const realButton = document.querySelector('.menu-button[data-view="topup"]:not(#topupcard)');
+    if (realButton) realButton.click();
+    else console.error('Target action button not found.');
+  }
+});
+
+document.addEventListener('click', function (event) {
+  if (event.target.closest('#giftcard')) {
+    const realButton = document.querySelector('.menu-button[data-view="generategiftcard"]:not(#giftcard)');
+    if (realButton) realButton.click();
+    else console.error('Target action button not found.');
+  }
+});
 
 
   
