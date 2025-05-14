@@ -129,6 +129,82 @@ document.addEventListener('click', function (event) {
   });
 }
 
+async function submitSignupForm() {
+  const requiredFields = [
+    { name: 'entry.1502543154', label: 'First Name' },
+    { name: 'entry.166208811', label: 'Last Name' },
+    { name: 'emailAddress', label: 'Email' },
+    { id: 'whatsappNumber', label: 'WhatsApp Number' },
+    { name: 'entry.208508536', label: 'Gender' },
+    { id: 'birthYearSelect', label: 'Birth Year' },
+    { id: 'countrySelect', label: 'Country' },
+    { id: 'parishSelect', label: 'Parish' }
+  ];
+
+  let missingFields = [];
+  const allFields = document.querySelectorAll('input, select');
+  allFields.forEach(field => {
+    field.style.border = '';
+    field.style.backgroundColor = '';
+  });
+
+  requiredFields.forEach(field => {
+    let value;
+    let element;
+    if (field.id) {
+      element = document.getElementById(field.id);
+      value = element?.value.trim();
+    } else if (field.name) {
+      element = document.querySelector(`[name="${field.name}"]`);
+      value = element?.value.trim();
+    }
+    if (!value) {
+      missingFields.push(field.label);
+      if (element) {
+        element.style.border = '2px solid red';
+        element.style.backgroundColor = '#f8d7da';
+      }
+    }
+  });
+
+  if (missingFields.length > 0) {
+    alert(`Please complete the following fields:\n\n- ${missingFields.join('\n- ')}`);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('entry.1092645840', document.getElementById('field_ID').value);
+  formData.append('entry.2034350499', document.getElementById('field_Code').value);
+  formData.append('entry.297851038', '');
+  formData.append('entry.663913627', 'Digital Free');
+  formData.append('entry.218867361', 'Basic Free');
+  formData.append('entry.1502543154', document.querySelector('[name="entry.1502543154"]').value);
+  formData.append('entry.166208811', document.querySelector('[name="entry.166208811"]').value);
+  formData.append('emailAddress', document.querySelector('[name="emailAddress"]').value);
+  formData.append('entry.1897494140', document.getElementById('whatsappNumber').value);
+  formData.append('entry.208508536', document.querySelector('[name="entry.208508536"]').value);
+  formData.append('entry.577240945', document.getElementById('birthYearSelect').value);
+  formData.append('entry.1890405601', document.getElementById('countrySelect').value);
+  formData.append('entry.341957417', document.getElementById('parishSelect').value);
+
+  try {
+    const response = await fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse', {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    });
+
+    console.log("Form submitted using fetch.");
+    handleSuccessfulSignup(); // Assume success
+  } catch (error) {
+    console.error("Fetch form submission failed:", error);
+    alert("There was a problem submitting the form. Please try again.");
+  }
+}
+
+
+
+/*
 function submitSignupForm() {
   document.activeElement.blur();
   const requiredFields = [
@@ -221,7 +297,7 @@ function submitSignupForm() {
   setTimeout(() => {
   form.submit();
 }, 100); // Delay helps Android finish processing
-}
+} */
 
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
