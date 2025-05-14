@@ -134,6 +134,31 @@ function init_profile() {
     renderProfile(sorted, currentSummary);
   }
 
+
+document.addEventListener('click', function (event) {
+    if (event.target.closest('#topupcard')) {
+      const realButton = document.querySelector('.menu-button[data-view="topup"]:not(#topupcard)');
+      if (realButton) {
+        realButton.click();
+      } else {
+        console.error('Target action button not found.');
+      }
+    }
+  });
+
+  document.addEventListener('click', function (event) {
+    if (event.target.closest('#giftcard')) {
+      const realButton = document.querySelector('.menu-button[data-view="generategiftcard"]:not(#giftcard)');
+      if (realButton) {
+        realButton.click();
+      } else {
+        console.error('Target action button not found.');
+      }
+    }
+  });
+
+
+  
 document.addEventListener('click', function (event) {
     // Check if the click was on the #account link or within it
     const accountLink = event.target.closest('#account');
