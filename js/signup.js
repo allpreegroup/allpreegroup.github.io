@@ -381,7 +381,6 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
     </div>
   `; 
   fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
-  window.submitted = false;
    
 }
 
