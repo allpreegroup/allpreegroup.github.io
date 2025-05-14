@@ -112,7 +112,10 @@ hiddenIframe.onload = () => {
   if (window.submitted) {
     console.log("iframe onload: calling success handler");
     handleSuccessfulSignup(); // Handles UI only
-     window.submitted = false; // Reset it here
+    // Delay the reset
+    setTimeout(() => {
+      window.submitted = false;
+    }, 5000); // Adjust timing if needed
     
   } else {
     console.log("iframe onload, but submitted = false. Skipping.");
