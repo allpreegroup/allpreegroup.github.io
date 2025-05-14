@@ -112,10 +112,6 @@ hiddenIframe.onload = () => {
   if (window.submitted) {
     console.log("iframe onload: calling success handler");
     handleSuccessfulSignup(); // Handles UI only
-    // Delay the reset
-    setTimeout(() => {
-      window.submitted = false;
-    }, 5000); // Adjust timing if needed
     
   } else {
     console.log("iframe onload, but submitted = false. Skipping.");
@@ -393,6 +389,10 @@ And yes, we work quietly behind the scenes to turn your everyday shopping into s
     </div>
   `; 
   fetchStatsAndUpdateUI();  // Run stats fetch separately AFTER success
+   // Delay the reset
+    setTimeout(() => {
+      window.submitted = false;
+    }, 5000); // Adjust timing if needed
 }
 
 async function fetchStatsAndUpdateUI() {
