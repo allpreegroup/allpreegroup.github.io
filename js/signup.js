@@ -8,7 +8,7 @@ function init_signup() {
   const loader = document.getElementById("loading-modal");
   const hiddenIframe = document.getElementById("hidden_iframe");
 
-  let iframeInitialized = false;
+//  let iframeInitialized = false;
   window.submitted = false;
 
   const savedUser = localStorage.getItem("signedUpUser");
@@ -100,13 +100,6 @@ function init_signup() {
 
 hiddenIframe.onload = () => {
   console.log("iframe loaded");
-
-  // First iframe load (page load), just mark it initialized
-  if (!iframeInitialized) {
-    iframeInitialized = true;
-    console.log("First iframe load, init only");
-    return;
-  }
 
   // Only handle submit after first load is done
   if (window.submitted) {
