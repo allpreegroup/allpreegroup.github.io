@@ -172,6 +172,24 @@
     font-size: 15px;
     font-weight: 600;
   }
+ #user-panel .tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1em;
+}
+#user-panel .tab-button {
+  padding: 6px 12px;
+  background-color: #eee;
+  border: none;
+  cursor: pointer;
+}
+#user-panel .tab-button:hover {
+  background-color: #ddd;
+}
+#user-panel .tab-content.hidden {
+  display: none;
+}
+
 </style>
 
 <div id="user-panel">
@@ -187,26 +205,43 @@
       <p>💬 To log in, you need a password. <br><br><a href="#" id="forgot-password">📱 WhatsApp us to generate your password</a> </p>
     </div>
 
-    <div id="profile-section" class="hidden">
-     
+  <div id="profile-section" class="hidden">
 
-      <div id="user-profile-header" class="user-header-card"></div>
+  <div id="user-profile-header" class="user-header-card"></div>
 
-     <div class="filters">
-        <button id="topupcard" class="menu-button" data-view="topup-dummy"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</button>
-        <button id="giftcard" class="menu-button" data-view="generategiftcard-dummy"><i class="fa-solid fa-credit-card fa-lg"></i> Digital Card</button>
-      </div>
-      
-      <div class="summary" id="user-summary"></div>
+  <!-- TAB HEADERS -->
+  <div class="tabs">
+    <button class="tab-button" data-tab="summary-tab">Summary</button>
+    <button class="tab-button" data-tab="tools-tab">Tools</button>
+  </div>
 
-      <div class="filters">
-        <button id="sort-latest-button">Sort ↓↑</button>
-        <button id="sort-negative-one-button">Pay Out Next</button>
-      </div>
+  <!-- TAB: SUMMARY -->
+  <div class="tab-content" id="summary-tab">
+    <div class="summary" id="user-summary"></div>
 
-      <div id="user-profile"></div>
-       <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+    <div class="filters">
+      <button id="sort-latest-button">Sort ↓↑</button>
+      <button id="sort-negative-one-button">Pay Out Next</button>
     </div>
+
+    <div id="user-profile"></div>
+  </div>
+
+  <!-- TAB: TOOLS -->
+  <div class="tab-content hidden" id="tools-tab">
+    <div class="filters">
+      <button id="topupcard" class="menu-button" data-view="topup-dummy">
+        <i class="fa-solid fa-building-columns fa-lg"></i> Topup Card
+      </button>
+      <button id="giftcard" class="menu-button" data-view="generategiftcard-dummy">
+        <i class="fa-solid fa-credit-card fa-lg"></i> Digital Card
+      </button>
+    </div>
+  </div>
+
+  <button id="logoutBtn" onclick="logoutUser()">Logout</button>
+</div>
+
   </div>
 
   <div id="loading-modal">
