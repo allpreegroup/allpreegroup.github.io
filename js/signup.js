@@ -98,24 +98,15 @@ function init_signup() {
   document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
 
 
-hiddenIframe.onload = () => {
-  console.log("iframe loaded");
-
-   // First iframe load (page load), just mark it initialized
-  if (!iframeInitialized) {
-    iframeInitialized = true;
-    console.log("First iframe load, init only");
-    return;
-  }
-  // Only handle submit after first load is done
-  if (window.submitted) {
-    console.log("iframe onload: calling success handler");
-    handleSuccessfulSignup(); // Handles UI only
-    
-  } else {
-    console.log("iframe onload, but submitted = false. Skipping.");
-  }
-};
+ hiddenIframe.onload = () => {
+    if (!iframeInitialized) {
+      iframeInitialized = true;
+      return;
+    }
+    if (window.submitted) {
+      handleSuccessfulSignup();
+    }
+  };
 
 document.addEventListener('click', function (event) {
     if (event.target.closest('#seeHowItWorks')) {
@@ -130,6 +121,8 @@ document.addEventListener('click', function (event) {
 }
 
 async function submitSignupForm() {
+  document.getElementById("loading-modal").style.display = "flex";
+
   const requiredFields = [
     { name: 'entry.1502543154', label: 'First Name' },
     { name: 'entry.166208811', label: 'Last Name' },
@@ -194,13 +187,14 @@ async function submitSignupForm() {
       body: formData
     });
 
-    console.log("Form submitted using fetch.");
-    handleSuccessfulSignup(); // Assume success
+   window.submitted = true;
+    handleSuccessfulSignup();
   } catch (error) {
     console.error("Fetch form submission failed:", error);
     alert("There was a problem submitting the form. Please try again.");
   }
 }
+
 
 
 
@@ -302,11 +296,11 @@ function submitSignupForm() {
 function handleSuccessfulSignup() {
   if (!window.submitted) return;
   window.submitted = false;
+
   const submitBtn = document.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = false;
 
   document.getElementById("loading-modal").style.display = "none";
-
   const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
   localStorage.setItem("signedUpUser", firstName);
 
