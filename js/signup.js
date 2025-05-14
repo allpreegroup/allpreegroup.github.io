@@ -127,111 +127,6 @@ document.addEventListener('click', function (event) {
       }
     }
   });
-
-  const contactDetails = {
-    fullName: "Allpree.com",
-    organization: "Allpree.com",
-    email: "allpreedotcom@gmail.com",
-    website: "https://www.allpree.com",
-    address: "Shop #4 Dunbar Mall;Sav-La-Mar;Westmoreland;00000;Jamaica",
-    numbers: [
-      { type: "whatsapp main", number: "+18762042132" },
-      { type: "whatsapp bot", number: "+18762042107" },
-      { type: "whatsapp billing", number: "+18764604563" }
-    ],
-    socialHandles: {
-      twitter: "@allpreedotcom",
-      facebook: "https://facebook.com/allpreedotcom",
-      instagram: "https://instagram.com/allpreedotcom"
-    }
-  };
-
-  function buildVCardString() {
-    let vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${contactDetails.fullName}
-ORG:${contactDetails.organization}
-EMAIL:${contactDetails.email}
-URL:${contactDetails.website}
-ADR:;;${contactDetails.address}`;
-
-    contactDetails.numbers.forEach(n => {
-      vcard += `\nTEL;TYPE=${n.type}:${n.number}`;
-    });
-
-    const socials = contactDetails.socialHandles;
-    if (socials.twitter) vcard += `\nX-SOCIALPROFILE;TYPE=twitter:${socials.twitter}`;
-    if (socials.facebook) vcard += `\nX-SOCIALPROFILE;TYPE=facebook:${socials.facebook}`;
-    if (socials.linkedin) vcard += `\nX-SOCIALPROFILE;TYPE=linkedin:${socials.linkedin}`;
-    if (socials.instagram) vcard += `\nX-SOCIALPROFILE;TYPE=instagram:${socials.instagram}`;
-
-    vcard += `\nEND:VCARD`;
-    return vcard;
-  }
-
-  const vCard = buildVCardString();
-
-  function generateVCF() {
-    const blob = new Blob([vCard], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "contact.vcf";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  const isAndroid = /android/i.test(navigator.userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const actionDiv = document.getElementById("action");
-  const qrDiv = document.getElementById("qr");
-
-  if (isAndroid) {
-    const contactIntentURL =
-      "intent://createContact#Intent;" +
-      "scheme=content;" +
-      "action=android.intent.action.INSERT;" +
-      "type=vnd.android.cursor.dir/contact;" +
-      `S.name=${encodeURIComponent(contactDetails.fullName)};` +
-      `S.phone=${contactDetails.numbers[0].number};` +
-      `S.email=${contactDetails.email};` +
-      `S.organization=${encodeURIComponent(contactDetails.organization)};` +
-      `S.postal=${encodeURIComponent(contactDetails.address)};` +
-      "end;";
-
-    const encodedVCardData = encodeURIComponent(vCard);
-    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
-
-    function tryIntentFallback() {
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = contactIntentURL;
-  document.body.appendChild(iframe);
-
-  // Immediately show both download button and "fallback coming" message
-  actionDiv.innerHTML = `
-    <p>Scan the QR or use the button to download and import</p><br>
-    <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-   <br><br> <button onclick="generateVCF()">D/L & Imp</button>
-  `;
-
-  // Fade in the QR code after a short delay for smooth transition
-  setTimeout(() => {
-    document.getElementById("fallbackQR").style.opacity = 1;
-  }, 500);
-}
-
-    actionDiv.innerHTML = `
-      <button onclick="tryIntentFallback()">Click & Save</button>
-      
-    `;
-
-    qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
-  } else if (isIOS) {
-    actionDiv.innerHTML = `<button onclick="generateVCF()">Click To Save</button>`;
-  } else {
-    actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
-  }
 }
 
 function submitSignupForm() {
@@ -416,3 +311,107 @@ async function fetchStatsAndUpdateUI() {
   }
 }
 
+ const contactDetails = {
+    fullName: "Allpree.com",
+    organization: "Allpree.com",
+    email: "allpreedotcom@gmail.com",
+    website: "https://www.allpree.com",
+    address: "Shop #4 Dunbar Mall;Sav-La-Mar;Westmoreland;00000;Jamaica",
+    numbers: [
+      { type: "whatsapp main", number: "+18762042132" },
+      { type: "whatsapp bot", number: "+18762042107" },
+      { type: "whatsapp billing", number: "+18764604563" }
+    ],
+    socialHandles: {
+      twitter: "@allpreedotcom",
+      facebook: "https://facebook.com/allpreedotcom",
+      instagram: "https://instagram.com/allpreedotcom"
+    }
+  };
+
+  function buildVCardString() {
+    let vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${contactDetails.fullName}
+ORG:${contactDetails.organization}
+EMAIL:${contactDetails.email}
+URL:${contactDetails.website}
+ADR:;;${contactDetails.address}`;
+
+    contactDetails.numbers.forEach(n => {
+      vcard += `\nTEL;TYPE=${n.type}:${n.number}`;
+    });
+
+    const socials = contactDetails.socialHandles;
+    if (socials.twitter) vcard += `\nX-SOCIALPROFILE;TYPE=twitter:${socials.twitter}`;
+    if (socials.facebook) vcard += `\nX-SOCIALPROFILE;TYPE=facebook:${socials.facebook}`;
+    if (socials.linkedin) vcard += `\nX-SOCIALPROFILE;TYPE=linkedin:${socials.linkedin}`;
+    if (socials.instagram) vcard += `\nX-SOCIALPROFILE;TYPE=instagram:${socials.instagram}`;
+
+    vcard += `\nEND:VCARD`;
+    return vcard;
+  }
+
+  const vCard = buildVCardString();
+
+  function generateVCF() {
+    const blob = new Blob([vCard], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contact.vcf";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const actionDiv = document.getElementById("action");
+  const qrDiv = document.getElementById("qr");
+
+  if (isAndroid) {
+    const contactIntentURL =
+      "intent://createContact#Intent;" +
+      "scheme=content;" +
+      "action=android.intent.action.INSERT;" +
+      "type=vnd.android.cursor.dir/contact;" +
+      `S.name=${encodeURIComponent(contactDetails.fullName)};` +
+      `S.phone=${contactDetails.numbers[0].number};` +
+      `S.email=${contactDetails.email};` +
+      `S.organization=${encodeURIComponent(contactDetails.organization)};` +
+      `S.postal=${encodeURIComponent(contactDetails.address)};` +
+      "end;";
+
+    const encodedVCardData = encodeURIComponent(vCard);
+    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
+
+    function tryIntentFallback() {
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = contactIntentURL;
+  document.body.appendChild(iframe);
+
+  // Immediately show both download button and "fallback coming" message
+  actionDiv.innerHTML = `
+    <p>Scan the QR or use the button to download and import</p><br>
+    <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
+   <br><br> <button onclick="generateVCF()">D/L & Imp</button>
+  `;
+
+  // Fade in the QR code after a short delay for smooth transition
+  setTimeout(() => {
+    document.getElementById("fallbackQR").style.opacity = 1;
+  }, 500);
+}
+
+    actionDiv.innerHTML = `
+      <button onclick="tryIntentFallback()">Click & Save</button>
+      
+    `;
+
+    qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
+  } else if (isIOS) {
+    actionDiv.innerHTML = `<button onclick="generateVCF()">Click To Save</button>`;
+  } else {
+    actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
+  }
