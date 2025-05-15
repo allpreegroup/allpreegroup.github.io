@@ -667,7 +667,38 @@ h2 {
     width: 100%;
   }
 }
-
+#a2hs-popup {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 99999;
+      font-family: sans-serif;
+    }
+    #a2hs-popup .content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #a2hs-install-btn {
+      background: #0071ce;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #a2hs-close {
+      margin-left: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
     
   </style>
   <!-- Google tag (gtag.js) -->
@@ -817,15 +848,12 @@ h2 {
   <h3>We Do Gift Card Give Away On Our <i class="fa-brands fa-whatsapp"></i> Status</h3></center>
   How to enter:
   <ul style="instructions feature-list"> 
-    <li>Save Our <i class="fa-brands fa-whatsapp"></i> Contacts </li>
-
-	  <div id="action"></div>
-          <div id="qr" style="margin-top: 0px;"></div><br>
-	  
-    <li>Send us A <i class="fa-brands fa-whatsapp"></i> Message, saying hi — we’ll save your number too. </li><br>
-    <li>Install Our Web App & Activate Notification</li>	  
+    <li>Install Our Web App</li> <br> 
+    <li>Activate Notification </li><br>
+    <li>Create An Account</li>	  
   </ul>	
   <center><h4> How To Install Our Web App <br>Click The Button Below </h4></center>
+	<center><button id="trigger-a2hs">Install App</button></center>
   <center><button onclick="showFinalInstructions()" style="margin-top: 1rem;">HOW TO</button></center>
 </div>
 
@@ -853,13 +881,139 @@ h2 {
     <p id="install-status" style="margin-top: 1em;"></p>
 </div><br>
   </div>
+
+	<div id="a2hs-popup" style="display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      right: 20px;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 99999;
+      font-family: sans-serif;
+">
+  <div class="section" style="display: flex; align-items: center; margin-bottom: 16px;">
+    <div class="emoji2" style="font-size: 2rem; margin-right: 12px;">
+  <img src="https://www.allpree.com/img/AllPreepwaapp.png" alt="AllPree App Icon" style="height: 88px; width: 88px; border-radius: 10px;" />
+</div>
+    <div class="content2">
+      
+	 <img src="https://www.allpree.com/img/AllPreeLocalDeals.png" alt="AllPree App Icon" style="height: 45px; width: 188px; border-radius: 0px;" />    
+	    
+    </div>
+  </div>
+   Get full access to all local deals, exclusive offers, and shopping tools, no account needed. To log in, you'll need to create an account. <br><br>
+  <div id="a2hs-message" style="margin-bottom: 16px;">
+    <!-- This will be filled dynamically for Android or iOS -->
+  </div>
+  <div style="display: flex; justify-content: flex-end;">
+    <button id="a2hs-install-btn" style="margin-right: 10px;">Install</button>
+    <button id="a2hs-close">×</button>
+  </div>
+</div>
+
+	
       <div class="footer">
 <center><p>Your Privacy is Guaranteed. We will never give, lease, or sell your personal information. Period!
 &copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.
 To access exclusive deals and earn rewards, install the Allpree app today!
 By using our services, you agree to our <a href="/terms">Terms & Conditions</a> and <a href="/privacy">Privacy Policy</a>.</p></center>
 </div>
-    
+<script>
+  let deferredPrompt;
+
+  const IOS_STORAGE_KEY = 'iosPwaLastSeen';
+  const IOS_DAYS_LIMIT = 30;
+
+  function isIos() {
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  }
+
+  function isInStandaloneMode() {
+    return ('standalone' in window.navigator) && window.navigator.standalone;
+  }
+
+  function daysSince(dateString) {
+    const previous = new Date(dateString);
+    const now = new Date();
+    const diffTime = now - previous;
+    return diffTime / (1000 * 60 * 60 * 24);
+  }
+
+  function showPopup() {
+    if (!localStorage.getItem('a2hsShown')) {
+      document.getElementById('a2hs-popup').style.display = 'block';
+    }
+  }
+
+  // Android: Capture A2HS event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+   
+      document.getElementById('a2hs-message').innerHTML = `
+       <strong>Install This App, It's Free <br>-- No App Store <br>-- No Play Store <br>-- No Downloads</strong><br><br>
+        Add to your home screen for fast, instant access!
+      `;
+      document.getElementById('a2hs-install-btn').style.display = 'inline-block';
+      showPopup();
+   
+  });
+
+  // iOS: Show custom message if not in standalone and not seen in 30 days
+  window.addEventListener('load', () => {
+    if (isIos()) {
+      if (isInStandaloneMode()) {
+        // User opened the app in standalone — update timestamp
+        localStorage.setItem(IOS_STORAGE_KEY, new Date().toISOString());
+      } else {
+        const lastSeen = localStorage.getItem(IOS_STORAGE_KEY);
+        const shouldShowPrompt = !lastSeen || daysSince(lastSeen) >= IOS_DAYS_LIMIT;
+
+        if (shouldShowPrompt) {
+          
+            document.getElementById('a2hs-message').innerHTML = `
+              <strong>Install This App, It's Free <br>-- No App Store <br>-- No Play Store <br>-- No Downloads</strong><br><br>
+              Add to your home screen for fast, instant access!
+              <br><br>
+              Tap the <span style="font-weight: bold;">Share</span> icon
+              <span style="font-size: 1.2rem;">📤</span> and then select <strong>"Add to Home Screen"</strong>.
+            `;
+            document.getElementById('a2hs-install-btn').style.display = 'none';
+            showPopup();
+          
+        }
+      }
+    }
+  });
+
+  // Android install button
+  document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      console.log('User response:', result.outcome);
+      document.getElementById('a2hs-popup').style.display = 'none';
+      localStorage.setItem('a2hsShown', 'true');
+      deferredPrompt = null;
+    }
+  });
+
+  // Close button
+  document.getElementById('a2hs-close').addEventListener('click', () => {
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'false'); // So it can show again next time
+  });
+
+  // Android: If installed
+  window.addEventListener('appinstalled', () => {
+    console.log('App was installed');
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'true');
+  });
+</script>    
 <script>
   // Reusable install mode checker
   function isInStandaloneMode() {
@@ -949,113 +1103,7 @@ By using our services, you agree to our <a href="/terms">Terms & Conditions</a> 
     }
   }
 </script>
-<script>
-  const contactDetails = {
-    fullName: "Allpree.com",
-    organization: "Allpree.com",
-    email: "allpreedotcom@gmail.com",
-    website: "https://www.allpree.com",
-    address: "Shop #4 Dunbar Mall;Sav-La-Mar;Westmoreland;00000;Jamaica",
-    numbers: [
-      { type: "whatsapp main", number: "+18762042132" },
-      { type: "whatsapp bot", number: "+18762042107" },
-      { type: "whatsapp billing", number: "+18764604563" }
-    ],
-    socialHandles: {
-      twitter: "@allpreedotcom",
-      facebook: "https://facebook.com/allpreedotcom",
-      instagram: "https://instagram.com/allpreedotcom"
-    }
-  };
 
-  function buildVCardString() {
-    let vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${contactDetails.fullName}
-ORG:${contactDetails.organization}
-EMAIL:${contactDetails.email}
-URL:${contactDetails.website}
-ADR:;;${contactDetails.address}`;
-
-    contactDetails.numbers.forEach(n => {
-      vcard += `\nTEL;TYPE=${n.type}:${n.number}`;
-    });
-
-    const socials = contactDetails.socialHandles;
-    if (socials.twitter) vcard += `\nX-SOCIALPROFILE;TYPE=twitter:${socials.twitter}`;
-    if (socials.facebook) vcard += `\nX-SOCIALPROFILE;TYPE=facebook:${socials.facebook}`;
-    if (socials.linkedin) vcard += `\nX-SOCIALPROFILE;TYPE=linkedin:${socials.linkedin}`;
-    if (socials.instagram) vcard += `\nX-SOCIALPROFILE;TYPE=instagram:${socials.instagram}`;
-
-    vcard += `\nEND:VCARD`;
-    return vcard;
-  }
-
-  const vCard = buildVCardString();
-
-  function generateVCF() {
-    const blob = new Blob([vCard], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "contact.vcf";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  const isAndroid = /android/i.test(navigator.userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const actionDiv = document.getElementById("action");
-  const qrDiv = document.getElementById("qr");
-
-  if (isAndroid) {
-    const contactIntentURL =
-      "intent://createContact#Intent;" +
-      "scheme=content;" +
-      "action=android.intent.action.INSERT;" +
-      "type=vnd.android.cursor.dir/contact;" +
-      `S.name=${encodeURIComponent(contactDetails.fullName)};` +
-      `S.phone=${contactDetails.numbers[0].number};` +
-      `S.email=${contactDetails.email};` +
-      `S.organization=${encodeURIComponent(contactDetails.organization)};` +
-      `S.postal=${encodeURIComponent(contactDetails.address)};` +
-      "end;";
-
-    const encodedVCardData = encodeURIComponent(vCard);
-    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
-
-    function tryIntentFallback() {
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = contactIntentURL;
-  document.body.appendChild(iframe);
-
-  // Immediately show both download button and "fallback coming" message
-  actionDiv.innerHTML = `
-    <br><li>Scan the QR or use the button to download and import</li><br>
-    <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-    <button onclick="generateVCF()">D/L & Imp</button>
-  `;
-
-  // Fade in the QR code after a short delay for smooth transition
-  setTimeout(() => {
-    document.getElementById("fallbackQR").style.opacity = 1;
-  }, 500);
-}
-
-
-    actionDiv.innerHTML = `
-      <button onclick="tryIntentFallback()">Click & Save</button>
-      
-    `;
-
-    qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
-  } else if (isIOS) {
-    actionDiv.innerHTML = `<button onclick="generateVCF()">Click To Save</button>`;
-  } else {
-    actionDiv.innerHTML = `<p>Use a mobile device to add contact</p>`;
-  }
-</script>
 	 <script>
     (function () {
       const urlParams = new URLSearchParams(window.location.search);
