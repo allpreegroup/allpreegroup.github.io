@@ -9,7 +9,13 @@
  <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
-
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+	<link rel="web-app-origin-association" href="/web-app-origin-association">
+   <link rel="manifest" href="https://www.allpree.com/manifest.json">
   
      <title>See Today's Deals</title>
 	
@@ -1242,7 +1248,113 @@ body.no-scroll {
       font-size: 1.0rem;
       line-height: 1.5;
     }
-		 
+
+   .menu-button[data-view="signup"] {
+     visibility: hidden;
+     position: absolute;
+     left: -9999px;
+}
+.menu-button[data-view="topup"] {
+     visibility: hidden;
+     position: absolute;
+     left: -9999px;
+}
+.menu-button[data-view="generategiftcard"] {
+     visibility: hidden;
+     position: absolute;
+     left: -9999px;
+}		 
+#leaderboardPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 9999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: none; /* Hidden by default */
+}
+
+
+  #leaderboardPopup.show {
+    display: block;
+  }
+
+  #leaderboardPopup h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #333;
+  }
+
+  #leaderboardContent {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .leaderboard-row:hover {
+    background-color: #e0e0e0;
+  }
+
+  .leaderboard-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .leaderboard-idcode {
+    background-color: #ccc;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .leaderboard-name {
+    font-size: 14px;
+    color: #222;
+    font-weight: 600;
+  }
+
+  .leaderboard-points {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e40af; /* blue-800 */
+  }
+
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .close-button:hover {
+    color: #111;
+  }		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1277,7 +1389,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
                  <div class="home">     
  			<div class="center">
                  <div class="col-md-6 home-txt1">
-
+			 
 <div id="a2hs-popup" style="display: none;
       position: fixed;
       bottom: 80px;
@@ -1294,13 +1406,12 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <img src="https://www.allpree.com/img/AllPreepwaapp.png" alt="AllPree App Icon" style="height: 88px; width: 88px; border-radius: 10px;" />
 </div>
     <div class="content2">
-      <h1 style="font-size: 1.2rem;
-      font-weight: bold;
-      margin: 0 0 0px 0;"> Allpree</h1>
-      <p style="font-size: 0.95rem; margin: 0;">Local Deals.</p>
+      
+	 <img src="https://www.allpree.com/img/AllPreeLocalDeals.png" alt="AllPree App Icon" style="height: 45px; width: 188px; border-radius: 0px;" />    
+	    
     </div>
   </div>
-   Get full access to all local deals, exclusive offers, and shopping tools, no account needed. Register any time. <br><br>
+   Get full access to all local deals, exclusive offers, and shopping tools, no account needed. To log in, you'll need to create an account. <br><br>
   <div id="a2hs-message" style="margin-bottom: 16px;">
     <!-- This will be filled dynamically for Android or iOS -->
   </div>
@@ -1309,7 +1420,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
     <button id="a2hs-close">×</button>
   </div>
 </div>
-
 			 
  <div id="splash-screen">
     <video autoplay muted playsinline preload="auto">
@@ -1324,36 +1434,39 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 				  <br>
   <div id="deals-container">Loading deals...</div>
 
-
-
-
-
-				  
 	<div id="bottomMenu">
-  <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
-  <div id="CartButton" style="margin-left: 60px;" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-receipt fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
-  <div id="lockButton" class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>
- <div class="menu-button" data-view="signup"><i class="fa-solid fa-file-contract fa-lg"></i> Register</div>
- <div class="menu-button" data-view="salesletter">Get Deal Plus <i class="fa-solid fa-magnifying-glass-plus fa-lg"></i></div>
+        <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
+        <div id="lockButton" style="margin-left: 60px;" onclick="openLeaderboard()" class="menu-button"><i class="fa-solid fa-arrow-up-wide-short fa-lg"></i></div>
+        <div class="menu-button" data-view="profile"><i class="fa-solid fa-user fa-lg"></i></div>
+	<div id="CartButton" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-cart-shopping fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
+        <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i></div>
+	<div class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i></div>	
+       <div class="menu-button" data-view="salesletter">Get <i class="fa-solid fa-magnifying-glass-plus fa-lg"></i></div>
+ 
+  <div class="menu-button" data-view="signup"><i class="fa-solid fa-file-contract fa-lg"></i> Sign Up</div> 
   <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Digital Card</div>
   <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</div>
 <!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
-  <div class="menu-button" data-view="profile"><i class="fa-solid fa-wallet fa-lg"></i> Access Wallet</div>
-  <div class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i> Refer Others</div>			
-  <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i> Saved Lists</div>
-  <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div>
+ 
+  			
+ 
+<!--  <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div> -->
 </div>
 
 <!-- Slide-up panel content area -->
 <div id="panel" class="slide-up-panel">
   <div id="handle"></div>
   <div id="panelContent">
-
-
-
 	  
   </div>
 </div>
+
+<!-- Leaderboard Popup -->
+<div id="leaderboardPopup">
+  <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
+  <h2>Referral Leaderboard</h2>
+  <div id="leaderboardContent">Loading...</div>
+</div>				  
 		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -4074,7 +4187,7 @@ addPopupSwipeListeners();
       }, 1000); // wait for fade out
     }, 4500);
   </script>
-			 
+
 <script>
   let deferredPrompt;
 
@@ -4169,8 +4282,60 @@ addPopupSwipeListeners();
     localStorage.setItem('a2hsShown', 'true');
   });
 </script>
+<script>
+const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
-			 
+function openLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.add("show");
+  document.body.style.overflow = "hidden"; // 🔒 Lock background scroll
+  fetchLeaderboardData();
+}
+
+function closeLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.remove("show");
+  document.body.style.overflow = ""; // 🔓 Restore scroll
+}
+
+async function fetchLeaderboardData() {
+  try {
+    const response = await fetch(SHEET_URL);
+    const data = await response.json();
+
+    const leaderboardData = data.map(entry => ({
+      idCode: entry["ID CODE"] || "",
+      name: `${entry["First Name"] || ""} ${entry["Last Name"] || ""}`.trim(),
+      points: parseFloat(entry["Points"]) || 0
+    }))
+    .filter(entry => entry.name && !isNaN(entry.points))
+    .sort((a, b) => b.points - a.points);
+
+    renderLeaderboard(leaderboardData);
+  } catch (error) {
+    document.getElementById("leaderboardContent").innerHTML = "Failed to load data.";
+    console.error("Error fetching leaderboard:", error);
+  }
+}
+
+function renderLeaderboard(data) {
+  const container = document.getElementById("leaderboardContent");
+  container.innerHTML = ""; // clear loading text
+
+  data.forEach((entry, index) => {
+    const div = document.createElement("div");
+    div.className = "leaderboard-row";
+
+    div.innerHTML = `
+      <div class="leaderboard-left">
+        <div class="leaderboard-idcode">${entry.idCode}</div>
+        <div class="leaderboard-name">${index + 1}. ${entry.name}</div>
+      </div>
+      <div class="leaderboard-points">${entry.points}</div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+</script>			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
