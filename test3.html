@@ -1,104 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Referral Leaderboard Popup</title>
 <style>
- #leaderboardPopup {
-  position: fixed;
-  top: 40px;
-  right: 40px;
-  width: 320px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  padding: 24px;
-  z-index: 9999;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: none; /* Hidden by default */
-}
+  #leaderboardPopup {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    width: 320px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 24px;
+    z-index: 9999;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: none; /* Hidden by default */
+  }
 
-#leaderboardPopup.show {
-  display: block;
-}
+  #leaderboardPopup.show {
+    display: block;
+  }
 
-#leaderboardPopup h2 {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 16px;
-  text-align: center;
-  color: #333;
-}
+  #leaderboardPopup h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #333;
+  }
 
-#leaderboardContent {
-  max-height: 400px;
-  overflow-y: auto;
-}
+  #leaderboardContent {
+    max-height: 400px;
+    overflow-y: auto;
+  }
 
-.leaderboard-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  transition: background-color 0.2s ease;
-}
+  .leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
+  }
 
-.leaderboard-row:hover {
-  background-color: #e0e0e0;
-}
+  .leaderboard-row:hover {
+    background-color: #e0e0e0;
+  }
 
-.leaderboard-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .leaderboard-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-.leaderboard-idcode {
-  background-color: #ccc;
-  color: #333;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 8px;
-  min-width: 50px;
-  text-align: center;
-}
+  .leaderboard-idcode {
+    background-color: #ccc;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 50px;
+    text-align: center;
+  }
 
-.leaderboard-name {
-  font-size: 14px;
-  color: #222;
-  font-weight: 600;
-}
+  .leaderboard-name {
+    font-size: 14px;
+    color: #222;
+    font-weight: 600;
+  }
 
-.leaderboard-points {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e40af; /* blue-800 */
-}
+  .leaderboard-points {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e40af; /* blue-800 */
+  }
 
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .close-button:hover {
+    color: #111;
+  }
 </style>
+</head>
+<body>
 
 <!-- Trigger Button -->
-<button onclick="openLeaderboard()" class="leaderboard-button">Show Leaderboard</button>
+<button onclick="openLeaderboard()" style="padding:8px 16px; font-size:16px; border-radius:6px; background:#2563eb; color:#fff; border:none; cursor:pointer;">
+  Show Leaderboard
+</button>
 
 <!-- Leaderboard Popup -->
-<div id="leaderboardPopup" class="leaderboard-overlay hidden">
-  <div class="leaderboard-modal">
-    <h2>Referral Leaderboard</h2>
-    <div id="leaderboardContent" class="leaderboard-content">Loading...</div>
-    <button onclick="closeLeaderboard()" class="close-button">&times;</button>
-  </div>
+<div id="leaderboardPopup">
+  <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
+  <h2>Referral Leaderboard</h2>
+  <div id="leaderboardContent">Loading...</div>
 </div>
-
 
 <script>
 const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
 function openLeaderboard() {
-  document.getElementById("leaderboardPopup").classList.remove("hidden");
+  document.getElementById("leaderboardPopup").classList.add("show");
   fetchLeaderboardData();
 }
 
 function closeLeaderboard() {
-  document.getElementById("leaderboardPopup").classList.add("hidden");
+  document.getElementById("leaderboardPopup").classList.remove("show");
 }
 
 async function fetchLeaderboardData() {
@@ -107,8 +128,8 @@ async function fetchLeaderboardData() {
     const data = await response.json();
 
     const leaderboardData = data.map(entry => ({
-      idCode: entry["ID CODE"],
-      name: `${entry["First Name"]} ${entry["Last Name"]}`,
+      idCode: entry["ID CODE"] || "",
+      name: `${entry["First Name"] || ""} ${entry["Last Name"] || ""}`.trim(),
       points: parseFloat(entry["Points"]) || 0
     }))
     .filter(entry => entry.name && !isNaN(entry.points))
@@ -127,14 +148,14 @@ function renderLeaderboard(data) {
 
   data.forEach((entry, index) => {
     const div = document.createElement("div");
-    div.className = "flex items-center justify-between px-3 py-2 border-b border-gray-200";
+    div.className = "leaderboard-row";
 
     div.innerHTML = `
-      <div class="flex items-center space-x-3">
-        <div class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">${entry.idCode}</div>
-        <span class="font-medium">${index + 1}. ${entry.name}</span>
+      <div class="leaderboard-left">
+        <div class="leaderboard-idcode">${entry.idCode}</div>
+        <div class="leaderboard-name">${index + 1}. ${entry.name}</div>
       </div>
-      <span class="text-blue-600 font-semibold">${entry.points}</span>
+      <div class="leaderboard-points">${entry.points}</div>
     `;
 
     container.appendChild(div);
@@ -142,4 +163,5 @@ function renderLeaderboard(data) {
 }
 </script>
 
-
+</body>
+</html>
