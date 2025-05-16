@@ -2130,28 +2130,47 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/She
     console.log('Now:', now.toISOString());
     console.log('Expiry from sheet:', last['Expires At']);
     console.log('Parsed Expiry:', expiry.toISOString());
-    console.log('Take Over Brand:', takeoverBrand);  
+    console.log('Take Over Brand:', takeoverBrand);
 
+    const overrideUntil = parseInt(sessionStorage.getItem('overrideTakeoverUntil') || '0', 10);
+    const overrideBrand = sessionStorage.getItem('originalTakeoverBrand');
     const storedBrand = localStorage.getItem('selectedTakeoverBrand');
     const originalBrand = localStorage.getItem('originalTakeoverBrand');
 
+    if (Date.now() < overrideUntil) {
+      // Override still active
+      console.log('🟡 Override in effect until', new Date(overrideUntil).toISOString());
+      return;
+    } else {
+      // Override expired, cleanup override session keys
+      sessionStorage.removeItem('overrideTakeoverUntil');
+      sessionStorage.removeItem('originalTakeoverBrand');
+    }
+
     if (now < expiry && takeoverBrand) {
+      // Only store original if it hasn't already been saved
       if (!originalBrand && storedBrand && storedBrand !== takeoverBrand) {
         localStorage.setItem('originalTakeoverBrand', storedBrand);
       }
 
       localStorage.setItem('selectedTakeoverBrand', takeoverBrand);
       localStorage.setItem('takeoverExpiryTime', expiry.getTime());
-      console.log('Takeover brand set:', takeoverBrand, 'Expires at:', expiry.toISOString());
+      console.log('✅ Takeover brand set:', takeoverBrand, 'Expires at:', expiry.toISOString());
     } else {
+      // Expired or missing — restore original if it exists
       if (originalBrand) {
         localStorage.setItem('selectedTakeoverBrand', originalBrand);
         localStorage.removeItem('originalTakeoverBrand');
+        console.log('🔁 Restored original brand:', originalBrand);
+      } else {
+        localStorage.removeItem('selectedTakeoverBrand');
+        console.log('❌ No brand to restore — cleaned up');
       }
+
       localStorage.removeItem('takeoverExpiryTime');
-      console.log('Takeover brand expired or missing — reset.');
     }
   });
+
 
 
 
