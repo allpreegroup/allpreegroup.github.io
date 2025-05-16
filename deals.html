@@ -4287,11 +4287,13 @@ const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5
 
 function openLeaderboard() {
   document.getElementById("leaderboardPopup").classList.add("show");
+  document.body.style.overflow = "hidden"; // 🔒 Lock background scroll
   fetchLeaderboardData();
 }
 
 function closeLeaderboard() {
   document.getElementById("leaderboardPopup").classList.remove("show");
+  document.body.style.overflow = ""; // 🔓 Restore scroll
 }
 
 async function fetchLeaderboardData() {
