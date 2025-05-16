@@ -1,121 +1,145 @@
 <style>
-  #leaderboardPopup {
-    position: fixed;
-    top: 40px;
-    right: 40px;
-    width: 320px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    padding: 24px;
-    z-index: 9999;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
+ #leaderboardPopup {
+  position: fixed;
+  top: 40px;
+  right: 40px;
+  width: 320px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  z-index: 9999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: none; /* Hidden by default */
+}
 
-  #leaderboardPopup h2 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 16px;
-    text-align: center;
-    color: #333;
-  }
+#leaderboardPopup.show {
+  display: block;
+}
 
-  .leaderboard-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    transition: background-color 0.2s ease;
-  }
+#leaderboardPopup h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
+  color: #333;
+}
 
-  .leaderboard-row:hover {
-    background-color: #e0e0e0;
-  }
+#leaderboardContent {
+  max-height: 400px;
+  overflow-y: auto;
+}
 
-  .leaderboard-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease;
+}
 
-  .leaderboard-rank {
-    font-weight: bold;
-    font-size: 14px;
-    color: #444;
-  }
+.leaderboard-row:hover {
+  background-color: #e0e0e0;
+}
 
-  .leaderboard-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-color: #ccc;
-  }
+.leaderboard-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .leaderboard-name {
-    font-size: 14px;
-    color: #222;
-  }
+.leaderboard-idcode {
+  background-color: #ccc;
+  color: #333;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 50px;
+  text-align: center;
+}
 
-  .leaderboard-points {
-    font-size: 14px;
-    font-weight: 600;
-    color: #111;
-  }
+.leaderboard-name {
+  font-size: 14px;
+  color: #222;
+  font-weight: 600;
+}
+
+.leaderboard-points {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e40af; /* blue-800 */
+}
+
 </style>
 
-<div id="leaderboardPopup">
-  <h2>Referral Leaderboard</h2>
-  <div id="leaderboardContent">Loading...</div>
+<!-- Trigger Button -->
+<button onclick="openLeaderboard()" class="leaderboard-button">Show Leaderboard</button>
+
+<!-- Leaderboard Popup -->
+<div id="leaderboardPopup" class="leaderboard-overlay hidden">
+  <div class="leaderboard-modal">
+    <h2>Referral Leaderboard</h2>
+    <div id="leaderboardContent" class="leaderboard-content">Loading...</div>
+    <button onclick="closeLeaderboard()" class="close-button">&times;</button>
+  </div>
 </div>
 
+
 <script>
-  const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
+const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
-  async function loadLeaderboard() {
-    try {
-      const res = await fetch(SHEET_URL);
-      const data = await res.json();
+function openLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.remove("hidden");
+  fetchLeaderboardData();
+}
 
-      const leaderboardData = data
-        .filter(row => row["Points"]) // Filter out rows without points
-        .map(row => ({
-          name: `${row["First Name"]} ${row["Last Name"]}`,
-          points: parseFloat(row["Points"]),
-          avatar: `https://via.placeholder.com/32?text=${row["ID CODE"]}`
-        }))
-        .sort((a, b) => b.points - a.points);
+function closeLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.add("hidden");
+}
 
-      renderLeaderboard(leaderboardData);
-    } catch (err) {
-      document.getElementById("leaderboardContent").textContent = "Failed to load leaderboard.";
-      console.error("Error loading leaderboard:", err);
-    }
+async function fetchLeaderboardData() {
+  try {
+    const response = await fetch(SHEET_URL);
+    const data = await response.json();
+
+    const leaderboardData = data.map(entry => ({
+      idCode: entry["ID CODE"],
+      name: `${entry["First Name"]} ${entry["Last Name"]}`,
+      points: parseFloat(entry["Points"]) || 0
+    }))
+    .filter(entry => entry.name && !isNaN(entry.points))
+    .sort((a, b) => b.points - a.points);
+
+    renderLeaderboard(leaderboardData);
+  } catch (error) {
+    document.getElementById("leaderboardContent").innerHTML = "Failed to load data.";
+    console.error("Error fetching leaderboard:", error);
   }
+}
 
-  function renderLeaderboard(data) {
-    const container = document.getElementById("leaderboardContent");
-    container.innerHTML = ""; // Clear loading text
+function renderLeaderboard(data) {
+  const container = document.getElementById("leaderboardContent");
+  container.innerHTML = ""; // clear loading text
 
-    data.forEach((user, index) => {
-      const row = document.createElement("div");
-      row.className = "leaderboard-row";
+  data.forEach((entry, index) => {
+    const div = document.createElement("div");
+    div.className = "flex items-center justify-between px-3 py-2 border-b border-gray-200";
 
-      row.innerHTML = `
-        <div class="leaderboard-left">
-          <span class="leaderboard-rank">${index + 1}.</span>
-          <img src="${user.avatar}" alt="avatar" class="leaderboard-avatar">
-          <span class="leaderboard-name">${user.name}</span>
-        </div>
-        <span class="leaderboard-points">${user.points}</span>
-      `;
+    div.innerHTML = `
+      <div class="flex items-center space-x-3">
+        <div class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">${entry.idCode}</div>
+        <span class="font-medium">${index + 1}. ${entry.name}</span>
+      </div>
+      <span class="text-blue-600 font-semibold">${entry.points}</span>
+    `;
 
-      container.appendChild(row);
-    });
-  }
-
-  loadLeaderboard();
+    container.appendChild(div);
+  });
+}
 </script>
+
+
