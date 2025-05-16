@@ -1779,7 +1779,11 @@ adminPanel.style.display = 'none';
 adminPanel.innerHTML = `
 
 <a href="https://www.allpree.com/add"><button>Add Products</button> </a>
- 
+ <hr />
+<button id="selectTakeoverBrandBtn">Select Takeover Brand</button>
+<label for="takeoverExpiryInput">Takeover Expiry:</label>
+<input type="datetime-local" id="takeoverExpiryInput" />
+<button id="sendTakeoverBtn">Update Takeover Brand</button>
  <hr />
   <div> <strong>Select Top Rank Slot:</strong><br/>  
   <div id="rankSlotButtonsContainer">
@@ -2004,6 +2008,78 @@ function closeRankBrandPopup() {
   const el = document.getElementById('admin-single-rank-backdrop');
   if (el) el.remove();
 }
+
+document.getElementById('selectTakeoverBrandBtn').addEventListener('click', () => {
+  openAdminTakeoverBrandPopup();
+});
+
+document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
+  const selectedBrand = localStorage.getItem('selectedTakeoverBrand');
+  const expiryInput = document.getElementById('takeoverExpiryInput').value;
+  if (!expiryInput) return alert('Please select expiration!');
+  if (!selectedBrand) return alert('Select a takeover brand first!');
+
+  const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
+
+  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+      brand: selectedBrand,
+      expiresAt: formattedExpiry,
+      action: 'takeover'
+    })
+  }).then(() => {
+    alert('Takeover brand successfully updated!');
+  }).catch(err => {
+    console.error('Error updating takeover brand:', err);
+    alert('Error updating takeover brand.');
+  });
+});
+
+function openAdminTakeoverBrandPopup() {
+  if (document.getElementById('admin-takeover-brand-backdrop')) return;
+
+  document.body.classList.add('no-scroll');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-takeover-brand-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminTakeoverBrandPopup();
+  });
+
+  const popup = document.createElement('div');
+  popup.id = 'admin-takeover-brand-popup';
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  const selectedBrand = localStorage.getItem('selectedTakeoverBrand');
+  const carousel = document.createElement('div');
+  carousel.className = 'admin-brand-carousel';
+
+  brands.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'admin-brand-card';
+    if (brand.name === selectedBrand) card.classList.add('selected');
+
+    card.innerHTML = `<img src="${brand.logo}" /><strong>${brand.name}</strong>`;
+    card.onclick = () => {
+      document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      localStorage.setItem('selectedTakeoverBrand', brand.name);
+      closeAdminTakeoverBrandPopup();
+    };
+
+    carousel.appendChild(card);
+  });
+
+  popup.appendChild(carousel);
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+function closeAdminTakeoverBrandPopup() {
+  document.getElementById('admin-takeover-brand-backdrop')?.remove();
+  document.body.classList.remove('no-scroll');
+}
+
 	
 //////////END
 	
@@ -2042,6 +2118,45 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
   });
 	
 /////////// 
+
+fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/Sheet3')
+  .then(res => res.json())
+  .then(data => {
+    const last = data[data.length - 1];
+    const now = new Date();
+    const expiry = new Date(last['Expires At']);
+    const takeoverBrand = last['Take Over Brand'];
+
+    console.log('Now:', now.toISOString());
+    console.log('Expiry from sheet:', last['Expires At']);
+    console.log('Parsed Expiry:', expiry.toISOString());
+    console.log('Take Over Brand:', takeoverBrand);  
+
+    const storedBrand = localStorage.getItem('selectedTakeoverBrand');
+    const originalBrand = localStorage.getItem('originalTakeoverBrand');
+
+    if (now < expiry && takeoverBrand) {
+      if (!originalBrand && storedBrand && storedBrand !== takeoverBrand) {
+        localStorage.setItem('originalTakeoverBrand', storedBrand);
+      }
+
+      localStorage.setItem('selectedTakeoverBrand', takeoverBrand);
+      localStorage.setItem('takeoverExpiryTime', expiry.getTime());
+      console.log('Takeover brand set:', takeoverBrand, 'Expires at:', expiry.toISOString());
+    } else {
+      if (originalBrand) {
+        localStorage.setItem('selectedTakeoverBrand', originalBrand);
+        localStorage.removeItem('originalTakeoverBrand');
+      }
+      localStorage.removeItem('takeoverExpiryTime');
+      console.log('Takeover brand expired or missing — reset.');
+    }
+  });
+
+
+
+	
+///////////	
 
 // Load ranked slots (Sheet2)
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2')
