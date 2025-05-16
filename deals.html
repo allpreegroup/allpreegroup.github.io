@@ -1264,7 +1264,97 @@ body.no-scroll {
      position: absolute;
      left: -9999px;
 }		 
-		 
+#leaderboardPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 9999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: none; /* Hidden by default */
+}
+
+
+  #leaderboardPopup.show {
+    display: block;
+  }
+
+  #leaderboardPopup h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #333;
+  }
+
+  #leaderboardContent {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .leaderboard-row:hover {
+    background-color: #e0e0e0;
+  }
+
+  .leaderboard-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .leaderboard-idcode {
+    background-color: #ccc;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .leaderboard-name {
+    font-size: 14px;
+    color: #222;
+    font-weight: 600;
+  }
+
+  .leaderboard-points {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e40af; /* blue-800 */
+  }
+
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .close-button:hover {
+    color: #111;
+  }		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1346,7 +1436,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<div id="bottomMenu">
         <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
-        <div id="lockButton" style="margin-left: 60px;"  class="menu-button"><i class="fa-solid fa-lock fa-lg"></i> </div>
+        <div id="lockButton" style="margin-left: 60px;" onclick="openLeaderboard()" class="menu-button"><i class="fa-solid fa-arrow-up-wide-short fa-lg"></i></div>
         <div class="menu-button" data-view="profile"><i class="fa-solid fa-user fa-lg"></i></div>
 	<div id="CartButton" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-cart-shopping fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
         <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i></div>
@@ -1367,12 +1457,16 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <div id="panel" class="slide-up-panel">
   <div id="handle"></div>
   <div id="panelContent">
-
-
-
 	  
   </div>
 </div>
+
+<!-- Leaderboard Popup -->
+<div id="leaderboardPopup">
+  <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
+  <h2>Referral Leaderboard</h2>
+  <div id="leaderboardContent">Loading...</div>
+</div>				  
 		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -4188,7 +4282,58 @@ addPopupSwipeListeners();
     localStorage.setItem('a2hsShown', 'true');
   });
 </script>
-			 
+<script>
+const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
+
+function openLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.add("show");
+  fetchLeaderboardData();
+}
+
+function closeLeaderboard() {
+  document.getElementById("leaderboardPopup").classList.remove("show");
+}
+
+async function fetchLeaderboardData() {
+  try {
+    const response = await fetch(SHEET_URL);
+    const data = await response.json();
+
+    const leaderboardData = data.map(entry => ({
+      idCode: entry["ID CODE"] || "",
+      name: `${entry["First Name"] || ""} ${entry["Last Name"] || ""}`.trim(),
+      points: parseFloat(entry["Points"]) || 0
+    }))
+    .filter(entry => entry.name && !isNaN(entry.points))
+    .sort((a, b) => b.points - a.points);
+
+    renderLeaderboard(leaderboardData);
+  } catch (error) {
+    document.getElementById("leaderboardContent").innerHTML = "Failed to load data.";
+    console.error("Error fetching leaderboard:", error);
+  }
+}
+
+function renderLeaderboard(data) {
+  const container = document.getElementById("leaderboardContent");
+  container.innerHTML = ""; // clear loading text
+
+  data.forEach((entry, index) => {
+    const div = document.createElement("div");
+    div.className = "leaderboard-row";
+
+    div.innerHTML = `
+      <div class="leaderboard-left">
+        <div class="leaderboard-idcode">${entry.idCode}</div>
+        <div class="leaderboard-name">${index + 1}. ${entry.name}</div>
+      </div>
+      <div class="leaderboard-points">${entry.points}</div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+</script>			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
