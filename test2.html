@@ -2051,27 +2051,30 @@ function closeRankBrandPopup() {
   if (el) el.remove();
 }
 
+
+
 document.getElementById('selectTakeoverBrandBtn').addEventListener('click', () => {
   openAdminTakeoverBrandPopup();
 });
 
 document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
-  const selectedBrand = localStorage.getItem('selectedTakeoverBrand');
   const expiryInput = document.getElementById('takeoverExpiryInput').value;
   if (!expiryInput) return alert('Please select expiration!');
-  if (!selectedBrand) return alert('Select a takeover brand first!');
+  if (!selectedTakeBrand) return alert('Select a takeover brand first!');
 
   const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
 
   fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
     method: 'POST',
     body: new URLSearchParams({
-      brand: selectedBrand,
+      brand: selectedTakeBrand,
       expiresAt: formattedExpiry,
       action: 'takeover'
     })
   }).then(() => {
     alert('Takeover brand successfully updated!');
+    selectedTakeBrand = null;
+    closeAdminTakeoverBrandPopup();
   }).catch(err => {
     console.error('Error updating takeover brand:', err);
     alert('Error updating takeover brand.');
@@ -2082,31 +2085,33 @@ function openAdminTakeoverBrandPopup() {
   if (document.getElementById('admin-takeover-brand-backdrop')) return;
 
   document.body.classList.add('no-scroll');
+
   const backdrop = document.createElement('div');
   backdrop.id = 'admin-takeover-brand-backdrop';
+  backdrop.className = 'admin-favorite-brand-backdrop';
   backdrop.addEventListener('click', e => {
     if (e.target === backdrop) closeAdminTakeoverBrandPopup();
   });
 
   const popup = document.createElement('div');
   popup.id = 'admin-takeover-brand-popup';
+  popup.className = 'admin-favorite-brand-popup';
 
-  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
-  const selectedBrand = localStorage.getItem('selectedTakeoverBrand');
   const carousel = document.createElement('div');
   carousel.className = 'admin-brand-carousel';
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
 
   brands.forEach(brand => {
     const card = document.createElement('div');
     card.className = 'admin-brand-card';
-    if (brand.name === selectedBrand) card.classList.add('selected');
+    if (brand.name === selectedTakeBrand) card.classList.add('selected');
 
-    card.innerHTML = `<img src="${brand.logo}" /><strong>${brand.name}</strong>`;
+    card.innerHTML = `<img src="${brand.logo}" alt="${brand.name}" /><strong>${brand.name}</strong>`;
     card.onclick = () => {
       document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
-      localStorage.setItem('selectedTakeoverBrand', brand.name);
-      closeAdminTakeoverBrandPopup();
+      selectedTakeBrand = brand.name;
     };
 
     carousel.appendChild(card);
@@ -2121,6 +2126,7 @@ function closeAdminTakeoverBrandPopup() {
   document.getElementById('admin-takeover-brand-backdrop')?.remove();
   document.body.classList.remove('no-scroll');
 }
+
 
 	
 //////////END
