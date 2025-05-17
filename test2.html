@@ -2063,7 +2063,7 @@ document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
   if (!selectedTakeBrand) return alert('Select a takeover brand first!');
 
   const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
-
+  console.log("Submitting takeover brand:", selectedTakeBrand);
   fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
     method: 'POST',
     body: new URLSearchParams({
@@ -2111,6 +2111,7 @@ function openAdminTakeoverBrandPopup() {
       card.classList.add('selected');
       selectedTakeBrand = brand.name;
       closeAdminTakeoverBrandPopup()
+     alert(`Takeover brand selected: ${selectedTakeBrand}`);
     };
 
     carousel.appendChild(card);
