@@ -976,6 +976,8 @@ height: 20%;
   border-radius: 12px;
   padding: 16px;
   width: 280px;
+  max-height: 80vh;         /* Limit height */
+  overflow-y: auto;         /* Enable vertical scrolling */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 14px;
@@ -1060,6 +1062,45 @@ height: 20%;
   outline: none;
 }
 
+/* Takeover Backdrop */
+#admin-takeover-brand-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 68px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+#admin-takeover-brand-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  width: 90%;
+  max-width: 500px;
+  height: 60%;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+}
+
+#admin-takeover-brand-popup::-webkit-scrollbar {
+  display: none;
+}
+
+
+		 
 /* Backdrop */
 #admin-favorite-brand-backdrop,
 #admin-single-rank-backdrop{
@@ -1771,6 +1812,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let selectedRankSlot = null;
 let selectedRankBrand = null;
+let adminSelectedTakeoverBrand = localStorage.getItem('adminSelectedTakeoverBrand') || null;
+
 
 // Admin Panel
 const adminPanel = document.createElement('div');
@@ -1779,7 +1822,11 @@ adminPanel.style.display = 'none';
 adminPanel.innerHTML = `
 
 <a href="https://www.allpree.com/add"><button>Add Products</button> </a>
- 
+ <hr />
+<button id="selectTakeoverBrandBtn">Select Takeover Brand</button>
+<label for="takeoverExpiryInput">Takeover Expiry:</label>
+<input type="datetime-local" id="takeoverExpiryInput" />
+<button id="sendTakeoverBtn">Update Takeover Brand</button>
  <hr />
   <div> <strong>Select Top Rank Slot:</strong><br/>  
   <div id="rankSlotButtonsContainer">
@@ -1862,7 +1909,7 @@ document.getElementById('sendSelectedRankBtn').addEventListener('click', () => {
 
   const formattedExpiry = new Date(expiry).toISOString().slice(0, 16);
 
-  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
     method: 'POST',
     body: new URLSearchParams({
       brand: selectedRankBrand,
@@ -1895,7 +1942,7 @@ document.getElementById('sendFeaturedBtn').addEventListener('click', () => {
 
   const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
 
-  fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
     method: 'POST',
     body: new URLSearchParams({
       brand: selectedBrand,
@@ -2004,6 +2051,86 @@ function closeRankBrandPopup() {
   const el = document.getElementById('admin-single-rank-backdrop');
   if (el) el.remove();
 }
+
+
+
+document.getElementById('selectTakeoverBrandBtn').addEventListener('click', () => {
+  openAdminTakeoverBrandPopup();
+});
+
+document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
+  const expiryInput = document.getElementById('takeoverExpiryInput').value;
+  if (!expiryInput) return alert('Please select expiration!');
+  if (!adminSelectedTakeoverBrand) return alert('Select a takeover brand first!');
+
+  const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
+  console.log("Submitting takeover brand:", adminSelectedTakeoverBrand);
+  fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+      brand: adminSelectedTakeoverBrand,
+      expiresAt: formattedExpiry,
+      action: 'takeover'
+    })
+  }).then(() => {
+    alert('Takeover brand successfully updated!');
+  }).catch(err => {
+    console.error('Error updating takeover brand:', err);
+    alert('Error updating takeover brand.');
+  });
+});
+
+function openAdminTakeoverBrandPopup() {
+  if (document.getElementById('admin-takeover-brand-backdrop')) return;
+const selectedBrand = localStorage.getItem('adminSelectedTakeoverBrand');
+
+  document.body.classList.add('no-scroll');
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'admin-takeover-brand-backdrop';
+  backdrop.className = 'admin-favorite-brand-backdrop';
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeAdminTakeoverBrandPopup();
+  });
+
+  const popup = document.createElement('div');
+  popup.id = 'admin-takeover-brand-popup';
+  popup.className = 'admin-favorite-brand-popup';
+
+  const carousel = document.createElement('div');
+  carousel.className = 'admin-brand-carousel';
+
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+
+  brands.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'admin-brand-card';
+    if (brand.name === adminSelectedTakeoverBrand) card.classList.add('selected');
+
+    card.innerHTML = `<img src="${brand.logo}" alt="${brand.name}" /><strong>${brand.name}</strong>`;
+    card.onclick = () => {
+  document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  adminSelectedTakeoverBrand = brand.name;
+  localStorage.setItem('adminSelectedTakeoverBrand', brand.name); // ✅ no conflict with user view
+  closeAdminTakeoverBrandPopup();
+  alert(`Takeover brand selected: ${adminSelectedTakeoverBrand}`);
+};
+
+    carousel.appendChild(card);
+  });
+
+  popup.appendChild(carousel);
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
+}
+
+function closeAdminTakeoverBrandPopup() {
+  document.getElementById('admin-takeover-brand-backdrop')?.remove();
+  document.body.classList.remove('no-scroll');
+}
+
+
 	
 //////////END
 	
@@ -2042,6 +2169,60 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
   });
 	
 /////////// 
+
+fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/Sheet5')
+  .then(res => res.json())
+  .then(data => {
+    const last = data[data.length - 1];
+    const now = new Date();
+    const expiry = new Date(last['Expires At']);
+    const takeoverBrand = last['Take Over Brand'];
+
+    console.log('Now:', now.toISOString());
+    console.log('Expiry from sheet:', last['Expires At']);
+    console.log('Parsed Expiry:', expiry.toISOString());
+    console.log('Take Over Brand:', takeoverBrand);
+
+    const overrideUntil = parseInt(sessionStorage.getItem('overrideTakeoverUntil') || '0', 10);
+    const overrideBrand = sessionStorage.getItem('originalTakeoverBrand');
+    const storedBrand = localStorage.getItem('selectedTakeoverBrand');
+    const originalBrand = localStorage.getItem('originalTakeoverBrand');
+
+    if (Date.now() < overrideUntil) {
+      // Override still active
+      console.log('🟡 Override in effect until', new Date(overrideUntil).toISOString());
+      return;
+    } else {
+      // Override expired, cleanup override session keys
+      sessionStorage.removeItem('overrideTakeoverUntil');
+      sessionStorage.removeItem('originalTakeoverBrand');
+    }
+
+    if (now < expiry && takeoverBrand) {
+      // Only store original if it hasn't already been saved
+      if (!originalBrand && storedBrand && storedBrand !== takeoverBrand) {
+        localStorage.setItem('originalTakeoverBrand', storedBrand);
+      }
+
+      localStorage.setItem('selectedTakeoverBrand', takeoverBrand);
+      localStorage.setItem('takeoverExpiryTime', expiry.getTime());
+      console.log('✅ Takeover brand set:', takeoverBrand, 'Expires at:', expiry.toISOString());
+    } else {
+      // Expired or missing — restore original if it exists
+      if (originalBrand) {
+        localStorage.setItem('selectedTakeoverBrand', originalBrand);
+        localStorage.removeItem('originalTakeoverBrand');
+        console.log('🔁 Restored original brand:', originalBrand);
+      } else {
+        localStorage.removeItem('selectedTakeoverBrand');
+        console.log('❌ No brand to restore — cleaned up');
+      }
+
+      localStorage.removeItem('takeoverExpiryTime');
+    }
+  });
+	
+///////////	
 
 // Load ranked slots (Sheet2)
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2')
