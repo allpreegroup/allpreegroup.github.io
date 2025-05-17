@@ -53,6 +53,7 @@ const doNotCacheList = [
 const neverCacheHosts = [
     "opensheet.elk.sh",
     "docs.google.com",
+    "raw.githubusercontent.com",
     "googleapis.com"
 ];
 
