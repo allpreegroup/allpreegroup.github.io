@@ -2063,11 +2063,11 @@ document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
   if (!selectedTakeBrand) return alert('Select a takeover brand first!');
 
   const formattedExpiry = new Date(expiryInput).toISOString().slice(0, 16);
-  console.log("Submitting takeover brand:", selectedTakeBrand);
+  console.log("Submitting takeover brand:", adminSelectedTakeoverBrand);
   fetch('https://script.google.com/macros/s/AKfycbyAS6CLXrm5znmtcKfJjpWt40Xe5_Czu0Jka4AUol0IM1hMdvNH1qJEZs3KzKS7OC8/exec', {
     method: 'POST',
     body: new URLSearchParams({
-      brand: selectedTakeBrand,
+      brand: adminSelectedTakeoverBrand,
       expiresAt: formattedExpiry,
       action: 'takeover'
     })
@@ -2104,16 +2104,16 @@ const selectedBrand = localStorage.getItem('adminSelectedTakeoverBrand');
   brands.forEach(brand => {
     const card = document.createElement('div');
     card.className = 'admin-brand-card';
-    if (brand.name === selectedTakeBrand) card.classList.add('selected');
+    if (brand.name === adminSelectedTakeoverBrand) card.classList.add('selected');
 
     card.innerHTML = `<img src="${brand.logo}" alt="${brand.name}" /><strong>${brand.name}</strong>`;
     card.onclick = () => {
   document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
-  selectedTakeBrand = brand.name;
+  adminSelectedTakeoverBrand = brand.name;
   localStorage.setItem('adminSelectedTakeoverBrand', brand.name); // ✅ no conflict with user view
   closeAdminTakeoverBrandPopup();
-  alert(`Takeover brand selected: ${selectedTakeBrand}`);
+  alert(`Takeover brand selected: ${adminSelectedTakeoverBrand}`);
 };
 
     carousel.appendChild(card);
