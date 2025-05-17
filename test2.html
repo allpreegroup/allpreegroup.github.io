@@ -2073,8 +2073,6 @@ document.getElementById('sendTakeoverBtn').addEventListener('click', () => {
     })
   }).then(() => {
     alert('Takeover brand successfully updated!');
-    selectedTakeBrand = null;
-    closeAdminTakeoverBrandPopup();
   }).catch(err => {
     console.error('Error updating takeover brand:', err);
     alert('Error updating takeover brand.');
@@ -2112,6 +2110,7 @@ function openAdminTakeoverBrandPopup() {
       document.querySelectorAll('.admin-brand-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       selectedTakeBrand = brand.name;
+      closeAdminTakeoverBrandPopup()
     };
 
     carousel.appendChild(card);
