@@ -1,169 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Referral Leaderboard Popup</title>
 <style>
- #leaderboardPopup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  padding: 10px;
-  z-index: 9999;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: none; /* Hidden by default */
-}
-
-
-  #leaderboardPopup.show {
-    display: block;
+  .help-section {
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
   }
-
-  #leaderboardPopup h2 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 16px;
-    text-align: center;
-    color: #333;
-  }
-
-  #leaderboardContent {
-    max-height: 500px;
-    overflow-y: auto;
-  }
-
-  .leaderboard-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    padding: 8px 12px;
+  .accordion {
+    border: 1px solid #ccc;
+    border-radius: 4px;
     margin-bottom: 8px;
-    transition: background-color 0.2s ease;
   }
-
-  .leaderboard-row:hover {
-    background-color: #e0e0e0;
-  }
-
-  .leaderboard-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .leaderboard-idcode {
-    background-color: #ccc;
-    color: #333;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 8px;
-    min-width: 50px;
-    text-align: center;
-  }
-
-  .leaderboard-name {
-    font-size: 14px;
-    color: #222;
-    font-weight: 600;
-  }
-
-  .leaderboard-points {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1e40af; /* blue-800 */
-  }
-
-  /* Close button */
-  .close-button {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 24px;
-    color: #666;
-    background: none;
-    border: none;
+  .accordion-header {
+    background: #0078d7;
+    color: white;
     cursor: pointer;
+    padding: 14px 20px;
+    font-weight: bold;
+    user-select: none;
   }
-  .close-button:hover {
-    color: #111;
+  .accordion-content {
+    padding: 16px 20px;
+    background: #f9f9f9;
+    display: none;
+    border-top: 1px solid #ccc;
+  }
+  .accordion-header.active {
+    background: #005ea2;
   }
 </style>
-</head>
-<body>
 
-<!-- Trigger Button -->
-<button onclick="openLeaderboard()" style="padding:8px 16px; font-size:16px; border-radius:6px; background:#2563eb; color:#fff; border:none; cursor:pointer;">
-  Show Leaderboard
-</button>
+<div class="help-section">
+  <div class="accordion">
+    <div class="accordion-header">1. Browse Deals by Brand</div>
+    <div class="accordion-content">
+      Deals are grouped by brand, sorted by best discounts and expiration.<br>
+      Look for highlighted <strong>Takeover</strong> or <strong>Favorite</strong> brands — these open automatically.<br>
+      Badges like <em>Pro, Premium, Starter, Exclusive</em> indicate special deal types.<br>
+      Use <strong>Show All Other Brands</strong> to explore every brand during takeover.
+    </div>
+  </div>
 
-<!-- Leaderboard Popup -->
-<div id="leaderboardPopup">
-  <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
-  <h2>Referral Leaderboard</h2>
-  <div id="leaderboardContent">Loading...</div>
+  <div class="accordion">
+    <div class="accordion-header">2. View Deal Details & Navigate</div>
+    <div class="accordion-content">
+      Tap any deal to open the <strong>Deal Popup</strong> with pricing, cashback, and expiration info.<br>
+      Navigate deals with <em>Next</em> and <em>Previous</em> buttons.<br>
+      <strong>Like</strong> deals to save favorites and <strong>Add to Cart</strong> to prepare for purchase.
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="accordion-header">3. Manage Your Favorites</div>
+    <div class="accordion-content">
+      Access your <strong>Liked Deals</strong> mode to quickly find saved deals.<br>
+      Favorites are saved locally and remembered across sessions.
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="accordion-header">4. Shopping Cart & Lists</div>
+    <div class="accordion-content">
+      Add deals to your cart for easy checkout.<br>
+      View cart items by brand with full price breakdowns including tax.<br>
+      Clear items per brand or save shopping lists for later.
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="accordion-header">5. Store Locations & Directions</div>
+    <div class="accordion-content">
+      Find store locations for brands in the <strong>Location Popup</strong>.<br>
+      Enable location access to get directions from your location to the store.
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="accordion-header">6. Tips & Tricks</div>
+    <div class="accordion-content">
+      Check <strong>Takeover Brands</strong> first for exclusive deals.<br>
+      Deals shuffle each session for fresh offers.<br>
+      Watch deal <em>Timers</em> to grab expiring deals.<br>
+      Use <strong>Show All Other Brands</strong> to see all deals.
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="accordion-header">7. Troubleshooting</div>
+    <div class="accordion-content">
+      Refresh the page or check your connection if deals don’t load.<br>
+      Allow location access to use maps and directions.<br>
+      Clearing browser data removes saved favorites and cart.<br>
+      Contact support at [YourSupportEmail@example.com].
+    </div>
+  </div>
 </div>
 
 <script>
-const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const currentlyActive = document.querySelector('.accordion-header.active');
+      if (currentlyActive && currentlyActive !== header) {
+        currentlyActive.classList.remove('active');
+        currentlyActive.nextElementSibling.style.display = 'none';
+      }
 
-function openLeaderboard() {
-  document.getElementById("leaderboardPopup").classList.add("show");
-  fetchLeaderboardData();
-}
-
-function closeLeaderboard() {
-  document.getElementById("leaderboardPopup").classList.remove("show");
-}
-
-async function fetchLeaderboardData() {
-  try {
-    const response = await fetch(SHEET_URL);
-    const data = await response.json();
-
-    const leaderboardData = data.map(entry => ({
-      idCode: entry["ID CODE"] || "",
-      name: `${entry["First Name"] || ""} ${entry["Last Name"] || ""}`.trim(),
-      points: parseFloat(entry["Points"]) || 0
-    }))
-    .filter(entry => entry.name && !isNaN(entry.points))
-    .sort((a, b) => b.points - a.points);
-
-    renderLeaderboard(leaderboardData);
-  } catch (error) {
-    document.getElementById("leaderboardContent").innerHTML = "Failed to load data.";
-    console.error("Error fetching leaderboard:", error);
-  }
-}
-
-function renderLeaderboard(data) {
-  const container = document.getElementById("leaderboardContent");
-  container.innerHTML = ""; // clear loading text
-
-  data.forEach((entry, index) => {
-    const div = document.createElement("div");
-    div.className = "leaderboard-row";
-
-    div.innerHTML = `
-      <div class="leaderboard-left">
-        <div class="leaderboard-idcode">${entry.idCode}</div>
-        <div class="leaderboard-name">${index + 1}. ${entry.name}</div>
-      </div>
-      <div class="leaderboard-points">${entry.points}</div>
-    `;
-
-    container.appendChild(div);
+      header.classList.toggle('active');
+      const content = header.nextElementSibling;
+      if (header.classList.contains('active')) {
+        content.style.display = 'block';
+      } else {
+        content.style.display = 'none';
+      }
+    });
   });
-}
 </script>
-
-</body>
-</html>
