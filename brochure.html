@@ -12,19 +12,41 @@
       color: #333;
     }
    
+.exclusivity-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.highlight {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
   gap: 0.5rem;
 }
+
 .tab {
   padding: 0.5rem 1rem;
   border: none;
   background: #f0f0f0;
-  cursor: pointer;
   border-radius: 6px;
+  cursor: pointer;
   font-weight: 500;
+  transition: background 0.2s ease;
+}
+.tab:hover {
+  background: #e0e0e0;
 }
 .tab.active {
   background: #007BFF;
@@ -33,16 +55,31 @@
 
 .tab-content {
   display: none;
+  text-align: left;
   animation: fadeIn 0.3s ease;
 }
 .tab-content.active {
   display: block;
 }
 
-@keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity: 1;}
+.tab-content h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
 }
+
+.tab-content ul {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+}
+.tab-content ul li {
+  margin: 0.3rem 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 
 
 
@@ -814,7 +851,7 @@
 
   </div>
 
-<div class="section">
+<div class="section exclusivity-wrapper">
   <div class="highlight">💼 Exclusivity Plan Overview</div>
 
   <div class="tabs-container">
@@ -885,6 +922,7 @@
 
 
 
+
   
     <div class="footer">
       Ready to boost your visibility and sales? Let’s make your business the next local favorite.
@@ -942,17 +980,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      // Remove all active classes
       tabs.forEach(t => t.classList.remove('active'));
       contents.forEach(c => c.classList.remove('active'));
 
-      // Add active to clicked
       tab.classList.add('active');
       document.getElementById(tab.dataset.tab).classList.add('active');
     });
   });
 </script>
-
   
 </body>
 </html>
