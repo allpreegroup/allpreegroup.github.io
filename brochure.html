@@ -12,16 +12,38 @@
       color: #333;
     }
    
-.addon-card .content {
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1.5rem;
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
 }
-.addon-card .content:last-of-type {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
+.tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
 }
+.tab.active {
+  background: #007BFF;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
 
 
   .addons-section {
@@ -795,72 +817,72 @@
 <div class="section">
   <div class="highlight">💼 Exclusivity Plan Overview</div>
 
-  <div class="columns exclusivity-slide">
-    <div class="column addon-card">
-      
-      <div class="emoji">🏆</div>
-      <div class="content">
-        <h3>Exclusivity Plan – For Elite Businesses</h3>
-        <p><strong>USD $1,997 / year – J$319,384</strong></p>
-        <ul>
-          <li>✔️ Your branding, your deals, your customers</li>
-          <li>✔️ Unlimited deals – updated live from Google Sheets</li>
-          <li>✔️ Dedicated account support</li>
-          <li>✔️ Listed in the main app directory</li>
-          <li>✔️ Early access to all new features</li>
-          <li>✔️ 1-hour guest browsing window (after visiting your brand)</li>
-        </ul>
-      </div>
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab active" data-tab="exclusivity">🏆 Exclusivity Plan</button>
+      <button class="tab" data-tab="website">🌐 Deal Website</button>
+      <button class="tab" data-tab="app">🚧 App Unlock</button>
+      <button class="tab" data-tab="offer">🔥 3-Year Offer</button>
+    </div>
 
-      <div class="emoji">🌐</div>
-      <div class="content">
-        <h3>Your Own Deal Website</h3>
-        <p><strong>Included with Exclusivity Plan</strong></p>
-        <p>A shareable, branded link—perfect for:</p>
-        <ul>
-          <li>Instagram bios</li>
-          <li>WhatsApp broadcasts</li>
-          <li>In-store flyers (QR codes)</li>
-          <li>Google Business profile</li>
-        </ul>
-        <p><strong>🔗 Example:</strong> yourplatform.com/yourbrand</p>
-        <ul>
-          <li>✔️ Shows your live deals only</li>
-          <li>✔️ Updated instantly</li>
-          <li>✔️ Mobile-optimized</li>
-        </ul>
-      </div>
+    <div class="tab-content active" id="exclusivity">
+      <h3>Exclusivity Plan – For Elite Businesses</h3>
+      <p><strong>USD $1,997 / year – J$319,384</strong></p>
+      <ul>
+        <li>✔️ Your branding, your deals, your customers</li>
+        <li>✔️ Unlimited deals – updated live from Google Sheets</li>
+        <li>✔️ Dedicated account support</li>
+        <li>✔️ Listed in the main app directory</li>
+        <li>✔️ Early access to all new features</li>
+        <li>✔️ 1-hour guest browsing window (after visiting your brand)</li>
+      </ul>
+    </div>
 
-      <div class="emoji">🚧</div>
-      <div class="content">
-        <h3>Full Features – App Only</h3>
-        <p>Your website acts as a teaser. To unlock the full experience, customers are encouraged to install the app.</p>
-        <p><strong>🔓 Unlock with App Install:</strong></p>
-        <ul>
-          <li>Cashback & Badges</li>
-          <li>Deal Countdown Timers</li>
-          <li>Add to Cart & Shopping List</li>
-          <li>Auto-expiring & reshuffling deals</li>
-          <li>Google Maps navigation to your store</li>
-        </ul>
-        <p>➡️ Your page promotes app installs to boost engagement.</p>
-      </div>
+    <div class="tab-content" id="website">
+      <h3>Your Own Deal Website</h3>
+      <p><strong>Included with Exclusivity Plan</strong></p>
+      <p>A shareable, branded link—perfect for:</p>
+      <ul>
+        <li>Instagram bios</li>
+        <li>WhatsApp broadcasts</li>
+        <li>In-store flyers (QR codes)</li>
+        <li>Google Business profile</li>
+      </ul>
+      <p><strong>🔗 Example:</strong> yourplatform.com/yourbrand</p>
+      <ul>
+        <li>✔️ Shows your live deals only</li>
+        <li>✔️ Updated instantly</li>
+        <li>✔️ Mobile-optimized</li>
+      </ul>
+    </div>
 
-      <div class="emoji">🔥</div>
-      <div class="content">
-        <h3>🔥 3-Year Premium Offer</h3>
-        <p><strong>Save 33%</strong></p>
-        <p><strong>3-Year Plan:</strong> 💰 USD $3,997 / J$639,248</p>
-        <ul>
-          <li>✔️ All Power Add-ons Included (Top Spots, Featured, etc.)</li>
-          <li>✔️ No yearly renewals</li>
-          <li>✔️ Best value for visibility, control, and growth</li>
-        </ul>
-      </div>
+    <div class="tab-content" id="app">
+      <h3>Full Features – App Only</h3>
+      <p>Your website acts as a teaser. To unlock the full experience, customers are encouraged to install the app.</p>
+      <p><strong>🔓 Unlock with App Install:</strong></p>
+      <ul>
+        <li>Cashback & Badges</li>
+        <li>Deal Countdown Timers</li>
+        <li>Add to Cart & Shopping List</li>
+        <li>Auto-expiring & reshuffling deals</li>
+        <li>Google Maps navigation to your store</li>
+      </ul>
+      <p>➡️ Your page promotes app installs to boost engagement.</p>
+    </div>
 
+    <div class="tab-content" id="offer">
+      <h3>🔥 3-Year Premium Offer</h3>
+      <p><strong>Save 33%</strong></p>
+      <p><strong>3-Year Plan:</strong> 💰 USD $3,997 / J$639,248</p>
+      <ul>
+        <li>✔️ All Power Add-ons Included (Top Spots, Featured, etc.)</li>
+        <li>✔️ No yearly renewals</li>
+        <li>✔️ Best value for visibility, control, and growth</li>
+      </ul>
     </div>
   </div>
 </div>
+
 
 
   
@@ -913,6 +935,22 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch(err => console.error('Fetch error:', err));
 });
+</script>
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove all active classes
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+
+      // Add active to clicked
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
 </script>
 
   
