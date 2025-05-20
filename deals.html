@@ -1795,8 +1795,11 @@ async function loadSheetUrls() {
     console.log(sheetUrls);
     init(); // ✅ Start the app after URLs are ready
 
-    // Notify service worker here
-    notifyServiceWorkerOfActiveSheet();  
+   // ✅ Wait for service worker to be ready before notifying
+navigator.serviceWorker.ready.then(() => {
+  notifyServiceWorkerOfActiveSheet();
+});
+
   } catch (err) {
     console.error('Failed to load sheet URLs:', err);
   }
