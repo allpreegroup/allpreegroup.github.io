@@ -63,9 +63,28 @@ self.addEventListener("fetch", event => {
 
     // Always fetch live data from specific hostname or path
     if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
-        event.respondWith(fetch(event.request));
-        return;
-    }
+    event.respondWith(
+        fetch(event.request)
+            .then(response => {
+                // Save latest to cache
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(event.request, responseClone);
+                });
+                return response;
+            })
+            .catch(() => {
+                // Offline fallback
+                return caches.match(event.request).then(cached => {
+                    return cached || new Response("[]", {
+                        headers: { "Content-Type": "application/json" }
+                    });
+                });
+            })
+    );
+    return;
+}
+
 
     // Never cache third-party or live sheet data
     if (
