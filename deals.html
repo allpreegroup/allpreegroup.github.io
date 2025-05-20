@@ -3915,31 +3915,30 @@ if (selectedTakeoverBrand) {
       continue;
     }
 
-// After your deal processing loop, build an array of actually used sheet URLs
-const usedSheetUrls = []; 
+// After your deal processing loop
+const usedSheetUrls = [];
 
 for (let i = 0; i < sheetUrls.length; i++) {
   const rows = allResponses[i];
   if (rows.error) continue;
 
-  // You may have your conditions here for skipping
   const shouldSkip = isOverrideActive && !rows.some(row => row.BrandName === selectedTakeoverBrand);
   if (shouldSkip) continue;
 
   const hasActiveRow = rows.some(row => row.Active?.toLowerCase() === 'yes');
   if (!hasActiveRow) continue;
 
-  // If this sheet passes all filters, keep it in used list
   usedSheetUrls.push(sheetUrls[i]);
 }
 
-// Send this list to your service worker
+// ✅ Send used sheets to the service worker
 if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
   navigator.serviceWorker.controller.postMessage({
-    type: 'CLEANUP_SHEETS',
-    usedSheetUrls
+    type: 'CLEANUP_SHEET_CACHE', // This matches what your SW is already set up for
+    keepSheets: usedSheetUrls    // This must match what the SW expects
   });
 }
+
 
 	  
     try {
