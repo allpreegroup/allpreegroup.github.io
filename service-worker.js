@@ -1,18 +1,13 @@
-const CACHE_NAME = "offline-v66";
+const CACHE_NAME = "offline-v67";
 
 // Preload core assets
 const preLoad = () => {
     return caches.open(CACHE_NAME).then(cache => {
         return cache.addAll([
-            "/",
-            "/balance/",
-            "/storeapp/",
-            "/howitwork/",
-            "/menu/",
+            "/deals",
             "/marketing",
             "/splashpage",
-            "/partner/",
-            "/vouchers/",
+            "/partner/",           
             "/manifest.json",
             "/img/AllPreepwaapp.png",
             "/404.html"
