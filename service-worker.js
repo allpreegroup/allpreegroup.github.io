@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v64";
+const CACHE_NAME = "offline-v65";
 
 const urlsToCache = [
     "/",
@@ -15,8 +15,7 @@ const urlsToCache = [
     "/404.html"
 ];
 
-let activeSheetUrl = null;
-
+// Preload core assets individually with error handling
 const preLoad = async () => {
     const cache = await caches.open(CACHE_NAME);
     for (const url of urlsToCache) {
@@ -53,6 +52,7 @@ const doNotCacheList = [
 ];
 
 const neverCacheHosts = [
+    "opensheet.elk.sh",
     "docs.google.com",
     "raw.githubusercontent.com",
     "googleapis.com"
@@ -61,32 +61,13 @@ const neverCacheHosts = [
 self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
 
-   
-    if (url.hostname === "opensheet.elk.sh") {
-        if (event.request.url === activeSheetUrl) {
-            event.respondWith(
-                caches.open(CACHE_NAME).then(cache =>
-                    cache.match(event.request).then(cachedResponse => {
-                        return fetch(event.request).then(networkResponse => {
-                            if (networkResponse.ok) {
-                                cache.put(event.request, networkResponse.clone());
-                            }
-                            return networkResponse;
-                        }).catch(() => {
-                            return cachedResponse || new Response("[]", {
-                                headers: { "Content-Type": "application/json" }
-                            });
-                        });
-                    })
-                )
-            );
-        } else {
-            
-            event.respondWith(fetch(event.request));
-        }
+    // Always fetch live data from specific hostname or path
+    if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
+        event.respondWith(fetch(event.request));
         return;
     }
 
+    // Never cache third-party or live sheet data
     if (
         url.origin !== self.location.origin ||
         neverCacheHosts.some(host => url.hostname.includes(host))
@@ -95,11 +76,13 @@ self.addEventListener("fetch", event => {
         return;
     }
 
+    // Skip specific images
     if (doNotCacheList.includes(url.pathname)) {
         event.respondWith(fetch(event.request));
         return;
     }
 
+    // Optional: Stale-while-revalidate for CSS and JS files
     if (url.pathname.endsWith(".css") || url.pathname.endsWith(".js")) {
         event.respondWith(
             caches.open(CACHE_NAME).then(cache =>
@@ -109,7 +92,8 @@ self.addEventListener("fetch", event => {
                             cache.put(event.request, networkResponse.clone());
                         }
                         return networkResponse;
-                    }).catch(() => cachedResponse);
+                    }).catch(() => cachedResponse); // fallback to cache on fetch error
+
                     return cachedResponse || fetchPromise;
                 })
             )
@@ -117,6 +101,7 @@ self.addEventListener("fetch", event => {
         return;
     }
 
+    // Cache-first strategy for everything else
     event.respondWith(
         caches.match(event.request).then(cached => {
             if (cached) {
@@ -148,24 +133,15 @@ self.addEventListener("fetch", event => {
     );
 });
 
+// Listen for frontend message to cleanup images
 self.addEventListener("message", event => {
-    if (event.data?.type === "CLEANUP_IMAGES") {
+    if (event.data && event.data.type === "CLEANUP_IMAGES") {
         const currentImageUrls = event.data.currentImageUrls || [];
         event.waitUntil(cleanupUnusedImages(currentImageUrls));
     }
-
-    if (event.data?.type === "CLEANUP_SHEET_CACHE") {
-        const keepList = event.data.keepSheets || [];
-        event.waitUntil(cleanupOldSheets(keepList));
-    }
-
-    // ✅ Receive the active opensheet URL from frontend
-    if (event.data?.type === "SET_ACTIVE_SHEET") {
-        activeSheetUrl = event.data.url || null;
-        cleanupOldSheets(activeSheetUrl ? [activeSheetUrl] : []);
-    }
 });
 
+// Remove cached images no longer in use
 async function cleanupUnusedImages(currentImageUrls = []) {
     const cache = await caches.open(CACHE_NAME);
     const cachedRequests = await cache.keys();
@@ -178,19 +154,6 @@ async function cleanupUnusedImages(currentImageUrls = []) {
         if (isProductImage && !keepSet.has(request.url)) {
             await cache.delete(request);
             console.log("Deleted unused image:", request.url);
-        }
-    }
-}
-
-async function cleanupOldSheets(keepList = []) {
-    const cache = await caches.open(CACHE_NAME);
-    const cachedRequests = await cache.keys();
-    const keepSet = new Set(keepList);
-
-    for (const request of cachedRequests) {
-        if (request.url.includes("opensheet.elk.sh") && !keepSet.has(request.url)) {
-            await cache.delete(request);
-            console.log("Deleted stale sheet:", request.url);
         }
     }
 }
