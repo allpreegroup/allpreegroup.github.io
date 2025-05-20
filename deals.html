@@ -3915,6 +3915,25 @@ if (selectedTakeoverBrand) {
       continue;
     }
 
+// Collect only the URLs of sheets that had active rows and no error
+const activeSheetUrls = [];
+
+for (let i = 0; i < allResponses.length; i++) {
+  const rows = allResponses[i];
+  
+  if (!rows.error && rows.some(row => row.Active?.toLowerCase() === 'yes')) {
+    activeSheetUrls.push(sheetUrls[i]);
+  }
+}
+
+// Send active sheets list to service worker for cleanup
+if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  navigator.serviceWorker.controller.postMessage({
+    type: 'CLEANUP_SHEETS',
+    currentSheetUrls: activeSheetUrls
+  });
+}
+	  
     try {
       let currentBrand = '';
       let currentLogo = '';
