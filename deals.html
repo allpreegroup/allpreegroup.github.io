@@ -1795,43 +1795,12 @@ async function loadSheetUrls() {
     console.log(sheetUrls);
     init(); // ✅ Start the app after URLs are ready
 
-   // ✅ Wait for service worker to be ready before notifying
-navigator.serviceWorker.ready.then(() => {
-  notifyServiceWorkerOfActiveSheet();
-});
-
   } catch (err) {
     console.error('Failed to load sheet URLs:', err);
   }
 }
 
-// Your notifyServiceWorkerOfActiveSheet function (as provided)
-function notifyServiceWorkerOfActiveSheet() {
-  const selectedTakeoverBrand = localStorage.getItem('selectedTakeoverBrand');
-  if (!navigator.serviceWorker.controller) {
-    console.warn("No active service worker controller");
-    return;
-  }
-
-  const takeoverSheetUrl = sheetUrls.find(url => url.toLowerCase().includes(selectedTakeoverBrand?.toLowerCase()));
-
-  navigator.serviceWorker.controller.postMessage({
-    type: "SET_ACTIVE_SHEET",
-    url: takeoverSheetUrl || null
-  });
-
-  console.log("Notified SW of takeover sheet URL:", takeoverSheetUrl);
-}
-
-// Call loadSheetUrls to start loading	
 loadSheetUrls();
-
-window.addEventListener('storage', (event) => {
-  if (event.key === 'selectedTakeoverBrand') {
-    notifyServiceWorkerOfActiveSheet();
-  }
-});
-
 	
 // Inject loading modal into the DOM (this will add the spinner)
 function injectLoadingModal() {
