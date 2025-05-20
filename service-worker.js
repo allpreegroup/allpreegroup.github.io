@@ -1,50 +1,61 @@
-const CACHE_NAME = "offline-v68";
+const CACHE_NAME = "offline-v69";
 
-// Preload core assets
-const preLoad = () => {
-    return caches.open(CACHE_NAME).then(cache => {
-        return cache.addAll([
-            "/deals",
-            "/marketing",
-            "/splashpage",
-            "/partner/",           
-            "/manifest.json",
-            "/img/AllPreepwaapp.png",
-            "/404.html"
-        ]).catch(err => {
-            console.error("Cache preload error:", err);
-        });
-    });
+const urlsToCache = [
+    "/balance/",
+    "/deals",
+    "/profile",
+    "/js/profile.js",
+    "/salesletter",
+    "/js/salesletter.js",
+    "/marketing",
+    "/js/marketing.js",
+    "/splashpage",
+    "/signup",
+     "/js/signup.js",
+    "/topup",
+    "/js/topup.js",
+    "/manifest.json",
+    "/img/AllPreepwaapp.png",
+    "/404.html"
+];
+
+let activeSheetUrl = null;
+
+const preLoad = async () => {
+    const cache = await caches.open(CACHE_NAME);
+    for (const url of urlsToCache) {
+        try {
+            await cache.add(url);
+        } catch (err) {
+            console.warn(`Failed to cache ${url}:`, err);
+        }
+    }
 };
 
-// Install: Pre-cache core files
 self.addEventListener("install", event => {
     event.waitUntil(preLoad());
     self.skipWaiting();
 });
 
-// Activate: Clear old caches
 self.addEventListener("activate", event => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
+        caches.keys().then(cacheNames =>
+            Promise.all(
                 cacheNames.map(name => {
                     if (name !== CACHE_NAME) {
                         return caches.delete(name);
                     }
                 })
-            );
-        })
+            )
+        )
     );
     self.clients.claim();
 });
 
-// List of specific images to never cache
 const doNotCacheList = [
     "/img/newp.jpg"
 ];
 
-// Domains to always fetch fresh (no caching)
 const neverCacheHosts = [
     "docs.google.com",
     "raw.githubusercontent.com",
@@ -52,98 +63,119 @@ const neverCacheHosts = [
 ];
 
 self.addEventListener("fetch", event => {
-  const url = new URL(event.request.url);
+    const url = new URL(event.request.url);
 
-  // Handle dynamic sheet or deal data: Network-first, fallback to cache if offline
-  const isDynamicData =
-    url.hostname === "opensheet.elk.sh" ||
-    url.pathname === "/deals";
+    // ✅ Only cache the currently active takeover sheet from opensheet
+    if (url.hostname === "opensheet.elk.sh") {
+        if (event.request.url === activeSheetUrl) {
+            event.respondWith(
+                caches.open(CACHE_NAME).then(cache =>
+                    cache.match(event.request).then(cachedResponse => {
+                        return fetch(event.request).then(networkResponse => {
+                            if (networkResponse.ok) {
+                                cache.put(event.request, networkResponse.clone());
+                            }
+                            return networkResponse;
+                        }).catch(() => {
+                            return cachedResponse || new Response("[]", {
+                                headers: { "Content-Type": "application/json" }
+                            });
+                        });
+                    })
+                )
+            );
+        } else {
+            // ✅ Never cache other opensheet URLs
+            event.respondWith(fetch(event.request));
+        }
+        return;
+    }
 
-  if (isDynamicData) {
+    if (
+        url.origin !== self.location.origin ||
+        neverCacheHosts.some(host => url.hostname.includes(host))
+    ) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    if (doNotCacheList.includes(url.pathname)) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    if (url.pathname.endsWith(".css") || url.pathname.endsWith(".js")) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then(cache =>
+                cache.match(event.request).then(cachedResponse => {
+                    const fetchPromise = fetch(event.request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === "basic") {
+                            cache.put(event.request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    }).catch(() => cachedResponse);
+                    return cachedResponse || fetchPromise;
+                })
+            )
+        );
+        return;
+    }
+
     event.respondWith(
-      fetch(event.request)
-        .then(networkResponse => {
-          // Optional: cache a copy for offline fallback
-          if (networkResponse && networkResponse.status === 200) {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, clone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // Offline fallback from cache
-          return caches.match(event.request).then(cached => {
+        caches.match(event.request).then(cached => {
             if (cached) {
-              console.log("🌐 Offline: Serving from cache", url.href);
-              return cached;
+                return cached;
             }
-            return caches.match("/404.html");
-          });
+            return fetch(event.request)
+                .then(networkResponse => {
+                    if (
+                        !networkResponse ||
+                        networkResponse.status !== 200 ||
+                        networkResponse.type !== "basic"
+                    ) {
+                        return networkResponse;
+                    }
+
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.match(event.request).then(existing => {
+                            if (!existing) {
+                                cache.put(event.request, responseClone);
+                            }
+                        });
+                    });
+
+                    return networkResponse;
+                })
+                .catch(() => caches.match("/404.html"));
         })
     );
-    return;
-  }
-
-  // Never cache external third-party resources
-  if (
-    url.origin !== self.location.origin ||
-    neverCacheHosts.some(host => url.hostname.includes(host))
-  ) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // Skip caching specific images
-  if (doNotCacheList.includes(url.pathname)) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // Default static asset handler: Cache-first, fallback to network
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      return (
-        cached ||
-        fetch(event.request).then(networkResponse => {
-          if (
-            !networkResponse ||
-            networkResponse.status !== 200 ||
-            networkResponse.type !== "basic"
-          ) {
-            return networkResponse;
-          }
-
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.match(event.request).then(existing => {
-              if (!existing) {
-                cache.put(event.request, responseClone);
-              }
-            });
-          });
-
-          return networkResponse;
-        }).catch(() => caches.match("/404.html"))
-      );
-    })
-  );
 });
 
-// 🔁 Image cleanup from frontend trigger
 self.addEventListener("message", event => {
-    if (event.data && event.data.type === "CLEANUP_IMAGES") {
+    if (event.data?.type === "CLEANUP_IMAGES") {
         const currentImageUrls = event.data.currentImageUrls || [];
-        cleanupUnusedImages(currentImageUrls);
+        event.waitUntil(cleanupUnusedImages(currentImageUrls));
+    }
+
+    if (event.data?.type === "CLEANUP_SHEET_CACHE") {
+        const keepList = event.data.keepSheets || [];
+        event.waitUntil(cleanupOldSheets(keepList));
+    }
+
+    // ✅ Receive the active opensheet URL from frontend
+    if (event.data?.type === "SET_ACTIVE_SHEET") {
+        activeSheetUrl = event.data.url || null;
+        cleanupOldSheets(activeSheetUrl ? [activeSheetUrl] : []);
     }
 });
 
-// 🧹 Remove images no longer in use
 async function cleanupUnusedImages(currentImageUrls = []) {
     const cache = await caches.open(CACHE_NAME);
     const cachedRequests = await cache.keys();
-    const keepSet = new Set(currentImageUrls.map(url => new URL(url, self.location.origin).href));
+    const keepSet = new Set(
+        currentImageUrls.map(url => new URL(url, self.location.origin).href)
+    );
 
     for (const request of cachedRequests) {
         const isProductImage = request.url.includes("/products/images/");
@@ -153,23 +185,16 @@ async function cleanupUnusedImages(currentImageUrls = []) {
         }
     }
 }
-self.addEventListener("message", event => {
-  if (event.data && event.data.type === "CLEANUP_SHEETS") {
-    const usedSheetUrls = event.data.usedSheetUrls || [];
-    cleanupUnusedSheets(usedSheetUrls);
-  }
-});
 
-async function cleanupUnusedSheets(usedSheetUrls = []) {
-  const cache = await caches.open(CACHE_NAME);
-  const cachedRequests = await cache.keys();
-  const keepSet = new Set(usedSheetUrls.map(url => new URL(url).href));
+async function cleanupOldSheets(keepList = []) {
+    const cache = await caches.open(CACHE_NAME);
+    const cachedRequests = await cache.keys();
+    const keepSet = new Set(keepList);
 
-  for (const request of cachedRequests) {
-    const isSheetUrl = request.url.includes("opensheet.elk.sh");
-    if (isSheetUrl && !keepSet.has(request.url)) {
-      await cache.delete(request);
-      console.log("Deleted unused sheet URL from cache:", request.url);
+    for (const request of cachedRequests) {
+        if (request.url.includes("opensheet.elk.sh") && !keepSet.has(request.url)) {
+            await cache.delete(request);
+            console.log("Deleted stale sheet:", request.url);
+        }
     }
-  }
 }
