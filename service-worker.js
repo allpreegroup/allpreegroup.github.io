@@ -1,56 +1,55 @@
-const CACHE_NAME = "offline-v65";
+const CACHE_NAME = "offline-v66";
 
-const urlsToCache = [
-    "/",
-    "/balance/",
-    "/storeapp/",
-    "/howitwork/",
-    "/menu/",
-    "/marketing",
-    "/splashpage",
-    "/partner/",
-    "/vouchers/",
-    "/manifest.json",
-    "/img/AllPreepwaapp.png",
-    "/404.html"
-];
-
-// Preload core assets individually with error handling
-const preLoad = async () => {
-    const cache = await caches.open(CACHE_NAME);
-    for (const url of urlsToCache) {
-        try {
-            await cache.add(url);
-        } catch (err) {
-            console.warn(`Failed to cache ${url}:`, err);
-        }
-    }
+// Preload core assets
+const preLoad = () => {
+    return caches.open(CACHE_NAME).then(cache => {
+        return cache.addAll([
+            "/",
+            "/balance/",
+            "/storeapp/",
+            "/howitwork/",
+            "/menu/",
+            "/marketing",
+            "/splashpage",
+            "/partner/",
+            "/vouchers/",
+            "/manifest.json",
+            "/img/AllPreepwaapp.png",
+            "/404.html"
+        ]).catch(err => {
+            console.error("Cache preload error:", err);
+        });
+    });
 };
 
+// Install: Pre-cache core files
 self.addEventListener("install", event => {
     event.waitUntil(preLoad());
     self.skipWaiting();
 });
 
+// Activate: Clear old caches
 self.addEventListener("activate", event => {
     event.waitUntil(
-        caches.keys().then(cacheNames =>
-            Promise.all(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
                 cacheNames.map(name => {
                     if (name !== CACHE_NAME) {
                         return caches.delete(name);
                     }
                 })
-            )
-        )
+            );
+        })
     );
     self.clients.claim();
 });
 
+// List of specific images to never cache
 const doNotCacheList = [
     "/img/newp.jpg"
 ];
 
+// Domains to always fetch fresh (no caching)
 const neverCacheHosts = [
     "opensheet.elk.sh",
     "docs.google.com",
@@ -58,20 +57,19 @@ const neverCacheHosts = [
     "googleapis.com"
 ];
 
+// Fetch: Smart caching strategy with image deduplication
 self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
 
-    // Always fetch live data from specific hostname or path
+    // Always fetch live data
     if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
         event.respondWith(fetch(event.request));
         return;
     }
 
     // Never cache third-party or live sheet data
-    if (
-        url.origin !== self.location.origin ||
-        neverCacheHosts.some(host => url.hostname.includes(host))
-    ) {
+    if (url.origin !== self.location.origin ||
+        neverCacheHosts.some(host => url.hostname.includes(host))) {
         event.respondWith(fetch(event.request));
         return;
     }
@@ -82,72 +80,42 @@ self.addEventListener("fetch", event => {
         return;
     }
 
-    // Optional: Stale-while-revalidate for CSS and JS files
-    if (url.pathname.endsWith(".css") || url.pathname.endsWith(".js")) {
-        event.respondWith(
-            caches.open(CACHE_NAME).then(cache =>
-                cache.match(event.request).then(cachedResponse => {
-                    const fetchPromise = fetch(event.request).then(networkResponse => {
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === "basic") {
-                            cache.put(event.request, networkResponse.clone());
-                        }
-                        return networkResponse;
-                    }).catch(() => cachedResponse); // fallback to cache on fetch error
-
-                    return cachedResponse || fetchPromise;
-                })
-            )
-        );
-        return;
-    }
-
-    // Cache-first strategy for everything else
+    // Cache-first strategy, avoid duplicate cache
     event.respondWith(
         caches.match(event.request).then(cached => {
-            if (cached) {
-                return cached;
-            }
-            return fetch(event.request)
-                .then(networkResponse => {
-                    if (
-                        !networkResponse ||
-                        networkResponse.status !== 200 ||
-                        networkResponse.type !== "basic"
-                    ) {
-                        return networkResponse;
-                    }
-
-                    const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.match(event.request).then(existing => {
-                            if (!existing) {
-                                cache.put(event.request, responseClone);
-                            }
-                        });
-                    });
-
+            return cached || fetch(event.request).then(networkResponse => {
+                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
                     return networkResponse;
-                })
-                .catch(() => caches.match("/404.html"));
+                }
+
+                const responseClone = networkResponse.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.match(event.request).then(existing => {
+                        if (!existing) {
+                            cache.put(event.request, responseClone);
+                        }
+                    });
+                });
+
+                return networkResponse;
+            }).catch(() => caches.match("/404.html"));
         })
     );
 });
 
-// Listen for frontend message to cleanup images
+// 🔁 Image cleanup from frontend trigger
 self.addEventListener("message", event => {
     if (event.data && event.data.type === "CLEANUP_IMAGES") {
         const currentImageUrls = event.data.currentImageUrls || [];
-        event.waitUntil(cleanupUnusedImages(currentImageUrls));
+        cleanupUnusedImages(currentImageUrls);
     }
 });
 
-// Remove cached images no longer in use
+// 🧹 Remove images no longer in use
 async function cleanupUnusedImages(currentImageUrls = []) {
     const cache = await caches.open(CACHE_NAME);
     const cachedRequests = await cache.keys();
-    const keepSet = new Set(
-        currentImageUrls.map(url => new URL(url, self.location.origin).href)
-    );
+    const keepSet = new Set(currentImageUrls.map(url => new URL(url, self.location.origin).href));
 
     for (const request of cachedRequests) {
         const isProductImage = request.url.includes("/products/images/");
