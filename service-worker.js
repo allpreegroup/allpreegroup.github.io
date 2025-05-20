@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v63";
+const CACHE_NAME = "offline-v64";
 
 const urlsToCache = [
     "/",
@@ -15,7 +15,6 @@ const urlsToCache = [
     "/404.html"
 ];
 
-// ✅ Track only one active opensheet URL
 let activeSheetUrl = null;
 
 const preLoad = async () => {
