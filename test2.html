@@ -1470,11 +1470,11 @@ body.no-scroll {
 
 </head>
 <body>
-<!-- start webpushr tracking code --> 
+<!-- start webpushr tracking code  
 <script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
 fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
 webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHebr_Bfzd13eEyrn2rpv_IxZ-H9A4rygXPA' });</script>
-<!-- end webpushr tracking code -->
+ end webpushr tracking code -->
 
 	<div class="container">
              <div class="row land">
@@ -4148,9 +4148,16 @@ brandDiv.addEventListener('click', () => {
       console.warn('Error processing a sheet:', sheetErr);
     }
   }
+
+if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  navigator.serviceWorker.controller.postMessage({
+    type: 'CLEANUP_IMAGES',   // <-- match the worker code
+    currentImageUrls: allDealsFlat.map(d => d.image)  // match worker param name
+  });
+}
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
-
+	
 allBrandsData.forEach(brandData => {
 
 	// Shuffle deals on page load
@@ -4205,9 +4212,6 @@ if (allDealsFlat.length === 0) {
 
   renderLikedDealsGallery();
 
-	
-
-
 const takeoverBrandData = isTakeover
   ? allBrandsData.find(b => b.brand === selectedTakeoverBrand)
   : null;
@@ -4216,7 +4220,6 @@ const takeoverBrandData = isTakeover
 if (takeoverBrandData?.grid) {
   takeoverBrandData.grid.classList.add('takeover-active');
 }
-
 	
 const favoriteBrandData = allBrandsData.find(brand => brand.isFavorite);
 
@@ -4319,14 +4322,13 @@ allBrandsData.forEach(brandData => {
     container.appendChild(brandData.section);
   }
 });
-
-
 		
   setTimeout(() => {
     cleanUpLikedDeals();
   }, 3000);
 }
 
+	
 function toSemiTransparent(color, alpha = 0.5) {
   color = color.trim();
   
