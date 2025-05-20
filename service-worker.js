@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v69";
+const CACHE_NAME = "offline-v70";
 
 const urlsToCache = [
     "/balance/",
@@ -12,6 +12,12 @@ const urlsToCache = [
     "/splashpage",
     "/signup",
      "/js/signup.js",
+    "https://hatscripts.github.io/circle-flags/flags/jm.svg",
+    "https://hatscripts.github.io/circle-flags/flags/tt.svg",
+    "https://hatscripts.github.io/circle-flags/flags/bb.svg",
+    "https://hatscripts.github.io/circle-flags/flags/gy.svg",
+    "https://hatscripts.github.io/circle-flags/flags/kn.svg",
+    "https://hatscripts.github.io/circle-flags/flags/ky.svg",
     "/topup",
     "/js/topup.js",
     "/manifest.json",
