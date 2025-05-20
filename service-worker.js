@@ -120,3 +120,23 @@ async function cleanupUnusedImages(currentImageUrls = []) {
         }
     }
 }
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "CLEANUP_SHEETS") {
+    const usedSheetUrls = event.data.usedSheetUrls || [];
+    cleanupUnusedSheets(usedSheetUrls);
+  }
+});
+
+async function cleanupUnusedSheets(usedSheetUrls = []) {
+  const cache = await caches.open(CACHE_NAME);
+  const cachedRequests = await cache.keys();
+  const keepSet = new Set(usedSheetUrls.map(url => new URL(url).href));
+
+  for (const request of cachedRequests) {
+    const isSheetUrl = request.url.includes("opensheet.elk.sh");
+    if (isSheetUrl && !keepSet.has(request.url)) {
+      await cache.delete(request);
+      console.log("Deleted unused sheet URL from cache:", request.url);
+    }
+  }
+}
