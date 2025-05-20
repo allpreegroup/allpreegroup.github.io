@@ -66,30 +66,31 @@ self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
 
     // ✅ Only cache the currently active takeover sheet from opensheet
-    if (url.hostname === "opensheet.elk.sh") {
-        if (event.request.url === activeSheetUrl) {
-            event.respondWith(
-                caches.open(CACHE_NAME).then(cache =>
-                    cache.match(event.request).then(cachedResponse => {
-                        return fetch(event.request).then(networkResponse => {
-                            if (networkResponse.ok) {
-                                cache.put(event.request, networkResponse.clone());
-                            }
-                            return networkResponse;
-                        }).catch(() => {
-                            return cachedResponse || new Response("[]", {
-                                headers: { "Content-Type": "application/json" }
-                            });
+ if (url.hostname === "opensheet.elk.sh") {
+    if (event.request.url === activeSheetUrl) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then(cache =>
+                cache.match(event.request).then(cachedResponse => {
+                    return fetch(event.request).then(networkResponse => {
+                        if (networkResponse.ok) {
+                            cache.put(event.request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    }).catch(() => {
+                        return cachedResponse || new Response("[]", {
+                            headers: { "Content-Type": "application/json" }
                         });
-                    })
-                )
-            );
-        } else {
-            // ✅ Never cache other opensheet URLs
-            event.respondWith(fetch(event.request));
-        }
-        return;
+                    });
+                })
+            )
+        );
+    } else {
+        // ✅ Never cache other opensheet URLs
+        event.respondWith(fetch(event.request));
     }
+    return;
+}
+
 
     if (
         url.origin !== self.location.origin ||
