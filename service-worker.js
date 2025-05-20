@@ -46,56 +46,89 @@ const doNotCacheList = [
 
 // Domains to always fetch fresh (no caching)
 const neverCacheHosts = [
-    "opensheet.elk.sh",
     "docs.google.com",
     "raw.githubusercontent.com",
     "googleapis.com"
 ];
 
-// Fetch: Smart caching strategy with image deduplication
 self.addEventListener("fetch", event => {
-    const url = new URL(event.request.url);
+  const url = new URL(event.request.url);
 
-    // Always fetch live data
-    if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
-        event.respondWith(fetch(event.request));
-        return;
-    }
+  // Handle dynamic sheet or deal data: Network-first, fallback to cache if offline
+  const isDynamicData =
+    url.hostname === "opensheet.elk.sh" ||
+    url.pathname === "/deals";
 
-    // Never cache third-party or live sheet data
-    if (url.origin !== self.location.origin ||
-        neverCacheHosts.some(host => url.hostname.includes(host))) {
-        event.respondWith(fetch(event.request));
-        return;
-    }
-
-    // Skip specific images
-    if (doNotCacheList.includes(url.pathname)) {
-        event.respondWith(fetch(event.request));
-        return;
-    }
-
-    // Cache-first strategy, avoid duplicate cache
+  if (isDynamicData) {
     event.respondWith(
-        caches.match(event.request).then(cached => {
-            return cached || fetch(event.request).then(networkResponse => {
-                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-                    return networkResponse;
-                }
-
-                const responseClone = networkResponse.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.match(event.request).then(existing => {
-                        if (!existing) {
-                            cache.put(event.request, responseClone);
-                        }
-                    });
-                });
-
-                return networkResponse;
-            }).catch(() => caches.match("/404.html"));
+      fetch(event.request)
+        .then(networkResponse => {
+          // Optional: cache a copy for offline fallback
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, clone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Offline fallback from cache
+          return caches.match(event.request).then(cached => {
+            if (cached) {
+              console.log("🌐 Offline: Serving from cache", url.href);
+              return cached;
+            }
+            return caches.match("/404.html");
+          });
         })
     );
+    return;
+  }
+
+  // Never cache external third-party resources
+  if (
+    url.origin !== self.location.origin ||
+    neverCacheHosts.some(host => url.hostname.includes(host))
+  ) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Skip caching specific images
+  if (doNotCacheList.includes(url.pathname)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Default static asset handler: Cache-first, fallback to network
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      return (
+        cached ||
+        fetch(event.request).then(networkResponse => {
+          if (
+            !networkResponse ||
+            networkResponse.status !== 200 ||
+            networkResponse.type !== "basic"
+          ) {
+            return networkResponse;
+          }
+
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.match(event.request).then(existing => {
+              if (!existing) {
+                cache.put(event.request, responseClone);
+              }
+            });
+          });
+
+          return networkResponse;
+        }).catch(() => caches.match("/404.html"))
+      );
+    })
+  );
 });
 
 // 🔁 Image cleanup from frontend trigger
