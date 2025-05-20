@@ -63,25 +63,7 @@ self.addEventListener("fetch", event => {
 
     // Always fetch live data from specific hostname or path
     if (url.hostname === "opensheet.elk.sh" || url.pathname === "/deals") {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    // Save latest to cache
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
-                    });
-                    return response;
-                })
-                .catch(() => {
-                    // Offline fallback
-                    return caches.match(event.request).then(cached => {
-                        return cached || new Response("[]", {
-                            headers: { "Content-Type": "application/json" }
-                        });
-                    });
-                })
-        );
+        event.respondWith(fetch(event.request));
         return;
     }
 
@@ -151,15 +133,11 @@ self.addEventListener("fetch", event => {
     );
 });
 
-// Listen for frontend message to cleanup images or sheets
+// Listen for frontend message to cleanup images
 self.addEventListener("message", event => {
-    if (event.data?.type === "CLEANUP_IMAGES") {
+    if (event.data && event.data.type === "CLEANUP_IMAGES") {
         const currentImageUrls = event.data.currentImageUrls || [];
         event.waitUntil(cleanupUnusedImages(currentImageUrls));
-    }
-    if (event.data?.type === "CLEANUP_SHEET_CACHE") {
-        const keepList = event.data.keepSheets || [];
-        event.waitUntil(cleanupOldSheets(keepList));
     }
 });
 
@@ -176,22 +154,6 @@ async function cleanupUnusedImages(currentImageUrls = []) {
         if (isProductImage && !keepSet.has(request.url)) {
             await cache.delete(request);
             console.log("Deleted unused image:", request.url);
-        }
-    }
-}
-
-// Remove cached brand sheets no longer used
-async function cleanupOldSheets(keepList = []) {
-    const cache = await caches.open(CACHE_NAME);
-    const cachedRequests = await cache.keys();
-    const keepSet = new Set(
-        keepList.map(url => new URL(url, self.location.origin).href)
-    );
-
-    for (const request of cachedRequests) {
-        if (request.url.includes("opensheet.elk.sh") && !keepSet.has(request.url)) {
-            await cache.delete(request);
-            console.log("Deleted stale sheet:", request.url);
         }
     }
 }
