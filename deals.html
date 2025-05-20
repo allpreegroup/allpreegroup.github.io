@@ -4155,6 +4155,12 @@ if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     currentImageUrls: allDealsFlat.map(d => d.image)  // match worker param name
   });
 }
+if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  navigator.serviceWorker.controller.postMessage({
+    type: 'CLEANUP_SHEET_CACHE',
+    keepSheets: sheetUrls  // your list of URLs to keep cached
+  });
+}
 	
 // 1. Precompute bestDiscount and timeRemaining ONCE
 	
