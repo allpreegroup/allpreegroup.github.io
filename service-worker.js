@@ -61,7 +61,7 @@ const neverCacheHosts = [
 self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
 
-    // ✅ Only cache the currently active takeover sheet from opensheet
+   
     if (url.hostname === "opensheet.elk.sh") {
         if (event.request.url === activeSheetUrl) {
             event.respondWith(
@@ -81,7 +81,7 @@ self.addEventListener("fetch", event => {
                 )
             );
         } else {
-            // ✅ Never cache other opensheet URLs
+            
             event.respondWith(fetch(event.request));
         }
         return;
