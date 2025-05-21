@@ -124,6 +124,9 @@
 #overrideButton:hover {
   background-color: #2563eb;
 }
+.hidden-offline {
+  display: none !important;
+}
 
 
 		 
@@ -4778,7 +4781,12 @@ function renderLeaderboard(data) {
 function updateOfflineButtons() {
   const isOnline = navigator.onLine;
 
-  const buttonsToHide = ["overrideButton", "lockButton", "profile", "marketing", "salesletter"];
+  const overrideBtn = document.getElementById("overrideButton");
+  if (overrideBtn) {
+    overrideBtn.classList.toggle("hidden-offline", !isOnline);
+  }
+
+  const buttonsToHide = ["lockButton", "profile", "marketing", "salesletter"];
   const buttonsToStyle = ["CartButton"];
   const offlineMessage = document.getElementById("offlineMessage");
 
@@ -4800,7 +4808,7 @@ function updateOfflineButtons() {
     offlineMessage.style.display = isOnline ? "none" : "block";
   }
 }
-
+	
 // Run on page load
 updateOfflineButtons();
 
