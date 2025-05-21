@@ -4818,6 +4818,84 @@ window.addEventListener("offline", updateOfflineButtons);
 </script>
 
 			 
+<script>
+// Detect if running in standalone mode (PWA added to home screen)
+function detectStandaloneMode() {
+  return (window.matchMedia('(display-mode: standalone)').matches ||
+          window.navigator.standalone === true);
+}
+
+// Example getDeviceId — replace with your real logic using IndexedDB or UUID
+async function getDeviceId() {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+}
+
+// Call this on first app open (before login)
+async function reportAnonymousInstall() {
+  const deviceId = await getDeviceId();
+  const userAgent = navigator.userAgent;
+  const timestamp = Date.now();
+  const isStandalone = detectStandaloneMode();
+
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'install',
+        deviceId,
+        userAgent,
+        timestamp: timestamp.toString(),
+        note: isStandalone ? 'standalone' : 'browser'
+      }),
+    });
+    const text = await res.text();
+    console.log('Anonymous install reported:', text);
+  } catch (e) {
+    console.error('Error reporting anonymous install:', e);
+  }
+}
+
+// Call this as soon as user logs in with profileLogin
+async function linkInstallToUser() {
+  const profile = JSON.parse(localStorage.getItem('profileLogin'));
+  if (!profile || !profile.idcode) return;
+
+  const deviceId = await getDeviceId();
+  const userAgent = navigator.userAgent;
+  const timestamp = Date.now();
+  const isStandalone = detectStandaloneMode();
+
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'install',
+        idcode: profile.idcode,
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        phone: profile.phone || '',
+        deviceId,
+        userAgent,
+        timestamp: timestamp.toString(),
+        note: isStandalone ? 'standalone' : 'browser'
+      }),
+    });
+    const text = await res.text();
+    console.log('Install linked to user:', text);
+  } catch (e) {
+    console.error('Error linking install to user:', e);
+  }
+}
+</script>
+
+			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
