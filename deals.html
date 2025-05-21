@@ -4819,13 +4819,6 @@ window.addEventListener("offline", updateOfflineButtons);
 
 			 
 <script>
-// Detect if running in standalone mode (PWA added to home screen)
-function detectStandaloneMode() {
-  return (window.matchMedia('(display-mode: standalone)').matches ||
-          window.navigator.standalone === true);
-}
-
-// Example getDeviceId — replace with your real logic using IndexedDB or UUID
 async function getDeviceId() {
   let deviceId = localStorage.getItem('deviceId');
   if (!deviceId) {
@@ -4835,12 +4828,15 @@ async function getDeviceId() {
   return deviceId;
 }
 
-// Call this on first app open (before login)
 async function reportAnonymousInstall() {
+  if (localStorage.getItem('installReported')) {
+    console.log('Anonymous install already reported.');
+    return;
+  }
+
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
   const timestamp = Date.now();
-  const isStandalone = detectStandaloneMode();
 
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
@@ -4851,25 +4847,30 @@ async function reportAnonymousInstall() {
         deviceId,
         userAgent,
         timestamp: timestamp.toString(),
-        note: isStandalone ? 'standalone' : 'browser'
+        note: 'browser' // hardcoded for testing
       }),
     });
     const text = await res.text();
     console.log('Anonymous install reported:', text);
+    localStorage.setItem('installReported', 'true');
   } catch (e) {
     console.error('Error reporting anonymous install:', e);
   }
 }
 
-// Call this as soon as user logs in with profileLogin
 async function linkInstallToUser() {
   const profile = JSON.parse(localStorage.getItem('profileLogin'));
   if (!profile || !profile.idcode) return;
 
+  const linkKey = `installLinked_${profile.idcode}`;
+  if (localStorage.getItem(linkKey)) {
+    console.log(`Install already linked for user: ${profile.idcode}`);
+    return;
+  }
+
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
   const timestamp = Date.now();
-  const isStandalone = detectStandaloneMode();
 
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxBhGE6l5SQHtkcJ0g_0Zejb51KX609yKnPiWUOEfcZuUX6Y98VWMcsEEk-49K8St_4/exec', {
@@ -4884,16 +4885,18 @@ async function linkInstallToUser() {
         deviceId,
         userAgent,
         timestamp: timestamp.toString(),
-        note: isStandalone ? 'standalone' : 'browser'
+        note: 'browser' // hardcoded for testing
       }),
     });
     const text = await res.text();
     console.log('Install linked to user:', text);
+    localStorage.setItem(linkKey, 'true');
   } catch (e) {
     console.error('Error linking install to user:', e);
   }
 }
 </script>
+
 
 			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
