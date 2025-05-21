@@ -106,8 +106,7 @@
   height: 100vh;
 }
 
-/* In your CSS */
-.override-button {
+#overrideButton {
   display: block;
   margin: 2rem auto;
   padding: 0.75rem 1.5rem;
@@ -122,9 +121,10 @@
   transition: background-color 0.3s;
 }
 
-.override-button:hover {
+#overrideButton:hover {
   background-color: #2563eb;
 }
+
 
 		 
 .favorite-brand-badge {
@@ -1554,7 +1554,27 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i></div>
 	<div id="marketing" class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i></div>	
        <div id="salesletter" class="menu-button" data-view="salesletter">Get <i class="fa-solid fa-magnifying-glass-plus fa-lg"></i></div>
- 
+
+
+<div id="offlineMessage" style="
+  display: none;
+  max-width: 300px;
+  margin: 12px auto 0;
+  background: #f44336;
+  color: white;
+  text-align: center;
+  padding: 0.75rem;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  word-wrap: break-word;
+  line-height: 1.3;
+">
+  You are offline.<br>
+  To get the latest deals,<br>
+  please go back online.
+</div>
+		
   <div class="menu-button" data-view="signup"><i class="fa-solid fa-file-contract fa-lg"></i> Sign Up</div> 
   <div class="menu-button" data-view="generategiftcard"><i class="fa-solid fa-credit-card fa-lg"></i> Digital Card</div>
   <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</div>
@@ -4764,11 +4784,12 @@ function updateOfflineButtons() {
 
   const buttonsToHide = ["overrideButton", "lockButton", "profile", "marketing", "salesletter"];
   const buttonsToStyle = ["CartButton"];
+  const offlineMessage = document.getElementById("offlineMessage");
 
   buttonsToHide.forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
-      btn.hidden = !isOnline; // ✅ toggles visibility without affecting layout styles
+      btn.hidden = !isOnline;
     }
   });
 
@@ -4778,6 +4799,10 @@ function updateOfflineButtons() {
       btn.style.marginLeft = isOnline ? "" : "60px";
     }
   });
+
+  if (offlineMessage) {
+    offlineMessage.style.display = isOnline ? "none" : "block";
+  }
 }
 
 // Run on page load
@@ -4787,6 +4812,7 @@ updateOfflineButtons();
 window.addEventListener("online", updateOfflineButtons);
 window.addEventListener("offline", updateOfflineButtons);
 </script>
+
 			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
