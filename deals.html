@@ -4738,25 +4738,26 @@ function renderLeaderboard(data) {
 }
 </script>
 <script>
-  function updateOfflineButtons() {
-    const isOnline = navigator.onLine;
+ function updateOfflineButtons() {
+  const isOnline = navigator.onLine;
 
-    const buttonsToHide = [
-      "overrideButton",
-      "lockButton",
-      "profile",
-      "marketing",    
-      "salesletter"
-    ];
+  const buttonsToHide = ["overrideButton", "lockButton", "profile", "marketing", "salesletter"];
+  const buttonsToStyle = ["CartButton"];
 
-    buttonsToHide.forEach(id => {
-      const btn = document.getElementById(id);
-      if (btn) {
-        btn.style.display = isOnline ? "inline-block" : "none";
-      }
-    });
-  }
+  buttonsToHide.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.style.display = isOnline ? "inline-block" : "none";
+    }
+  });
 
+  buttonsToStyle.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.style.marginLeft = isOnline ? "" : "60px";
+    }
+  });
+}
   // Run on page load
   updateOfflineButtons();
 
