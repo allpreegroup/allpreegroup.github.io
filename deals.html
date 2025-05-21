@@ -4759,7 +4759,7 @@ function renderLeaderboard(data) {
 }
 </script>
 <script>
- function updateOfflineButtons() {
+function updateOfflineButtons() {
   const isOnline = navigator.onLine;
 
   const buttonsToHide = ["overrideButton", "lockButton", "profile", "marketing", "salesletter"];
@@ -4768,7 +4768,7 @@ function renderLeaderboard(data) {
   buttonsToHide.forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
-      btn.style.display = isOnline ? "inline-block" : "none";
+      btn.hidden = !isOnline; // ✅ toggles visibility without affecting layout styles
     }
   });
 
@@ -4779,13 +4779,15 @@ function renderLeaderboard(data) {
     }
   });
 }
-  // Run on page load
-  updateOfflineButtons();
 
-  // Listen for connection changes
-  window.addEventListener("online", updateOfflineButtons);
-  window.addEventListener("offline", updateOfflineButtons);
-</script>			 
+// Run on page load
+updateOfflineButtons();
+
+// Listen for connection changes
+window.addEventListener("online", updateOfflineButtons);
+window.addEventListener("offline", updateOfflineButtons);
+</script>
+			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
 </html>
