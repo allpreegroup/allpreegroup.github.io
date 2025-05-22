@@ -4844,7 +4844,7 @@ async function reportAnonymousInstall() {
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
   const timestamp = Date.now();
-  const note = getInstallNote(); // now detects standalone vs browser
+  const note = getInstallNote();
 
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
@@ -4861,15 +4861,62 @@ async function reportAnonymousInstall() {
     const text = await res.text();
     console.log('Anonymous install reported:', text);
     localStorage.setItem('installReported', 'true');
+    localStorage.setItem('lastPingTimestamp', timestamp); // Set initial ping timestamp here
   } catch (e) {
     console.error('Error reporting anonymous install:', e);
   }
 }
-	
-// ✅ Run it on first page load
+
+async function pingDevice() {
+  const deviceId = await getDeviceId();
+  const userAgent = navigator.userAgent;
+  const timestamp = Date.now();
+  const note = getInstallNote();
+
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'install',  // same action to update lastSeen timestamp
+        deviceId,
+        userAgent,
+        timestamp: timestamp.toString(),
+        note
+      }),
+    });
+    const text = await res.text();
+    console.log('Ping sent:', text);
+    localStorage.setItem('lastPingTimestamp', timestamp);
+  } catch (e) {
+    console.error('Error sending ping:', e);
+  }
+}
+
+async function pingDeviceThrottled() {
+  if (!localStorage.getItem('installReported')) {
+    // Don't ping if install not yet reported
+    return;
+  }
+
+  const lastPing = localStorage.getItem('lastPingTimestamp');
+  const now = Date.now();
+  const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+
+  if (!lastPing || now - lastPing > THREE_DAYS_MS) {
+    await pingDevice();
+  } else {
+    console.log('Ping skipped — last ping less than 3 days ago');
+  }
+}
+
+// On page load:
 document.addEventListener('DOMContentLoaded', () => {
-  reportAnonymousInstall();
+  reportAnonymousInstall().then(() => {
+    pingDeviceThrottled();
+  });
 });
+
 </script>
 
 
