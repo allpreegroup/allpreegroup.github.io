@@ -58,6 +58,15 @@ function init_profile() {
     }
   }
 
+  function clearInstallLinkedOnLogout() {
+  const profile = JSON.parse(localStorage.getItem('profileLogin'));
+  if (profile && profile.idcode) {
+    const linkKey = `installLinked_${profile.idcode}`;
+    localStorage.removeItem(linkKey);
+    console.log(`Cleared ${linkKey} on logout`);
+  }
+  localStorage.removeItem('profileLogin');
+}
   // ... rest of init_profile continues below
 
   
@@ -74,6 +83,7 @@ function init_profile() {
   }
 
   function logoutUser() {
+     clearInstallLinkedOnLogout();
     localStorage.removeItem('profileLogin');
     currentEntries = [];
     currentSummary = null;
