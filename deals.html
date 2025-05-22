@@ -4913,12 +4913,12 @@ async function pingDeviceThrottled() {
 
   const lastPing = localStorage.getItem('lastPingTimestamp');
   const now = Date.now();
-  const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+  const ONE_DAYS_MS = 1 * 24 * 60 * 60 * 1000;
 
-  if (!lastPing || now - lastPing > THREE_DAYS_MS) {
+  if (!lastPing || now - lastPing > ONE_DAYS_MS) {
     await pingDevice();
   } else {
-    console.log('Ping skipped — last ping less than 3 days ago');
+    console.log('Ping skipped — last ping less than 1 days ago');
   }
 }
 
