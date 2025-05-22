@@ -4828,6 +4828,13 @@ async function getDeviceId() {
   return deviceId;
 }
 
+function getInstallNote() {
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    return 'standalone';
+  }
+  return 'browser';
+}
+
 async function reportAnonymousInstall() {
   if (localStorage.getItem('installReported')) {
     console.log('Anonymous install already reported.');
@@ -4837,6 +4844,7 @@ async function reportAnonymousInstall() {
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
   const timestamp = Date.now();
+  const note = getInstallNote(); // now detects standalone vs browser
 
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
@@ -4847,7 +4855,7 @@ async function reportAnonymousInstall() {
         deviceId,
         userAgent,
         timestamp: timestamp.toString(),
-        note: 'browser' // hardcoded for testing
+        note
       }),
     });
     const text = await res.text();
@@ -4871,6 +4879,7 @@ async function linkInstallToUser() {
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
   const timestamp = Date.now();
+  const note = getInstallNote();
 
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
@@ -4885,7 +4894,7 @@ async function linkInstallToUser() {
         deviceId,
         userAgent,
         timestamp: timestamp.toString(),
-        note: 'browser' // hardcoded for testing
+        note
       }),
     });
     const text = await res.text();
@@ -4895,11 +4904,13 @@ async function linkInstallToUser() {
     console.error('Error linking install to user:', e);
   }
 }
+
 // ✅ Run it on first page load
-  document.addEventListener('DOMContentLoaded', () => {
-    reportAnonymousInstall();
-  });	
+document.addEventListener('DOMContentLoaded', () => {
+  reportAnonymousInstall();
+});
 </script>
+
 
 
 			 
