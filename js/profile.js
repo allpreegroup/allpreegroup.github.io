@@ -41,6 +41,9 @@ function init_profile() {
         };
         localStorage.setItem('profileLogin', JSON.stringify(loginInfo));
 
+        // Link install to logged in user
+        linkInstallToUser();
+        
         const userEntries = data.filter(row =>
           row['Code'] === loginInfo.code && row['activation date']
         );
