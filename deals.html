@@ -4888,6 +4888,18 @@ async function pingDevice() {
     const text = await res.text();
     console.log('Ping sent:', text);
     localStorage.setItem('lastPingTimestamp', timestamp);
+
+    // If server says a new row was created (meaning old link invalid), clear installLinked flags
+    if (text.toLowerCase().includes('new row created')) {
+      // Remove all installLinked_xxx keys, or target known user keys if you track them here
+      // For example, if you have user profile in localStorage:
+      const profile = JSON.parse(localStorage.getItem('profileLogin'));
+      if (profile && profile.idcode) {
+        localStorage.removeItem(`installLinked_${profile.idcode}`);
+        console.log(`Cleared installLinked_${profile.idcode} because new row created on ping`);
+      }
+    }
+
   } catch (e) {
     console.error('Error sending ping:', e);
   }
@@ -4916,6 +4928,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pingDeviceThrottled();
   });
 });
+
 
 </script>
 
