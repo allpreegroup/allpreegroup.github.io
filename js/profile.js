@@ -1,6 +1,23 @@
 function init_profile() {
   const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
+  // 👇 Move these here to make them accessible
+  async function getDeviceId() {
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem('deviceId', deviceId);
+    }
+    return deviceId;
+  }
+
+  function getInstallNote() {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      return 'standalone';
+    }
+    return 'browser';
+  }
+  
  // ✅ Move it here, near the top of init_profile()
   async function linkInstallToUser() {
     const profile = JSON.parse(localStorage.getItem('profileLogin'));
