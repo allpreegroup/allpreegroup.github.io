@@ -4865,47 +4865,7 @@ async function reportAnonymousInstall() {
     console.error('Error reporting anonymous install:', e);
   }
 }
-
-async function linkInstallToUser() {
-  const profile = JSON.parse(localStorage.getItem('profileLogin'));
-  if (!profile || !profile.idcode) return;
-
-  const linkKey = `installLinked_${profile.idcode}`;
-  if (localStorage.getItem(linkKey)) {
-    console.log(`Install already linked for user: ${profile.idcode}`);
-    return;
-  }
-
-  const deviceId = await getDeviceId();
-  const userAgent = navigator.userAgent;
-  const timestamp = Date.now();
-  const note = getInstallNote();
-
-  try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'install',
-        idcode: profile.idcode,
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        phone: profile.phone || '',
-        deviceId,
-        userAgent,
-        timestamp: timestamp.toString(),
-        note
-      }),
-    });
-    const text = await res.text();
-    console.log('Install linked to user:', text);
-    localStorage.setItem(linkKey, 'true');
-  } catch (e) {
-    console.error('Error linking install to user:', e);
-  }
-}
-// ✅ Make it globally accessible
-window.linkInstallToUser = linkInstallToUser;
+	
 // ✅ Run it on first page load
 document.addEventListener('DOMContentLoaded', () => {
   reportAnonymousInstall();
