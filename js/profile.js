@@ -1,6 +1,49 @@
 function init_profile() {
   const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
+ // ✅ Move it here, near the top of init_profile()
+  async function linkInstallToUser() {
+    const profile = JSON.parse(localStorage.getItem('profileLogin'));
+    if (!profile || !profile.idcode) return;
+
+    const linkKey = `installLinked_${profile.idcode}`;
+    if (localStorage.getItem(linkKey)) {
+      console.log(`Install already linked for user: ${profile.idcode}`);
+      return;
+    }
+
+    const deviceId = await getDeviceId();
+    const userAgent = navigator.userAgent;
+    const timestamp = Date.now();
+    const note = getInstallNote();
+
+    try {
+      const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          action: 'install',
+          idcode: profile.idcode,
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          phone: profile.phone || '',
+          deviceId,
+          userAgent,
+          timestamp: timestamp.toString(),
+          note
+        }),
+      });
+      const text = await res.text();
+      console.log('Install linked to user:', text);
+      localStorage.setItem(linkKey, 'true');
+    } catch (e) {
+      console.error('Error linking install to user:', e);
+    }
+  }
+
+  // ... rest of init_profile continues below
+
+  
   let currentEntries = [];
   let currentSummary = null;
   let isDescending = false;
