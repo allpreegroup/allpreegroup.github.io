@@ -4908,25 +4908,21 @@ function renderWinners(data) {
   });
 }
 
-function renderTakeoverSponsor(brand) { 
+function renderTakeoverSponsor() {
   const sponsorBox = document.getElementById('sponsorContent');
-  if (!sponsorBox || !brand) return;
+  if (!sponsorBox) return;
+
+  const selectedBrandName = localStorage.getItem('selectedTakeoverBrand');
+  if (!selectedBrandName || !Array.isArray(allBrandsData)) return;
+
+  const brand = allBrandsData.find(b => b.brand === selectedBrandName);
+  if (!brand) return;
 
   sponsorBox.innerHTML = '';
 
   const brandCard = document.createElement('div');
-  brandCard.style = 'display: flex; align-items: center; justify-content: center; margin-bottom: 10px;';
-
-  const brandLogo = document.createElement('img');
-  brandLogo.src = brand.logo;
-  brandLogo.style = 'width: 40px; height: 40px; margin-right: 15px; border-radius: 50%;';
-
-  const brandName = document.createElement('strong');
-  brandName.innerText = brand.name;
-
-  brandCard.appendChild(brandLogo);
-  brandCard.appendChild(brandName);
-  sponsorBox.appendChild(brandCard);
+  brandCard.className = 'admin-brand-card';
+  brandCard.innerHTML = `<img src="${brand.logo}" /><strong>${brand.brand}</strong>`;
 
   const heading = document.createElement('div');
   heading.className = 'takeover-heading';
@@ -4934,11 +4930,13 @@ function renderTakeoverSponsor(brand) {
 
   const desc = document.createElement('div');
   desc.className = 'takeover-description';
-  desc.innerHTML = `<p>Courtesy of <strong>${brand.name}</strong></p><p>Install the app, refer friends, and win big!</p>`;
+  desc.innerHTML = `<p>Courtesy of <strong>${brand.brand}</strong></p><p>Install the app, refer friends, and win big!</p>`;
 
-  sponsorBox.appendChild(heading); 
+  sponsorBox.appendChild(brandCard);
+  sponsorBox.appendChild(heading);
   sponsorBox.appendChild(desc);
 }
+
 </script>
 
 
