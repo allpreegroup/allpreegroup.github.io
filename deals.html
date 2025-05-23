@@ -1794,16 +1794,21 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
  <div id="sponsorTakeover"></div>
 
   <div class="leaderboard-tabs">
+    <div class="leaderboard-tab" onclick="showTab('sponsorTab', this)">⭐ Sponsor</div>
     <div class="leaderboard-tab" onclick="showTab('leaderboardTab', this)">🏆 Leaderboard</div>
     <div class="leaderboard-tab" onclick="showTab('winnersTab', this)">🎉 Winners</div>
   </div>
 
+<div class="tab-content" id="sponsorTab" style="display: none;"> 
+  <div id="sponsorContent">Loading sponsor...</div> 
+</div>
+	
   <div class="tab-content" id="leaderboardTab" style="display: none;">
     <div id="leaderboardContent">Loading leaderboard...</div>
   </div>
 
   <div class="tab-content" id="winnersTab" style="display: none;">
-    <div id="winnersContent">Loading winners...</div>
+    <div id="winnersContent">Loading past winners...</div>
   </div>
 </div>
 
@@ -4807,7 +4812,7 @@ function openLeaderboard() {
     logo: "https://cdn.getgiftme.com/gift-me/e96ed478dab8595a7dbda4cbcbee168f/logo_1667523754.jpg"
   });
 
-  showTab('leaderboardTab'); // Default tab
+  showTab('sponsorTab'); // Default tab
   fetchSheetData();
 }
 
@@ -4902,7 +4907,7 @@ function renderWinners(data) {
 }
 
 function renderTakeoverSponsor(brand) { 
-  const sponsorBox = document.getElementById('sponsorTakeover');
+  const sponsorBox = document.getElementById('sponsorContent');
   if (!sponsorBox || !brand) return;
 
   sponsorBox.innerHTML = '';
