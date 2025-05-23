@@ -1733,11 +1733,27 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div>
 
 <!-- Leaderboard Popup -->
-<div id="leaderboardPopup">
+<div id="leaderboardPopup" class="popup">
   <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
-  <h2>Referral Leaderboard</h2>
-  <div id="leaderboardContent">Loading...</div>
-</div>				  
+  <h2>🎯 Referral Leaderboard & Winners</h2>
+
+  <!-- Tabs -->
+  <div class="leaderboard-tabs">
+    <button onclick="showTab('leaderboard')">🏆 Leaderboard</button>
+    <button onclick="showTab('winners')">🎉 Past Winners</button>
+  </div>
+
+  <!-- Leaderboard Content -->
+  <div class="tab-content" id="leaderboardTab">
+    <div id="leaderboardContent">Loading leaderboard...</div>
+  </div>
+
+  <!-- Winners Content -->
+  <div class="tab-content" id="winnersTab" style="display: none;">
+    <div id="winnersContent">Loading past winners...</div>
+  </div>
+</div>
+			  
 		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -4723,48 +4739,69 @@ addPopupSwipeListeners();
     localStorage.setItem('a2hsShown', 'true');
   });
 </script>
+			 
 <script>
 const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata';
 
 function openLeaderboard() {
   document.getElementById("leaderboardPopup").classList.add("show");
-  document.body.style.overflow = "hidden"; // 🔒 Lock background scroll
-  fetchLeaderboardData();
+  document.body.style.overflow = "hidden";
+  showTab('leaderboard'); // Default tab
+  fetchSheetData();
 }
 
 function closeLeaderboard() {
   document.getElementById("leaderboardPopup").classList.remove("show");
-  document.body.style.overflow = ""; // 🔓 Restore scroll
+  document.body.style.overflow = "";
 }
 
-async function fetchLeaderboardData() {
+function showTab(tab) {
+  document.getElementById("leaderboardTab").style.display = tab === 'leaderboard' ? 'block' : 'none';
+  document.getElementById("winnersTab").style.display = tab === 'winners' ? 'block' : 'none';
+}
+
+async function fetchSheetData() {
   try {
     const response = await fetch(SHEET_URL);
     const data = await response.json();
 
-    const leaderboardData = data.map(entry => ({
-      idCode: entry["ID CODE"] || "",
-      name: `${entry["First Name"] || ""} ${entry["Last Name"] || ""}`.trim(),
-      points: parseFloat(entry["Points"]) || 0
-    }))
-    .filter(entry => entry.name && !isNaN(entry.points))
-    .sort((a, b) => b.points - a.points);
+    // Leaderboard data: must have valid points
+    const leaderboardData = data
+      .filter(entry => entry["First Name"] && !isNaN(parseFloat(entry["Points"])))
+      .map(entry => ({
+        idCode: entry["ID CODE"] || "",
+        name: `${entry["First Name"]} ${entry["Last Name"] || ""}`.trim(),
+        points: parseFloat(entry["Points"]) || 0
+      }))
+      .sort((a, b) => b.points - a.points);
 
     renderLeaderboard(leaderboardData);
+
+    // Winner data: must have prize
+    const winnerData = data
+      .filter(entry => entry["First Name"] && entry["Prize"])
+      .map(entry => ({
+        idCode: entry["ID CODE"] || "",
+        name: entry["First Name"] || "",
+        prize: entry["Prize"] || "—"
+      }));
+
+    renderWinners(winnerData);
+
   } catch (error) {
     document.getElementById("leaderboardContent").innerHTML = "Failed to load data.";
-    console.error("Error fetching leaderboard:", error);
+    document.getElementById("winnersContent").innerHTML = "Failed to load winners.";
+    console.error("Error fetching data:", error);
   }
 }
 
 function renderLeaderboard(data) {
   const container = document.getElementById("leaderboardContent");
-  container.innerHTML = ""; // clear loading text
+  container.innerHTML = "";
 
   data.forEach((entry, index) => {
     const div = document.createElement("div");
     div.className = "leaderboard-row";
-
     div.innerHTML = `
       <div class="leaderboard-left">
         <div class="leaderboard-idcode">${entry.idCode}</div>
@@ -4772,11 +4809,30 @@ function renderLeaderboard(data) {
       </div>
       <div class="leaderboard-points">${entry.points}</div>
     `;
+    container.appendChild(div);
+  });
+}
 
+function renderWinners(data) {
+  const container = document.getElementById("winnersContent");
+  container.innerHTML = "";
+
+  data.forEach((entry, index) => {
+    const div = document.createElement("div");
+    div.className = "leaderboard-row";
+    div.innerHTML = `
+      <div class="leaderboard-left">
+        <div class="leaderboard-idcode">${entry.idCode}</div>
+        <div class="leaderboard-name">${index + 1}. ${entry.name}</div>
+      </div>
+      <div class="leaderboard-points">💰 $${parseInt(entry.prize).toLocaleString()}</div>
+    `;
     container.appendChild(div);
   });
 }
 </script>
+
+			 
 <script>
 function updateOfflineButtons() {
   const isOnline = navigator.onLine;
