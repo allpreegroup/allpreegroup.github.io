@@ -4806,12 +4806,8 @@ function openLeaderboard() {
   document.getElementById("leaderboardPopup").classList.add("show");
   document.body.style.overflow = "hidden";
 
-  // Show sponsor immediately
-  renderTakeoverSponsor({
-    name: "Progressive Grocers",
-    logo: "https://cdn.getgiftme.com/gift-me/e96ed478dab8595a7dbda4cbcbee168f/logo_1667523754.jpg"
-  });
-
+renderTakeoverSponsor();
+	
   const sponsorTabElement = document.querySelector('[onclick*="sponsorTab"]');
 if (sponsorTabElement) showTab('sponsorTab', sponsorTabElement); // Default tab
   fetchSheetData();
@@ -4921,7 +4917,7 @@ function renderTakeoverSponsor() {
   sponsorBox.innerHTML = '';
 
   const brandCard = document.createElement('div');
-  brandCard.className = 'admin-brand-card';
+  brandCard.className = ''admin-brand-carousel';
   brandCard.innerHTML = `<img src="${brand.logo}" /><strong>${brand.brand}</strong>`;
 
   const heading = document.createElement('div');
