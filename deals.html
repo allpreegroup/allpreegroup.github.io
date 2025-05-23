@@ -1435,6 +1435,28 @@ body.no-scroll {
   background-color: #1e40af;
   border-radius: 2px 2px 0 0;
 }
+#sponsorTakeover {
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.takeover-banner img {
+  max-width: 50px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.takeover-heading {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1e40af;
+}
+
+.takeover-description {
+  font-size: 14px;
+  color: #333;
+}
 
 		 
   /* Close button */
@@ -1767,25 +1789,25 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <!-- Leaderboard Popup -->
 <div id="leaderboardPopup" class="popup">
   <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
-  <br>
-	<h2>🎯 Referral Leaderboard & Winners</h2>
+  <h2>🎯 Referral Challenge</h2>
 
-  <!-- Tabs -->
+  <div id="sponsorTakeover" class="takeover-banner"></div>
+
   <div class="leaderboard-tabs">
-  <div class="leaderboard-tab active" onclick="showTab('leaderboardTab', this)">🏆 Leaderboard</div>
-  <div class="leaderboard-tab" onclick="showTab('winnersTab', this)">🎉 Past Winners</div>
+    <button class="leaderboard-tab" onclick="showTab('leaderboardTab', this)">🏆 Leaderboard</button>
+    <button class="leaderboard-tab" onclick="showTab('winnersTab', this)">🎉 Winners</button>
+  </div>
+
+  <div class="tab-content" id="leaderboardTab" style="display: none;">
+    <div id="leaderboardContent">Loading leaderboard...</div>
+  </div>
+
+  <div class="tab-content" id="winnersTab" style="display: none;">
+    <div id="winnersContent">Loading winners...</div>
+  </div>
 </div>
 
-<!-- Content Tabs -->
-<div class="tab-content" id="leaderboardTab">
-  <div id="leaderboardContent">Loading leaderboard...</div>
-</div>
-
-<div class="tab-content" id="winnersTab" style="display: none;">
-  <div id="winnersContent">Loading past winners...</div>
-</div>
-
-			  
+	
 		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -4778,6 +4800,13 @@ const SHEET_URL = 'https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5
 function openLeaderboard() {
   document.getElementById("leaderboardPopup").classList.add("show");
   document.body.style.overflow = "hidden";
+
+  // Show sponsor immediately
+  renderTakeoverSponsor({
+    name: "Big Save Supermarket",
+    logo: "https://example.com/logo.png"
+  });
+
   showTab('leaderboard'); // Default tab
   fetchSheetData();
 }
@@ -4798,7 +4827,7 @@ function showTab(tabId, el) {
   // Update active tab UI
   const allTabs = document.querySelectorAll('.leaderboard-tab');
   allTabs.forEach(tab => tab.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
 }
 
 async function fetchSheetData() {
@@ -4871,7 +4900,40 @@ function renderWinners(data) {
     container.appendChild(div);
   });
 }
+
+function renderTakeoverSponsor(brand) { 
+  const sponsorBox = document.getElementById('sponsorTakeover');
+  if (!sponsorBox || !brand) return;
+
+  sponsorBox.innerHTML = '';
+
+  const brandCard = document.createElement('div');
+  brandCard.style = 'display: flex; align-items: center; justify-content: center; margin-bottom: 10px;';
+
+  const brandLogo = document.createElement('img');
+  brandLogo.src = brand.logo;
+  brandLogo.style = 'width: 40px; height: 40px; margin-right: 15px; border-radius: 50%;';
+
+  const brandName = document.createElement('strong');
+  brandName.innerText = brand.name;
+
+  brandCard.appendChild(brandLogo);
+  brandCard.appendChild(brandName);
+  sponsorBox.appendChild(brandCard);
+
+  const heading = document.createElement('div');
+  heading.className = 'takeover-heading';
+  heading.innerText = `Win a $5,000 Shopping Voucher`;
+
+  const desc = document.createElement('div');
+  desc.className = 'takeover-description';
+  desc.innerHTML = `<p>Courtesy of <strong>${brand.name}</strong></p><p>Install the app, refer friends, and win big!</p>`;
+
+  sponsorBox.appendChild(heading); 
+  sponsorBox.appendChild(desc);
+}
 </script>
+
 
 			 
 <script>
