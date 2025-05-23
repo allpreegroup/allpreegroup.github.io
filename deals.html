@@ -1405,6 +1405,38 @@ body.no-scroll {
     color: #1e40af; /* blue-800 */
   }
 
+  .leaderboard-tabs {
+  display: flex;
+  justify-content: center;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 12px;
+}
+
+.leaderboard-tab {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+}
+
+.leaderboard-tab.active {
+  color: #1e40af; /* Blue for active */
+}
+
+.leaderboard-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #1e40af;
+  border-radius: 2px 2px 0 0;
+}
+
+		 
   /* Close button */
   .close-button {
     position: absolute;
@@ -1735,24 +1767,24 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 <!-- Leaderboard Popup -->
 <div id="leaderboardPopup" class="popup">
   <button onclick="closeLeaderboard()" class="close-button" aria-label="Close leaderboard popup">&times;</button>
-  <h2>🎯 Referral Leaderboard & Winners</h2>
+  <br>
+	<h2>🎯 Referral Leaderboard & Winners</h2>
 
   <!-- Tabs -->
   <div class="leaderboard-tabs">
-    <button onclick="showTab('leaderboard')">🏆 Leaderboard</button>
-    <button onclick="showTab('winners')">🎉 Past Winners</button>
-  </div>
-
-  <!-- Leaderboard Content -->
-  <div class="tab-content" id="leaderboardTab">
-    <div id="leaderboardContent">Loading leaderboard...</div>
-  </div>
-
-  <!-- Winners Content -->
-  <div class="tab-content" id="winnersTab" style="display: none;">
-    <div id="winnersContent">Loading past winners...</div>
-  </div>
+  <div class="leaderboard-tab active" onclick="showTab('leaderboardTab', this)">🏆 Leaderboard</div>
+  <div class="leaderboard-tab" onclick="showTab('winnersTab', this)">🎉 Past Winners</div>
 </div>
+
+<!-- Content Tabs -->
+<div class="tab-content" id="leaderboardTab">
+  <div id="leaderboardContent">Loading leaderboard...</div>
+</div>
+
+<div class="tab-content" id="winnersTab" style="display: none;">
+  <div id="winnersContent">Loading past winners...</div>
+</div>
+
 			  
 		  
  <!-- Popup Overlay -->
@@ -4755,9 +4787,18 @@ function closeLeaderboard() {
   document.body.style.overflow = "";
 }
 
-function showTab(tab) {
-  document.getElementById("leaderboardTab").style.display = tab === 'leaderboard' ? 'block' : 'none';
-  document.getElementById("winnersTab").style.display = tab === 'winners' ? 'block' : 'none';
+function showTab(tabId, el) {
+  // Hide all tab contents
+  document.getElementById('leaderboardTab').style.display = 'none';
+  document.getElementById('winnersTab').style.display = 'none';
+
+  // Show selected tab
+  document.getElementById(tabId).style.display = 'block';
+
+  // Update active tab UI
+  const allTabs = document.querySelectorAll('.leaderboard-tab');
+  allTabs.forEach(tab => tab.classList.remove('active'));
+  el.classList.add('active');
 }
 
 async function fetchSheetData() {
