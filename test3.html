@@ -205,15 +205,22 @@
           overlay.appendChild(desc);
         }
 
-        // External link (yellow)
-        if (story['CTA Text'] && story['CTA Link']) {
-          const btn = document.createElement('a');
-          btn.className = 'cta-button cta-link-button';
-          btn.href = story['CTA Link'];
-          btn.target = '_blank';
-          btn.textContent = story['CTA Text'];
-          overlay.appendChild(btn);
-        }
+       // External link (yellow)
+if (story['CTA Text'] && story['CTA Link']) {
+  const btn = document.createElement('a');
+  btn.className = 'cta-button cta-link-button';
+  btn.href = story['CTA Link'];
+  btn.target = '_blank';
+  btn.textContent = story['CTA Text'];
+
+  // Prevent propagation to swiper's tap zones
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  overlay.appendChild(btn);
+}
+
 
         // Internal jump (red)
         if (story['CTA Text 2'] && story['Story Jump']) {
