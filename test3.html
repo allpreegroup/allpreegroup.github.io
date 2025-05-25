@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stories</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Story Swiper</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
     html, body {
@@ -15,12 +15,10 @@
       overflow: hidden;
       font-family: Arial, sans-serif;
     }
-
     .swiper {
       width: 100vw;
       height: 100vh;
     }
-
     .swiper-slide {
       background-size: cover;
       background-position: center;
@@ -29,7 +27,6 @@
       align-items: flex-end;
       justify-content: center;
     }
-
     .slide-overlay {
       position: absolute;
       bottom: 0;
@@ -39,27 +36,22 @@
       color: white;
       text-align: center;
     }
-
     .slide-title {
       font-size: 1.5rem;
       font-weight: bold;
     }
-
     .slide-desc {
       font-size: 1rem;
       margin-top: 0.5rem;
     }
-
     .headline-slide .slide-title {
       font-size: 2rem;
       font-weight: 800;
     }
-
     .headline-slide {
       align-items: center !important;
       justify-content: center !important;
     }
-
     .cta-button {
       display: inline-block;
       padding: 0.75rem 1.25rem;
@@ -72,16 +64,13 @@
       z-index: 30;
       position: relative;
     }
-
     .cta-link-button {
-      background: #FFD700; /* yellow */
+      background: #FFD700;
     }
-
     .cta-jump-button {
-      background: #FF0000; /* red */
+      background: #FF0000;
       color: #fff;
     }
-
     .progress-bar {
       position: absolute;
       top: 0;
@@ -92,7 +81,6 @@
       padding: 10px;
       z-index: 10;
     }
-
     .progress-segment {
       flex: 1;
       height: 4px;
@@ -100,14 +88,12 @@
       border-radius: 2px;
       overflow: hidden;
     }
-
     .progress-fill {
       height: 100%;
       width: 0%;
       background: white;
       transition: width 0.3s ease;
     }
-
     .tap-zone {
       position: absolute;
       width: 50%;
@@ -115,10 +101,8 @@
       top: 0;
       z-index: 20;
     }
-
     .tap-left { left: 0; }
     .tap-right { right: 0; }
-
     .sponsored-label {
       position: absolute;
       top: 20px;
@@ -130,7 +114,6 @@
       border-radius: 4px;
       z-index: 10;
     }
-
     .brand-logo {
       position: absolute;
       top: 20px;
@@ -144,8 +127,8 @@
 </head>
 <body>
   <div class="swiper">
-    <div class="progress-bar" id="progressBar"></div>
     <div class="swiper-wrapper" id="storyWrapper"></div>
+    <div class="progress-bar" id="progressBar"></div>
     <div class="tap-zone tap-left" id="tapLeft"></div>
     <div class="tap-zone tap-right" id="tapRight"></div>
   </div>
@@ -207,31 +190,28 @@
           overlay.appendChild(desc);
         }
 
-       // External link (yellow)
-if (story['CTA Text'] && story['CTA Link']) {
-  const btn = document.createElement('a');
-  btn.className = 'cta-button cta-link-button';
-  btn.href = story['CTA Link'];
-  btn.target = '_blank';
-  btn.textContent = story['CTA Text'];
+        // Yellow external link
+        if (story['CTA Text'] && story['CTA Link']) {
+          const btn = document.createElement('a');
+          btn.className = 'cta-button cta-link-button';
+          btn.href = story['CTA Link'];
+          btn.target = '_blank';
+          btn.textContent = story['CTA Text'];
+          btn.addEventListener('click', (e) => e.stopPropagation());
+          overlay.appendChild(btn);
+        }
 
-  // Prevent propagation to swiper's tap zones
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-
-  overlay.appendChild(btn);
-}
-
-
-        // Internal jump (red)
+        // Red jump button
         if (story['CTA Text 2'] && story['Story Jump']) {
           const jumpBtn = document.createElement('button');
           jumpBtn.className = 'cta-button cta-jump-button';
           jumpBtn.textContent = story['CTA Text 2'];
           jumpBtn.addEventListener('click', () => {
-            const target = storyMap[story['Story Jump'].trim()];
-            if (target !== undefined) swiper.slideTo(target);
+            const targetIndex = storyMap[story['Story Jump'].trim()];
+            if (targetIndex !== undefined) {
+              swiper.slideTo(targetIndex);
+              updateProgress(targetIndex);
+            }
           });
           overlay.appendChild(jumpBtn);
         }
@@ -290,24 +270,23 @@ if (story['CTA Text'] && story['CTA Link']) {
 
       updateProgress(0);
 
-     document.getElementById('tapLeft').addEventListener('click', () => {
-  const current = swiper.activeIndex;
-  const range = getCurrentSequence(current);
-  if (range && current > range.start) {
-    swiper.slidePrev();
-    updateProgress(swiper.activeIndex);
-  }
-});
+      document.getElementById('tapLeft').addEventListener('click', () => {
+        const current = swiper.activeIndex;
+        const range = getCurrentSequence(current);
+        if (range && current > range.start) {
+          swiper.slidePrev();
+          updateProgress(swiper.activeIndex);
+        }
+      });
 
-document.getElementById('tapRight').addEventListener('click', () => {
-  const current = swiper.activeIndex;
-  const range = getCurrentSequence(current);
-  if (range && current < range.end) {
-    swiper.slideNext();
-    updateProgress(swiper.activeIndex);
-  }
-});
-
+      document.getElementById('tapRight').addEventListener('click', () => {
+        const current = swiper.activeIndex;
+        const range = getCurrentSequence(current);
+        if (range && current < range.end) {
+          swiper.slideNext();
+          updateProgress(swiper.activeIndex);
+        }
+      });
     }
 
     loadStories();
