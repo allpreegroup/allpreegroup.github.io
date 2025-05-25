@@ -62,14 +62,22 @@
 
     .cta-button {
       display: inline-block;
-      background: #ff0000;
-      color: #fff;
       padding: 0.75rem 1.25rem;
       border-radius: 10px;
       font-weight: bold;
       margin: 0.5rem 0.25rem 0;
       text-decoration: none;
       cursor: pointer;
+      color: #000;
+    }
+
+    .cta-link-button {
+      background: #FFD700; /* yellow */
+    }
+
+    .cta-jump-button {
+      background: #FF0000; /* red */
+      color: #fff;
     }
 
     .progress-bar {
@@ -143,8 +151,8 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
-    let storyMap = {}; // Map story title to first slide index
-    let sequenceRanges = []; // Track [start, end] indices of sequences
+    let storyMap = {};
+    let sequenceRanges = [];
 
     async function loadStories() {
       const res = await fetch(sheetURL);
@@ -197,20 +205,20 @@
           overlay.appendChild(desc);
         }
 
-        // CTA Link (external)
+        // External link (yellow)
         if (story['CTA Text'] && story['CTA Link']) {
           const btn = document.createElement('a');
-          btn.className = 'cta-button';
+          btn.className = 'cta-button cta-link-button';
           btn.href = story['CTA Link'];
           btn.target = '_blank';
           btn.textContent = story['CTA Text'];
           overlay.appendChild(btn);
         }
 
-        // Story Jump (internal)
+        // Internal jump (red)
         if (story['CTA Text 2'] && story['Story Jump']) {
           const jumpBtn = document.createElement('button');
-          jumpBtn.className = 'cta-button';
+          jumpBtn.className = 'cta-button cta-jump-button';
           jumpBtn.textContent = story['CTA Text 2'];
           jumpBtn.addEventListener('click', () => {
             const target = storyMap[story['Story Jump'].trim()];
@@ -238,12 +246,10 @@
         wrapper.appendChild(slide);
       });
 
-      // Push last sequence
       if (currentSequence && currentStartIndex < data.length) {
         sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
       }
 
-      // Init Swiper
       window.swiper = new Swiper('.swiper', {
         direction: 'horizontal',
         slidesPerView: 1,
@@ -267,8 +273,7 @@
           seg.className = 'progress-segment';
           const fill = document.createElement('div');
           fill.className = 'progress-fill';
-          if (i < current) fill.style.width = '100%';
-          else if (i === current) fill.style.width = '100%';
+          if (i <= current) fill.style.width = '100%';
           seg.appendChild(fill);
           progressBar.appendChild(seg);
         }
