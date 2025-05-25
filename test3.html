@@ -69,6 +69,7 @@
       text-decoration: none;
       cursor: pointer;
       color: #000;
+      z-index: 30;
     }
 
     .cta-link-button {
@@ -288,19 +289,24 @@ if (story['CTA Text'] && story['CTA Link']) {
 
       updateProgress(0);
 
-      document.getElementById('tapLeft').addEventListener('click', () => {
-        if (swiper.activeIndex > 0) {
-          swiper.slidePrev();
-          updateProgress(swiper.activeIndex);
-        }
-      });
+     document.getElementById('tapLeft').addEventListener('click', () => {
+  const current = swiper.activeIndex;
+  const range = getCurrentSequence(current);
+  if (range && current > range.start) {
+    swiper.slidePrev();
+    updateProgress(swiper.activeIndex);
+  }
+});
 
-      document.getElementById('tapRight').addEventListener('click', () => {
-        if (swiper.activeIndex < swiper.slides.length - 1) {
-          swiper.slideNext();
-          updateProgress(swiper.activeIndex);
-        }
-      });
+document.getElementById('tapRight').addEventListener('click', () => {
+  const current = swiper.activeIndex;
+  const range = getCurrentSequence(current);
+  if (range && current < range.end) {
+    swiper.slideNext();
+    updateProgress(swiper.activeIndex);
+  }
+});
+
     }
 
     loadStories();
