@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stories</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
@@ -10,182 +10,165 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden;
-      background: #000;
+      width: 100%;
       font-family: sans-serif;
+      background: #000;
+      overflow: hidden;
     }
 
     .swiper {
-      width: 100vw;
       height: 100vh;
+      width: 100vw;
     }
 
     .swiper-slide {
-      width: 100vw;
-      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
       background-size: cover;
       background-position: center;
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
     }
 
-    .progress-bars {
+    .slide-overlay {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      z-index: 10;
-      display: flex;
-      gap: 5px;
+      bottom: 0;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      color: white;
+      text-align: center;
+    }
+
+    .slide-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-desc {
+      font-size: 1rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: #ffcc00;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 1rem;
+      text-decoration: none;
     }
 
     .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+      z-index: 10;
+    }
+
+    .progress-segment {
       flex: 1;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.3);
+      height: 4px;
+      background: rgba(255,255,255,0.3);
       border-radius: 2px;
       overflow: hidden;
     }
 
-    .progress-bar-fill {
+    .progress-fill {
       height: 100%;
       width: 0%;
       background: white;
-      transition: width 0.3s;
-    }
-
-    .slide-content {
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 1rem;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      width: 90%;
-      text-align: center;
-    }
-
-    .navigation-zones {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      z-index: 20;
-    }
-
-    .nav-left {
-      left: 0;
-    }
-
-    .nav-right {
-      right: 0;
-    }
-
-    .sponsored-tag {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.7);
-      color: black;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      z-index: 11;
+      transition: width 0.3s ease;
     }
   </style>
 </head>
 <body>
+  <div class="swiper">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="swiper-wrapper" id="storyWrapper"></div>
+  </div>
 
-<div class="swiper">
-  <div class="progress-bars" id="progress-bars"></div>
-  <div class="swiper-wrapper" id="story-wrapper"></div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+    async function loadStories() {
+      const res = await fetch(sheetURL);
+      const data = await res.json();
+      const wrapper = document.getElementById('storyWrapper');
+      const progressBar = document.getElementById('progressBar');
 
-async function loadStories() {
-  const res = await fetch(sheetURL);
-  const slides = await res.json();
-  const wrapper = document.getElementById('story-wrapper');
-  const progressContainer = document.getElementById('progress-bars');
+      data.forEach((story, index) => {
+        if (!story['Image URL']) return;
 
-  slides.forEach((slide, i) => {
-    if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.style.backgroundImage = `url(${story['Image URL']})`;
 
-    // Progress bar
-    const bar = document.createElement('div');
-    bar.className = 'progress-bar';
-    const fill = document.createElement('div');
-    fill.className = 'progress-bar-fill';
-    bar.appendChild(fill);
-    progressContainer.appendChild(bar);
+        const overlay = document.createElement('div');
+        overlay.className = 'slide-overlay';
 
-    // Slide
-    const div = document.createElement('div');
-    div.className = 'swiper-slide';
-    div.style.backgroundImage = `url(${slide['Image URL']})`;
+        if (story['Title']) {
+          const title = document.createElement('div');
+          title.className = 'slide-title';
+          title.textContent = story['Title'];
+          overlay.appendChild(title);
+        }
 
-    const content = document.createElement('div');
-    content.className = 'slide-content';
+        if (story['Description']) {
+          const desc = document.createElement('div');
+          desc.className = 'slide-desc';
+          desc.textContent = story['Description'];
+          overlay.appendChild(desc);
+        }
 
-    const title = document.createElement('div');
-    title.textContent = slide['Title'];
-    title.style.fontSize = '1.4rem';
-    title.style.fontWeight = 'bold';
+        if (story['CTA Text'] && story['CTA Link']) {
+          const btn = document.createElement('a');
+          btn.className = 'cta-button';
+          btn.href = story['CTA Link'];
+          btn.target = '_blank';
+          btn.textContent = story['CTA Text'];
+          overlay.appendChild(btn);
+        }
 
-    const desc = document.createElement('div');
-    desc.textContent = slide['Description'];
-    desc.style.marginTop = '0.5rem';
+        slide.appendChild(overlay);
+        wrapper.appendChild(slide);
 
-    content.appendChild(title);
-    content.appendChild(desc);
-    div.appendChild(content);
+        // Progress bar
+        const seg = document.createElement('div');
+        seg.className = 'progress-segment';
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        seg.appendChild(fill);
+        progressBar.appendChild(seg);
+      });
 
-    if ((slide['Type'] || '').toLowerCase() === 'ad') {
-      const tag = document.createElement('div');
-      tag.className = 'sponsored-tag';
-      tag.textContent = 'Sponsored';
-      div.appendChild(tag);
+      const swiper = new Swiper('.swiper', {
+        direction: 'horizontal',
+        slidesPerView: 1,
+        spaceBetween: 0,
+        loop: false,
+        on: {
+          slideChange: () => updateProgress(swiper.activeIndex)
+        }
+      });
+
+      function updateProgress(index) {
+        document.querySelectorAll('.progress-fill').forEach((el, i) => {
+          el.style.width = i < index ? '100%' : (i === index ? '100%' : '0%');
+        });
+      }
+
+      updateProgress(0);
     }
 
-    // Tap zones
-    const left = document.createElement('div');
-    left.className = 'navigation-zones nav-left';
-    left.onclick = () => swiper.slidePrev();
-    const right = document.createElement('div');
-    right.className = 'navigation-zones nav-right';
-    right.onclick = () => swiper.slideNext();
-
-    div.appendChild(left);
-    div.appendChild(right);
-    wrapper.appendChild(div);
-  });
-
-  window.swiper = new Swiper('.swiper', {
-    direction: 'horizontal',
-    loop: false,
-    slidesPerView: 1,
-    spaceBetween: 0,
-    on: {
-      slideChange: () => updateProgress(swiper.activeIndex)
-    }
-  });
-
-  updateProgress(0);
-}
-
-function updateProgress(index) {
-  const bars = document.querySelectorAll('.progress-bar-fill');
-  bars.forEach((bar, i) => {
-    bar.style.width = i < index ? '100%' : i === index ? '100%' : '0%';
-  });
-}
-
-loadStories();
-</script>
-
+    loadStories();
+  </script>
 </body>
 </html>
