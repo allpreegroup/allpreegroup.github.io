@@ -2,191 +2,195 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StoryBlog with Ads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Horizontal Stories</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
   <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    font-family: Arial, sans-serif;
-    background: #000;
-    color: #fff;
-    overflow: hidden;
-    box-sizing: border-box;
-    touch-action: pan-y;
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
+    }
 
-  *, *::before, *::after {
-    box-sizing: inherit;
-  }
+    .swiper {
+      width: 100vw;
+      height: 100vh;
+    }
 
-  .swiper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100dvh;
-    width: 100dvw;
-    overflow: hidden;
-  }
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      background-size: cover;
+      background-position: center;
+      padding: 1rem;
+      position: relative;
+    }
 
-  .swiper-wrapper {
-    width: 100%;
-    height: 100%;
-  }
+    .progress-bars {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
 
-  .swiper-slide {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 100%;
-    padding: 2rem 1rem;
-    position: relative;
-  }
+    .progress-bar {
+      flex: 1;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+      border-radius: 3px;
+    }
 
-  .slide-content {
-    background: rgba(0, 0, 0, 0.6);
-    padding: 1rem;
-    border-radius: 12px;
-    text-align: center;
-    max-width: 100%;
-    width: 100%;
-    word-wrap: break-word;
-  }
+    .progress-bar-fill {
+      height: 100%;
+      background: white;
+      width: 0%;
+      transition: width 0.3s linear;
+    }
 
-  .slide-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
+    .slide-content {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      width: 90%;
+    }
 
-  .slide-desc {
-    margin-top: 0.5rem;
-    font-size: 1rem;
-  }
+    .slide-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
 
-  .cta-button {
-    margin-top: 1rem;
-    background: #ffcc00;
-    color: #000;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    max-width: 100%;
-    overflow-wrap: break-word;
-  }
+    .slide-desc {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
 
-  .sponsored-tag {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.8);
-    color: #000;
-    font-size: 0.8rem;
-    padding: 0.3rem 0.5rem;
-    border-radius: 5px;
-  }
+    .navigation-zones {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      z-index: 5;
+    }
 
-  #loading {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100dvh;
-    width: 100dvw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    z-index: 10;
-    font-size: 1.2rem;
-    color: #fff;
-  }
-</style>
+    .nav-left {
+      left: 0;
+    }
 
+    .nav-right {
+      right: 0;
+    }
 
-
+    .sponsored-tag {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      color: #000;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
- <div class="swiper">
+
+<div class="swiper">
+  <div class="progress-bars" id="progress-bars"></div>
   <div class="swiper-wrapper" id="story-wrapper"></div>
-  <div id="loading">Loading stories...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
 
-  async function loadStories() {
-    const res = await fetch(sheetURL);
-    const slides = await res.json();
-    const wrapper = document.getElementById('story-wrapper');
-    const loading = document.getElementById('loading');
+async function loadStories() {
+  const res = await fetch(sheetURL);
+  const slides = await res.json();
+  const wrapper = document.getElementById('story-wrapper');
+  const progressContainer = document.getElementById('progress-bars');
 
-    slides.forEach(slide => {
-      if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
+  slides.forEach((slide, i) => {
+    if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
 
-      const div = document.createElement('div');
-      div.className = 'swiper-slide';
-      div.style.backgroundImage = `url(${slide['Image URL']})`;
+    // Create progress bar
+    const bar = document.createElement('div');
+    bar.className = 'progress-bar';
+    const fill = document.createElement('div');
+    fill.className = 'progress-bar-fill';
+    bar.appendChild(fill);
+    progressContainer.appendChild(bar);
 
-      const content = document.createElement('div');
-      content.className = 'slide-content';
+    const div = document.createElement('div');
+    div.className = 'swiper-slide';
+    div.style.backgroundImage = `url(${slide['Image URL']})`;
 
-      const title = document.createElement('div');
-      title.className = 'slide-title';
-      title.textContent = slide['Title'];
+    const content = document.createElement('div');
+    content.className = 'slide-content';
 
-      const desc = document.createElement('div');
-      desc.className = 'slide-desc';
-      desc.textContent = slide['Description'];
+    const title = document.createElement('div');
+    title.className = 'slide-title';
+    title.textContent = slide['Title'];
 
-      content.appendChild(title);
-      content.appendChild(desc);
+    const desc = document.createElement('div');
+    desc.className = 'slide-desc';
+    desc.textContent = slide['Description'];
 
-      if (slide['CTA Text'] && slide['CTA Link']) {
-        const btn = document.createElement('a');
-        btn.className = 'cta-button';
-        btn.href = slide['CTA Link'];
-        btn.target = '_blank';
-        btn.textContent = slide['CTA Text'];
-        content.appendChild(btn);
-      }
+    content.appendChild(title);
+    content.appendChild(desc);
 
-      if ((slide['Type'] || '').toLowerCase() === 'ad') {
-        const tag = document.createElement('div');
-        tag.className = 'sponsored-tag';
-        tag.textContent = 'Sponsored';
-        div.appendChild(tag);
-      }
+    if ((slide['Type'] || '').toLowerCase() === 'ad') {
+      const tag = document.createElement('div');
+      tag.className = 'sponsored-tag';
+      tag.textContent = 'Sponsored';
+      div.appendChild(tag);
+    }
 
-      div.appendChild(content);
-      wrapper.appendChild(div);
-    });
+    div.appendChild(content);
 
-    new Swiper('.swiper', {
-      direction: 'vertical',
-      loop: false,
-      slidesPerView: 1,
-      spaceBetween: 0,
-      mousewheel: true,
-    });
+    // Add left/right tap zones
+    const left = document.createElement('div');
+    left.className = 'navigation-zones nav-left';
+    left.onclick = () => swiper.slidePrev();
+    const right = document.createElement('div');
+    right.className = 'navigation-zones nav-right';
+    right.onclick = () => swiper.slideNext();
 
-    loading.style.display = 'none';
-  }
+    div.appendChild(left);
+    div.appendChild(right);
+    wrapper.appendChild(div);
+  });
 
-  loadStories();
+  window.swiper = new Swiper('.swiper', {
+    direction: 'horizontal',
+    loop: false,
+    slidesPerView: 1,
+    on: {
+      slideChange: () => updateProgress(swiper.activeIndex)
+    }
+  });
+
+  updateProgress(0);
+}
+
+function updateProgress(index) {
+  const bars = document.querySelectorAll('.progress-bar-fill');
+  bars.forEach((bar, i) => {
+    bar.style.width = i < index ? '100%' : i === index ? '100%' : '0%';
+  });
+}
+
+loadStories();
 </script>
-
 
 </body>
 </html>
