@@ -67,6 +67,8 @@
 <body>
   <div class="swiper">
     <div class="swiper-wrapper" id="story-wrapper"></div>
+    <div id="loading" style="text-align:center;padding-top:50vh;">Loading stories...</div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -78,44 +80,48 @@
       const slides = await res.json();
       const wrapper = document.getElementById('story-wrapper');
 
-      slides.forEach(slide => {
-        const div = document.createElement('div');
-        div.className = 'swiper-slide';
-        div.style.backgroundImage = `url(${slide['Image URL']})`;
+     slides.forEach(slide => {
+  // Skip empty rows
+  if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
 
-        const content = document.createElement('div');
-        content.className = 'slide-content';
+  const div = document.createElement('div');
+  div.className = 'swiper-slide';
+  div.style.backgroundImage = `url(${slide['Image URL']})`;
 
-        const title = document.createElement('div');
-        title.className = 'slide-title';
-        title.textContent = slide['Title'];
+  const content = document.createElement('div');
+  content.className = 'slide-content';
 
-        const desc = document.createElement('div');
-        desc.className = 'slide-desc';
-        desc.textContent = slide['Description'];
+  const title = document.createElement('div');
+  title.className = 'slide-title';
+  title.textContent = slide['Title'];
 
-        content.appendChild(title);
-        content.appendChild(desc);
+  const desc = document.createElement('div');
+  desc.className = 'slide-desc';
+  desc.textContent = slide['Description'];
 
-        if (slide['CTA Text'] && slide['CTA Link']) {
-          const btn = document.createElement('a');
-          btn.className = 'cta-button';
-          btn.href = slide['CTA Link'];
-          btn.target = '_blank';
-          btn.textContent = slide['CTA Text'];
-          content.appendChild(btn);
-        }
+  content.appendChild(title);
+  content.appendChild(desc);
 
-        if (slide['Type'] === 'ad') {
-          const tag = document.createElement('div');
-          tag.className = 'sponsored-tag';
-          tag.textContent = 'Sponsored';
-          div.appendChild(tag);
-        }
+  if (slide['CTA Text'] && slide['CTA Link']) {
+    const btn = document.createElement('a');
+    btn.className = 'cta-button';
+    btn.href = slide['CTA Link'];
+    btn.target = '_blank';
+    btn.textContent = slide['CTA Text'];
+    content.appendChild(btn);
+  }
 
-        div.appendChild(content);
-        wrapper.appendChild(div);
-      });
+  if ((slide['Type'] || '').toLowerCase() === 'ad') {
+    const tag = document.createElement('div');
+    tag.className = 'sponsored-tag';
+    tag.textContent = 'Sponsored';
+    div.appendChild(tag);
+  }
+
+  div.appendChild(content);
+  wrapper.appendChild(div);
+});
+
 
       new Swiper('.swiper', {
         direction: 'vertical',
@@ -127,6 +133,8 @@
     }
 
     loadStories();
+    document.getElementById('loading').style.display = 'none';
+
   </script>
 </body>
 </html>
