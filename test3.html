@@ -11,23 +11,23 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      font-family: sans-serif;
       background: #000;
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
     .swiper {
-      height: 100vh;
       width: 100vw;
+      height: 100vh;
     }
 
     .swiper-slide {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
       background-size: cover;
       background-position: center;
       position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
     }
 
     .slide-overlay {
@@ -43,11 +43,11 @@
     .slide-title {
       font-size: 1.5rem;
       font-weight: bold;
-      margin-bottom: 0.5rem;
     }
 
     .slide-desc {
       font-size: 1rem;
+      margin-top: 0.5rem;
     }
 
     .cta-button {
@@ -68,7 +68,7 @@
       right: 0;
       display: flex;
       gap: 4px;
-      padding: 8px;
+      padding: 10px;
       z-index: 10;
     }
 
@@ -86,12 +86,52 @@
       background: white;
       transition: width 0.3s ease;
     }
+
+    .tap-zone {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      z-index: 20;
+    }
+
+    .tap-left {
+      left: 0;
+    }
+
+    .tap-right {
+      right: 0;
+    }
+
+    .sponsored-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #fff;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .brand-logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      height: 32px;
+      width: auto;
+      border-radius: 6px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div class="swiper">
     <div class="progress-bar" id="progressBar"></div>
     <div class="swiper-wrapper" id="storyWrapper"></div>
+    <div class="tap-zone tap-left" id="tapLeft"></div>
+    <div class="tap-zone tap-right" id="tapRight"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -137,6 +177,21 @@
           overlay.appendChild(btn);
         }
 
+        if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
+          const label = document.createElement('div');
+          label.className = 'sponsored-label';
+          label.textContent = 'Sponsored';
+          slide.appendChild(label);
+        }
+
+        if (story['Brand Logo']) {
+          const logo = document.createElement('img');
+          logo.className = 'brand-logo';
+          logo.src = story['Brand Logo'];
+          logo.alt = 'Logo';
+          slide.appendChild(logo);
+        }
+
         slide.appendChild(overlay);
         wrapper.appendChild(slide);
 
@@ -152,11 +207,7 @@
       const swiper = new Swiper('.swiper', {
         direction: 'horizontal',
         slidesPerView: 1,
-        spaceBetween: 0,
-        loop: false,
-        on: {
-          slideChange: () => updateProgress(swiper.activeIndex)
-        }
+        allowTouchMove: false, // disable swipe, tap only
       });
 
       function updateProgress(index) {
@@ -166,6 +217,21 @@
       }
 
       updateProgress(0);
+
+      // Tap-to-go
+      document.getElementById('tapLeft').addEventListener('click', () => {
+        if (swiper.activeIndex > 0) {
+          swiper.slidePrev();
+          updateProgress(swiper.activeIndex);
+        }
+      });
+
+      document.getElementById('tapRight').addEventListener('click', () => {
+        if (swiper.activeIndex < swiper.slides.length - 1) {
+          swiper.slideNext();
+          updateProgress(swiper.activeIndex);
+        }
+      });
     }
 
     loadStories();
