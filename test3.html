@@ -67,8 +67,9 @@
       padding: 0.75rem 1.25rem;
       border-radius: 10px;
       font-weight: bold;
-      margin-top: 1rem;
+      margin: 0.5rem 0.25rem 0;
       text-decoration: none;
+      cursor: pointer;
     }
 
     .progress-bar {
@@ -105,13 +106,8 @@
       z-index: 20;
     }
 
-    .tap-left {
-      left: 0;
-    }
-
-    .tap-right {
-      right: 0;
-    }
+    .tap-left { left: 0; }
+    .tap-right { right: 0; }
 
     .sponsored-label {
       position: absolute;
@@ -134,18 +130,6 @@
       border-radius: 6px;
       z-index: 10;
     }
-
-    .thanks-message {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-
-    .whats-next {
-      font-size: 1rem;
-      margin-top: 0.5rem;
-      opacity: 0.8;
-    }
   </style>
 </head>
 <body>
@@ -159,13 +143,17 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
-    let storyMap = {}; // Map from sequence headline to index
+    let storyMap = {}; // Map story title to first slide index
+    let sequenceRanges = []; // Track [start, end] indices of sequences
 
     async function loadStories() {
       const res = await fetch(sheetURL);
       const data = await res.json();
       const wrapper = document.getElementById('storyWrapper');
       const progressBar = document.getElementById('progressBar');
+
+      let currentSequence = '';
+      let currentStartIndex = 0;
 
       data.forEach((story, index) => {
         if (!story['Image URL']) return;
@@ -178,19 +166,23 @@
         overlay.className = 'slide-overlay';
 
         const slideNumber = parseInt(story['Slide #']);
-        const sequenceTitle = story['Story Title']?.trim();
+        const sequenceTitle = story['Story Title'];
 
-        // Story intro
         if (slideNumber === 1 && sequenceTitle) {
           slide.classList.add('headline-slide');
           const headline = document.createElement('div');
           headline.className = 'slide-title';
           headline.textContent = sequenceTitle;
           overlay.appendChild(headline);
-          storyMap[sequenceTitle] = index;
+
+          if (currentSequence && currentStartIndex < index) {
+            sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
+          }
+          storyMap[sequenceTitle.trim()] = index;
+          currentSequence = sequenceTitle.trim();
+          currentStartIndex = index;
         }
 
-        // Regular title
         if (story['Title'] && !(slideNumber === 1 && sequenceTitle)) {
           const title = document.createElement('div');
           title.className = 'slide-title';
@@ -198,7 +190,6 @@
           overlay.appendChild(title);
         }
 
-        // Description
         if (story['Description']) {
           const desc = document.createElement('div');
           desc.className = 'slide-desc';
@@ -206,7 +197,7 @@
           overlay.appendChild(desc);
         }
 
-        // CTA (Link or Jump)
+        // CTA Link (external)
         if (story['CTA Text'] && story['CTA Link']) {
           const btn = document.createElement('a');
           btn.className = 'cta-button';
@@ -214,18 +205,20 @@
           btn.target = '_blank';
           btn.textContent = story['CTA Text'];
           overlay.appendChild(btn);
-        } else if (story['CTA Text'] && story['Story Jump']) {
-          const btn = document.createElement('button');
-          btn.className = 'cta-button';
-          btn.textContent = story['CTA Text'];
-          btn.addEventListener('click', () => {
+        }
+
+        // Story Jump (internal)
+        if (story['CTA Text 2'] && story['Story Jump']) {
+          const jumpBtn = document.createElement('button');
+          jumpBtn.className = 'cta-button';
+          jumpBtn.textContent = story['CTA Text 2'];
+          jumpBtn.addEventListener('click', () => {
             const target = storyMap[story['Story Jump'].trim()];
             if (target !== undefined) swiper.slideTo(target);
           });
-          overlay.appendChild(btn);
+          overlay.appendChild(jumpBtn);
         }
 
-        // Sponsored tag
         if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
           const label = document.createElement('div');
           label.className = 'sponsored-label';
@@ -233,7 +226,6 @@
           slide.appendChild(label);
         }
 
-        // Brand logo
         if (story['Brand Logo']) {
           const logo = document.createElement('img');
           logo.className = 'brand-logo';
@@ -242,54 +234,44 @@
           slide.appendChild(logo);
         }
 
-        // End slide message
-        if (story['Final Slide']?.toLowerCase() === 'true') {
-          const thanks = document.createElement('div');
-          thanks.className = 'thanks-message';
-          thanks.textContent = 'Thanks for reading!';
-          overlay.appendChild(thanks);
-
-          if (story['What’s Next']) {
-            const whatsNext = document.createElement('div');
-            whatsNext.className = 'whats-next';
-            whatsNext.textContent = `Next up: ${story['What’s Next']}`;
-            overlay.appendChild(whatsNext);
-          }
-
-          if (story['Story Jump']) {
-            const btn = document.createElement('button');
-            btn.className = 'cta-button';
-            btn.textContent = 'Read Next';
-            btn.addEventListener('click', () => {
-              const target = storyMap[story['Story Jump'].trim()];
-              if (target !== undefined) swiper.slideTo(target);
-            });
-            overlay.appendChild(btn);
-          }
-        }
-
         slide.appendChild(overlay);
         wrapper.appendChild(slide);
-
-        // Add progress bar segment
-        const seg = document.createElement('div');
-        seg.className = 'progress-segment';
-        const fill = document.createElement('div');
-        fill.className = 'progress-fill';
-        seg.appendChild(fill);
-        progressBar.appendChild(seg);
       });
 
+      // Push last sequence
+      if (currentSequence && currentStartIndex < data.length) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+      }
+
+      // Init Swiper
       window.swiper = new Swiper('.swiper', {
         direction: 'horizontal',
         slidesPerView: 1,
         allowTouchMove: false,
       });
 
+      function getCurrentSequence(index) {
+        return sequenceRanges.find(r => index >= r.start && index <= r.end);
+      }
+
       function updateProgress(index) {
-        document.querySelectorAll('.progress-fill').forEach((el, i) => {
-          el.style.width = i < index ? '100%' : (i === index ? '100%' : '0%');
-        });
+        const range = getCurrentSequence(index);
+        if (!range) return;
+
+        const total = range.end - range.start + 1;
+        const current = index - range.start;
+
+        progressBar.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+          const seg = document.createElement('div');
+          seg.className = 'progress-segment';
+          const fill = document.createElement('div');
+          fill.className = 'progress-fill';
+          if (i < current) fill.style.width = '100%';
+          else if (i === current) fill.style.width = '100%';
+          seg.appendChild(fill);
+          progressBar.appendChild(seg);
+        }
       }
 
       updateProgress(0);
