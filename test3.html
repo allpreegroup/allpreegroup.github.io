@@ -134,6 +134,18 @@
       border-radius: 6px;
       z-index: 10;
     }
+
+    .thanks-message {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .whats-next {
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -166,20 +178,19 @@
         overlay.className = 'slide-overlay';
 
         const slideNumber = parseInt(story['Slide #']);
-        const sequenceTitle = story['Story Title'];
+        const sequenceTitle = story['Story Title']?.trim();
 
-        // If this is a story intro slide
+        // Story intro
         if (slideNumber === 1 && sequenceTitle) {
           slide.classList.add('headline-slide');
           const headline = document.createElement('div');
           headline.className = 'slide-title';
           headline.textContent = sequenceTitle;
           overlay.appendChild(headline);
-
-          // Map story title to slide index
-          storyMap[sequenceTitle.trim()] = index;
+          storyMap[sequenceTitle] = index;
         }
 
+        // Regular title
         if (story['Title'] && !(slideNumber === 1 && sequenceTitle)) {
           const title = document.createElement('div');
           title.className = 'slide-title';
@@ -187,6 +198,7 @@
           overlay.appendChild(title);
         }
 
+        // Description
         if (story['Description']) {
           const desc = document.createElement('div');
           desc.className = 'slide-desc';
@@ -194,6 +206,7 @@
           overlay.appendChild(desc);
         }
 
+        // CTA (Link or Jump)
         if (story['CTA Text'] && story['CTA Link']) {
           const btn = document.createElement('a');
           btn.className = 'cta-button';
@@ -212,6 +225,7 @@
           overlay.appendChild(btn);
         }
 
+        // Sponsored tag
         if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
           const label = document.createElement('div');
           label.className = 'sponsored-label';
@@ -219,6 +233,7 @@
           slide.appendChild(label);
         }
 
+        // Brand logo
         if (story['Brand Logo']) {
           const logo = document.createElement('img');
           logo.className = 'brand-logo';
@@ -227,9 +242,36 @@
           slide.appendChild(logo);
         }
 
+        // End slide message
+        if (story['Final Slide']?.toLowerCase() === 'true') {
+          const thanks = document.createElement('div');
+          thanks.className = 'thanks-message';
+          thanks.textContent = 'Thanks for reading!';
+          overlay.appendChild(thanks);
+
+          if (story['What’s Next']) {
+            const whatsNext = document.createElement('div');
+            whatsNext.className = 'whats-next';
+            whatsNext.textContent = `Next up: ${story['What’s Next']}`;
+            overlay.appendChild(whatsNext);
+          }
+
+          if (story['Story Jump']) {
+            const btn = document.createElement('button');
+            btn.className = 'cta-button';
+            btn.textContent = 'Read Next';
+            btn.addEventListener('click', () => {
+              const target = storyMap[story['Story Jump'].trim()];
+              if (target !== undefined) swiper.slideTo(target);
+            });
+            overlay.appendChild(btn);
+          }
+        }
+
         slide.appendChild(overlay);
         wrapper.appendChild(slide);
 
+        // Add progress bar segment
         const seg = document.createElement('div');
         seg.className = 'progress-segment';
         const fill = document.createElement('div');
