@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Horizontal Stories</title>
+  <title>Stories</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
     html, body {
@@ -11,9 +11,8 @@
       padding: 0;
       height: 100%;
       overflow: hidden;
-      font-family: sans-serif;
       background: #000;
-      color: #fff;
+      font-family: sans-serif;
     }
 
     .swiper {
@@ -22,13 +21,14 @@
     }
 
     .swiper-slide {
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      position: relative;
       display: flex;
       justify-content: center;
       align-items: flex-end;
-      background-size: cover;
-      background-position: center;
-      padding: 1rem;
-      position: relative;
     }
 
     .progress-bars {
@@ -36,42 +36,34 @@
       top: 10px;
       left: 10px;
       right: 10px;
+      z-index: 10;
       display: flex;
       gap: 5px;
-      z-index: 10;
     }
 
     .progress-bar {
       flex: 1;
       height: 3px;
       background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
       overflow: hidden;
-      border-radius: 3px;
     }
 
     .progress-bar-fill {
       height: 100%;
-      background: white;
       width: 0%;
-      transition: width 0.3s linear;
+      background: white;
+      transition: width 0.3s;
     }
 
     .slide-content {
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
       padding: 1rem;
-      border-radius: 12px;
-      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 10px;
       width: 90%;
-    }
-
-    .slide-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-
-    .slide-desc {
-      margin-top: 0.5rem;
-      font-size: 1rem;
+      text-align: center;
     }
 
     .navigation-zones {
@@ -79,7 +71,7 @@
       top: 0;
       bottom: 0;
       width: 50%;
-      z-index: 5;
+      z-index: 20;
     }
 
     .nav-left {
@@ -92,13 +84,14 @@
 
     .sponsored-tag {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 255, 255, 0.8);
-      color: #000;
-      font-size: 0.8rem;
-      padding: 0.3rem 0.5rem;
-      border-radius: 5px;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      color: black;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 11;
     }
   </style>
 </head>
@@ -122,7 +115,7 @@ async function loadStories() {
   slides.forEach((slide, i) => {
     if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
 
-    // Create progress bar
+    // Progress bar
     const bar = document.createElement('div');
     bar.className = 'progress-bar';
     const fill = document.createElement('div');
@@ -130,6 +123,7 @@ async function loadStories() {
     bar.appendChild(fill);
     progressContainer.appendChild(bar);
 
+    // Slide
     const div = document.createElement('div');
     div.className = 'swiper-slide';
     div.style.backgroundImage = `url(${slide['Image URL']})`;
@@ -138,15 +132,17 @@ async function loadStories() {
     content.className = 'slide-content';
 
     const title = document.createElement('div');
-    title.className = 'slide-title';
     title.textContent = slide['Title'];
+    title.style.fontSize = '1.4rem';
+    title.style.fontWeight = 'bold';
 
     const desc = document.createElement('div');
-    desc.className = 'slide-desc';
     desc.textContent = slide['Description'];
+    desc.style.marginTop = '0.5rem';
 
     content.appendChild(title);
     content.appendChild(desc);
+    div.appendChild(content);
 
     if ((slide['Type'] || '').toLowerCase() === 'ad') {
       const tag = document.createElement('div');
@@ -155,9 +151,7 @@ async function loadStories() {
       div.appendChild(tag);
     }
 
-    div.appendChild(content);
-
-    // Add left/right tap zones
+    // Tap zones
     const left = document.createElement('div');
     left.className = 'navigation-zones nav-left';
     left.onclick = () => swiper.slidePrev();
@@ -174,6 +168,7 @@ async function loadStories() {
     direction: 'horizontal',
     loop: false,
     slidesPerView: 1,
+    spaceBetween: 0,
     on: {
       slideChange: () => updateProgress(swiper.activeIndex)
     }
