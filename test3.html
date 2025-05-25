@@ -50,12 +50,22 @@
       margin-top: 0.5rem;
     }
 
+    .headline-slide .slide-title {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .headline-slide {
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
     .cta-button {
       display: inline-block;
-      background: #ffcc00;
-      color: #000;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
+      background: #ff0000;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
       font-weight: bold;
       margin-top: 1rem;
       text-decoration: none;
@@ -137,6 +147,7 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+    let storyMap = {}; // Map from sequence headline to index
 
     async function loadStories() {
       const res = await fetch(sheetURL);
@@ -154,7 +165,22 @@
         const overlay = document.createElement('div');
         overlay.className = 'slide-overlay';
 
-        if (story['Title']) {
+        const slideNumber = parseInt(story['Slide #']);
+        const sequenceTitle = story['Story Title'];
+
+        // If this is a story intro slide
+        if (slideNumber === 1 && sequenceTitle) {
+          slide.classList.add('headline-slide');
+          const headline = document.createElement('div');
+          headline.className = 'slide-title';
+          headline.textContent = sequenceTitle;
+          overlay.appendChild(headline);
+
+          // Map story title to slide index
+          storyMap[sequenceTitle.trim()] = index;
+        }
+
+        if (story['Title'] && !(slideNumber === 1 && sequenceTitle)) {
           const title = document.createElement('div');
           title.className = 'slide-title';
           title.textContent = story['Title'];
@@ -174,6 +200,15 @@
           btn.href = story['CTA Link'];
           btn.target = '_blank';
           btn.textContent = story['CTA Text'];
+          overlay.appendChild(btn);
+        } else if (story['CTA Text'] && story['Story Jump']) {
+          const btn = document.createElement('button');
+          btn.className = 'cta-button';
+          btn.textContent = story['CTA Text'];
+          btn.addEventListener('click', () => {
+            const target = storyMap[story['Story Jump'].trim()];
+            if (target !== undefined) swiper.slideTo(target);
+          });
           overlay.appendChild(btn);
         }
 
@@ -195,7 +230,6 @@
         slide.appendChild(overlay);
         wrapper.appendChild(slide);
 
-        // Progress bar
         const seg = document.createElement('div');
         seg.className = 'progress-segment';
         const fill = document.createElement('div');
@@ -204,10 +238,10 @@
         progressBar.appendChild(seg);
       });
 
-      const swiper = new Swiper('.swiper', {
+      window.swiper = new Swiper('.swiper', {
         direction: 'horizontal',
         slidesPerView: 1,
-        allowTouchMove: false, // disable swipe, tap only
+        allowTouchMove: false,
       });
 
       function updateProgress(index) {
@@ -218,7 +252,6 @@
 
       updateProgress(0);
 
-      // Tap-to-go
       document.getElementById('tapLeft').addEventListener('click', () => {
         if (swiper.activeIndex > 0) {
           swiper.slidePrev();
