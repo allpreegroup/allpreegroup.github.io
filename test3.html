@@ -138,6 +138,7 @@
     const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
     let storyMap = {};
     let sequenceRanges = [];
+    let swiper;
 
     async function loadStories() {
       const res = await fetch(sheetURL);
@@ -145,9 +146,53 @@
       const wrapper = document.getElementById('storyWrapper');
       const progressBar = document.getElementById('progressBar');
 
+      // Preprocess sequence titles and ranges
       let currentSequence = '';
       let currentStartIndex = 0;
+      data.forEach((story, index) => {
+        if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+          if (currentSequence) {
+            sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
+          }
+          currentSequence = story['Story Title'].trim();
+          currentStartIndex = index;
+          storyMap[currentSequence] = index;
+        }
+      });
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+      }
 
+      // Initialize Swiper BEFORE attaching button events
+      swiper = new Swiper('.swiper', {
+        direction: 'horizontal',
+        slidesPerView: 1,
+        allowTouchMove: false,
+      });
+
+      function getCurrentSequence(index) {
+        return sequenceRanges.find(r => index >= r.start && index <= r.end);
+      }
+
+      function updateProgress(index) {
+        const range = getCurrentSequence(index);
+        if (!range) return;
+        const total = range.end - range.start + 1;
+        const current = index - range.start;
+
+        progressBar.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+          const seg = document.createElement('div');
+          seg.className = 'progress-segment';
+          const fill = document.createElement('div');
+          fill.className = 'progress-fill';
+          if (i <= current) fill.style.width = '100%';
+          seg.appendChild(fill);
+          progressBar.appendChild(seg);
+        }
+      }
+
+      // Now render slides and attach CTA buttons
       data.forEach((story, index) => {
         if (!story['Image URL']) return;
 
@@ -158,25 +203,15 @@
         const overlay = document.createElement('div');
         overlay.className = 'slide-overlay';
 
-        const slideNumber = parseInt(story['Slide #']);
-        const sequenceTitle = story['Story Title'];
-
-        if (slideNumber === 1 && sequenceTitle) {
+        if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
           slide.classList.add('headline-slide');
-          const headline = document.createElement('div');
-          headline.className = 'slide-title';
-          headline.textContent = sequenceTitle;
-          overlay.appendChild(headline);
-
-          if (currentSequence && currentStartIndex < index) {
-            sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-          }
-          storyMap[sequenceTitle.trim()] = index;
-          currentSequence = sequenceTitle.trim();
-          currentStartIndex = index;
+          const title = document.createElement('div');
+          title.className = 'slide-title';
+          title.textContent = story['Story Title'];
+          overlay.appendChild(title);
         }
 
-        if (story['Title'] && !(slideNumber === 1 && sequenceTitle)) {
+        if (story['Title'] && !(parseInt(story['Slide #']) === 1 && story['Story Title'])) {
           const title = document.createElement('div');
           title.className = 'slide-title';
           title.textContent = story['Title'];
@@ -190,27 +225,26 @@
           overlay.appendChild(desc);
         }
 
-        // Yellow external link
         if (story['CTA Text'] && story['CTA Link']) {
-          const btn = document.createElement('a');
-          btn.className = 'cta-button cta-link-button';
-          btn.href = story['CTA Link'];
-          btn.target = '_blank';
-          btn.textContent = story['CTA Text'];
-          btn.addEventListener('click', (e) => e.stopPropagation());
-          overlay.appendChild(btn);
+          const linkBtn = document.createElement('a');
+          linkBtn.className = 'cta-button cta-link-button';
+          linkBtn.href = story['CTA Link'];
+          linkBtn.target = '_blank';
+          linkBtn.textContent = story['CTA Text'];
+          linkBtn.addEventListener('click', e => e.stopPropagation());
+          overlay.appendChild(linkBtn);
         }
 
-        // Red jump button
         if (story['CTA Text 2'] && story['Story Jump']) {
           const jumpBtn = document.createElement('button');
           jumpBtn.className = 'cta-button cta-jump-button';
           jumpBtn.textContent = story['CTA Text 2'];
-          jumpBtn.addEventListener('click', () => {
-            const targetIndex = storyMap[story['Story Jump'].trim()];
-            if (targetIndex !== undefined) {
-              swiper.slideTo(targetIndex);
-              updateProgress(targetIndex);
+          jumpBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const jumpTarget = storyMap[story['Story Jump'].trim()];
+            if (jumpTarget !== undefined) {
+              swiper.slideTo(jumpTarget);
+              updateProgress(jumpTarget);
             }
           });
           overlay.appendChild(jumpBtn);
@@ -234,39 +268,6 @@
         slide.appendChild(overlay);
         wrapper.appendChild(slide);
       });
-
-      if (currentSequence && currentStartIndex < data.length) {
-        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
-      }
-
-      window.swiper = new Swiper('.swiper', {
-        direction: 'horizontal',
-        slidesPerView: 1,
-        allowTouchMove: false,
-      });
-
-      function getCurrentSequence(index) {
-        return sequenceRanges.find(r => index >= r.start && index <= r.end);
-      }
-
-      function updateProgress(index) {
-        const range = getCurrentSequence(index);
-        if (!range) return;
-
-        const total = range.end - range.start + 1;
-        const current = index - range.start;
-
-        progressBar.innerHTML = '';
-        for (let i = 0; i < total; i++) {
-          const seg = document.createElement('div');
-          seg.className = 'progress-segment';
-          const fill = document.createElement('div');
-          fill.className = 'progress-fill';
-          if (i <= current) fill.style.width = '100%';
-          seg.appendChild(fill);
-          progressBar.appendChild(seg);
-        }
-      }
 
       updateProgress(0);
 
