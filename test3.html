@@ -2,96 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Story Swiper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Allpree Stories</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      width: 100%;
-      background: #000;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
     }
     .swiper {
       width: 100vw;
       height: 100vh;
     }
     .swiper-slide {
-      background-size: cover;
-      background-position: center;
       position: relative;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
+      font-size: 24px;
+      background: #000;
+      color: #fff;
     }
     .slide-overlay {
       position: absolute;
-      bottom: 0;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 1rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-      color: white;
-      text-align: center;
-    }
-    .slide-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .slide-desc {
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-    .headline-slide .slide-title {
-      font-size: 2rem;
-      font-weight: 800;
-    }
-    .headline-slide {
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    .cta-container {
+      height: 100%;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      pointer-events: auto;
+      z-index: 20;
     }
     .cta-button {
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      font-weight: bold;
-      text-decoration: none;
+      margin: 10px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
       cursor: pointer;
+      pointer-events: auto !important;
+      z-index: 30 !important;
+    }
+    .cta-link {
+      background-color: gold;
       color: #000;
-      z-index: 30;
-      position: relative;
-      flex: 1 1 auto;
-      max-width: 45%;
     }
-    .cta-link-button {
-      background: #FFD700;
-    }
-    .cta-jump-button {
-      background: #FF0000;
+    .cta-jump {
+      background-color: red;
       color: #fff;
     }
-    .progress-bar {
+    .tap-zone {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .tap-left {
+      left: 0;
+    }
+    .tap-right {
+      right: 0;
+    }
+    .progress-bar-container {
       position: absolute;
       top: 0;
       left: 0;
-      right: 0;
+      width: 100%;
       display: flex;
-      gap: 4px;
-      padding: 10px;
-      z-index: 10;
+      gap: 2px;
+      padding: 5px;
+      z-index: 25;
     }
-    .progress-segment {
+    .progress-bar {
       flex: 1;
       height: 4px;
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.3);
       border-radius: 2px;
       overflow: hidden;
     }
@@ -99,209 +94,102 @@
       height: 100%;
       width: 0%;
       background: white;
-      transition: width 0.3s ease;
-    }
-    .tap-zone {
-      position: absolute;
-      width: 50%;
-      height: 100%;
-      top: 0;
-      z-index: 20;
-    }
-    .tap-left { left: 0; }
-    .tap-right { right: 0; }
-    .sponsored-label {
-      position: absolute;
-      top: 20px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #fff;
-      border-radius: 4px;
-      z-index: 10;
-    }
-    .brand-logo {
-      position: absolute;
-      top: 20px;
-      left: 10px;
-      height: 32px;
-      width: auto;
-      border-radius: 6px;
-      z-index: 10;
+      transition: width 0.3s;
     }
   </style>
 </head>
 <body>
   <div class="swiper">
-    <div class="swiper-wrapper" id="storyWrapper"></div>
-    <div class="progress-bar" id="progressBar"></div>
-    <div class="tap-zone tap-left" id="tapLeft"></div>
-    <div class="tap-zone tap-right" id="tapRight"></div>
+    <div class="swiper-wrapper" id="story-wrapper">
+      <!-- Slides will be injected here -->
+    </div>
+    <div class="tap-zone tap-left"></div>
+    <div class="tap-zone tap-right"></div>
+    <div class="progress-bar-container" id="progress-container"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
-    const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
-    let storyMap = {};
-    let sequenceRanges = [];
-    let swiper;
-
-    async function loadStories() {
-      const res = await fetch(sheetURL);
-      const data = await res.json();
-      const wrapper = document.getElementById('storyWrapper');
-      const progressBar = document.getElementById('progressBar');
-
-      let currentSequence = '';
-      let currentStartIndex = 0;
-      data.forEach((story, index) => {
-        if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-          if (currentSequence) {
-            sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-          }
-          currentSequence = story['Story Title'].trim();
-          currentStartIndex = index;
-          storyMap[currentSequence] = index;
-        }
-      });
-      if (currentSequence) {
-        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+    const storyData = [
+      {
+        title: "Slide 1",
+        content: "Welcome to Allpree Stories!",
+        ctaLink: "https://example.com",
+        jumpToIndex: null,
+      },
+      {
+        title: "Slide 2",
+        content: "Check out our latest offers!",
+        ctaLink: null,
+        jumpToIndex: 3,
+      },
+      {
+        title: "Slide 3",
+        content: "This is more info before jump...",
+        ctaLink: null,
+        jumpToIndex: null,
+      },
+      {
+        title: "Slide 4",
+        content: "You jumped here!",
+        ctaLink: "https://allpree.com",
+        jumpToIndex: null,
       }
+    ];
 
-      swiper = new Swiper('.swiper', {
-        direction: 'horizontal',
-        slidesPerView: 1,
-        allowTouchMove: false,
-      });
+    const swiper = new Swiper(".swiper", {
+      direction: "horizontal",
+      allowTouchMove: false,
+      speed: 300,
+    });
 
-      function getCurrentSequence(index) {
-        return sequenceRanges.find(r => index >= r.start && index <= r.end);
-      }
+    const wrapper = document.getElementById("story-wrapper");
+    const progressContainer = document.getElementById("progress-container");
 
-      function updateProgress(index) {
-        const range = getCurrentSequence(index);
-        if (!range) return;
-        const total = range.end - range.start + 1;
-        const current = index - range.start;
+    storyData.forEach((slide, index) => {
+      const slideEl = document.createElement("div");
+      slideEl.className = "swiper-slide";
+      slideEl.innerHTML = `
+        <div class="slide-overlay">
+          <h2>${slide.title}</h2>
+          <p>${slide.content}</p>
+          ${slide.ctaLink ? `<button class="cta-button cta-link" onclick="window.open('${slide.ctaLink}', '_blank')">Learn More</button>` : ""}
+          ${slide.jumpToIndex !== null ? `<button class="cta-button cta-jump" onclick="jumpTo(${slide.jumpToIndex})">Next Story</button>` : ""}
+        </div>
+      `;
+      wrapper.appendChild(slideEl);
 
-        progressBar.innerHTML = '';
-        for (let i = 0; i < total; i++) {
-          const seg = document.createElement('div');
-          seg.className = 'progress-segment';
-          const fill = document.createElement('div');
-          fill.className = 'progress-fill';
-          if (i <= current) fill.style.width = '100%';
-          seg.appendChild(fill);
-          progressBar.appendChild(seg);
-        }
-      }
+      const bar = document.createElement("div");
+      bar.className = "progress-bar";
+      bar.innerHTML = `<div class="progress-fill" id="progress-${index}"></div>`;
+      progressContainer.appendChild(bar);
+    });
 
-      data.forEach((story, index) => {
-        if (!story['Image URL']) return;
-
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
-        slide.style.backgroundImage = `url(${story['Image URL']})`;
-
-        const overlay = document.createElement('div');
-        overlay.className = 'slide-overlay';
-
-        if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-          slide.classList.add('headline-slide');
-          const title = document.createElement('div');
-          title.className = 'slide-title';
-          title.textContent = story['Story Title'];
-          overlay.appendChild(title);
-        }
-
-        if (story['Title'] && !(parseInt(story['Slide #']) === 1 && story['Story Title'])) {
-          const title = document.createElement('div');
-          title.className = 'slide-title';
-          title.textContent = story['Title'];
-          overlay.appendChild(title);
-        }
-
-        if (story['Description']) {
-          const desc = document.createElement('div');
-          desc.className = 'slide-desc';
-          desc.textContent = story['Description'];
-          overlay.appendChild(desc);
-        }
-
-        const ctaContainer = document.createElement('div');
-        ctaContainer.className = 'cta-container';
-
-        if (story['CTA Text'] && story['CTA Link']) {
-          const linkBtn = document.createElement('a');
-          linkBtn.className = 'cta-button cta-link-button';
-          linkBtn.href = story['CTA Link'];
-          linkBtn.target = '_blank';
-          linkBtn.textContent = story['CTA Text'];
-          linkBtn.addEventListener('click', e => e.stopPropagation());
-          ctaContainer.appendChild(linkBtn);
-        }
-
-        if (story['CTA Text 2'] && story['Story Jump']) {
-          const jumpBtn = document.createElement('button');
-          jumpBtn.className = 'cta-button cta-jump-button';
-          jumpBtn.textContent = story['CTA Text 2'];
-          jumpBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            const jumpTarget = storyMap[story['Story Jump'].trim()];
-            if (jumpTarget !== undefined) {
-              swiper.slideTo(jumpTarget);
-              updateProgress(jumpTarget);
-            }
-          });
-          ctaContainer.appendChild(jumpBtn);
-        }
-
-        if (ctaContainer.childElementCount > 0) {
-          overlay.appendChild(ctaContainer);
-        }
-
-        if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
-          const label = document.createElement('div');
-          label.className = 'sponsored-label';
-          label.textContent = 'Sponsored';
-          slide.appendChild(label);
-        }
-
-        if (story['Brand Logo']) {
-          const logo = document.createElement('img');
-          logo.className = 'brand-logo';
-          logo.src = story['Brand Logo'];
-          logo.alt = 'Logo';
-          slide.appendChild(logo);
-        }
-
-        slide.appendChild(overlay);
-        wrapper.appendChild(slide);
-      });
-
-      updateProgress(0);
-
-      document.getElementById('tapLeft').addEventListener('click', () => {
-        const current = swiper.activeIndex;
-        const range = getCurrentSequence(current);
-        if (range && current > range.start) {
-          swiper.slidePrev();
-          updateProgress(swiper.activeIndex);
-        }
-      });
-
-      document.getElementById('tapRight').addEventListener('click', () => {
-        const current = swiper.activeIndex;
-        const range = getCurrentSequence(current);
-        if (range && current < range.end) {
-          swiper.slideNext();
-          updateProgress(swiper.activeIndex);
-        }
-      });
+    function jumpTo(index) {
+      swiper.slideTo(index);
     }
 
-    loadStories();
+    function updateProgress(index) {
+      for (let i = 0; i < storyData.length; i++) {
+        const fill = document.getElementById(`progress-${i}`);
+        if (i < index) fill.style.width = "100%";
+        else if (i === index) fill.style.width = "50%";
+        else fill.style.width = "0%";
+      }
+    }
+
+    document.querySelector(".tap-left").addEventListener("click", () => {
+      const prev = swiper.activeIndex - 1;
+      if (prev >= 0) swiper.slideTo(prev);
+    });
+
+    document.querySelector(".tap-right").addEventListener("click", () => {
+      const next = swiper.activeIndex + 1;
+      if (next < storyData.length) swiper.slideTo(next);
+    });
+
+    swiper.on("slideChange", () => updateProgress(swiper.activeIndex));
+    updateProgress(0);
   </script>
 </body>
 </html>
