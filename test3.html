@@ -52,17 +52,24 @@
       align-items: center !important;
       justify-content: center !important;
     }
+    .cta-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
     .cta-button {
-      display: inline-block;
-      padding: 0.75rem 1.25rem;
+      padding: 0.75rem 1rem;
       border-radius: 10px;
       font-weight: bold;
-      margin: 0.5rem 0.25rem 0;
       text-decoration: none;
       cursor: pointer;
       color: #000;
       z-index: 30;
       position: relative;
+      flex: 1 1 auto;
+      max-width: 45%;
     }
     .cta-link-button {
       background: #FFD700;
@@ -146,7 +153,6 @@
       const wrapper = document.getElementById('storyWrapper');
       const progressBar = document.getElementById('progressBar');
 
-      // Preprocess sequence titles and ranges
       let currentSequence = '';
       let currentStartIndex = 0;
       data.forEach((story, index) => {
@@ -163,7 +169,6 @@
         sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
       }
 
-      // Initialize Swiper BEFORE attaching button events
       swiper = new Swiper('.swiper', {
         direction: 'horizontal',
         slidesPerView: 1,
@@ -192,7 +197,6 @@
         }
       }
 
-      // Now render slides and attach CTA buttons
       data.forEach((story, index) => {
         if (!story['Image URL']) return;
 
@@ -225,6 +229,9 @@
           overlay.appendChild(desc);
         }
 
+        const ctaContainer = document.createElement('div');
+        ctaContainer.className = 'cta-container';
+
         if (story['CTA Text'] && story['CTA Link']) {
           const linkBtn = document.createElement('a');
           linkBtn.className = 'cta-button cta-link-button';
@@ -232,7 +239,7 @@
           linkBtn.target = '_blank';
           linkBtn.textContent = story['CTA Text'];
           linkBtn.addEventListener('click', e => e.stopPropagation());
-          overlay.appendChild(linkBtn);
+          ctaContainer.appendChild(linkBtn);
         }
 
         if (story['CTA Text 2'] && story['Story Jump']) {
@@ -247,7 +254,11 @@
               updateProgress(jumpTarget);
             }
           });
-          overlay.appendChild(jumpBtn);
+          ctaContainer.appendChild(jumpBtn);
+        }
+
+        if (ctaContainer.childElementCount > 0) {
+          overlay.appendChild(ctaContainer);
         }
 
         if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
