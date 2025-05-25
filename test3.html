@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StoryBlog with Ads</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<style>
+
+  <style>
   html, body {
     margin: 0;
     padding: 0;
@@ -16,6 +17,7 @@
     color: #fff;
     overflow: hidden;
     box-sizing: border-box;
+    touch-action: pan-y;
   }
 
   *, *::before, *::after {
@@ -23,9 +25,17 @@
   }
 
   .swiper {
-    height: 100vh;
-    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 100dvw;
     overflow: hidden;
+  }
+
+  .swiper-wrapper {
+    width: 100%;
+    height: 100%;
   }
 
   .swiper-slide {
@@ -35,8 +45,8 @@
     align-items: center;
     background-size: cover;
     background-position: center;
-    height: 100vh;
-    width: 100vw;
+    width: 100%;
+    height: 100%;
     padding: 2rem 1rem;
     position: relative;
   }
@@ -47,6 +57,7 @@
     border-radius: 12px;
     text-align: center;
     max-width: 100%;
+    width: 100%;
     word-wrap: break-word;
   }
 
@@ -87,13 +98,21 @@
   }
 
   #loading {
-    text-align: center;
-    padding-top: 50vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 100dvw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    z-index: 10;
     font-size: 1.2rem;
     color: #fff;
-    width: 100%;
   }
 </style>
+
 
 
 </head>
@@ -103,79 +122,71 @@
   <div id="loading">Loading stories...</div>
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
   const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
 
   async function loadStories() {
-    try {
-      const res = await fetch(sheetURL);
-      const slides = await res.json();
-      const wrapper = document.getElementById('story-wrapper');
+    const res = await fetch(sheetURL);
+    const slides = await res.json();
+    const wrapper = document.getElementById('story-wrapper');
+    const loading = document.getElementById('loading');
 
-      if (!slides.length) {
-        document.getElementById('loading').textContent = 'No stories found.';
-        return;
+    slides.forEach(slide => {
+      if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
+
+      const div = document.createElement('div');
+      div.className = 'swiper-slide';
+      div.style.backgroundImage = `url(${slide['Image URL']})`;
+
+      const content = document.createElement('div');
+      content.className = 'slide-content';
+
+      const title = document.createElement('div');
+      title.className = 'slide-title';
+      title.textContent = slide['Title'];
+
+      const desc = document.createElement('div');
+      desc.className = 'slide-desc';
+      desc.textContent = slide['Description'];
+
+      content.appendChild(title);
+      content.appendChild(desc);
+
+      if (slide['CTA Text'] && slide['CTA Link']) {
+        const btn = document.createElement('a');
+        btn.className = 'cta-button';
+        btn.href = slide['CTA Link'];
+        btn.target = '_blank';
+        btn.textContent = slide['CTA Text'];
+        content.appendChild(btn);
       }
 
-      slides.forEach(slide => {
-        if (!slide['Image URL'] && !slide['Title'] && !slide['Description']) return;
+      if ((slide['Type'] || '').toLowerCase() === 'ad') {
+        const tag = document.createElement('div');
+        tag.className = 'sponsored-tag';
+        tag.textContent = 'Sponsored';
+        div.appendChild(tag);
+      }
 
-        const div = document.createElement('div');
-        div.className = 'swiper-slide';
-        div.style.backgroundImage = `url(${slide['Image URL']})`;
+      div.appendChild(content);
+      wrapper.appendChild(div);
+    });
 
-        const content = document.createElement('div');
-        content.className = 'slide-content';
+    new Swiper('.swiper', {
+      direction: 'vertical',
+      loop: false,
+      slidesPerView: 1,
+      spaceBetween: 0,
+      mousewheel: true,
+    });
 
-        const title = document.createElement('div');
-        title.className = 'slide-title';
-        title.textContent = slide['Title'];
-
-        const desc = document.createElement('div');
-        desc.className = 'slide-desc';
-        desc.textContent = slide['Description'];
-
-        content.appendChild(title);
-        content.appendChild(desc);
-
-        if (slide['CTA Text'] && slide['CTA Link']) {
-          const btn = document.createElement('a');
-          btn.className = 'cta-button';
-          btn.href = slide['CTA Link'];
-          btn.target = '_blank';
-          btn.textContent = slide['CTA Text'];
-          content.appendChild(btn);
-        }
-
-        if ((slide['Type'] || '').toLowerCase() === 'ad') {
-          const tag = document.createElement('div');
-          tag.className = 'sponsored-tag';
-          tag.textContent = 'Sponsored';
-          div.appendChild(tag);
-        }
-
-        div.appendChild(content);
-        wrapper.appendChild(div);
-      });
-
-      new Swiper('.swiper', {
-        direction: 'vertical',
-        loop: false,
-        slidesPerView: 1,
-        spaceBetween: 0,
-        mousewheel: true,
-      });
-
-      document.getElementById('loading').style.display = 'none';
-    } catch (error) {
-      console.error('Failed to load stories:', error);
-      document.getElementById('loading').textContent = 'Failed to load stories.';
-    }
+    loading.style.display = 'none';
   }
 
   loadStories();
 </script>
+
 
 </body>
 </html>
