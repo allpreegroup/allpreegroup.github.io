@@ -241,10 +241,13 @@
     }
 
     // Map every slide title (e.g., headline) to its index for jumps
-    if (story['Story Title']) {
-      const normalizedTitle = story['Story Title'].trim().toLowerCase();
-      storyMap[normalizedTitle] = index;
-    }
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+  const normalizedTitle = story['Story Title'].trim().toLowerCase();
+  if (!(normalizedTitle in storyMap)) {
+    storyMap[normalizedTitle] = index;
+  }
+}
+
   });
    
   if (currentSequence) {
