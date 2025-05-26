@@ -390,12 +390,35 @@
   }
 
   function updateProgress(index) {
-    const progressBar = document.getElementById('progressBar');
-    if (!swiper) return;
-    const total = swiper.slides.length;
-    const percent = ((index + 1) / total) * 100;
-    progressBar.style.width = percent + '%';
+  const progressBar = document.getElementById('progressBar');
+  if (!swiper || !progressBar) return;
+
+  const total = swiper.slides.length;
+
+  progressBar.innerHTML = ''; // Clear previous segments
+
+  for (let i = 0; i < total; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-segment';
+
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+
+    if (i < index) {
+      fill.style.width = '100%';
+    } else if (i === index) {
+      fill.style.width = '0%';
+      fill.style.transition = 'width 5s linear'; // match to slide duration if autoplay
+      requestAnimationFrame(() => {
+        fill.style.width = '100%';
+      });
+    }
+
+    seg.appendChild(fill);
+    progressBar.appendChild(seg);
   }
+}
+
 
   function renderStoryTiles() {
     const container = document.getElementById('storyListContainer');
