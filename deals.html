@@ -5051,37 +5051,42 @@ async function pingDevice() {
   const timestamp = Date.now();
   const note = getInstallNote();
 
+  // Attempt to retrieve profile
+  const profile = JSON.parse(localStorage.getItem('profileLogin') || '{}');
+
+  const bodyData = {
+    action: 'install',  // same action to update lastSeen timestamp
+    deviceId,
+    userAgent,
+    timestamp: timestamp.toString(),
+    note,
+    idcode: profile.idcode || '',
+    firstName: profile.firstName || '',
+    lastName: profile.lastName || '',
+    phone: profile.phone || ''
+  };
+
   try {
     const res = await fetch('https://script.google.com/macros/s/AKfycbxl-2XeXXvcOE4VTHVp-7fFnzvpoj8qqI_O2ZfjgVAm0e1sC9NQxRYJTlCFM2LrXLH3/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'install',  // same action to update lastSeen timestamp
-        deviceId,
-        userAgent,
-        timestamp: timestamp.toString(),
-        note
-      }),
+      body: new URLSearchParams(bodyData),
     });
+
     const text = await res.text();
     console.log('Ping sent:', text);
     localStorage.setItem('lastPingTimestamp', timestamp);
 
-    // If server says a new row was created (meaning old link invalid), clear installLinked flags
-    if (text.toLowerCase().includes('new row created')) {
-      // Remove all installLinked_xxx keys, or target known user keys if you track them here
-      // For example, if you have user profile in localStorage:
-      const profile = JSON.parse(localStorage.getItem('profileLogin'));
-      if (profile && profile.idcode) {
-        localStorage.removeItem(`installLinked_${profile.idcode}`);
-        console.log(`Cleared installLinked_${profile.idcode} because new row created on ping`);
-      }
+    if (text.toLowerCase().includes('new row created') && profile.idcode) {
+      localStorage.removeItem(`installLinked_${profile.idcode}`);
+      console.log(`Cleared installLinked_${profile.idcode} because new row created on ping`);
     }
 
   } catch (e) {
     console.error('Error sending ping:', e);
   }
 }
+
 
 async function pingDeviceThrottled() {
   if (!localStorage.getItem('installReported')) {
