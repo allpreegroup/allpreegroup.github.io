@@ -501,54 +501,60 @@ function closeStoryViewer() {
 }
 
 
-  function renderStoryTiles() {
-    const container = document.getElementById('storyListContainer');
-    container.innerHTML = '';
+ function renderStoryTiles() {
+  const container = document.getElementById('storyListContainer');
+  container.innerHTML = '';
 
-    const sequences = groupSlidesBySequence(window.slidesData || []);
-    Object.keys(sequences).forEach(seqKey => {
-      const firstSlide = sequences[seqKey][0];
-      const tile = document.createElement('div');
-      tile.className = 'story-tile';
-      tile.onclick = () => openStorySequence(seqKey);
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  Object.keys(sequences).forEach(seqKey => {
+    const firstSlide = sequences[seqKey][0];
+    const tile = document.createElement('div');
+    tile.className = 'story-tile';
+    tile.onclick = () => openStorySequence(seqKey);
 
-      tile.innerHTML = `
-        <img src="${firstSlide.image || ''}" alt="Story preview">
-        <h3>${firstSlide.title || 'Untitled'}</h3>
-      `;
+    tile.innerHTML = `
+      <img src="${firstSlide.image || ''}" alt="Story preview">
+      <h3>${firstSlide.title || 'Untitled'}</h3>
+    `;
 
-      container.appendChild(tile);
+    container.appendChild(tile);
+  });
+}
+
+function openStorySequence(sequenceKey) {
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  const sequenceSlides = sequences[sequenceKey];
+  if (!sequenceSlides) return;
+
+  document.querySelector('.swiper').style.display = 'block';
+  document.getElementById('storyListContainer').style.display = 'none';
+  document.getElementById('viewAllButton').style.display = 'none';
+
+  renderSlides(sequenceSlides);
+  initSwiper();
+  updateProgress(0);
+}
+
+function showStoryList() {
+  // Load stories if they haven't been loaded yet
+  if (!window.slidesData) {
+    loadStories().then(() => {
+      actuallyShowTiles();
     });
+  } else {
+    actuallyShowTiles();
   }
 
-  function openStorySequence(sequenceKey) {
-    const sequences = groupSlidesBySequence(window.slidesData || []);
-    const sequenceSlides = sequences[sequenceKey];
-    if (!sequenceSlides) return;
-
-    document.querySelector('.swiper').style.display = 'block';
-    document.getElementById('storyListContainer').style.display = 'none';
-    document.getElementById('viewAllButton').style.display = 'none';
-
-    renderSlides(sequenceSlides);
-    initSwiper();
-    updateProgress(0);
-  }
-
-  function showStoryList() {
+  function actuallyShowTiles() {
     document.querySelector('.swiper').style.display = 'none';
     document.getElementById('storyListContainer').style.display = 'grid';
     document.getElementById('viewAllButton').style.display = 'none';
-
     renderStoryTiles();
   }
+}
 
-  document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+document.getElementById('viewAllButton').addEventListener('click', showStoryList);
 
-  // Load stories on DOM ready
-  document.addEventListener('DOMContentLoaded', () => {
-    loadStories();
-  });
 </script>
 
  
