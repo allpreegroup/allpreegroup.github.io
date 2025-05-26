@@ -219,28 +219,37 @@
   let sequenceRanges = [];
   let swiper;
 
+
   async function loadStories() {
-    const res = await fetch(sheetURL);
-    const data = await res.json();
+  const res = await fetch(sheetURL);
+  const data = await res.json();
 
-    // Identify sequences
-    let currentSequence = '';
-    let currentStartIndex = 0;
-    sequenceRanges = [];
+  sequenceRanges = [];
+  storyMap = {}; // reset
 
-    data.forEach((story, index) => {
-      if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-        if (currentSequence) {
-          sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-        }
-        currentSequence = story['Story Title'].trim();
-        currentStartIndex = index;
-        storyMap[currentSequence] = index;
+  let currentSequence = '';
+  let currentStartIndex = 0;
+
+  data.forEach((story, index) => {
+    // Detect new sequence start
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
       }
-    });
-    if (currentSequence) {
-      sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+      currentSequence = story['Story Title'].trim();
+      currentStartIndex = index;
     }
+
+    // Map every slide title (e.g., headline) to its index for jumps
+    if (story['Story Title']) {
+      const normalizedTitle = story['Story Title'].trim().toLowerCase();
+      storyMap[normalizedTitle] = index;
+    }
+  });
+
+  if (currentSequence) {
+    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+  }
 
     // Build slidesData array
     window.slidesData = data
@@ -329,35 +338,28 @@
         ctaContainer.appendChild(linkBtn);
       }
 
-      if (story.ctaText2 && story.storyJump) {
+     if (story.ctaText2 && story.storyJump) {
   const jumpBtn = document.createElement('button');
   jumpBtn.className = 'cta-button cta-jump-button';
   jumpBtn.textContent = story.ctaText2;
 
   jumpBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const jumpTitle = story.storyJump.trim();
+    const jumpTitle = story.storyJump.trim().toLowerCase();
 
-    // Find the index of the slide with the matching title in this sequence
-    let jumpIndex = -1;
-    for (let i = 0; i < swiper.slides.length; i++) {
-      const titleEl = swiper.slides[i].querySelector('.slide-title');
-      if (titleEl && titleEl.textContent.trim() === jumpTitle) {
-        jumpIndex = i;
-        break;
-      }
-    }
-
-    if (jumpIndex !== -1) {
+    const jumpIndex = storyMap[jumpTitle];
+    if (jumpIndex !== undefined) {
       swiper.slideTo(jumpIndex);
       updateProgress(jumpIndex);
     } else {
-      console.warn('Jump target not found:', jumpTitle);
+      console.warn('Jump target not found:', story.storyJump);
+      console.log('Available titles:', Object.keys(storyMap));
     }
   });
 
   ctaContainer.appendChild(jumpBtn);
 }
+
 
       if (ctaContainer.childElementCount > 0) {
         overlay.appendChild(ctaContainer);
