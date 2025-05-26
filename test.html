@@ -338,31 +338,27 @@
         ctaContainer.appendChild(linkBtn);
       }
 
-   // When adding the jump button
-if (story['CTA Text 2'] && story['Story Jump']) {
+    if (story.ctaText2 && story.storyJump) {
   const jumpBtn = document.createElement('button');
   jumpBtn.className = 'cta-button cta-jump-button';
-  jumpBtn.textContent = story['CTA Text 2'];
+  jumpBtn.textContent = story.ctaText2;
 
   jumpBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const jumpTitle = story['Story Jump'].trim().toLowerCase(); // ✅ normalize
-    const jumpTarget = storyMap[jumpTitle];
+    const jumpTitle = story.storyJump.trim().toLowerCase();
 
-    if (jumpTarget !== undefined) {
-      swiper.slideTo(jumpTarget);
-      updateProgress(jumpTarget);
+    const jumpIndex = storyMap[jumpTitle];
+    if (jumpIndex !== undefined) {
+      swiper.slideTo(jumpIndex);
+      updateProgress(jumpIndex);
     } else {
-      console.warn('Jump target not found:', story['Story Jump']);
+      console.warn('Jump target not found:', story.storyJump);
+      console.log('Available titles:', Object.keys(storyMap));
     }
   });
 
   ctaContainer.appendChild(jumpBtn);
 }
-
-
-
-
       if (ctaContainer.childElementCount > 0) {
         overlay.appendChild(ctaContainer);
       }
