@@ -390,16 +390,13 @@
   });
 
   // ✕ Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'cta-button close-story-button';
-  closeBtn.textContent = '✕';
-  closeBtn.title = 'Close';
-
-  closeBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    closeStoryViewer(); // Make sure this exists
-  });
-
+ const closeBtn = document.createElement('button');
+closeBtn.className = 'cta-button cta-close-button';
+closeBtn.textContent = 'X'; // Or 'Close'
+closeBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  closeStoryViewer();
+});
   ctaContainer.appendChild(jumpBtn);
   ctaContainer.appendChild(closeBtn);
 }
@@ -430,10 +427,25 @@
   }
 
 function closeStoryViewer() {
-  const popup = document.getElementById('storyPopup');
-  popup.style.display = 'none';
-  document.body.classList.remove('popup-open');
+  const swiperContainer = document.querySelector('.swiper');
+  const storyList = document.getElementById('storyListContainer');
+  const viewAllBtn = document.getElementById('viewAllButton');
+
+  if (swiperContainer) {
+    swiperContainer.style.display = 'none';  // Hide swiper (story viewer)
+  }
+
+  if (storyList) {
+    storyList.style.display = 'grid'; // Show story list grid (adjust display as needed)
+  }
+
+  if (viewAllBtn) {
+    viewAllBtn.style.display = 'inline-block'; // Show View All button
+  }
+
+  document.body.classList.remove('popup-open'); // Remove any body class related to popup
 }
+
  
   function initSwiper() {
     if (swiper) swiper.destroy(true, true);
