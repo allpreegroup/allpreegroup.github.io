@@ -301,6 +301,7 @@
 
     slides.forEach((story, i) => {
       const slide = document.createElement('div');
+      slide.dataset.index = story.globalIndex ?? i;
       slide.className = 'swiper-slide';
       slide.style.backgroundImage = `url(${story.image})`;
 
@@ -349,11 +350,28 @@
   jumpBtn.addEventListener('click', e => {
     e.stopPropagation();
     const jumpTitle = story.storyJump.trim().toLowerCase();
-
     const jumpIndex = storyMap[jumpTitle];
+
     if (jumpIndex !== undefined) {
-      swiper.slideTo(jumpIndex);
-      updateProgress(jumpIndex);
+      const jumpSlide = window.slidesData[jumpIndex];
+      const jumpSequence = jumpSlide.sequence;
+
+      // Open the new sequence
+      openStorySequence(jumpSequence);
+
+      // Wait for Swiper to initialize before jumping
+      setTimeout(() => {
+        const updatedSlides = document.querySelectorAll('.swiper-slide');
+        const localIndex = Array.from(updatedSlides).findIndex(slide =>
+          slide.dataset.index == jumpIndex
+        );
+        if (localIndex !== -1) {
+          swiper.slideTo(localIndex);
+          updateProgress(localIndex);
+        } else {
+          console.warn('Jump slide not found in loaded sequence');
+        }
+      }, 300); // Adjust if necessary
     } else {
       console.warn('Jump target not found:', story.storyJump);
       console.log('Available titles:', Object.keys(storyMap));
@@ -362,6 +380,7 @@
 
   ctaContainer.appendChild(jumpBtn);
 }
+
       if (ctaContainer.childElementCount > 0) {
         overlay.appendChild(ctaContainer);
       }
