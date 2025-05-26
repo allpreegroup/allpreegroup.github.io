@@ -44,12 +44,16 @@ html, body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;       /* allow right positioning */
+  bottom: 0;      /* fill full height */
+  max-width: 600px;   /* limit max width so it doesn't stretch too wide */
+  margin: 0 auto;     /* center horizontally */
   padding: 20px;
   overflow-y: auto;
-  background: #f9f9f9;
-  padding: 16px;
+  background: #ffff;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
   z-index: 9;
 }
 
@@ -57,27 +61,37 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 14px 16px;
   background: white;
-  border-radius: 10px;
-  margin-bottom: 12px;
+  border-radius: 12px;
+  margin-bottom: 16px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.story-tile:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .story-tile img {
   width: 100px;
   height: 100px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .story-tile h3 {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 700;
   text-transform: capitalize;
   margin: 0;
+  line-height: 1.2;
+  color: #222;
 }
+
 
 .swiper {
   width: 100vw;
