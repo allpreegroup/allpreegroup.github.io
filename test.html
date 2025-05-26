@@ -220,8 +220,27 @@
       let sequenceRanges = [];
       let swiper;
 
-      async function loadStories() {
-  
+    async function loadStories() {
+  const res = await fetch(sheetURL);
+  const data = await res.json();
+  const wrapper = document.getElementById('storyWrapper');
+  const progressBar = document.getElementById('progressBar');
+
+  let currentSequence = '';
+  let currentStartIndex = 0;
+  data.forEach((story, index) => {
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
+      }
+      currentSequence = story['Story Title'].trim();
+      currentStartIndex = index;
+      storyMap[currentSequence] = index;
+    }
+  });
+  if (currentSequence) {
+    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+  }
        
       // --- 1. Populate window.slidesData while parsing ---
 window.slidesData = [];
