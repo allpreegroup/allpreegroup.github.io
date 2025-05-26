@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-   
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
       * {
@@ -21,12 +21,12 @@
       }
 
       .swiper {
-        width: 100vw !important;
-        height: 100vh !important;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
-      }
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
 
       .swiper-slide {
         background-size: cover;
@@ -362,7 +362,13 @@
 }
 
 loadStories();
-
+      
+function setViewportHeight() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    window.addEventListener('resize', setViewportHeight);
+    setViewportHeight();
     </script>
   </body>
 </html>
