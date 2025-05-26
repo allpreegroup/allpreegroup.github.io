@@ -145,6 +145,17 @@
       background: #FF0000;
       color: #fff;
     }
+     .cta-button.close-story-button {
+  background-color: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
     .progress-bar {
       position: absolute;
       top: 0;
@@ -360,7 +371,6 @@
       // Open the new sequence
       openStorySequence(jumpSequence);
 
-      // Wait for Swiper to initialize before jumping
       setTimeout(() => {
         const updatedSlides = document.querySelectorAll('.swiper-slide');
         const localIndex = Array.from(updatedSlides).findIndex(slide =>
@@ -372,15 +382,28 @@
         } else {
           console.warn('Jump slide not found in loaded sequence');
         }
-      }, 300); // Adjust if necessary
+      }, 300);
     } else {
       console.warn('Jump target not found:', story.storyJump);
       console.log('Available titles:', Object.keys(storyMap));
     }
   });
 
+  // ✕ Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'cta-button close-story-button';
+  closeBtn.textContent = '✕';
+  closeBtn.title = 'Close';
+
+  closeBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    closeStoryViewer(); // Make sure this exists
+  });
+
   ctaContainer.appendChild(jumpBtn);
+  ctaContainer.appendChild(closeBtn);
 }
+
 
       if (ctaContainer.childElementCount > 0) {
         overlay.appendChild(ctaContainer);
@@ -406,6 +429,12 @@
     });
   }
 
+function closeStoryViewer() {
+  const popup = document.getElementById('storyPopup');
+  popup.style.display = 'none';
+  document.body.classList.remove('popup-open');
+}
+ 
   function initSwiper() {
     if (swiper) swiper.destroy(true, true);
 
