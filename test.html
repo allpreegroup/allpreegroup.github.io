@@ -231,14 +231,22 @@
   let currentStartIndex = 0;
 
   data.forEach((story, index) => {
-  if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-  if (currentSequence) {
-    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-  }
-  currentSequence = story['Story Title'].trim();
-  currentStartIndex = index;
-  storyMap[currentSequence.toLowerCase()] = index; // ✅ normalize
-}
+    // Detect new sequence start
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
+      }
+      currentSequence = story['Story Title'].trim();
+      currentStartIndex = index;
+    }
+
+    // Map every slide title (e.g., headline) to its index for jumps
+    if (story['Story Title']) {
+      const normalizedTitle = story['Story Title'].trim().toLowerCase();
+      storyMap[normalizedTitle] = index;
+    }
+  });
+   
   if (currentSequence) {
     sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
   }
