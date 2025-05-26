@@ -257,20 +257,36 @@
       ctaContainer.appendChild(linkBtn);
     }
 
-    if (story['CTA Text 2'] && story['Story Jump']) {
-      const jumpBtn = document.createElement('button');
-      jumpBtn.className = 'cta-button cta-jump-button';
-      jumpBtn.textContent = story['CTA Text 2'];
-      jumpBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        const jumpTarget = storyMap[story['Story Jump'].trim()];
-        if (jumpTarget !== undefined) {
-          swiper.slideTo(jumpTarget);
-          updateProgress(jumpTarget);
-        }
-      });
-      ctaContainer.appendChild(jumpBtn);
+   if (story.ctaText2 && story.storyJump) {
+  const jumpBtn = document.createElement('button');
+  jumpBtn.className = 'cta-button cta-jump-button';
+  jumpBtn.textContent = story.ctaText2;
+
+  jumpBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const jumpTitle = story.storyJump.trim();
+
+    // Find the index of the slide with the matching title in this sequence
+    let jumpIndex = -1;
+    for (let i = 0; i < swiper.slides.length; i++) {
+      const titleEl = swiper.slides[i].querySelector('.slide-title');
+      if (titleEl && titleEl.textContent.trim() === jumpTitle) {
+        jumpIndex = i;
+        break;
+      }
     }
+
+    if (jumpIndex !== -1) {
+      swiper.slideTo(jumpIndex);
+      updateProgress(jumpIndex);
+    } else {
+      console.warn('Jump target not found:', jumpTitle);
+    }
+  });
+
+  ctaContainer.appendChild(jumpBtn);
+}
+
 
     if (ctaContainer.childElementCount > 0) {
       overlay.appendChild(ctaContainer);
