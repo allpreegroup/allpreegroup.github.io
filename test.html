@@ -1,421 +1,457 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<style>
-  * {
-    box-sizing: border-box;
-  }
+ 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    background: #000;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    overscroll-behavior: none;
-  }
+      html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      overscroll-behavior: none;
+    }
 
-  .swiper {
-    width: 100vw;
-    height: 100vh;
-  }
-
-  .swiper-slide {
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    z-index: 40;
-  }
-
-  .slide-overlay {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-    color: white;
-    text-align: center;
-    z-index: 50;
-  }
-
-  .slide-title {
-    font-size: 5rem;
-    font-weight: bold;
-    text-transform: capitalize;
-  }
-
-  .slide-desc {
-    font-size: 3.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .headline-slide .slide-title {
-    font-size: 5rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-family: 'Oswald', sans-serif;
-    letter-spacing: 0.05em;
-    margin-bottom: 40%;
-  }
-
-  .headline-slide {
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .cta-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
-
-  .cta-button {
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 3rem;
-    text-decoration: none;
-    cursor: pointer;
-    color: #000;
-    z-index: 30;
-    position: relative;
-    flex: 1 1 auto;
-    max-width: 45%;
-  }
-
-  .cta-link-button {
-    background: #FFD700;
-  }
-
-  .cta-jump-button {
-    background: #FF0000;
-    color: #fff;
-  }
-
-  .progress-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    gap: 4px;
-    padding: 10px;
-    z-index: 10;
-  }
-
-  .progress-segment {
-    flex: 1;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 2px;
-    overflow: hidden;
-    backdrop-filter: brightness(0.9);
-  }
-
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: white;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-    transition: width 0.3s ease;
-  }
-
-  .tap-zone {
-    position: absolute;
-    width: 20%;
-    height: 100%;
-    top: 0;
-    z-index: 20;
-  }
-
-  .tap-left { left: 0; }
-  .tap-right { right: 0; }
-
-  .sponsored-label {
-    position: absolute;
-    top: 20px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.25);
-    padding: 4px 8px;
-    font-size: 3.5rem;
-    color: #fff;
-    border-radius: 4px;
-    z-index: 10;
-  }
-
-  .brand-logo {
-    position: absolute;
-    top: 20px;
-    left: 10px;
-    height: 84px;
-    width: auto;
-    border-radius: 6px;
-    z-index: 10;
-  }
-
-  /* New styles for the story menu */
-  #storyMenu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;  /* full screen width */
-  background: #111;
-  overflow-y: auto;
-  padding: 1rem;
-  box-shadow: none;  /* no side shadow */
-  z-index: 10000;    /* higher to cover all */
-  display: none;     /* hidden initially */
-  color: white;
-  /* Optional: smoother scrolling on mobile */
-  -webkit-overflow-scrolling: touch;
-}
-
-
-  #storyMenu h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-
-  #storyMenu .close-menu {
-    display: block;
-    text-align: center;
-    margin-bottom: 1rem;
-    font-size: 2rem;
-    cursor: pointer;
-    color: #ff4444;
-  }
-
-  #storyMenu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  #storyMenu li {
-    margin-bottom: 1rem;
-    cursor: pointer;
-    font-size: 1.8rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    transition: background 0.2s;
-  }
-
-  #storyMenu li:hover {
-    background: #444;
-  }
-
-  /* Button for opening story menu */
-  #openStoryMenuBtn {
+     .center-screen {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1100;
-    padding: 1rem 2rem;
-    font-size: 2rem;
-    background: #FFD700;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .view-all-btn {
+    font-size: 18px;
+    padding: 12px 24px;
     border: none;
+    background: red;
+    color: white;
     border-radius: 8px;
     cursor: pointer;
-    user-select: none;
   }
-</style>
 
-<button id="openStoryMenuBtn">View All Stories</button>
+  .story-list {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background: #f9f9f9;
+    padding: 16px;
+    z-index: 9;
+  }
 
-<div id="storyMenu">
-  <div class="close-menu" id="closeStoryMenuBtn">✕ Close</div>
-  <h2>All Stories</h2>
-  <ul id="storyList"></ul>
+  .story-tile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .story-tile img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .story-tile h3 {
+    font-size: 16px;
+    margin: 0;
+  }
+     
+    .swiper {
+      width: 100vw;
+      height: 100vh;
+    }
+    .swiper-slide {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40; /* add this */
+}
+
+.slide-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  color: white;
+  text-align: center;
+  z-index: 50; /* add this */
+}
+
+    .slide-title {
+      font-size: 5rem;
+      font-weight: bold;
+     text-transform: capitalize;
+    }
+    .slide-desc {
+      font-size: 3.5rem;
+      margin-top: 0.5rem;
+    }
+    .headline-slide .slide-title {
+      font-size: 5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+        font-family: 'Oswald', sans-serif;
+        letter-spacing: 0.05em;
+        margin-bottom: 40%;
+    }
+    .headline-slide {
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .cta-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .cta-button {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-weight: bold;
+     font-size: 3rem;
+      text-decoration: none;
+      cursor: pointer;
+      color: #000;
+      z-index: 30;
+      position: relative;
+      flex: 1 1 auto;
+      max-width: 45%;
+    }
+    .cta-link-button {
+      background: #FFD700;
+    }
+    .cta-jump-button {
+      background: #FF0000;
+      color: #fff;
+    }
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      gap: 4px;
+      padding: 10px;
+      z-index: 10;
+    }
+    .progress-segment {
+       flex: 1;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 2px;
+        overflow: hidden;
+        backdrop-filter: brightness(0.9);
+    }
+    .progress-fill {
+      height: 100%;
+        width: 0%;
+        background: white;
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        transition: width 0.3s ease;
+    }
+    .tap-zone {
+      position: absolute;
+      width: 20%;
+      height: 100%;
+      top: 0;
+      z-index: 20;
+    }
+    .tap-left { left: 0; }
+    .tap-right { right: 0; }
+    .sponsored-label {
+      position: absolute;
+      top: 20px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 4px 8px;
+      font-size: 3.5rem;
+      color: #fff;
+      border-radius: 4px;
+      z-index: 10;
+    }
+    .brand-logo {
+      position: absolute;
+      top: 20px;
+      left: 10px;
+      height: 84px;
+      width: auto;
+      border-radius: 6px;
+      z-index: 10;
+    }
+    </style>
+
+<!-- Initial view: View All Stories Button -->
+<div id="viewAllButton" class="center-screen">
+  <button onclick="showStoryList()" class="view-all-btn">View All Stories</button>
 </div>
 
-<div class="swiper">
-  <div class="swiper-wrapper" id="storyWrapper"></div>
-  <div class="progress-bar" id="progressBar"></div>
-  <div class="tap-zone tap-left" id="tapLeft"></div>
-  <div class="tap-zone tap-right" id="tapRight"></div>
+<!-- Fullscreen scrollable story list -->
+<div id="storyListContainer" style="display: none;" class="story-list scrollable">
+  <!-- Story tiles inserted here via JS -->
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
-  let allData = [];
-  let sequenceRanges = [];
-  let swiper;
-  let storyMap = {};
 
-  async function fetchStories() {
-    const res = await fetch(sheetURL);
-    const data = await res.json();
-    allData = data;
-  }
+    <div class="swiper">
+      <div class="swiper-wrapper" id="storyWrapper"></div>
+      <div class="progress-bar" id="progressBar"></div>
+      <div class="tap-zone tap-left" id="tapLeft"></div>
+      <div class="tap-zone tap-right" id="tapRight"></div>
+    </div>
 
-  function findSequences() {
-    sequenceRanges = [];
-    let currentSequence = '';
-    let currentStartIndex = 0;
-    storyMap = {};
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+      const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+      let storyMap = {};
+      let sequenceRanges = [];
+      let swiper;
 
-    allData.forEach((story, index) => {
-      if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-        if (currentSequence) {
-          sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-        }
-        currentSequence = story['Story Title'].trim();
-        currentStartIndex = index;
-        storyMap[currentSequence] = index;
+      async function loadStories() {
+  const res = await fetch(sheetURL);
+  const data = await res.json();
+  const wrapper = document.getElementById('storyWrapper');
+  const progressBar = document.getElementById('progressBar');
+
+  let currentSequence = '';
+  let currentStartIndex = 0;
+  data.forEach((story, index) => {
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
       }
-    });
-    if (currentSequence) {
-      sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: allData.length - 1 });
+      currentSequence = story['Story Title'].trim();
+      currentStartIndex = index;
+      storyMap[currentSequence] = index;
     }
+  });
+  if (currentSequence) {
+    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
   }
 
-  // Render vertical story menu with clickable headlines
-  function renderStoryMenu() {
-    const storyList = document.getElementById('storyList');
-    storyList.innerHTML = '';
+  swiper = new Swiper('.swiper', {
+    direction: 'horizontal',
+    slidesPerView: 1,
+    allowTouchMove: false,
+    watchSlidesProgress: true,
+    observer: true,
+    observeParents: true,
+  });
 
-    sequenceRanges.forEach((seq, i) => {
-      const li = document.createElement('li');
-      li.textContent = seq.title;
-      li.tabIndex = 0;
-      li.setAttribute('role', 'button');
-      li.addEventListener('click', () => {
-        closeStoryMenu();
-        loadSequence(i);
-      });
-      li.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          closeStoryMenu();
-          loadSequence(i);
-        }
-      });
-      storyList.appendChild(li);
-    });
+  function getCurrentSequence(index) {
+    return sequenceRanges.find(r => index >= r.start && index <= r.end);
   }
 
-  // Show story menu overlay
-  function openStoryMenu() {
-    document.getElementById('storyMenu').style.display = 'block';
-    document.getElementById('openStoryMenuBtn').style.display = 'none';
-  }
+  function updateProgress(index) {
+    const range = getCurrentSequence(index);
+    if (!range) return;
+    const total = range.end - range.start + 1;
+    const current = index - range.start;
 
-  // Hide story menu overlay
-  function closeStoryMenu() {
-    document.getElementById('storyMenu').style.display = 'none';
-    document.getElementById('openStoryMenuBtn').style.display = 'block';
-  }
-
-  // Initialize or update swiper with selected sequence slides
-  function loadSequence(sequenceIndex) {
-    const seq = sequenceRanges[sequenceIndex];
-    if (!seq) return;
-
-    const slides = allData.slice(seq.start, seq.end + 1);
-
-    const wrapper = document.getElementById('storyWrapper');
-    wrapper.innerHTML = '';
-
-    slides.forEach((slide) => {
-      const slideEl = document.createElement('div');
-      slideEl.className = 'swiper-slide';
-
-      // Add background image if present
-      if (slide['Image URL']) {
-        slideEl.style.backgroundImage = `url('${slide['Image URL']}')`;
-      } else {
-        slideEl.style.backgroundColor = '#111';
-      }
-
-      if (slide['Slide #'] === '1') {
-        slideEl.classList.add('headline-slide');
-        slideEl.innerHTML = `<div class="slide-overlay"><h1 class="slide-title">${slide['Headline'] || slide['Story Title']}</h1></div>`;
-      } else {
-        slideEl.innerHTML = `
-          <div class="slide-overlay">
-            <h2 class="slide-title">${slide['Headline'] || ''}</h2>
-            <p class="slide-desc">${slide['Copy'] || ''}</p>
-            ${slide['CTAs'] ? createCTAs(slide['CTAs']) : ''}
-          </div>
-        `;
-      }
-
-      wrapper.appendChild(slideEl);
-    });
-
-    if (swiper) {
-      swiper.destroy(true, true);
-    }
-    swiper = new Swiper('.swiper', {
-      direction: 'horizontal',
-      loop: false,
-      simulateTouch: false,
-      allowTouchMove: true,
-      on: {
-        slideChange: updateProgressBar,
-      },
-    });
-
-    updateProgressBar();
-  }
-
-  function createCTAs(ctas) {
-    try {
-      const ctasData = JSON.parse(ctas);
-      if (!Array.isArray(ctasData)) return '';
-      const ctasHtml = ctasData.map(cta => {
-        return `<a href="${cta.link}" target="_blank" class="cta-button cta-link-button">${cta.label}</a>`;
-      }).join('');
-      return `<div class="cta-container">${ctasHtml}</div>`;
-    } catch {
-      return '';
-    }
-  }
-
-  function updateProgressBar() {
-    const bar = document.getElementById('progressBar');
-    if (!swiper) return;
-    const total = swiper.slides.length;
-    bar.innerHTML = '';
+    progressBar.innerHTML = '';
     for (let i = 0; i < total; i++) {
-      const segment = document.createElement('div');
-      segment.className = 'progress-segment';
+      const seg = document.createElement('div');
+      seg.className = 'progress-segment';
       const fill = document.createElement('div');
       fill.className = 'progress-fill';
-      if (i <= swiper.activeIndex) fill.style.width = '100%';
-      segment.appendChild(fill);
-      bar.appendChild(segment);
+      if (i <= current) fill.style.width = '100%';
+      seg.appendChild(fill);
+      progressBar.appendChild(seg);
     }
   }
 
-  // Set up tap zones for navigation
+  // Add slides
+  data.forEach((story, index) => {
+    if (!story['Image URL']) return;
+
+    const slide = document.createElement('div');
+    slide.className = 'swiper-slide';
+    slide.style.backgroundImage = `url(${story['Image URL']})`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'slide-overlay';
+
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      slide.classList.add('headline-slide');
+      const title = document.createElement('div');
+      title.className = 'slide-title';
+      title.textContent = story['Story Title'];
+      overlay.appendChild(title);
+    }
+
+    if (story['Title'] && !(parseInt(story['Slide #']) === 1 && story['Story Title'])) {
+      const title = document.createElement('div');
+      title.className = 'slide-title';
+      title.textContent = story['Title'];
+      overlay.appendChild(title);
+    }
+
+    if (story['Description']) {
+      const desc = document.createElement('div');
+      desc.className = 'slide-desc';
+      desc.textContent = story['Description'];
+      overlay.appendChild(desc);
+    }
+
+    const ctaContainer = document.createElement('div');
+    ctaContainer.className = 'cta-container';
+
+    if (story['CTA Text'] && story['CTA Link']) {
+      const linkBtn = document.createElement('a');
+      linkBtn.className = 'cta-button cta-link-button';
+      linkBtn.href = story['CTA Link'];
+      linkBtn.target = '_blank';
+      linkBtn.textContent = story['CTA Text'];
+      linkBtn.addEventListener('click', e => e.stopPropagation());
+      ctaContainer.appendChild(linkBtn);
+    }
+
+    if (story['CTA Text 2'] && story['Story Jump']) {
+      const jumpBtn = document.createElement('button');
+      jumpBtn.className = 'cta-button cta-jump-button';
+      jumpBtn.textContent = story['CTA Text 2'];
+      jumpBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const jumpTarget = storyMap[story['Story Jump'].trim()];
+        if (jumpTarget !== undefined) {
+          swiper.slideTo(jumpTarget);
+          updateProgress(jumpTarget);
+        }
+      });
+      ctaContainer.appendChild(jumpBtn);
+    }
+
+    if (ctaContainer.childElementCount > 0) {
+      overlay.appendChild(ctaContainer);
+    }
+
+    if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
+      const label = document.createElement('div');
+      label.className = 'sponsored-label';
+      label.textContent = 'Sponsored';
+      slide.appendChild(label);
+    }
+
+    if (story['Brand Logo']) {
+      const logo = document.createElement('img');
+      logo.className = 'brand-logo';
+      logo.src = story['Brand Logo'];
+      logo.alt = 'Logo';
+      slide.appendChild(logo);
+    }
+
+    slide.appendChild(overlay);
+    wrapper.appendChild(slide);
+  });
+
+  updateProgress(0);
+
+  // Update progress on slide change end event
+  swiper.on('slideChangeTransitionEnd', () => {
+    updateProgress(swiper.activeIndex);
+  });
+
+  // Tap zones: use swiper API and debounce rapid clicks
   document.getElementById('tapLeft').addEventListener('click', () => {
-    if (swiper) swiper.slidePrev();
+    const current = swiper.activeIndex;
+    const range = getCurrentSequence(current);
+    if (range && current > range.start) {
+      swiper.slidePrev();
+      // updateProgress will be called on slideChangeTransitionEnd event
+    }
   });
 
   document.getElementById('tapRight').addEventListener('click', () => {
-    if (swiper) swiper.slideNext();
+    const current = swiper.activeIndex;
+    const range = getCurrentSequence(current);
+    if (range && current < range.end) {
+      swiper.slideNext();
+      // updateProgress will be called on slideChangeTransitionEnd event
+    }
   });
 
-  // Setup open/close story menu buttons
-  document.getElementById('openStoryMenuBtn').addEventListener('click', openStoryMenu);
-  document.getElementById('closeStoryMenuBtn').addEventListener('click', closeStoryMenu);
+  // Optional: prevent double tap zoom on iOS
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (event) => {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, false);
+}
 
-  // Initialization: fetch stories, find sequences, render first sequence and menu
-  async function init() {
-    await fetchStories();
-    findSequences();
-    renderStoryMenu();
-    loadSequence(0);
-  }
+loadStories();
 
-  init();
-</script>
+// 1. Entry point: Show full story list
+function showStoryList() {
+  document.getElementById('viewAllButton').style.display = 'none';
+  document.getElementById('storyListContainer').style.display = 'block';
+  renderStoryTiles(); // builds the list
+}
+
+// 2. Renders small preview tiles for each sequence
+function renderStoryTiles() {
+  const container = document.getElementById('storyListContainer');
+  container.innerHTML = ''; // clear previous if any
+
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  Object.keys(sequences).forEach((seqKey, index) => {
+    const firstSlide = sequences[seqKey][0];
+    const tile = document.createElement('div');
+    tile.className = 'story-tile';
+    tile.onclick = () => openStorySequence(seqKey);
+
+    tile.innerHTML = `
+      <img src="${firstSlide.image || ''}" alt="Story preview">
+      <h3>${firstSlide.title || 'Untitled'}</h3>
+    `;
+
+    container.appendChild(tile);
+  });
+}
+
+// 3. Grouping logic
+function groupSlidesBySequence(slides) {
+  const sequences = {};
+  slides.forEach(slide => {
+    const seqKey = slide.sequence || 'default';
+    if (!sequences[seqKey]) sequences[seqKey] = [];
+    sequences[seqKey].push(slide);
+  });
+  return sequences;
+}
+
+// 4. Open Swiper and start from selected sequence
+function openStorySequence(sequenceKey) {
+  const sequenceSlides = groupSlidesBySequence(window.slidesData || {})[sequenceKey];
+  if (!sequenceSlides) return;
+
+  document.querySelector('.swiper').style.display = 'block';
+  document.getElementById('storyListContainer').style.display = 'none';
+  renderSlides(sequenceSlides);
+  initSwiper();
+}
+
+     
+    </script>
+ 
