@@ -232,18 +232,13 @@
 
   data.forEach((story, index) => {
   if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-    if (currentSequence) {
-      sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-    }
-    currentSequence = story['Story Title'].trim();
-    currentStartIndex = index;
-
-    // ✅ Only map the first slide of each story
-    const normalizedTitle = currentSequence.toLowerCase();
-    storyMap[normalizedTitle] = index;
+  if (currentSequence) {
+    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
   }
-});
-
+  currentSequence = story['Story Title'].trim();
+  currentStartIndex = index;
+  storyMap[currentSequence.toLowerCase()] = index; // ✅ normalize
+}
   if (currentSequence) {
     sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
   }
@@ -335,28 +330,28 @@
         ctaContainer.appendChild(linkBtn);
       }
 
-    if (story.ctaText2 && story.storyJump) {
+   // When adding the jump button
+if (story['CTA Text 2'] && story['Story Jump']) {
   const jumpBtn = document.createElement('button');
   jumpBtn.className = 'cta-button cta-jump-button';
-  jumpBtn.textContent = story.ctaText2;
+  jumpBtn.textContent = story['CTA Text 2'];
 
   jumpBtn.addEventListener('click', e => {
     e.stopPropagation();
+    const jumpTitle = story['Story Jump'].trim().toLowerCase(); // ✅ normalize
+    const jumpTarget = storyMap[jumpTitle];
 
-    const jumpTitle = story.storyJump.trim().toLowerCase();
-    const jumpIndex = storyMap[jumpTitle];
-
-    if (jumpIndex !== undefined) {
-      swiper.slideTo(jumpIndex);
-      updateProgress(jumpIndex);
+    if (jumpTarget !== undefined) {
+      swiper.slideTo(jumpTarget);
+      updateProgress(jumpTarget);
     } else {
-      console.warn('Jump target not found:', story.storyJump);
-      console.log('Available titles:', Object.keys(storyMap));
+      console.warn('Jump target not found:', story['Story Jump']);
     }
   });
 
   ctaContainer.appendChild(jumpBtn);
 }
+
 
 
 
