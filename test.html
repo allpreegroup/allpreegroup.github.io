@@ -227,111 +227,101 @@
       let swiper;
 
       async function loadStories() {
-  const res = await fetch(sheetURL);
-  const data = await res.json();
+  
+       
+      // --- 1. Populate window.slidesData while parsing ---
+window.slidesData = [];
+
+data.forEach((story, index) => {
+  if (!story['Image URL']) return;
+
+  // Find sequence name by index range:
+  let sequenceName = '';
+  for (let seq of sequenceRanges) {
+    if (index >= seq.start && index <= seq.end) {
+      sequenceName = seq.title;
+      break;
+    }
+  }
+
+  window.slidesData.push({
+    index,
+    sequence: sequenceName,
+    image: story['Image URL'],
+    title: (parseInt(story['Slide #']) === 1 && story['Story Title']) ? story['Story Title'] : story['Title'],
+    description: story['Description'],
+    ctaText: story['CTA Text'],
+    ctaLink: story['CTA Link'],
+    ctaText2: story['CTA Text 2'],
+    storyJump: story['Story Jump'],
+    sponsored: story['Sponsored'],
+    brandLogo: story['Brand Logo'],
+  });
+});
+
+// --- 2. Utility: group slides by sequence ---
+function groupSlidesBySequence(slides) {
+  return slides.reduce((acc, slide) => {
+    if (!acc[slide.sequence]) acc[slide.sequence] = [];
+    acc[slide.sequence].push(slide);
+    return acc;
+  }, {});
+}
+
+// --- 3. Render slides into swiper wrapper ---
+function renderSlides(slides) {
   const wrapper = document.getElementById('storyWrapper');
-  const progressBar = document.getElementById('progressBar');
+  wrapper.innerHTML = '';
 
-  let currentSequence = '';
-  let currentStartIndex = 0;
-  data.forEach((story, index) => {
-    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-      if (currentSequence) {
-        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-      }
-      currentSequence = story['Story Title'].trim();
-      currentStartIndex = index;
-      storyMap[currentSequence] = index;
-    }
-  });
-  if (currentSequence) {
-    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
-  }
-
-  swiper = new Swiper('.swiper', {
-    direction: 'horizontal',
-    slidesPerView: 1,
-    allowTouchMove: false,
-    watchSlidesProgress: true,
-    observer: true,
-    observeParents: true,
-  });
-
-  function getCurrentSequence(index) {
-    return sequenceRanges.find(r => index >= r.start && index <= r.end);
-  }
-
-  function updateProgress(index) {
-    const range = getCurrentSequence(index);
-    if (!range) return;
-    const total = range.end - range.start + 1;
-    const current = index - range.start;
-
-    progressBar.innerHTML = '';
-    for (let i = 0; i < total; i++) {
-      const seg = document.createElement('div');
-      seg.className = 'progress-segment';
-      const fill = document.createElement('div');
-      fill.className = 'progress-fill';
-      if (i <= current) fill.style.width = '100%';
-      seg.appendChild(fill);
-      progressBar.appendChild(seg);
-    }
-  }
-
-  // Add slides
-  data.forEach((story, index) => {
-    if (!story['Image URL']) return;
-
+  slides.forEach((story, i) => {
     const slide = document.createElement('div');
     slide.className = 'swiper-slide';
-    slide.style.backgroundImage = `url(${story['Image URL']})`;
+    slide.style.backgroundImage = `url(${story.image})`;
 
     const overlay = document.createElement('div');
     overlay.className = 'slide-overlay';
 
-    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+    // Big headline style for first slide in sequence
+    if (parseInt(story.index) === 0 || (parseInt(story.index) === 0 && story.sequence === story.title)) {
       slide.classList.add('headline-slide');
       const title = document.createElement('div');
       title.className = 'slide-title';
-      title.textContent = story['Story Title'];
+      title.textContent = story.title;
       overlay.appendChild(title);
-    }
-
-    if (story['Title'] && !(parseInt(story['Slide #']) === 1 && story['Story Title'])) {
+    } else if (story.title) {
       const title = document.createElement('div');
       title.className = 'slide-title';
-      title.textContent = story['Title'];
+      title.textContent = story.title;
       overlay.appendChild(title);
     }
 
-    if (story['Description']) {
+    if (story.description) {
       const desc = document.createElement('div');
       desc.className = 'slide-desc';
-      desc.textContent = story['Description'];
+      desc.textContent = story.description;
       overlay.appendChild(desc);
     }
 
     const ctaContainer = document.createElement('div');
     ctaContainer.className = 'cta-container';
 
-    if (story['CTA Text'] && story['CTA Link']) {
+    if (story.ctaText && story.ctaLink) {
       const linkBtn = document.createElement('a');
       linkBtn.className = 'cta-button cta-link-button';
-      linkBtn.href = story['CTA Link'];
+      linkBtn.href = story.ctaLink;
       linkBtn.target = '_blank';
-      linkBtn.textContent = story['CTA Text'];
+      linkBtn.textContent = story.ctaText;
       linkBtn.addEventListener('click', e => e.stopPropagation());
       ctaContainer.appendChild(linkBtn);
     }
 
-    if (story['CTA Text 2'] && story['Story Jump']) {
+    if (story.ctaText2 && story.storyJump) {
       const jumpBtn = document.createElement('button');
       jumpBtn.className = 'cta-button cta-jump-button';
-      jumpBtn.textContent = story['CTA Text 2'];
+      jumpBtn.textContent = story.ctaText2;
       jumpBtn.addEventListener('click', e => {
         e.stopPropagation();
-        const jumpTarget = storyMap[story['Story Jump'].trim()];
+        const jumpTarget = storyMap[story.storyJump.trim()];
         if (jumpTarget !== undefined) {
           swiper.slideTo(jumpTarget);
           updateProgress(jumpTarget);
@@ -344,17 +334,17 @@
       overlay.appendChild(ctaContainer);
     }
 
-    if (story['Sponsored'] && story['Sponsored'].toLowerCase() === 'true') {
+    if (story.sponsored && story.sponsored.toLowerCase() === 'true') {
       const label = document.createElement('div');
       label.className = 'sponsored-label';
       label.textContent = 'Sponsored';
       slide.appendChild(label);
     }
 
-    if (story['Brand Logo']) {
+    if (story.brandLogo) {
       const logo = document.createElement('img');
       logo.className = 'brand-logo';
-      logo.src = story['Brand Logo'];
+      logo.src = story.brandLogo;
       logo.alt = 'Logo';
       slide.appendChild(logo);
     }
@@ -362,45 +352,82 @@
     slide.appendChild(overlay);
     wrapper.appendChild(slide);
   });
+}
 
-  updateProgress(0);
+// --- 4. Initialize Swiper ---
+let swiper = null;
+function initSwiper() {
+  if (swiper) swiper.destroy(true, true);
 
-  // Update progress on slide change end event
+  swiper = new Swiper('.swiper', {
+    direction: 'horizontal',
+    slidesPerView: 1,
+    allowTouchMove: false,
+    watchSlidesProgress: true,
+    observer: true,
+    observeParents: true,
+  });
+
   swiper.on('slideChangeTransitionEnd', () => {
     updateProgress(swiper.activeIndex);
   });
-
-  // Tap zones: use swiper API and debounce rapid clicks
-  document.getElementById('tapLeft').addEventListener('click', () => {
-    const current = swiper.activeIndex;
-    const range = getCurrentSequence(current);
-    if (range && current > range.start) {
-      swiper.slidePrev();
-      // updateProgress will be called on slideChangeTransitionEnd event
-    }
-  });
-
-  document.getElementById('tapRight').addEventListener('click', () => {
-    const current = swiper.activeIndex;
-    const range = getCurrentSequence(current);
-    if (range && current < range.end) {
-      swiper.slideNext();
-      // updateProgress will be called on slideChangeTransitionEnd event
-    }
-  });
-
-  // Optional: prevent double tap zoom on iOS
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', (event) => {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
 }
 
-loadStories();
+// --- 5. Render story tiles list ---
+function renderStoryTiles() {
+  const container = document.getElementById('storyListContainer');
+  container.innerHTML = '';
+
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  Object.keys(sequences).forEach(seqKey => {
+    const firstSlide = sequences[seqKey][0];
+    const tile = document.createElement('div');
+    tile.className = 'story-tile';
+    tile.onclick = () => openStorySequence(seqKey);
+
+    tile.innerHTML = `
+      <img src="${firstSlide.image || ''}" alt="Story preview">
+      <h3>${firstSlide.title || 'Untitled'}</h3>
+    `;
+
+    container.appendChild(tile);
+  });
+}
+
+// --- 6. Open a story sequence ---
+function openStorySequence(sequenceKey) {
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  const sequenceSlides = sequences[sequenceKey];
+  if (!sequenceSlides) return;
+
+  document.querySelector('.swiper').style.display = 'block';
+  document.getElementById('storyListContainer').style.display = 'none';
+  document.getElementById('viewAllButton').style.display = 'none';
+
+  renderSlides(sequenceSlides);
+  initSwiper();
+  updateProgress(0);
+}
+
+// --- 7. Show full story list view ---
+function showStoryList() {
+  document.querySelector('.swiper').style.display = 'none';
+  document.getElementById('storyListContainer').style.display = 'grid';
+  document.getElementById('viewAllButton').style.display = 'none';
+
+  renderStoryTiles();
+}
+
+// --- 8. Wire up View All button ---
+document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+
+// Optionally call showStoryList() on initial load to show the list
+showStoryList();
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadStories();
+});
 
 // 1. Entry point: Show full story list
 function showStoryList() {
