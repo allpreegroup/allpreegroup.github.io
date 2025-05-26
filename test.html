@@ -231,21 +231,18 @@
   let currentStartIndex = 0;
 
   data.forEach((story, index) => {
-    // Detect new sequence start
-    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-      if (currentSequence) {
-        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-      }
-      currentSequence = story['Story Title'].trim();
-      currentStartIndex = index;
+  if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+    if (currentSequence) {
+      sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
     }
+    currentSequence = story['Story Title'].trim();
+    currentStartIndex = index;
 
-    // Map every slide title (e.g., headline) to its index for jumps
-    if (story['Story Title']) {
-      const normalizedTitle = story['Story Title'].trim().toLowerCase();
-      storyMap[normalizedTitle] = index;
-    }
-  });
+    // ✅ Only map the first slide of each story
+    const normalizedTitle = currentSequence.toLowerCase();
+    storyMap[normalizedTitle] = index;
+  }
+});
 
   if (currentSequence) {
     sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
@@ -338,16 +335,17 @@
         ctaContainer.appendChild(linkBtn);
       }
 
-     if (story.ctaText2 && story.storyJump) {
+    if (story.ctaText2 && story.storyJump) {
   const jumpBtn = document.createElement('button');
   jumpBtn.className = 'cta-button cta-jump-button';
   jumpBtn.textContent = story.ctaText2;
 
   jumpBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const jumpTitle = story.storyJump.trim().toLowerCase();
 
+    const jumpTitle = story.storyJump.trim().toLowerCase();
     const jumpIndex = storyMap[jumpTitle];
+
     if (jumpIndex !== undefined) {
       swiper.slideTo(jumpIndex);
       updateProgress(jumpIndex);
@@ -359,6 +357,7 @@
 
   ctaContainer.appendChild(jumpBtn);
 }
+
 
 
       if (ctaContainer.childElementCount > 0) {
