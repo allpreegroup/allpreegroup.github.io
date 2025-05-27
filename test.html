@@ -556,34 +556,22 @@ function renderStoryTiles() {
   });
 }
 
+
 function openStorySequence(sequenceKey, startIndex = 0) {
   const sequences = groupSlidesBySequence(window.slidesData || []);
   const sequenceSlides = sequences[sequenceKey];
   if (!sequenceSlides) return;
 
-  // Prevent closing during jump
-  isJumping = true;
-
-  const swiperContainer = document.querySelector('.swiper');
-  if (swiperContainer) {
-    swiperContainer.style.display = 'block';
-  }
-
+  document.querySelector('.swiper').style.display = 'block';
   renderSlides(sequenceSlides);
+  initSwiper();
 
-  // Slight delay before initializing swiper and jumping
+  // Wait for DOM update, then slide
   setTimeout(() => {
-    initSwiper();
     swiper.slideTo(startIndex);
     updateProgress(startIndex);
-
-    // Allow close again after a full frame
-    setTimeout(() => {
-      isJumping = false;
-    }, 500);
   }, 50);
 }
-
 
 function showStoryList() {
   if (!window.slidesData) {
