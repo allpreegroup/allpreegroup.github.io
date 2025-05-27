@@ -559,7 +559,7 @@ function renderStoryTiles() {
 }
 
 
-function openStorySequence(sequenceKey, startIndex = 0) {
+/* function openStorySequence(sequenceKey, startIndex = 0) {
   const sequences = groupSlidesBySequence(window.slidesData || []);
   const sequenceSlides = sequences[sequenceKey];
   if (!sequenceSlides) {
@@ -584,6 +584,28 @@ function openStorySequence(sequenceKey, startIndex = 0) {
       isJumping = false;
     }, 300); // may adjust this if your init is slow
   }, 50);
+}
+*/
+
+  function openStorySequence(sequenceKey, startIndex = 0) {
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  const sequenceSlides = sequences[sequenceKey];
+  if (!sequenceSlides) {
+    isJumping = false;
+    return;
+  }
+
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
+
+  renderSlides(sequenceSlides);
+
+  // ✅ Directly initialize swiper with correct starting index
+  initSwiper(startIndex);
+
+  isJumping = false; // ✅ Unlock immediately if init is clean and synchronous
 }
 
 
