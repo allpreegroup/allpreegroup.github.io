@@ -80,8 +80,14 @@
 
 
 .swiper {
+ position: fixed;      /* Fix it relative to viewport */
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
+  background: black;    /* Optional: black background for better contrast */
+  z-index: 105;         /* Make sure it's above other popups */
+  display: none;        /* Hide by default */
 }
 
 .swiper-slide {
@@ -537,7 +543,6 @@ function renderStoryTiles() {
     const tile = document.createElement('div');
     tile.className = 'story-tile';
     tile.onclick = () => {
-      closeStoryListPopup();
       openStorySequence(seqKey);
     };
     tile.innerHTML = `
