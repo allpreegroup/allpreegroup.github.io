@@ -1602,25 +1602,22 @@ body.no-scroll {
   color: #222;
 }
 
-
-
-.swiper {
+  .swiper {
   position: fixed;
-  inset: 0; /* shorthand for top: 0; right: 0; bottom: 0; left: 0 */
+  inset: 0; /* top: 0, right: 0, bottom: 0, left: 0 */
   width: 100vw;
   height: 100vh;
   background: black;
-  z-index: 9999; /* Higher than anything else */
+  z-index: 9999;
   display: none;
 
   overflow: hidden;
-  box-sizing: border-box;
-
-  /* Force it to cover ANYTHING outside */
-  pointer-events: all;
+  pointer-events: auto;
   isolation: isolate;
-}
 
+  /* Prevents subtle layout bleed-through from outer elements */
+  box-shadow: 0 0 0 9999px black;
+}
 
 .swiper-slide {
   background-size: cover;
