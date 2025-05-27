@@ -1603,19 +1603,24 @@ body.no-scroll {
 }
 
 
+
 .swiper {
-position: fixed;
-  top: 0;
-  left: 0;
+  position: fixed;
+  inset: 0; /* shorthand for top: 0; right: 0; bottom: 0; left: 0 */
   width: 100vw;
   height: 100vh;
   background: black;
-  z-index: 1005;
+  z-index: 9999; /* Higher than anything else */
   display: none;
 
-  overflow: hidden;          /* ⛔ Prevent scrollbars or hidden content */
-  box-sizing: border-box;    /* ✅ Consistent sizing */
+  overflow: hidden;
+  box-sizing: border-box;
+
+  /* Force it to cover ANYTHING outside */
+  pointer-events: all;
+  isolation: isolate;
 }
+
 
 .swiper-slide {
   background-size: cover;
