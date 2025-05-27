@@ -4,6 +4,7 @@
     
 <style>
     
+/* Keep View All button styled */
 .view-all-btn {
   font-size: 16px;
   padding: 12px 24px;
@@ -12,29 +13,57 @@
   color: white;
   border-radius: 8px;
   cursor: pointer;
-}
-
-.story-list {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  margin: 0 auto;
-  width: 100%;
-  max-width: 600px;
-  padding: 20px 16px;
-  overflow-y: auto;
-
-  background: #fff;
-  z-index: 9;
-
-  border-radius: 16px; /* rounded corners */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-left: none;
-  border-right: none;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
 }
+
+/* Overlay backdrop when story list is open */
+.story-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 8;
+}
+
+/* Story list popup wrapper */
+#storyListPopup {
+  display: none; /* hidden by default */
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner scrollable panel */
+.story-list {
+  background: #fff;
+  padding: 20px 16px;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
+}
+
+/* Close button inside the popup */
+#closeStoryListPopupBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+/* Smaller screens */
 @media (max-width: 280px) {
   .story-list {
     max-width: 90%;
@@ -43,14 +72,7 @@
   }
 }
 
-.story-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 8;
-}
-
-
+/* Story tiles */
 .story-tile {
   display: flex;
   align-items: center;
@@ -85,6 +107,12 @@
   line-height: 1.2;
   color: #222;
 }
+
+/* Optional: prevent background scroll when popup is open */
+body.popup-open {
+  overflow: hidden;
+}
+
 
 
 .swiper {
@@ -529,7 +557,7 @@ function closeStoryViewer() {
 }
 
 
- function renderStoryTiles() {
+function renderStoryTiles() {
   const container = document.getElementById('storyListContainer');
   container.innerHTML = '';
 
@@ -538,7 +566,10 @@ function closeStoryViewer() {
     const firstSlide = sequences[seqKey][0];
     const tile = document.createElement('div');
     tile.className = 'story-tile';
-    tile.onclick = () => openStorySequence(seqKey);
+    tile.onclick = () => {
+      closeStoryListPopup(); // close popup when story opens
+      openStorySequence(seqKey);
+    };
 
     tile.innerHTML = `
       <img src="${firstSlide.image || ''}" alt="Story preview">
@@ -555,8 +586,6 @@ function openStorySequence(sequenceKey) {
   if (!sequenceSlides) return;
 
   document.querySelector('.swiper').style.display = 'block';
-  document.getElementById('storyListContainer').style.display = 'none';
-  document.getElementById('viewAllButton').style.display = 'none';
 
   renderSlides(sequenceSlides);
   initSwiper();
@@ -564,24 +593,35 @@ function openStorySequence(sequenceKey) {
 }
 
 function showStoryList() {
-  // Load stories if they haven't been loaded yet
   if (!window.slidesData) {
-    loadStories().then(() => {
-      actuallyShowTiles();
-    });
+    loadStories().then(actuallyShowTiles);
   } else {
     actuallyShowTiles();
   }
 
   function actuallyShowTiles() {
     document.querySelector('.swiper').style.display = 'none';
-    document.getElementById('storyListContainer').style.display = 'grid';
-    document.getElementById('viewAllButton').style.display = 'none';
+
+    const popup = document.getElementById('storyListPopup');
+    popup.style.display = 'flex';
+
     renderStoryTiles();
+    document.body.classList.add('popup-open');
   }
 }
 
+function closeStoryListPopup() {
+  const popup = document.getElementById('storyListPopup');
+  if (popup) {
+    popup.style.display = 'none';
+    document.body.classList.remove('popup-open');
+  }
+}
+
+// Event listeners
 document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+document.getElementById('closeStoryListPopupBtn').addEventListener('click', closeStoryListPopup);
+
 
 </script>
 
