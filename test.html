@@ -403,20 +403,16 @@
       const jumpSequence = jumpSlide.sequence;
 
       // Open the new sequence
-      openStorySequence(jumpSequence);
+     const sequences = groupSlidesBySequence(window.slidesData || []);
+const slidesInSequence = sequences[jumpSequence] || [];
+const localIndex = slidesInSequence.findIndex(slide => slide.index == jumpIndex);
 
-      setTimeout(() => {
-        const updatedSlides = document.querySelectorAll('.swiper-slide');
-        const localIndex = Array.from(updatedSlides).findIndex(slide =>
-          slide.dataset.index == jumpIndex
-        );
-        if (localIndex !== -1) {
-          swiper.slideTo(localIndex);
-          updateProgress(localIndex);
-        } else {
-          console.warn('Jump slide not found in loaded sequence');
-        }
-      }, 300);
+if (localIndex !== -1) {
+  openStorySequence(jumpSequence, localIndex);
+} else {
+  console.warn('Jump target found globally, but not within sequence:', jumpSequence);
+}
+
     } else {
       console.warn('Jump target not found:', story.storyJump);
       console.log('Available titles:', Object.keys(storyMap));
@@ -559,7 +555,7 @@ function renderStoryTiles() {
   });
 }
 
-function openStorySequence(sequenceKey) {
+function openStorySequence(sequenceKey, startIndex = 0) {
   const sequences = groupSlidesBySequence(window.slidesData || []);
   const sequenceSlides = sequences[sequenceKey];
   if (!sequenceSlides) return;
@@ -567,8 +563,14 @@ function openStorySequence(sequenceKey) {
   document.querySelector('.swiper').style.display = 'block';
   renderSlides(sequenceSlides);
   initSwiper();
-  updateProgress(0);
+
+  // Wait for DOM update, then slide
+  setTimeout(() => {
+    swiper.slideTo(startIndex);
+    updateProgress(startIndex);
+  }, 50);
 }
+
 
 function showStoryList() {
   if (!window.slidesData) {
