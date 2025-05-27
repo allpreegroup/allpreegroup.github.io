@@ -1604,14 +1604,17 @@ body.no-scroll {
 
 
 .swiper {
-position: fixed;      /* Fix it relative to viewport */
+position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: black;    /* Optional: black background for better contrast */
-  z-index: 105;         /* Make sure it's above other popups */
-  display: none;        /* Hide by default */
+  background: black;
+  z-index: 105;
+  display: none;
+
+  overflow: hidden;          /* ⛔ Prevent scrollbars or hidden content */
+  box-sizing: border-box;    /* ✅ Consistent sizing */
 }
 
 .swiper-slide {
@@ -1844,7 +1847,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<div id="bottomMenu">
         <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
-        <div class="menu-button" style="margin-left: 60px;" id="viewAllButton"><i class="fa-solid fa-book-open-reader"></i></div>	
+        <div class="menu-button" style="margin-left: 60px;" id="viewAllButton"><i class="fa-solid fa-book-open-reader fa-lg"></i></div>	
 	<div id="lockButton" onclick="openLeaderboard()" class="menu-button"><i class="fa-solid fa-arrow-up-wide-short fa-lg"></i></div>
         <div id="profile" class="menu-button" data-view="profile"><i class="fa-solid fa-user fa-lg"></i></div>
 	<div id="CartButton" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-cart-shopping fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
