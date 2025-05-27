@@ -469,6 +469,11 @@ function closeStoryViewer() {
     swiperContainer.style.display = 'none';  // Hide swiper (story viewer)
   }
 
+  if (swiper) {
+    swiper.destroy(true, true);
+    swiper = null;
+  }
+
   if (storyList) {
     storyList.style.display = 'grid'; // Show story list grid (adjust display as needed)
   }
@@ -479,6 +484,7 @@ function closeStoryViewer() {
 
   document.body.classList.remove('popup-open'); // Remove any body class related to popup
 }
+
 
  
   function initSwiper() {
