@@ -394,34 +394,36 @@
   jumpBtn.textContent = story.ctaText2;
 
   jumpBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    isJumping = true; // prevent swiper teardown
+  e.stopPropagation();
 
-    const jumpTitle = story.storyJump.trim().toLowerCase();
-    const jumpIndex = storyMap[jumpTitle];
+  if (isJumping) return; // avoid double-tap issues
+  isJumping = true; // lock early
 
-    if (jumpIndex !== undefined) {
-      const jumpSlide = window.slidesData[jumpIndex];
-      const jumpSequence = jumpSlide.sequence;
+  const jumpTitle = story.storyJump.trim().toLowerCase();
+  const jumpIndex = storyMap[jumpTitle];
 
-      const sequences = groupSlidesBySequence(window.slidesData || []);
-      const slidesInSequence = sequences[jumpSequence] || [];
-      const localIndex = slidesInSequence.findIndex(slide => slide.index == jumpIndex);
+  if (jumpIndex !== undefined) {
+    const jumpSlide = window.slidesData[jumpIndex];
+    const jumpSequence = jumpSlide.sequence;
 
-      if (localIndex !== -1) {
-        openStorySequence(jumpSequence, localIndex);
-      } else {
-        console.warn('Jump target found globally, but not within sequence:', jumpSequence);
-      }
+    const sequences = groupSlidesBySequence(window.slidesData || []);
+    const slidesInSequence = sequences[jumpSequence] || [];
+    const localIndex = slidesInSequence.findIndex(slide => slide.index == jumpIndex);
 
+    if (localIndex !== -1) {
+      openStorySequence(jumpSequence, localIndex); // will handle isJumping reset
     } else {
-      console.warn('Jump target not found:', story.storyJump);
-      console.log('Available titles:', Object.keys(storyMap));
+      console.warn('Jump target found globally, but not within sequence:', jumpSequence);
+      isJumping = false;
     }
 
-    // Allow time for openStorySequence to finish before re-enabling close
-    setTimeout(() => { isJumping = false; }, 500);
-  });
+  } else {
+    console.warn('Jump target not found:', story.storyJump);
+    console.log('Available titles:', Object.keys(storyMap));
+    isJumping = false;
+  }
+});
+
 
  const closeBtn = document.createElement('button');
 closeBtn.className = 'cta-button cta-close-button';
@@ -560,20 +562,30 @@ function renderStoryTiles() {
 function openStorySequence(sequenceKey, startIndex = 0) {
   const sequences = groupSlidesBySequence(window.slidesData || []);
   const sequenceSlides = sequences[sequenceKey];
-  if (!sequenceSlides) return;
+  if (!sequenceSlides) {
+    isJumping = false;
+    return;
+  }
 
-  isJumping = true;
-  
-  document.querySelector('.swiper').style.display = 'block';
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
+
   renderSlides(sequenceSlides);
-  initSwiper();
 
-  // Wait for DOM update, then slide
   setTimeout(() => {
+    if (!swiper) initSwiper();
     swiper.slideTo(startIndex);
     updateProgress(startIndex);
+
+    // Only unlock after full transition + render
+    setTimeout(() => {
+      isJumping = false;
+    }, 300); // may adjust this if your init is slow
   }, 50);
 }
+
 
 function showStoryList() {
   if (!window.slidesData) {
