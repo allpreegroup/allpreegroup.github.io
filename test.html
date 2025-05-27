@@ -4,115 +4,55 @@
     
 <style>
     
-/* Keep View All button styled */
-.view-all-btn {
-  font-size: 16px;
-  padding: 12px 24px;
-  border: none;
-  background: red;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10;
-}
-
-/* Overlay backdrop when story list is open */
-.story-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 8;
-}
-
-/* Story list popup wrapper */
 #storyListPopup {
-  display: none; /* hidden by default */
   position: fixed;
   inset: 0;
-  z-index: 9;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Inner scrollable panel */
-.story-list {
-  background: #fff;
-  padding: 20px 16px;
-  border-radius: 16px;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 10;
-}
-
-/* Close button inside the popup */
-#closeStoryListPopupBtn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-}
-
-/* Smaller screens */
-@media (max-width: 280px) {
-  .story-list {
-    max-width: 90%;
-    border-radius: 0;
-    box-shadow: none;
-  }
-}
-
-/* Story tiles */
-.story-tile {
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  justify-content: center;
+  z-index: 100;
+}
+
+#storyListContainer {
   background: white;
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  border-radius: 16px;
+}
+
+.story-tile {
+  background: #fff;
   border-radius: 12px;
-  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  transition: 0.2s;
+  padding: 12px;
+  text-align: center;
 }
 
 .story-tile:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
 .story-tile img {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
+  width: 100%;
   border-radius: 10px;
-  flex-shrink: 0;
+  object-fit: cover;
 }
 
 .story-tile h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  margin: 0;
-  line-height: 1.2;
+  font-size: 1rem;
+  margin-top: 8px;
   color: #222;
 }
-
-/* Optional: prevent background scroll when popup is open */
-body.popup-open {
-  overflow: hidden;
-}
-
 
 
 .swiper {
@@ -272,7 +212,10 @@ body.popup-open {
 
 <button id="viewAllButton">View All Stories</button>
 
-<div id="storyListContainer" style="display:none;" class="story-list-grid"></div>
+<div id="storyListPopup" style="display: none;">
+  <div id="storyListContainer" class="story-grid"></div>
+  <button id="closeStoryListPopupBtn">Close</button>
+</div>
 
 <div class="swiper" style="display:none;">
   <div class="swiper-wrapper" id="storyWrapper"></div>
@@ -280,6 +223,9 @@ body.popup-open {
   <div class="tap-zone tap-left" id="tapLeft"></div>
   <div class="tap-zone tap-right" id="tapRight"></div>
 </div>
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
@@ -567,15 +513,13 @@ function renderStoryTiles() {
     const tile = document.createElement('div');
     tile.className = 'story-tile';
     tile.onclick = () => {
-      closeStoryListPopup(); // close popup when story opens
+      closeStoryListPopup();
       openStorySequence(seqKey);
     };
-
     tile.innerHTML = `
       <img src="${firstSlide.image || ''}" alt="Story preview">
       <h3>${firstSlide.title || 'Untitled'}</h3>
     `;
-
     container.appendChild(tile);
   });
 }
@@ -586,7 +530,6 @@ function openStorySequence(sequenceKey) {
   if (!sequenceSlides) return;
 
   document.querySelector('.swiper').style.display = 'block';
-
   renderSlides(sequenceSlides);
   initSwiper();
   updateProgress(0);
@@ -600,25 +543,16 @@ function showStoryList() {
   }
 
   function actuallyShowTiles() {
-    document.querySelector('.swiper').style.display = 'none';
-
-    const popup = document.getElementById('storyListPopup');
-    popup.style.display = 'flex';
-
+    document.getElementById('storyListPopup').style.display = 'flex';
     renderStoryTiles();
-    document.body.classList.add('popup-open');
   }
 }
 
 function closeStoryListPopup() {
-  const popup = document.getElementById('storyListPopup');
-  if (popup) {
-    popup.style.display = 'none';
-    document.body.classList.remove('popup-open');
-  }
+  document.getElementById('storyListPopup').style.display = 'none';
 }
 
-// Event listeners
+// Listeners
 document.getElementById('viewAllButton').addEventListener('click', showStoryList);
 document.getElementById('closeStoryListPopupBtn').addEventListener('click', closeStoryListPopup);
 
