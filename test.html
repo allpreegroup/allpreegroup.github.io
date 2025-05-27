@@ -574,7 +574,23 @@ function renderStoryTiles() {
 
   renderSlides(sequenceSlides);
 
+
+   setTimeout(() => {
+  if (!swiper) {
+    initSwiper();
+  } else {
+    swiper.update();  // <-- refresh swiper to sync with new slides
+  }
+
+  swiper.slideTo(startIndex);
+  updateProgress(startIndex);
+
   setTimeout(() => {
+    isJumping = false;
+  }, 300);
+}, 50);
+ }  
+  /* setTimeout(() => {
     if (!swiper) initSwiper();
     swiper.slideTo(startIndex);
     updateProgress(startIndex);
@@ -584,7 +600,7 @@ function renderStoryTiles() {
       isJumping = false;
     }, 300); // may adjust this if your init is slow
   }, 50);
-}
+}*/
 
 function showStoryList() {
   if (!window.slidesData) {
