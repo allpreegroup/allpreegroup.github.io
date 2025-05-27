@@ -561,16 +561,29 @@ function openStorySequence(sequenceKey, startIndex = 0) {
   const sequenceSlides = sequences[sequenceKey];
   if (!sequenceSlides) return;
 
-  document.querySelector('.swiper').style.display = 'block';
-  renderSlides(sequenceSlides);
-  initSwiper();
+  // Prevent closing during jump
+  isJumping = true;
 
-  // Wait for DOM update, then slide
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
+
+  renderSlides(sequenceSlides);
+
+  // Slight delay before initializing swiper and jumping
   setTimeout(() => {
+    initSwiper();
     swiper.slideTo(startIndex);
     updateProgress(startIndex);
+
+    // Allow close again after a full frame
+    setTimeout(() => {
+      isJumping = false;
+    }, 500);
   }, 50);
 }
+
 
 function showStoryList() {
   if (!window.slidesData) {
