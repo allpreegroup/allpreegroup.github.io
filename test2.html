@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,10 +15,9 @@
 <link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
 	<link rel="web-app-origin-association" href="/web-app-origin-association">
    <link rel="manifest" href="https://www.allpree.com/manifest.json">
-  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
      <title>See Today's Deals</title>
 	 <meta name="robots" content="noindex, nofollow" />
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
          <style>
     body {
       font-family: sans-serif;
@@ -1530,53 +1528,46 @@ body.no-scroll {
   margin-top: -4px;
 }	
 
-.view-all-btn {
-  font-size: 16px;
-  padding: 12px 24px;
-  border: none;
-  background: red;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.story-list {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  margin: 0 auto;
-  width: 100%;
-  max-width: 600px;
-  padding: 20px 16px;
-  overflow-y: auto;
-
-  background: #fff;
-  z-index: 9999;
-
-  border-radius: 16px; /* rounded corners */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-left: none;
-  border-right: none;
-}
-@media (max-width: 280px) {
-  .story-list {
-    max-width: 90%;
-    border-radius: 0;
-    box-shadow: none;
-  }
-}
-
-.story-backdrop {
+#storyListPopup {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 9998;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
+#storyListContainer {
+  background: white;
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
 
+  display: grid;
+  grid-template-columns: 1fr; /* single column */
+  gap: 16px;
+  border-radius: 16px;
+}
+  
+#closeStoryListPopupBtn {
+  position: fixed;      /* fixed relative to viewport */
+  top: 16px;            /* distance from top */
+  right: 16px;          /* distance from right */
+  z-index: 110;         /* above popup backdrop */
+  background: #ff4444;  /* red button */
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
 .story-tile {
   display: flex;
   align-items: center;
@@ -1591,12 +1582,11 @@ body.no-scroll {
 }
 
 .story-tile:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
 .story-tile img {
-  width: 64px;
+   width: 64px;
   height: 64px;
   object-fit: cover;
   border-radius: 10px;
@@ -1604,7 +1594,7 @@ body.no-scroll {
 }
 
 .story-tile h3 {
-  font-size: 1.3rem;
+   font-size: 1.3rem;
   font-weight: 700;
   text-transform: capitalize;
   margin: 0;
@@ -1614,8 +1604,14 @@ body.no-scroll {
 
 
 .swiper {
+ position: fixed;      /* Fix it relative to viewport */
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
+  background: black;    /* Optional: black background for better contrast */
+  z-index: 9999;         /* Make sure it's above other popups */
+  display: none;        /* Hide by default */
 }
 
 .swiper-slide {
@@ -1765,7 +1761,8 @@ body.no-scroll {
   width: auto;
   border-radius: 6px;
   z-index: 10;
-}		 
+}
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1875,7 +1872,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</div>
 <!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
  
-  	<div id="viewAllButton" class="menu-button">Stories</div>	
+  	<div class="menu-button" id="viewAllButton">Stories</div>		
  
 <!--  <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div> -->
 </div>
@@ -2055,7 +2052,10 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 </div>
 
 
-<div id="storyListContainer" style="display:none;" class="story-list-grid"></div>
+<div id="storyListPopup" style="display: none;">
+   <button id="closeStoryListPopupBtn">X</button>
+  <div id="storyListContainer" class="story-grid"></div>
+</div>
 
 <div class="swiper" style="display:none;">
   <div class="swiper-wrapper" id="storyWrapper"></div>
@@ -2063,8 +2063,6 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="tap-zone tap-left" id="tapLeft"></div>
   <div class="tap-zone tap-right" id="tapRight"></div>
 </div>
-
-
 				  
 		  
  <!-- Popup Overlay -->
@@ -5365,7 +5363,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 
-
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
   const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
@@ -5588,7 +5585,6 @@ function closeStoryViewer() {
 
   document.body.classList.remove('popup-open'); // Remove any body class related to popup
 }
-
  
   function initSwiper() {
     if (swiper) swiper.destroy(true, true);
@@ -5641,8 +5637,7 @@ function closeStoryViewer() {
   }
 }
 
-
- function renderStoryTiles() {
+function renderStoryTiles() {
   const container = document.getElementById('storyListContainer');
   container.innerHTML = '';
 
@@ -5651,13 +5646,13 @@ function closeStoryViewer() {
     const firstSlide = sequences[seqKey][0];
     const tile = document.createElement('div');
     tile.className = 'story-tile';
-    tile.onclick = () => openStorySequence(seqKey);
-
+    tile.onclick = () => {
+      openStorySequence(seqKey);
+    };
     tile.innerHTML = `
       <img src="${firstSlide.image || ''}" alt="Story preview">
       <h3>${firstSlide.title || 'Untitled'}</h3>
     `;
-
     container.appendChild(tile);
   });
 }
@@ -5668,35 +5663,34 @@ function openStorySequence(sequenceKey) {
   if (!sequenceSlides) return;
 
   document.querySelector('.swiper').style.display = 'block';
-  document.getElementById('storyListContainer').style.display = 'none';
-  document.getElementById('viewAllButton').style.display = 'none';
-
   renderSlides(sequenceSlides);
   initSwiper();
   updateProgress(0);
 }
 
 function showStoryList() {
-  // Load stories if they haven't been loaded yet
   if (!window.slidesData) {
-    loadStories().then(() => {
-      actuallyShowTiles();
-    });
+    loadStories().then(actuallyShowTiles);
   } else {
     actuallyShowTiles();
   }
 
   function actuallyShowTiles() {
-    document.querySelector('.swiper').style.display = 'none';
-    document.getElementById('storyListContainer').style.display = 'grid';
-    document.getElementById('viewAllButton').style.display = 'none';
+    document.getElementById('storyListPopup').style.display = 'flex';
     renderStoryTiles();
   }
 }
 
-document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+function closeStoryListPopup() {
+  document.getElementById('storyListPopup').style.display = 'none';
+}
 
+// Listeners
+document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+document.getElementById('closeStoryListPopupBtn').addEventListener('click', closeStoryListPopup);
+	
 </script>
+
 			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
 </body>
