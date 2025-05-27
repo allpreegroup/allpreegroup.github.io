@@ -5365,11 +5365,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+ const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
   let storyMap = {};
   let sequenceRanges = [];
   let swiper;
-
+  let isJumping = false;
 
   async function loadStories() {
   const res = await fetch(sheetURL);
@@ -5494,42 +5494,43 @@ document.addEventListener('DOMContentLoaded', () => {
         ctaContainer.appendChild(linkBtn);
       }
 
-    if (story.ctaText2 && story.storyJump) {
+   if (story.ctaText2 && story.storyJump) {
   const jumpBtn = document.createElement('button');
   jumpBtn.className = 'cta-button cta-jump-button';
   jumpBtn.textContent = story.ctaText2;
 
   jumpBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const jumpTitle = story.storyJump.trim().toLowerCase();
-    const jumpIndex = storyMap[jumpTitle];
+  e.stopPropagation();
 
-    if (jumpIndex !== undefined) {
-      const jumpSlide = window.slidesData[jumpIndex];
-      const jumpSequence = jumpSlide.sequence;
+  if (isJumping) return; // avoid double-tap issues
+  isJumping = true; // lock early
 
-      // Open the new sequence
-      openStorySequence(jumpSequence);
+  const jumpTitle = story.storyJump.trim().toLowerCase();
+  const jumpIndex = storyMap[jumpTitle];
 
-      setTimeout(() => {
-        const updatedSlides = document.querySelectorAll('.swiper-slide');
-        const localIndex = Array.from(updatedSlides).findIndex(slide =>
-          slide.dataset.index == jumpIndex
-        );
-        if (localIndex !== -1) {
-          swiper.slideTo(localIndex);
-          updateProgress(localIndex);
-        } else {
-          console.warn('Jump slide not found in loaded sequence');
-        }
-      }, 300);
+  if (jumpIndex !== undefined) {
+    const jumpSlide = window.slidesData[jumpIndex];
+    const jumpSequence = jumpSlide.sequence;
+
+    const sequences = groupSlidesBySequence(window.slidesData || []);
+    const slidesInSequence = sequences[jumpSequence] || [];
+    const localIndex = slidesInSequence.findIndex(slide => slide.index == jumpIndex);
+
+    if (localIndex !== -1) {
+      openStorySequence(jumpSequence, localIndex); // will handle isJumping reset
     } else {
-      console.warn('Jump target not found:', story.storyJump);
-      console.log('Available titles:', Object.keys(storyMap));
+      console.warn('Jump target found globally, but not within sequence:', jumpSequence);
+      isJumping = false;
     }
-  });
 
-  // ✕ Close button
+  } else {
+    console.warn('Jump target not found:', story.storyJump);
+    console.log('Available titles:', Object.keys(storyMap));
+    isJumping = false;
+  }
+});
+
+
  const closeBtn = document.createElement('button');
 closeBtn.className = 'cta-button cta-close-button';
 closeBtn.textContent = 'Close'; // Or 'Close'
@@ -5540,8 +5541,6 @@ closeBtn.addEventListener('click', e => {
   ctaContainer.appendChild(jumpBtn);
   ctaContainer.appendChild(closeBtn);
 }
-
-
       if (ctaContainer.childElementCount > 0) {
         overlay.appendChild(ctaContainer);
       }
@@ -5567,25 +5566,33 @@ closeBtn.addEventListener('click', e => {
   }
 
 function closeStoryViewer() {
+  if (isJumping) return; // Prevent closing during a jump transition
+
   const swiperContainer = document.querySelector('.swiper');
   const storyList = document.getElementById('storyListContainer');
   const viewAllBtn = document.getElementById('viewAllButton');
 
   if (swiperContainer) {
-    swiperContainer.style.display = 'none';  // Hide swiper (story viewer)
+    swiperContainer.style.display = 'none'; // Hide swiper
+  }
+
+  if (swiper) {
+    swiper.destroy(true, true);
+    swiper = null;
   }
 
   if (storyList) {
-    storyList.style.display = 'grid'; // Show story list grid (adjust display as needed)
+    storyList.style.display = 'grid'; // Show story grid
   }
 
   if (viewAllBtn) {
-    viewAllBtn.style.display = 'inline-block'; // Show View All button
+    viewAllBtn.style.display = 'inline-block'; // Show 'View All' button
   }
 
-  document.body.classList.remove('popup-open'); // Remove any body class related to popup
+  document.body.classList.remove('popup-open');
 }
- 
+
+
   function initSwiper() {
     if (swiper) swiper.destroy(true, true);
 
@@ -5636,7 +5643,7 @@ function closeStoryViewer() {
     progressBar.appendChild(seg);
   }
 }
-
+  
 function renderStoryTiles() {
   const container = document.getElementById('storyListContainer');
   container.innerHTML = '';
@@ -5657,16 +5664,49 @@ function renderStoryTiles() {
   });
 }
 
-function openStorySequence(sequenceKey) {
+
+ function openStorySequence(sequenceKey, startIndex = 0) {
   const sequences = groupSlidesBySequence(window.slidesData || []);
   const sequenceSlides = sequences[sequenceKey];
-  if (!sequenceSlides) return;
+  if (!sequenceSlides) {
+    isJumping = false;
+    return;
+  }
 
-  document.querySelector('.swiper').style.display = 'block';
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
+
   renderSlides(sequenceSlides);
-  initSwiper();
-  updateProgress(0);
-}
+
+
+   setTimeout(() => {
+  if (!swiper) {
+    initSwiper();
+  } else {
+    swiper.update();  // <-- refresh swiper to sync with new slides
+  }
+
+  swiper.slideTo(startIndex);
+  updateProgress(startIndex);
+
+  setTimeout(() => {
+    isJumping = false;
+  }, 300);
+}, 50);
+ }  
+  /* setTimeout(() => {
+    if (!swiper) initSwiper();
+    swiper.slideTo(startIndex);
+    updateProgress(startIndex);
+
+    // Only unlock after full transition + render
+    setTimeout(() => {
+      isJumping = false;
+    }, 300); // may adjust this if your init is slow
+  }, 50);
+}*/
 
 function showStoryList() {
   if (!window.slidesData) {
