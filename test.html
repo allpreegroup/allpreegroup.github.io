@@ -463,13 +463,13 @@ closeBtn.addEventListener('click', e => {
 function closeStoryViewer() {
   if (isJumping) return; // Prevent closing during a jump transition
 
-  const swiperContainer = document.querySelector('.swiper');
+  const swiperWrapper = document.getElementById('swiperWrapper');
   const storyList = document.getElementById('storyListContainer');
   const viewAllBtn = document.getElementById('viewAllButton');
 
-  if (swiperContainer) {
-    swiperContainer.style.display = 'none'; // Hide swiper
-  }
+  if (swiperWrapper) {
+  swiperWrapper.style.display = 'none';
+}
 
   if (swiper) {
     swiper.destroy(true, true);
@@ -568,10 +568,11 @@ function renderStoryTiles() {
     return;
   }
 
-  const swiperContainer = document.querySelector('.swiper');
-  if (swiperContainer) {
-    swiperContainer.style.display = 'block';
-  }
+ const swiperWrapper = document.getElementById('swiperWrapper');
+if (swiperWrapper) {
+  swiperWrapper.style.display = 'block';
+}
+
 
   renderSlides(sequenceSlides);
 
