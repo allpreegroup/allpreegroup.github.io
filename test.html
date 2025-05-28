@@ -260,7 +260,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+    const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
   let storyMap = {};
   let sequenceRanges = [];
   let swiper;
@@ -463,13 +463,13 @@ closeBtn.addEventListener('click', e => {
 function closeStoryViewer() {
   if (isJumping) return; // Prevent closing during a jump transition
 
-  const swiperWrapper = document.getElementById('swiperWrapper');
+  const swiperContainer = document.querySelector('.swiper');
   const storyList = document.getElementById('storyListContainer');
   const viewAllBtn = document.getElementById('viewAllButton');
 
-  if (swiperWrapper) {
-  swiperWrapper.style.display = 'none';
-}
+  if (swiperContainer) {
+    swiperContainer.style.display = 'none'; // Hide swiper
+  }
 
   if (swiper) {
     swiper.destroy(true, true);
@@ -568,11 +568,10 @@ function renderStoryTiles() {
     return;
   }
 
- const swiperWrapper = document.getElementById('swiperWrapper');
-if (swiperWrapper) {
-  swiperWrapper.style.display = 'block';
-}
-
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
 
   renderSlides(sequenceSlides);
 
