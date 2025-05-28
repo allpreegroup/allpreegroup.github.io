@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-  <link rel="stylesheet" href="https://www.allpree.com/css/main.css">
+
  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
  <link href="//site-assets.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet"> 
 <link href="//fonts.googleapis.com/css?family=Space+Mono|Work+Sans:700" rel="stylesheet">
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">	
+	
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
 <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
 <link rel="apple-touch-icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
@@ -15,10 +15,13 @@
 <link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
 	<link rel="web-app-origin-association" href="/web-app-origin-association">
    <link rel="manifest" href="https://www.allpree.com/manifest.json">
-  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
      <title>See Today's Deals</title>
 	 <meta name="robots" content="noindex, nofollow" />
          <style>
+		  * {
+  box-sizing: border-box;
+}
     body {
       font-family: sans-serif;
       background: #f5f5f5;
@@ -552,13 +555,13 @@ height: 60px;
 }
 		 /* Style for the Like Button */
 .like-btn {
-  font-size: 2rem;
+  font-size: 1rem;
   background: none;
   border: none;
   cursor: pointer;
   transition: transform 0.2s ease;
   position: absolute; /* Position it inside the container */
-  bottom: -123px; /* Pushes the button down */
+  bottom: -100px; /* Pushes the button down */
   right: 15px; /* Adjust to your desired position (can be changed to center, right, etc.) */
   color: black; /* Initial color */
   z-index: 10; /* Ensures it's above other content */
@@ -622,6 +625,7 @@ height: 60px;
 .popup-brand-box .brand-logo-container img {
   max-height: 100%;
   max-width: 100%;
+  top: 5px;
   object-fit: contain;
   border-radius: 6px;
 }
@@ -645,7 +649,7 @@ height: 60px;
   right: 4px;
   font-size: 24px;
   padding: 3px 8px;
-  z-index: 2;
+  z-index: 40;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }	
 
@@ -825,13 +829,13 @@ height: 20%;
 }
 
 #popupAddToCartBtn {
-  font-size: 2rem;
+  font-size: 1rem;
   background: none;
   border: none;
   cursor: pointer;
   transition: transform 0.2s ease;
   position: absolute;
-  bottom: -123px;
+  bottom: -100px;
   right: 15px;
   color: black;
   z-index: 10;
@@ -1327,7 +1331,8 @@ body.no-scroll {
      visibility: hidden;
      position: absolute;
      left: -9999px;
-}		 
+}
+		 
 #leaderboardPopup {
   position: fixed;
   top: 50%;
@@ -1343,6 +1348,13 @@ body.no-scroll {
   display: none; /* Hidden by default */
 }
 
+.leaderboard-logo {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  max-height: 64px;
+  display: block;
+}
 
   #leaderboardPopup.show {
     display: block;
@@ -1522,11 +1534,252 @@ body.no-scroll {
 .drag-hint {
   text-align: right;
   margin-right: -100px;
-  font-size: 0.875rem;
+  font-size: 0.475rem;
   color: #888;
   z-index: 9999;
   margin-top: -4px;
-}		 
+}	
+
+#storyListPopup {
+  position: fixed;
+  inset: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 998;
+}
+
+#storyListContainer {
+  background: white;
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
+
+  display: grid;
+  grid-template-columns: 1fr; /* single column */
+  gap: 16px;
+  border-radius: 16px;
+}
+  
+#closeStoryListPopupBtn {
+  position: fixed;      /* fixed relative to viewport */
+  top: 16px;            /* distance from top */
+  right: 16px;          /* distance from right */
+  z-index: 110;         /* above popup backdrop */
+  background: #ff4444;  /* red button */
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.story-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.story-tile:hover {
+  transform: translateY(-2px);
+}
+
+.story-tile img {
+   width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.story-tile h3 {
+   font-size: 1.3rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0;
+  line-height: 1.2;
+  color: #222;
+}
+
+  .swiper {
+  position: fixed;
+  inset: 0; /* top: 0, right: 0, bottom: 0, left: 0 */
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  z-index: 9999;
+  display: none;
+
+  overflow: hidden;
+  pointer-events: auto;
+  isolation: isolate;
+
+  /* Prevents subtle layout bleed-through from outer elements */
+  box-shadow: 0 0 0 9999px black;
+}
+
+.swiper-slide {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40;
+}
+
+.slide-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  color: white;
+  text-align: center;
+  z-index: 50;
+}
+
+.slide-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.slide-desc {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.headline-slide .slide-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 30%;
+}
+
+.headline-slide {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cta-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.cta-button {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  color: #000;
+  z-index: 30;
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 25%;
+}
+
+.cta-link-button {
+  background: #FFD700;
+}
+
+.cta-jump-button {
+  background: #FF0000;
+  color: #fff;
+}
+
+.cta-button.close-story-button {
+  background-color: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  padding: 10px;
+  z-index: 10000 !important;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  backdrop-filter: brightness(0.9);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: white;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  transition: width 0.3s ease;
+}
+
+.tap-zone {
+  position: absolute;
+  width: 20%;
+  height: 100%;
+  top: 0;
+  z-index: 20;
+}
+
+.tap-left { left: 0; }
+.tap-right { right: 0; }
+
+.sponsored-label {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 4px 8px;
+  font-size: 1rem;
+  color: #fff;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.brand-logo {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  height: 32px;
+  width: auto;
+  border-radius: 6px;
+  z-index: 10;
+}
+		 
   </style>
   
 <link rel="manifest" href="https://www.allpree.com/manifest.json">
@@ -1608,7 +1861,8 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
 
 	<div id="bottomMenu">
         <div id="refresh-button" style="position: fixed;" class="menu-button" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate fa-lg"></i></div>
-        <div id="lockButton" style="margin-left: 60px;" onclick="openLeaderboard()" class="menu-button"><i class="fa-solid fa-arrow-up-wide-short fa-lg"></i></div>
+        <div class="menu-button" style="margin-left: 60px;" id="viewAllButton"><i class="fa-solid fa-book-open-reader fa-lg"></i></div>	
+	<div id="lockButton" onclick="openLeaderboard()" class="menu-button"><i class="fa-solid fa-arrow-up-wide-short fa-lg"></i></div>
         <div id="profile" class="menu-button" data-view="profile"><i class="fa-solid fa-user fa-lg"></i></div>
 	<div id="CartButton" class="menu-button" onclick="openCartPopup()"><i class="fa-solid fa-cart-shopping fa-lg"></i> <span id="cart-count" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; margin-left: 4px; display: none;">0</span></div>
         <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i></div>
@@ -1636,11 +1890,25 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   <div class="menu-button" data-view="topup"><i class="fa-solid fa-building-columns fa-lg"></i> Topup Card</div>
 <!--  <div class="menu-button" data-view="balance"><i class="fa-solid fa-piggy-bank fa-lg"></i> Check Balance</div>	-->
  
-  			
+  		
  
 <!--  <div id="favorite-brand-button" class="menu-button" onclick="openFavoriteBrandPopup()"><i class="fa-solid fa-heart fa-lg"></i> Brand</div> -->
 </div>
 
+<div id="storyListPopup" style="display: none;">
+   <button id="closeStoryListPopupBtn">X</button>
+  <div id="storyListContainer" class="story-grid"></div>
+</div>
+
+<div class="swiper" style="display:none;">
+  <div class="swiper-wrapper" id="storyWrapper"></div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="tap-zone tap-left" id="tapLeft"></div>
+  <div class="tap-zone tap-right" id="tapRight"></div>
+</div>
+
+
+				  
 <!-- Slide-up panel content area -->
 <div id="panel" class="slide-up-panel">
   <div id="handle">
@@ -1815,7 +2083,9 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
   </div>
 </div>
 
-	
+
+
+				  
 		  
  <!-- Popup Overlay -->
 <div class="popup-overlay" id="popup">
@@ -4921,7 +5191,7 @@ function renderTakeoverSponsor() {
 
   const brandCard = document.createElement('div');
   brandCard.className = 'popup-brand-box';
-  brandCard.innerHTML = `<img src="${brand.logo}" />`;
+  brandCard.innerHTML = `<img src="${brand.logo}" class="leaderboard-logo" alt="${brand.name} logo" />`;
 
   const heading = document.createElement('div');
   heading.className = 'takeover-heading';
@@ -5115,7 +5385,373 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+ const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
+  let storyMap = {};
+  let sequenceRanges = [];
+  let swiper;
+  let isJumping = false;
 
+  async function loadStories() {
+  const res = await fetch(sheetURL);
+  const data = await res.json();
+
+  sequenceRanges = [];
+  storyMap = {}; // reset
+
+  let currentSequence = '';
+  let currentStartIndex = 0;
+
+  data.forEach((story, index) => {
+    // Detect new sequence start
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+      if (currentSequence) {
+        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
+      }
+      currentSequence = story['Story Title'].trim();
+      currentStartIndex = index;
+    }
+
+    // Map every slide title (e.g., headline) to its index for jumps
+    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
+  const normalizedTitle = story['Story Title'].trim().toLowerCase();
+  if (!(normalizedTitle in storyMap)) {
+    storyMap[normalizedTitle] = index;
+  }
+}
+
+  });
+   
+  if (currentSequence) {
+    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
+  }
+
+    // Build slidesData array
+    window.slidesData = data
+      .map((story, index) => {
+        if (!story['Image URL']) return null;
+
+        let sequenceName = '';
+        for (let seq of sequenceRanges) {
+          if (index >= seq.start && index <= seq.end) {
+            sequenceName = seq.title;
+            break;
+          }
+        }
+
+        return {
+          index,
+          sequence: sequenceName,
+          image: story['Image URL'],
+          title: (parseInt(story['Slide #']) === 1 && story['Story Title']) ? story['Story Title'] : story['Title'],
+          description: story['Description'],
+          ctaText: story['CTA Text'],
+          ctaLink: story['CTA Link'],
+          ctaText2: story['CTA Text 2'],
+          storyJump: story['Story Jump'],
+          sponsored: story['Sponsored'],
+          brandLogo: story['Brand Logo'],
+        };
+      })
+      .filter(Boolean);
+
+    showStoryList();
+  }
+
+  function groupSlidesBySequence(slides) {
+    const sequences = {};
+    slides.forEach(slide => {
+      if (!sequences[slide.sequence]) sequences[slide.sequence] = [];
+      sequences[slide.sequence].push(slide);
+    });
+    return sequences;
+  }
+
+  function renderSlides(slides) {
+    const wrapper = document.getElementById('storyWrapper');
+    wrapper.innerHTML = '';
+
+    slides.forEach((story, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+      slide.style.backgroundImage = `url(${story.image})`;
+
+      slide.dataset.index = story.globalIndex ?? i;
+     
+      const overlay = document.createElement('div');
+      overlay.className = 'slide-overlay';
+
+      // Big headline for first slide in sequence (Slide # 1)
+      if (parseInt(story.index) === slides[0].index) {
+        slide.classList.add('headline-slide');
+        const title = document.createElement('div');
+        title.className = 'slide-title';
+        title.textContent = story.title;
+        overlay.appendChild(title);
+      } else if (story.title) {
+        const title = document.createElement('div');
+        title.className = 'slide-title';
+        title.textContent = story.title;
+        overlay.appendChild(title);
+      }
+
+      if (story.description) {
+        const desc = document.createElement('div');
+        desc.className = 'slide-desc';
+        desc.textContent = story.description;
+        overlay.appendChild(desc);
+      }
+
+      const ctaContainer = document.createElement('div');
+      ctaContainer.className = 'cta-container';
+
+      if (story.ctaText && story.ctaLink) {
+        const linkBtn = document.createElement('a');
+        linkBtn.className = 'cta-button cta-link-button';
+        linkBtn.href = story.ctaLink;
+        linkBtn.target = '_blank';
+        linkBtn.textContent = story.ctaText;
+        linkBtn.addEventListener('click', e => e.stopPropagation());
+        ctaContainer.appendChild(linkBtn);
+      }
+
+   if (story.ctaText2 && story.storyJump) {
+  const jumpBtn = document.createElement('button');
+  jumpBtn.className = 'cta-button cta-jump-button';
+  jumpBtn.textContent = story.ctaText2;
+
+  jumpBtn.addEventListener('click', e => {
+  e.stopPropagation();
+
+  if (isJumping) return; // avoid double-tap issues
+  isJumping = true; // lock early
+
+  const jumpTitle = story.storyJump.trim().toLowerCase();
+  const jumpIndex = storyMap[jumpTitle];
+
+  if (jumpIndex !== undefined) {
+    const jumpSlide = window.slidesData[jumpIndex];
+    const jumpSequence = jumpSlide.sequence;
+
+    const sequences = groupSlidesBySequence(window.slidesData || []);
+    const slidesInSequence = sequences[jumpSequence] || [];
+    const localIndex = slidesInSequence.findIndex(slide => slide.index == jumpIndex);
+
+    if (localIndex !== -1) {
+      openStorySequence(jumpSequence, localIndex); // will handle isJumping reset
+    } else {
+      console.warn('Jump target found globally, but not within sequence:', jumpSequence);
+      isJumping = false;
+    }
+
+  } else {
+    console.warn('Jump target not found:', story.storyJump);
+    console.log('Available titles:', Object.keys(storyMap));
+    isJumping = false;
+  }
+});
+
+
+ const closeBtn = document.createElement('button');
+closeBtn.className = 'cta-button cta-close-button';
+closeBtn.textContent = 'Close'; // Or 'Close'
+closeBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  closeStoryViewer();
+});
+  ctaContainer.appendChild(jumpBtn);
+  ctaContainer.appendChild(closeBtn);
+}
+      if (ctaContainer.childElementCount > 0) {
+        overlay.appendChild(ctaContainer);
+      }
+
+      if (story.sponsored && story.sponsored.toLowerCase() === 'true') {
+        const label = document.createElement('div');
+        label.className = 'sponsored-label';
+        label.textContent = 'Sponsored';
+        slide.appendChild(label);
+      }
+
+      if (story.brandLogo) {
+        const logo = document.createElement('img');
+        logo.className = 'brand-logo';
+        logo.src = story.brandLogo;
+        logo.alt = 'Logo';
+        slide.appendChild(logo);
+      }
+
+      slide.appendChild(overlay);
+      wrapper.appendChild(slide);
+    });
+  }
+
+function closeStoryViewer() {
+  if (isJumping) return; // Prevent closing during a jump transition
+
+  const swiperContainer = document.querySelector('.swiper');
+  const storyList = document.getElementById('storyListContainer');
+  const viewAllBtn = document.getElementById('viewAllButton');
+
+  if (swiperContainer) {
+    swiperContainer.style.display = 'none'; // Hide swiper
+  }
+
+  if (swiper) {
+    swiper.destroy(true, true);
+    swiper = null;
+  }
+
+  if (storyList) {
+    storyList.style.display = 'grid'; // Show story grid
+  }
+
+  if (viewAllBtn) {
+    viewAllBtn.style.display = 'inline-block'; // Show 'View All' button
+  }
+
+  document.body.classList.remove('popup-open');
+}
+
+
+  function initSwiper() {
+    if (swiper) swiper.destroy(true, true);
+
+    swiper = new Swiper('.swiper', {
+      direction: 'horizontal',
+      slidesPerView: 1,
+      allowTouchMove: false,
+      watchSlidesProgress: true,
+      observer: true,
+      observeParents: true,
+    });
+
+    swiper.on('slideChangeTransitionEnd', () => {
+      updateProgress(swiper.activeIndex);
+    });
+
+    // Tap zones for navigation
+    document.getElementById('tapLeft').onclick = () => swiper.slidePrev();
+    document.getElementById('tapRight').onclick = () => swiper.slideNext();
+  }
+
+  function updateProgress(index) {
+  const progressBar = document.getElementById('progressBar');
+  if (!swiper || !progressBar) return;
+
+  const total = swiper.slides.length;
+
+  progressBar.innerHTML = ''; // Clear previous segments
+
+  for (let i = 0; i < total; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-segment';
+
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+
+    if (i < index) {
+      fill.style.width = '100%';
+    } else if (i === index) {
+      fill.style.width = '0%';
+      fill.style.transition = 'width 5s linear'; // match to slide duration if autoplay
+      requestAnimationFrame(() => {
+        fill.style.width = '100%';
+      });
+    }
+
+    seg.appendChild(fill);
+    progressBar.appendChild(seg);
+  }
+}
+  
+function renderStoryTiles() {
+  const container = document.getElementById('storyListContainer');
+  container.innerHTML = '';
+
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  Object.keys(sequences).forEach(seqKey => {
+    const firstSlide = sequences[seqKey][0];
+    const tile = document.createElement('div');
+    tile.className = 'story-tile';
+    tile.onclick = () => {
+      openStorySequence(seqKey);
+    };
+    tile.innerHTML = `
+      <img src="${firstSlide.image || ''}" alt="Story preview">
+      <h3>${firstSlide.title || 'Untitled'}</h3>
+    `;
+    container.appendChild(tile);
+  });
+}
+
+
+ function openStorySequence(sequenceKey, startIndex = 0) {
+  const sequences = groupSlidesBySequence(window.slidesData || []);
+  const sequenceSlides = sequences[sequenceKey];
+  if (!sequenceSlides) {
+    isJumping = false;
+    return;
+  }
+
+  const swiperContainer = document.querySelector('.swiper');
+  if (swiperContainer) {
+    swiperContainer.style.display = 'block';
+  }
+
+  renderSlides(sequenceSlides);
+
+
+   setTimeout(() => {
+  if (!swiper) {
+    initSwiper();
+  } else {
+    swiper.update();  // <-- refresh swiper to sync with new slides
+  }
+
+  swiper.slideTo(startIndex);
+  updateProgress(startIndex);
+
+  setTimeout(() => {
+    isJumping = false;
+  }, 300);
+}, 50);
+ }  
+  /* setTimeout(() => {
+    if (!swiper) initSwiper();
+    swiper.slideTo(startIndex);
+    updateProgress(startIndex);
+
+    // Only unlock after full transition + render
+    setTimeout(() => {
+      isJumping = false;
+    }, 300); // may adjust this if your init is slow
+  }, 50);
+}*/
+
+function showStoryList() {
+  if (!window.slidesData) {
+    loadStories().then(actuallyShowTiles);
+  } else {
+    actuallyShowTiles();
+  }
+
+  function actuallyShowTiles() {
+    document.getElementById('storyListPopup').style.display = 'flex';
+    renderStoryTiles();
+  }
+}
+
+function closeStoryListPopup() {
+  document.getElementById('storyListPopup').style.display = 'none';
+}
+
+// Listeners
+document.getElementById('viewAllButton').addEventListener('click', showStoryList);
+document.getElementById('closeStoryListPopupBtn').addEventListener('click', closeStoryListPopup);
+	
+</script>
 
 			 
 		 </div>	</div>	</div>	</div>	</div>			 			 
