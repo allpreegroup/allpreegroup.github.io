@@ -5314,7 +5314,7 @@ async function reportAnonymousInstall() {
     console.error('Error reporting anonymous install:', e);
   }
 }
-
+let retryThisSession = false;
 async function pingDevice() {
   const deviceId = await getDeviceId();
   const userAgent = navigator.userAgent;
@@ -5350,7 +5350,12 @@ async function pingDevice() {
     if (text.toLowerCase().includes('new row created') && profile.idcode) {
       localStorage.removeItem(`installLinked_${profile.idcode}`);
       console.log(`Cleared installLinked_${profile.idcode} because new row created on ping`);
-      await pingDevice();
+     
+	    if (!retryThisSession) {
+        retryThisSession = true;
+        console.log('Retrying ping once this session to link newly created row...');
+        await pingDevice();
+      }
     }
 
   } catch (e) {
