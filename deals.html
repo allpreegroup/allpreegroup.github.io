@@ -5350,6 +5350,7 @@ async function pingDevice() {
     if (text.toLowerCase().includes('new row created') && profile.idcode) {
       localStorage.removeItem(`installLinked_${profile.idcode}`);
       console.log(`Cleared installLinked_${profile.idcode} because new row created on ping`);
+      await pingDevice();
     }
 
   } catch (e) {
