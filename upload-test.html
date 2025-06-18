@@ -6,6 +6,14 @@
     <title>Allpree: Browse, Shop & Save</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="192x192" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="32x32" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="96x96" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+<link rel="apple-touch-icon" type="image/png" sizes="16x16" href="https://www.allpree.com/img/AllPreepwaapp.png"/>
+	<link rel="web-app-origin-association" href="/web-app-origin-association">
+   <link rel="manifest" href="https://www.allpree.com/manifest.json">
+  
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -252,6 +260,13 @@
             }
         }
     </style>
+     <script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("https://www.allpree.com/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) => console.log("Service Worker Registration Failed", error));
+    }
+</script>
 </head>
 <body class="selection:bg-green-200 selection:text-green-900">
     <div class="container py-8">
@@ -289,7 +304,7 @@
 
                     <!-- Install Button & Share/Wishlist -->
                     <div class="flex flex-container-buttons space-y-4 md:space-y-0 md:space-x-4 mt-6">
-                        <a href="#" class="install-button">Install</a>
+                        <a href="#" id="trigger-a2hs" class="install-button">Install</a>
                         <div class="share-wishlist-group flex space-x-6 text-gray-500">
                             <button aria-label="Share App" class="flex items-center hover:text-green-600 transition">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -357,17 +372,253 @@
                             Allpree Deals is your ultimate local savings companion! Discover thousands of exclusive deals from businesses in your area, updated in real-time. Simply install the app and start browsing, liking, and getting directions to participating stores with no signup required. For even more savings, create a free account and unlock our unique cashback system, turning your everyday spending into rewarding opportunities. Shop smarter, save more, and experience the best local deals with Allpree!
                         </p>
                     </div>
-                </div>
-
-               
-
-                <!-- About the Developer Section -->
-                
+                </div>  
             </div>
         </div>
-
-    
-
     </div>
+
+
+
+
+<div id="a2hs-popup" style="display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      right: 20px;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      z-index: 99999;
+      font-family: sans-serif;
+">
+  <div class="section" style="display: flex; align-items: center; margin-bottom: 16px;">
+    <div class="emoji2" style="font-size: 2rem; margin-right: 0px;">
+  <img src="https://www.allpree.com/img/AllPreepwaapp.png" alt="AllPree App Icon" style="height: 88px; width: 88px; border-radius: 10px;" />
+</div>
+    <div class="content2">
+      
+	 <img src="https://www.allpree.com/img/AllPreeLocalDeals.png" alt="AllPree App Icon" style="height: 45px; width: 168px; border-radius: 0px;" />    
+	    
+    </div>
+  </div>
+   Get full access to all local deals, exclusive offers, and shopping tools, no account needed. To log in, you'll need to create an account. <br><br>
+  <div id="a2hs-message" style="margin-bottom: 16px;">
+    <!-- This will be filled dynamically for Android or iOS -->
+  </div>
+  <div style="display: flex; justify-content: flex-end;">
+    <button id="a2hs-install-btn" style="margin-right: 10px;">Install</button>
+   <!-- <button id="a2hs-close">×</button> -->
+  </div>
+</div>
+    
+    <script>
+  let deferredPrompt;
+
+  const IOS_STORAGE_KEY = 'iosPwaLastSeen';
+  const IOS_DAYS_LIMIT = 30;
+
+  function isIos() {
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  }
+
+  function isInStandaloneMode() {
+    return ('standalone' in window.navigator) && window.navigator.standalone;
+  }
+
+  function daysSince(dateString) {
+    const previous = new Date(dateString);
+    const now = new Date();
+    const diffTime = now - previous;
+    return diffTime / (1000 * 60 * 60 * 24);
+  }
+
+  function showPopup() {
+    if (!localStorage.getItem('a2hsShown')) {
+      document.getElementById('a2hs-popup').style.display = 'block';
+    }
+  }
+
+  // Android: Capture A2HS event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+   
+      document.getElementById('a2hs-message').innerHTML = `
+       <strong>Install This App, It's Free <br>-- No Play Store <br>-- No Downloads</strong><br><br>
+        Add to your home screen for fast, instant access!
+      `;
+      document.getElementById('a2hs-install-btn').style.display = 'inline-block';
+      
+   
+  });
+
+  // iOS: Show custom message if not in standalone and not seen in 30 days
+  window.addEventListener('load', () => {
+    if (isIos()) {
+      if (isInStandaloneMode()) {
+        // User opened the app in standalone — update timestamp
+        localStorage.setItem(IOS_STORAGE_KEY, new Date().toISOString());
+      } else {
+        const lastSeen = localStorage.getItem(IOS_STORAGE_KEY);
+        const shouldShowPrompt = !lastSeen || daysSince(lastSeen) >= IOS_DAYS_LIMIT;
+
+        if (shouldShowPrompt) {
+          
+            document.getElementById('a2hs-message').innerHTML = `
+              <strong>Install This App, It's Free <br>-- No App Store <br>-- No Downloads</strong><br><br>
+              Add to your home screen for fast, instant access!
+              <br><br>
+              Tap the <span style="font-weight: bold;">Share</span> icon
+              <span style="font-size: 1.2rem;">📤</span> and then select <strong>"Add to Home Screen"</strong>.
+            `;
+            document.getElementById('a2hs-install-btn').style.display = 'none';
+           
+          
+        }
+      }
+    }
+  });
+
+  // Android install button
+  document.getElementById('a2hs-install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      console.log('User response:', result.outcome);
+      document.getElementById('a2hs-popup').style.display = 'none';
+      localStorage.setItem('a2hsShown', 'true');
+      deferredPrompt = null;
+    }
+  });
+
+  // Close button
+/*  document.getElementById('a2hs-close').addEventListener('click', () => {
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'false'); // So it can show again next time
+  }); */
+
+  // Android: If installed
+  window.addEventListener('appinstalled', () => {
+    console.log('App was installed');
+    document.getElementById('a2hs-popup').style.display = 'none';
+    localStorage.setItem('a2hsShown', 'true');
+  });
+	document.getElementById('trigger-a2hs').addEventListener('click', () => {
+  showPopup();
+});
+</script>    
+<script>
+  // Reusable install mode checker
+  function isInStandaloneMode() {
+    const displayMode = window.matchMedia('(display-mode: standalone)').matches;
+    const navigatorStandalone = window.navigator.standalone === true;
+
+    return displayMode || navigatorStandalone;
+  }
+
+  function closeSplashPage() {
+    // Hide current instructions
+    document.getElementById('android-instructions').style.display = 'none';
+    document.getElementById('ios-instructions').style.display = 'none';
+    document.getElementById('desktop-warning').style.display = 'none';
+
+    // Always show additional instructions, allow repeat views
+    document.getElementById("additional-instructions").style.display = "block";
+  }
+
+  function showFinalInstructions() {
+    // Hide the additional instructions and show the final instructions
+    document.getElementById('additional-instructions').style.display = 'none';
+    document.getElementById('final-instructions').style.display = 'block';
+  }
+
+  function finishSetup() {
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isInStandaloneMode()) {
+      // Already in PWA mode, show message only
+      alert("You're already in the app (PWA mode).");
+    } else {
+      if (isAndroid) {
+        alert("This app is already installed. Tap 'Ok' to continue.");
+        // Open in a new tab
+        window.open("/splashpage", "_blank");
+      } else if (isIOS) {
+        alert("Please open this from the app icon on your home screen to continue.");
+      } else {
+        alert("This feature is only available in the installed app (PWA). Please visit using your mobile device.");
+      }
+    }
+  }
+
+  // Detect device and show relevant instructions
+  function detectDevice() {
+    const ua = navigator.userAgent;
+
+    const isAndroid = /android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+    if (isAndroid) {
+      document.getElementById('android-instructions').style.display = 'block';
+      const androidOS = document.getElementById('android-os');
+      if (androidOS) androidOS.style.display = 'block';
+    } else if (isIOS) {
+      document.getElementById('ios-instructions').style.display = 'block';
+      const iosOS = document.getElementById('ios-os');
+      if (iosOS) iosOS.style.display = 'block';
+    } else {
+      document.getElementById('desktop-warning').style.display = 'block';
+    }
+
+    // Hide unused OS-specific <ol> if they exist
+    const androidOS = document.getElementById('android-os');
+    const iosOS = document.getElementById('ios-os');
+    if (androidOS && !isAndroid) androidOS.style.display = 'none';
+    if (iosOS && !isIOS) iosOS.style.display = 'none';
+  }
+
+  window.onload = detectDevice;
+
+  // New function to check and show install status
+  function checkIfInstalled() {
+    const isInstalled = isInStandaloneMode();
+    const statusElement = document.getElementById('install-status');
+
+    if (statusElement) {
+      if (isInstalled) {
+        statusElement.textContent = "✅ App is installed and running in PWA mode.";
+        statusElement.style.color = "green";
+      } else {
+        statusElement.textContent = "❌ App is not installed. Please add it to your home screen.";
+        statusElement.style.color = "red";
+      }
+    }
+  }
+	
+</script>
+
+	 <script>
+    (function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const brand = urlParams.get('brand');
+
+      if (brand) {
+        localStorage.setItem('selectedTakeoverBrand', decodeURIComponent(brand));
+        localStorage.removeItem('disableTakeover');
+
+        // Cloak the URL by removing query params
+        if (window.history.replaceState) {
+          const newUrl = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+
+        console.log('Takeover brand set to:', decodeURIComponent(brand));
+      } else {
+        console.warn('No brand specified in URL. Nothing was set.');
+      }
+    })();
+  </script>
 </body>
 </html>
