@@ -24,15 +24,16 @@
             padding: 0; /* Handled by internal elements */
             margin-bottom: 1.5rem; /* Space between sections */
         }
-        .header-content {
+        .header-content-wrapper { /* New wrapper for main content excluding icon */
             display: flex;
-            flex-direction: column-reverse; /* Stack vertically on mobile, with last item (icon) first */
-            align-items: center; /* Center horizontally on mobile */
+            flex-direction: column; /* Stack vertically on mobile */
+            align-items: flex-start; /* Left-align on mobile */
             padding-bottom: 1.5rem; /* Separator for header */
             border-bottom: 1px solid #e0e0e0;
+            position: relative; /* Needed for positioning inside */
         }
         @media (min-width: 768px) { /* Medium screens and up */
-            .header-content {
+            .header-content-wrapper {
                 flex-direction: row; /* Row on desktop */
                 justify-content: space-between;
                 align-items: flex-start;
@@ -48,7 +49,10 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-bottom: 1rem; /* Space below icon on mobile */
+            /* Absolute positioning to keep it top-right */
+            position: absolute;
+            top: 1rem; /* Adjust from default padding */
+            right: 1rem; /* Adjust from default padding */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden; /* Ensure content stays within rounded corners */
         }
@@ -56,8 +60,8 @@
             .app-icon-large {
                 width: 180px; /* Larger icon for desktop */
                 height: 180px;
-                margin-left: 0.0rem; /* Reset margin for desktop */
-                margin-bottom: 0; /* Reset margin for desktop */
+                top: 1rem; /* Consistent top for desktop */
+                right: 1rem; /* Consistent right for desktop */
             }
         }
         .app-icon-large svg {
@@ -68,22 +72,21 @@
         .rating-group {
             display: flex;
             flex-direction: column; /* Stack on mobile */
-            align-items: center; /* Center items on mobile */
-            text-align: center;
+            align-items: flex-start; /* Left align items on mobile */
+            text-align: left;
             margin-bottom: 1rem; /* Space below ratings on mobile */
         }
         @media (min-width: 768px) {
             .rating-group {
                 flex-direction: row; /* Row on desktop */
                 align-items: flex-start;
-                text-align: left;
                 margin-bottom: 0;
             }
         }
         .rating-item, .download-item, .everyone-item {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center text within columns on mobile */
+            align-items: flex-start; /* Left align text within columns on mobile */
             white-space: nowrap; /* Prevent wrapping */
             padding-right: 0; /* No right padding on mobile */
             border-right: none; /* No vertical divider on mobile */
@@ -203,13 +206,13 @@
             display: block; /* Make it a block element */
             width: 100%; /* Full width */
             max-width: 180px; /* Adjust max width to match image */
-            margin: 0 auto; /* Center on mobile */
+            margin: 0 auto; /* Center on mobile by default */
             font-size: 1rem; /* Match button text size */
         }
         @media (min-width: 768px) {
             .install-button {
-                margin-right: 1.5rem; /* Reset margin for desktop */
-                margin-left: 0; /* Reset margin for desktop */
+                margin-left: 0; /* Align left on desktop */
+                margin-right: 1.5rem; /* Space from share/wishlist */
                 width: auto; /* Auto width on desktop */
             }
         }
@@ -225,6 +228,29 @@
                 text-align: right; /* Right align on desktop */
             }
         }
+        .share-wishlist-group {
+            display: flex;
+            justify-content: center; /* Center on mobile */
+            width: 100%; /* Full width on mobile */
+        }
+        @media (min-width: 768px) {
+            .share-wishlist-group {
+                justify-content: flex-start; /* Left align on desktop */
+                width: auto;
+            }
+        }
+        .flex-container-buttons {
+            flex-direction: column; /* Stack on mobile */
+            align-items: center; /* Center on mobile */
+            width: 100%; /* Full width on mobile */
+        }
+        @media (min-width: 768px) {
+            .flex-container-buttons {
+                flex-direction: row; /* Row on desktop */
+                align-items: flex-start; /* Align with text on desktop */
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body class="selection:bg-green-200 selection:text-green-900">
@@ -232,10 +258,11 @@
 
         <!-- App Header Section -->
         <div class="section-card">
-            <div class="header-content">
-                <!-- Right: App Icon (moved to be first in flex-col-reverse for mobile) -->
+            <!-- New wrapper for header content to handle absolute positioning of icon -->
+            <div class="header-content-wrapper relative">
+                <!-- Right: App Icon (positioned absolutely to stay top-right) -->
                 <div class="app-icon-large">
-                    <!-- WhatsApp Icon SVG (Simplified for demonstration) -->
+                    <!-- WhatsApp Icon SVG -->
                     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12.04 2C6.59 2 2.14 6.45 2.14 11.9S6.59 21.8 12.04 21.8C14.77 21.8 17.1 20.65 18.88 18.87L21.43 21.42L22.84 20L20.29 17.45C21.03 16.25 21.49 14.88 21.49 13.4V11.9C21.49 6.45 17.04 2 12.04 2ZM17.42 16.3C17.05 16.92 16.5 17.47 15.8 17.84L16.54 18.58L15.12 20L13.68 18.56C12.98 18.93 12.21 19.14 11.41 19.14C6.59 19.14 2.87 15.42 2.87 10.6C2.87 5.78 6.59 2.06 11.41 2.06C16.23 2.06 19.95 5.78 19.95 10.6C19.95 11.96 19.49 13.25 18.72 14.35L19.46 15.09L18.04 16.51L17.42 16.3ZM12.04 3.4C7.39 3.4 3.59 7.2 3.59 11.85C3.59 16.5 7.39 20.3 12.04 20.3C16.69 20.3 20.49 16.5 20.49 11.85C20.49 7.2 16.69 3.4 12.04 3.4Z"/>
                         <path d="M14.65 10.22H9.45V13.82L10.95 15.32L12.45 13.82L13.95 15.32L15.45 13.82V10.22Z" fill="#ffffff"/>
@@ -243,7 +270,7 @@
                 </div>
 
                 <!-- Left: Title and Info -->
-                <div class="flex-1 text-center md:text-left">
+                <div class="flex-1 pr-0 md:pr-[200px]"> <!-- pr for desktop to make space for icon -->
                     <h1 class="text-3xl font-extrabold text-gray-900 mb-1 leading-tight">WhatsApp Messenger</h1>
                     <p class="text-gray-600 text-base mb-3">WhatsApp LLC</p>
 
@@ -265,9 +292,9 @@
                     </div>
 
                     <!-- Install Button & Share/Wishlist -->
-                    <div class="flex flex-col items-center md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-6">
+                    <div class="flex flex-container-buttons space-y-4 md:space-y-0 md:space-x-4 mt-6">
                         <a href="#" class="install-button">Install</a>
-                        <div class="flex space-x-6 text-gray-500">
+                        <div class="share-wishlist-group flex space-x-6 text-gray-500">
                             <button aria-label="Share App" class="flex items-center hover:text-green-600 transition">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M18 16.08a2.25 2.25 0 00-.75-1.57l-6-3.75a2.25 2.25 0 00-2.5 0l-6 3.75a2.25 2.25 0 00-.75 1.57 2.25 2.25 0 102.25 2.25 2.25 2.25 0 00-.08-.5L6.5 17.16a2.25 2.25 0 002.5 0l6-3.75a2.25 2.25 0 00.08-.5 2.25 2.25 0 102.25-2.25zM18 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM6 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"></path>
@@ -291,7 +318,7 @@
             <!-- Left Column: App Screenshots & Key Features Section -->
             <div class="md:w-3/5 w-full">
                 <div class="flex flex-col md:flex-row items-start mb-4">
-                    <p class="text-xl font-bold text-gray-800 pr-8 whitespace-normal w-full md:w-48 flex-shrink-0 leading-snug text-center md:text-left mb-4 md:mb-0">
+                    <p class="text-xl font-bold text-gray-800 pr-8 whitespace-normal w-full md:w-48 flex-shrink-0 leading-snug text-left mb-4 md:mb-0">
                         Simple.<br>Reliable.<br>Private.
                     </p>
                     <div class="screenshot-gallery flex-grow w-full">
