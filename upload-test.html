@@ -26,41 +26,82 @@
         }
         .header-content {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start; /* Align icon to top of its space */
+            flex-direction: column; /* Stack vertically on mobile */
+            align-items: center; /* Center horizontally on mobile */
             padding-bottom: 1.5rem; /* Separator for header */
             border-bottom: 1px solid #e0e0e0;
         }
+        @media (min-width: 768px) { /* Medium screens and up */
+            .header-content {
+                flex-direction: row; /* Row on desktop */
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+        }
+
         .app-icon-large {
-            width: 180px; /* Larger icon */
-            height: 180px;
+            width: 120px; /* Smaller icon for mobile */
+            height: 120px;
             border-radius: 1.5rem; /* Rounded square */
             background-color: #25D366; /* WhatsApp Green */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-left: 0.0rem; /* Space from left content */
+            margin-bottom: 1rem; /* Space below icon on mobile */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden; /* Ensure content stays within rounded corners */
+        }
+        @media (min-width: 768px) {
+            .app-icon-large {
+                width: 180px; /* Larger icon for desktop */
+                height: 180px;
+                margin-left: 0.0rem; /* Reset margin for desktop */
+                margin-bottom: 0; /* Reset margin for desktop */
+            }
         }
         .app-icon-large svg {
             color: #ffffff; /* White icon */
             width: 70%; /* Size of WhatsApp icon within its container */
             height: 70%;
         }
+        .rating-group {
+            display: flex;
+            flex-direction: column; /* Stack on mobile */
+            align-items: center; /* Center items on mobile */
+            text-align: center;
+            margin-bottom: 1rem; /* Space below ratings on mobile */
+        }
+        @media (min-width: 768px) {
+            .rating-group {
+                flex-direction: row; /* Row on desktop */
+                align-items: flex-start;
+                text-align: left;
+                margin-bottom: 0;
+            }
+        }
         .rating-item, .download-item, .everyone-item {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Align text within columns */
+            align-items: center; /* Center text within columns on mobile */
             white-space: nowrap; /* Prevent wrapping */
-            padding-right: 1.5rem; /* Space between items */
-            border-right: 1px solid #e0e0e0; /* Vertical divider */
+            padding-right: 0; /* No right padding on mobile */
+            border-right: none; /* No vertical divider on mobile */
+            margin-bottom: 0.5rem; /* Space between items on mobile */
+        }
+        @media (min-width: 768px) {
+            .rating-item, .download-item, .everyone-item {
+                align-items: flex-start; /* Align text within columns on desktop */
+                padding-right: 1.5rem; /* Space between items on desktop */
+                border-right: 1px solid #e0e0e0; /* Vertical divider on desktop */
+                margin-bottom: 0; /* Reset margin for desktop */
+            }
         }
         .rating-item:last-child, .download-item:last-child {
             border-right: none; /* No border on last item */
             padding-right: 0;
         }
+
         .screenshot-gallery {
             display: flex;
             overflow-x: auto; /* Horizontal scrolling */
@@ -75,9 +116,15 @@
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
-            width: 200px; /* Fixed width for each item */
+            width: 70vw; /* Responsive width for mobile screenshots */
+            max-width: 200px; /* Max width for consistency */
             flex-shrink: 0;
             padding-top: 0.5rem; /* Space for descriptive text above image */
+        }
+        @media (min-width: 768px) {
+            .screenshot-item {
+                width: 200px; /* Fixed width for desktop */
+            }
         }
         .screenshot-item .description {
             font-size: 0.875rem; /* Text above screenshot */
@@ -114,12 +161,16 @@
             color: #4b5563;
         }
         .info-list-item .label {
-            /* No flex-grow on label to let it take natural width */
+            flex-grow: 1; /* Allow label to grow */
+            text-align: left; /* Ensure label is left-aligned */
+            padding-right: 0.5rem; /* Small gap to value */
         }
         .info-list-item .value {
             display: flex; /* Keep flex for icon alignment */
             align-items: center;
-            /* margin-left: auto is removed as space-between handles it */
+            flex-shrink: 0; /* Prevent value from shrinking */
+            white-space: nowrap; /* Keep value on one line */
+            text-align: right; /* Ensure value is right-aligned */
         }
         .info-list-item svg {
             width: 1.25rem;
@@ -152,12 +203,27 @@
             display: block; /* Make it a block element */
             width: 100%; /* Full width */
             max-width: 180px; /* Adjust max width to match image */
-            margin-right: 1.5rem; /* Space from share/wishlist */
+            margin: 0 auto; /* Center on mobile */
             font-size: 1rem; /* Match button text size */
+        }
+        @media (min-width: 768px) {
+            .install-button {
+                margin-right: 1.5rem; /* Reset margin for desktop */
+                margin-left: 0; /* Reset margin for desktop */
+                width: auto; /* Auto width on desktop */
+            }
         }
         .install-button:hover {
             background-color: #064A41;
             box-shadow: 0 6px 15px rgba(7, 94, 84, 0.4);
+        }
+        .developer-info {
+            text-align: left; /* Left align on mobile */
+        }
+        @media (min-width: 768px) {
+            .developer-info {
+                text-align: right; /* Right align on desktop */
+            }
         }
     </style>
 </head>
@@ -168,12 +234,12 @@
         <div class="section-card">
             <div class="header-content">
                 <!-- Left: Title and Info -->
-                <div class="flex-1">
+                <div class="flex-1 text-center md:text-left">
                     <h1 class="text-3xl font-extrabold text-gray-900 mb-1 leading-tight">WhatsApp Messenger</h1>
                     <p class="text-gray-600 text-base mb-3">WhatsApp LLC</p>
 
                     <!-- Ratings and Downloads -->
-                    <div class="flex items-center space-x-4 text-gray-700 text-sm mb-4">
+                    <div class="rating-group flex items-center md:space-x-4 text-gray-700 text-sm mb-4">
                         <div class="rating-item">
                             <span class="font-bold text-lg">4.3</span>
                             <span class="text-yellow-500 text-base">★</span>
@@ -190,7 +256,7 @@
                     </div>
 
                     <!-- Install Button & Share/Wishlist -->
-                    <div class="flex items-center space-x-4 mt-6">
+                    <div class="flex flex-col items-center md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-6">
                         <a href="#" class="install-button">Install</a>
                         <div class="flex space-x-6 text-gray-500">
                             <button aria-label="Share App" class="flex items-center hover:text-green-600 transition">
@@ -223,10 +289,12 @@
         <!-- Main content area: Screenshots and Side Info -->
         <div class="flex flex-col md:flex-row md:space-x-8 pt-6">
             <!-- Left Column: App Screenshots & Key Features Section -->
-            <div class="md:w-3/5">
-                <div class="flex items-start mb-4">
-                 
-                    <div class="screenshot-gallery flex-grow">
+            <div class="md:w-3/5 w-full">
+                <div class="flex flex-col md:flex-row items-start mb-4">
+                    <p class="text-xl font-bold text-gray-800 pr-8 whitespace-normal w-full md:w-48 flex-shrink-0 leading-snug text-center md:text-left mb-4 md:mb-0">
+                        Simple.<br>Reliable.<br>Private.
+                    </p>
+                    <div class="screenshot-gallery flex-grow w-full">
                         <div class="screenshot-item">
                             <p class="description">Message privately with end-to-end encryption</p>
                             <img src="https://placehold.co/200x350/E6F3E6/000000?text=Screenshot+1" alt="App Screenshot 1">
@@ -254,9 +322,9 @@
             </div>
 
             <!-- Right Column: App Support and About the Developer -->
-            <div class="md:w-2/5 md:pl-2"> <!-- Reduced pl-4 to pl-2 here for tighter spacing -->
+            <div class="md:w-2/5 w-full md:pl-2"> <!-- md:pl-2 for desktop, no pl on mobile -->
                 <!-- App Support Section -->
-                <div class="section-card"> <!-- No pt-6 here -->
+                <div class="section-card">
                     <h2 class="info-section-header">
                         App support
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -295,7 +363,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </h2>
-                    <div class="text-gray-700 text-sm space-y-1">
+                    <div class="text-gray-700 text-sm space-y-1 developer-info text-left md:text-right">
                         <p class="font-semibold">Meta Platforms, Inc.</p>
                         <p>android@support.whatsapp.com</p>
                         <p>1 Meta Way</p>
