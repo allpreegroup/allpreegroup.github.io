@@ -64,15 +64,58 @@
             padding: 1.5rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden; /* Ensures content doesn't spill during transition */
         }
-        .faq-question {
+        .faq-question-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-align: left;
             font-weight: 700;
             color: #3B82F6; /* Blue for questions */
-            margin-bottom: 0.5rem;
+            cursor: pointer;
+            padding: 0; /* Remove default button padding */
+            background: none; /* Remove default button background */
+            border: none; /* Remove default button border */
+        }
+        .faq-question-button svg {
+            transition: transform 0.3s ease;
+        }
+        .faq-question-button[aria-expanded="true"] svg {
+            transform: rotate(180deg);
         }
         .faq-answer {
             color: #4B5563; /* Darker gray for answers */
             font-size: 0.95rem;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            overflow: hidden;
+            padding-top: 0;
+            margin-top: 0.5rem; /* Space between question and answer */
+        }
+        .faq-answer.expanded {
+            max-height: 500px; /* Adjust based on max expected answer height */
+            opacity: 1;
+            padding-top: 1rem;
+        }
+        .footer-section {
+            background-color: #f0f4ff; /* Match body background or slightly different */
+            color: #6B7280;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            border-top: 1px solid #E5E7EB; /* Subtle separator */
+        }
+        .footer-section a {
+            color: #3B82F6;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: #2563EB;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -94,7 +137,7 @@
                 <a href="#faq" class="hover:text-blue-600 transition duration-150">FAQs</a>
                 <a href="#get-started" class="hover:text-blue-600 transition duration-150">Get Started</a>
             </div>
-            <a href="#" class="blue-button">Download now</a>
+            <a href="#" class="blue-button">Install now</a>
         </nav>
 
         <!-- Hero Section -->
@@ -104,7 +147,7 @@
                 <div class="md:w-1/2 text-center md:text-left mb-12 md:mb-0">
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
                         Discover Instant <span class="text-gradient-purple-blue">Deals Nearby.</span> <br class="hidden sm:inline">
-                        No Signup. Just <span class="bg-yellow-200 px-2 py-1 rounded-md inline-block">Download & Go.</span>
+                        No Signup. Just <span class="bg-yellow-200 px-2 py-1 rounded-md inline-block">Install & Go.</span>
                     </h1>
                     <p class="text-gray-700 text-lg sm:text-xl mb-8 max-w-lg mx-auto md:mx-0">
                         Access exclusive deals and find savings immediately. No account needed to browse, like, and get directions.
@@ -125,7 +168,7 @@
                         </svg>
                     </a>
                     <p class="text-gray-500 text-sm mb-6">Start shopping smarter without any friction. Cashback requires a free account.</p>
-                    <a href="#" class="blue-button text-lg px-8 py-3">Download the App Now!</a>
+                    <a href="#" class="blue-button text-lg px-8 py-3">Install the App Now!</a>
                 </div>
 
                 <!-- Right Content - Image and Overlays -->
@@ -165,7 +208,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="section-heading text-blue-800">🛍️ Why Smart Shoppers Use This App Every Day</h2>
                 <p class="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-                    No signup, no commitment. Just download the app and immediately start browsing thousands of exclusive deals from your favorite brands.
+                    No signup, no commitment. Just install the app and immediately start browsing thousands of exclusive deals from your favorite brands.
                 </p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -244,14 +287,14 @@
                         </div>
                         <h3 class="text-xl font-semibold mb-2">Dynamic Browsing & App-Like Feel</h3>
                         <p class="text-gray-600 text-base">
-                            Deals reshuffle each time you explore, keeping things exciting. Add to your home screen for a super-fast, no-download app experience.
+                            Deals reshuffle each time you explore, keeping things exciting. **Add to your home screen** for a super-fast, no-download app experience.
                         </p>
                     </div>
                 </div>
                 <p class="text-center text-gray-600 mt-8 max-w-2xl mx-auto">
                     Enjoy all these immediate benefits! To unlock cashback rewards and the full Cashback Loop, you'll need to create a free account within the app.
                 </p>
-                <a href="#" class="blue-button mt-12 text-lg px-8 py-3">Download the App to See Deals!</a>
+                <a href="#" class="blue-button mt-12 text-lg px-8 py-3">Install the App to See Deals!</a>
             </div>
         </section>
 
@@ -414,75 +457,140 @@
 
                 <div class="space-y-6">
                     <div class="faq-item">
-                        <h3 class="faq-question">1. How does the cashback gift card system work?</h3>
-                        <p class="faq-answer">Sign up to get a universal digital gift card accepted at all partner merchants. Buy gift card vouchers from us at a 25% markup. After 121 days, receive up to 49% cashback paid to your bank.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>1. How does the cashback gift card system work?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sign up to get a universal digital gift card accepted at all partner merchants. Buy gift card vouchers from us at a 25% markup. After 121 days, receive up to 49% cashback paid to your bank.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">2. Where can I use the gift cards?</h3>
-                        <p class="faq-answer">Gift cards are redeemable at local physical stores that participate in the gift card system managed by our partner. Any store listed in their network can accept the digital gift card we provide you. Our app shows deals and promotions from some of these local stores to encourage shopping. We track only the gift cards you buy from us and manage your cashback payouts accordingly.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>2. Where can I use the gift cards?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Gift cards are redeemable at local physical stores that participate in the gift card system managed by our partner. Any store listed in their network can accept the digital gift card we provide you. Our app shows deals and promotions from some of these local stores to encourage shopping. We track only the gift cards you buy from us and manage your cashback payouts accordingly.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">3. Where does the cashback come from?</h3>
-                        <p class="faq-answer">The cashback comes entirely from our company’s income. When you buy a gift card, the full value goes directly to our partner, who manages the gift card system. We use a portion of the markup (company income) to generate returns through our internal operations. That’s what powers the cashback you receive.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>3. Where does the cashback come from?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>The cashback comes entirely from our company’s income. When you buy a gift card, the full value goes directly to our partner, who manages the gift card system. We use a portion of the markup (company income) to generate returns through our internal operations. That’s what powers the cashback you receive.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">4. Do I need a membership?</h3>
-                        <p class="faq-answer">No. But members pay J$8,400 per year to unlock up to 49% cashback on select gift card vouchers.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>4. Do I need a membership?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. But members pay J$8,400 per year to unlock up to 49% cashback on select gift card vouchers.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">5. What are the cashback tiers?</h3>
-                        <p class="faq-answer">
-                            Free members: 30% cashback <br>
-                            Paid members: <br>
-                            &nbsp;- J$20,000 vouchers &rarr; 49% cashback <br>
-                            &nbsp;- J$15,000 vouchers &rarr; 41% cashback <br>
-                            &nbsp;- J$10,000 vouchers &rarr; 37% cashback <br>
-                            (All cashback paid 121 days after purchase.)
-                        </p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>5. What are the cashback tiers?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>
+                                Free members: 30% cashback <br>
+                                Paid members: <br>
+                                &nbsp;- J$20,000 vouchers &rarr; 49% cashback <br>
+                                &nbsp;- J$15,000 vouchers &rarr; 41% cashback <br>
+                                &nbsp;- J$10,000 vouchers &rarr; 37% cashback <br>
+                                (All cashback paid 121 days after purchase.)
+                            </p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">6. When do I get paid?</h3>
-                        <p class="faq-answer">Exactly 121 days after your gift card purchase, your cashback is sent directly to your linked bank account.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>6. When do I get paid?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Exactly 121 days after your gift card purchase, your cashback is sent directly to your linked bank account.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">7. Is this a financial product or investment?</h3>
-                        <p class="faq-answer">No. This is not an investment. You are purchasing a retail gift card. Cashback is a loyalty reward funded by our company’s income, not from your payment.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>7. Is this a financial product or investment?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. This is not an investment. You are purchasing a retail gift card. Cashback is a loyalty reward funded by our company’s income, not from your payment.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">8. What happens if I don’t use the gift card?</h3>
-                        <p class="faq-answer">Gift card vouchers are valid at listed stores. To activate the cashback payout after 121 days, you must make at least one purchase using the gift card following your gift card voucher top-up.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>8. What happens if I don’t use the gift card?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Gift card vouchers are valid at listed stores. To activate the cashback payout after 121 days, you must make at least one purchase using the gift card following your gift card voucher top-up.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">9. Can I see my purchases and payouts?</h3>
-                        <p class="faq-answer">Yes. Your app dashboard shows all gift cards you’ve bought, expected cashback, and payout schedule. To view your balance and in-store transactions, please check our partner’s gift card system.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>9. Can I see my purchases and payouts?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes. Your app dashboard shows all gift cards you’ve bought, expected cashback, and payout schedule. To view your balance and in-store transactions, please check our partner’s gift card system.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">10. Will stores pay to be listed in the app?</h3>
-                        <p class="faq-answer">Eventually, yes. For now, listing deals is free for participating stores.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>10. Will stores pay to be listed in the app?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Eventually, yes. For now, listing deals is free for participating stores.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">11. How are payouts sent?</h3>
-                        <p class="faq-answer">Payouts are made via bank transfer to your linked Jamaican bank account. You’ll need to provide your account number and bank name in the app to receive funds.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>11. How are payouts sent?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Payouts are made via bank transfer to your linked Jamaican bank account. You’ll need to provide your account number and bank name in the app to receive funds.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">12. Can I get paid in cash or mobile wallet instead?</h3>
-                        <p class="faq-answer">For now, we only support payouts to Jamaican bank accounts. We may add support for wallets like Lynk or JN Pay later on.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>12. Can I get paid in cash or mobile wallet instead?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>For now, we only support payouts to Jamaican bank accounts. We may add support for wallets like Lynk or JN Pay later on.</p>
+                        </div>
                     </div>
 
                     <div class="faq-item">
-                        <h3 class="faq-question">13. Is this available outside Jamaica?</h3>
-                        <p class="faq-answer">No. At this time, cashback rewards are only available to users in Jamaica with a local bank account.</p>
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>13. Is this available outside Jamaica?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. At this time, cashback rewards are only available to users in Jamaica with a local bank account.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -490,14 +598,6 @@
                 <div class="mt-12 p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg shadow-sm">
                     <h3 class="font-bold text-lg mb-2">Important Notice:</h3>
                     <p class="text-sm">Cashback rewards are issued as loyalty payouts and not as part of any financial service or investment product. Terms and eligibility may vary. Please use responsibly.</p>
-                </div>
-
-                <!-- Privacy & Copyright -->
-                <div class="mt-8 text-center text-gray-500 text-sm">
-                    <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
-                    <p class="mb-2">&copy; Copyright 2024 - 2025 Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-                    <p class="mb-4">To access exclusive deals and earn rewards, install the Allpree app today!</p>
-                    <p>By using our services, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
                 </div>
             </div>
         </section>
@@ -518,6 +618,37 @@
             </div>
         </section>
 
+        <!-- Privacy & Copyright (Footer) -->
+        <footer class="footer-section">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - 2025 Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p class="mb-4">To access exclusive deals and earn rewards, **install the Allpree app today!**</p>
+            <p>By using our services, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
+        </footer>
+
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqButtons = document.querySelectorAll('.faq-question-button');
+
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const answer = button.nextElementSibling; // Get the .faq-answer div
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+                    // Toggle aria-expanded attribute
+                    button.setAttribute('aria-expanded', !isExpanded);
+
+                    // Toggle 'expanded' class on the answer for CSS transitions
+                    if (isExpanded) {
+                        answer.classList.remove('expanded');
+                    } else {
+                        answer.classList.add('expanded');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
