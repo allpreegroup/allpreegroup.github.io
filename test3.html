@@ -1,589 +1,512 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    
-<style>
-    * {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  background: #000;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  overscroll-behavior: none;
-}
-
-/* === Centered Modal === */
-.center-screen {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* === View All Button === */
-.view-all-btn {
-  font-size: 16px;
-  padding: 12px 24px;
-  border: none;
-  background: red;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* === Story List === */
-.story-list {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 100%;
-  overflow-y: auto;
-  background: #f9f9f9;
-  padding: 16px;
-  z-index: 9;
-}
-
-/* === Story Tile === */
-.story-tile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: white;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.story-tile img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.story-tile h3 {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-transform: capitalize;
-  margin: 0;
-}
-
-/* === Swiper === */
-.swiper {
-  width: 100vw;
-  height: 100vh;
-}
-
-.swiper-slide {
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 40;
-}
-
-/* === Slide Overlay === */
-.slide-overlay {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 1rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-  color: white;
-  text-align: center;
-  z-index: 50;
-}
-
-.slide-title {
-  font-size: 2rem;
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.slide-desc {
-  font-size: 1.2rem;
-  margin-top: 0.5rem;
-}
-
-/* === Headline Slide === */
-.headline-slide .slide-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  font-family: 'Oswald', sans-serif;
-  letter-spacing: 0.05em;
-  margin-bottom: 30%;
-}
-
-.headline-slide {
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* === Call To Action === */
-.cta-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.cta-button {
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 1rem;
-  text-decoration: none;
-  cursor: pointer;
-  color: #000;
-  z-index: 30;
-  position: relative;
-  flex: 1 1 auto;
-  max-width: 25%;
-}
-
-.cta-link-button {
-  background: #FFD700;
-}
-
-.cta-jump-button {
-  background: #FF0000;
-  color: #fff;
-}
-
-.cta-button.close-story-button {
-  background-color: transparent;
-  border: 2px solid #fff;
-  color: #fff;
-  font-size: 14px;
-  padding: 6px 10px;
-  border-radius: 50%;
-  margin-left: 10px;
-  cursor: pointer;
-}
-
-/* === Progress Bar === */
-.progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 4px;
-  padding: 10px;
-  z-index: 10;
-}
-
-.progress-segment {
-  flex: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 2px;
-  overflow: hidden;
-  backdrop-filter: brightness(0.9);
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: white;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-  transition: width 0.3s ease;
-}
-
-/* === Tap Zones === */
-.tap-zone {
-  position: absolute;
-  width: 20%;
-  height: 100%;
-  top: 0;
-  z-index: 20;
-}
-
-.tap-left { left: 0; }
-.tap-right { right: 0; }
-
-/* === Branding & Labels === */
-.sponsored-label {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.25);
-  padding: 4px 8px;
-  font-size: 1rem;
-  color: #fff;
-  border-radius: 4px;
-  z-index: 10;
-}
-
-.brand-logo {
-  position: absolute;
-  top: 20px;
-  left: 10px;
-  height: 64px;
-  width: auto;
-  border-radius: 6px;
-  z-index: 10;
-}
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cashback Loop Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #00C0FF, #0080FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .icon-bg {
+            background-color: #E0F7FA;
+        }
+        .flow-step {
+            @apply flex flex-col items-center p-4 rounded-xl shadow-md bg-white text-center;
+        }
+        .arrow-right {
+            @apply text-4xl text-gray-300 mx-4 hidden md:block;
+        }
+        .arrow-down {
+            @apply text-4xl text-gray-300 my-4 md:hidden;
+        }
+        .cycle-step {
+            @apply flex flex-col items-center p-4 rounded-xl shadow-md bg-white text-center;
+        }
+        .cycle-arrow {
+            @apply text-4xl text-gray-300;
+        }
+        .path-box {
+            @apply flex-1 p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center m-2;
+        }
+        .flywheel-node {
+            @apply flex flex-col items-center p-4 rounded-full shadow-md bg-white text-center justify-center h-32 w-32 md:h-40 md:w-40;
+        }
+        .step-panel {
+            @apply bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center;
+        }
     </style>
+</head>
+<body class="text-gray-800">
 
-<button id="viewAllButton">View All Stories</button>
+    <div class="container mx-auto p-4 md:p-8">
 
-<div id="storyListContainer" style="display:none;" class="story-list-grid"></div>
+        <header class="text-center py-12">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight gradient-text">The Cashback Loop</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">How I Turned Everyday Spending Into a Smarter Wealth Tool</p>
+        </header>
 
-<div class="swiper" style="display:none;">
-  <div class="swiper-wrapper" id="storyWrapper"></div>
-  <div class="progress-bar" id="progressBar"></div>
-  <div class="tap-zone tap-left" id="tapLeft"></div>
-  <div class="tap-zone tap-right" id="tapRight"></div>
-</div>
+        <main class="space-y-12 md:space-y-20">
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-  const sheetURL = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet7';
-  let storyMap = {};
-  let sequenceRanges = [];
-  let swiper;
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6">The Financial Trap vs. The Cashback Loop</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">Most traditional financial advice leaves people stuck. The Cashback Loop offers a fundamentally different path to financial growth by leveraging your existing spending habits.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xl font-semibold mb-4 text-[#0080FF]">Traditional Path: The Trap</h3>
+                        <div class="flow-step">
+                            <span class="text-5xl mb-2">💼</span>
+                            <span class="font-bold text-lg">Work & Earn</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step">
+                            <span class="text-5xl mb-2">💸</span>
+                            <span class="font-bold text-lg">Spend Money</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-gray-100">
+                            <span class="text-5xl mb-2">🤷</span>
+                            <span class="font-bold text-lg">Nothing Back</span>
+                            <span class="text-sm text-gray-500 mt-1">Inflation eats savings.</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xl font-semibold mb-4 text-[#00F0B5]">Cashback Loop: The Solution</h3>
+                        <div class="flow-step">
+                            <span class="text-5xl mb-2">💼</span>
+                            <span class="font-bold text-lg">Work & Earn</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-[#E0F7FA]">
+                            <span class="text-5xl mb-2">💳</span>
+                            <span class="font-bold text-lg">Spend via Gift Cards</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step">
+                            <span class="text-5xl mb-2">💰</span>
+                            <span class="font-bold text-lg">Earn Cashback</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-[#D1F7F8]">
+                            <span class="text-5xl mb-2">🔄</span>
+                            <span class="font-bold text-lg">Withdraw or Loop Again</span>
+                            <span class="text-sm text-gray-500 mt-1">Boosted returns for patience.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6">Why Trading Doesn’t Work for Most People</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The allure of trading is strong, but the reality is harsh. It's a high-pressure environment where most individuals struggle, leading to predictable cycles of loss and disillusionment. The Cashback Loop offers a no-risk alternative.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="flow-chart flex flex-col items-center justify-center">
+                        <div class="flow-step bg-[#E0F7FA] text-[#0080FF]">
+                            <span class="text-5xl mb-2">🤩</span>
+                            <span class="font-bold text-lg">Excitement</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-[#FFEBEE] text-[#FF4081]">
+                            <span class="text-5xl mb-2">📉</span>
+                            <span class="font-bold text-lg">Losses</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-[#FFF3E0] text-[#FFC107]">
+                            <span class="text-5xl mb-2">🔄</span>
+                            <span class="font-bold text-lg">Attempt to Double Down</span>
+                        </div>
+                        <div class="arrow-down">↓</div>
+                        <div class="flow-step bg-[#FBE9E7] text-[#D32F2F]">
+                            <span class="text-5xl mb-2">💔</span>
+                            <span class="font-bold text-lg">Burnout & Quitting</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="text-xl font-semibold mb-2">Retail Trading Success Rate</h3>
+                        <p class="text-gray-500 mb-4 text-sm">A staggering majority of retail traders (85%) consistently lose money, highlighting the inherent risk and difficulty for the average person.</p>
+                        <div class="chart-container">
+                            <canvas id="tradingSuccessChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-  async function loadStories() {
-  const res = await fetch(sheetURL);
-  const data = await res.json();
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6">How the Cashback Loop Works (Core Loop)</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The Cashback Loop is designed for simplicity and maximum user benefit. It's a continuous cycle where your regular spending activities become the engine for your financial growth.</p>
+                <div class="relative flex flex-col items-center justify-center md:flex-row md:justify-around">
+                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00F0B5] text-white">
+                        <span class="text-5xl mb-2">🛒</span>
+                        <span class="font-bold text-lg">Spend</span>
+                    </div>
+                    <div class="cycle-arrow md:absolute md:top-1/2 md:left-1/4 md:-translate-x-1/2 md:-translate-y-1/2 md:rotate-0">→</div>
+                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00E0D8] text-white">
+                        <span class="text-5xl mb-2">💸</span>
+                        <span class="font-bold text-lg">Earn Cashback</span>
+                    </div>
+                    <div class="cycle-arrow md:absolute md:top-1/2 md:right-1/4 md:translate-x-1/2 md:-translate-y-1/2 md:rotate-0">→</div>
+                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00C0FF] text-white">
+                        <span class="text-5xl mb-2">⏱️</span>
+                        <span class="font-bold text-lg">Wait 121 Days</span>
+                    </div>
+                    <div class="cycle-arrow md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 md:translate-y-1/2 md:rotate-90 md:rotate-180">→</div>
+                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#0080FF] text-white mt-4 md:mt-0">
+                        <span class="text-5xl mb-2">🎁</span>
+                        <span class="font-bold text-lg">Withdraw or Loop Again</span>
+                    </div>
+                    <div class="cycle-arrow md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rotate-90">→</div>
+                     <div class="cycle-arrow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-gray-100 z-0">↻</div>
+                </div>
+            </section>
 
-  sequenceRanges = [];
-  storyMap = {}; // reset
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Where the Money Comes From: The Reserve Model</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">The system's financial strength comes from a carefully managed reserve. Each gift card purchase contributes to this reserve, which in turn fuels the cashback payouts, ensuring stability and long-term viability without relying on risky investments.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Purchase Allocation</h3>
+                        <p class="text-gray-500 mb-4 text-sm">When you buy a gift card, a portion of that value is strategically allocated to different components to ensure the system's health and your cashback payout.</p>
+                        <div class="chart-container">
+                            <canvas id="reserveAllocationChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">121-Day Buffer: Liquidity Protection</h3>
+                        <p class="text-gray-500 mb-4 text-sm">The 121-day delay isn't arbitrary. It's a crucial mechanism that allows for robust cash flow management, fraud prevention, and building sufficient liquidity to guarantee payouts.</p>
+                        <div class="chart-container">
+                            <canvas id="bufferGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-  let currentSequence = '';
-  let currentStartIndex = 0;
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Your Choice: Short Path vs. Loop Path</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">After the initial 121-day holding period, you have the power to decide. Choose the option that aligns with your immediate needs or long-term wealth goals.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="path-box bg-[#F0F4F8] border-2 border-[#00C0FF]">
+                        <h3 class="font-bold text-lg mb-2 text-[#00C0FF]">Path 1: Simple Cashback</h3>
+                        <span class="text-5xl mb-3">⏱️</span>
+                        <p class="text-sm text-gray-600">Withdraw your cashback at the next payout window after 121 days. Ideal for quick access to earned rewards.</p>
+                        <p class="text-xl font-bold text-[#00C0FF] mt-4">Typical Return: Moderate</p>
+                    </div>
+                    <div class="path-box bg-[#F0F4F8] border-2 border-[#00F0B5]">
+                        <h3 class="font-bold text-lg mb-2 text-[#00F0B5]">Path 2: The Cashback Loop</h3>
+                        <span class="text-5xl mb-3">🚀</span>
+                        <p class="text-sm text-gray-600">Leave your cashback for an additional 365 days to unlock up to 100% of your original spend value. Designed for long-term growth.</p>
+                        <p class="text-xl font-bold text-[#00F0B5] mt-4">Typical Return: Up to 100%</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-center mb-4">Illustrative Payout Comparison (on $10,000 spend)</h3>
+                    <div class="chart-container">
+                        <canvas id="payoutComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
 
-  data.forEach((story, index) => {
-    // Detect new sequence start
-    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-      if (currentSequence) {
-        sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: index - 1 });
-      }
-      currentSequence = story['Story Title'].trim();
-      currentStartIndex = index;
-    }
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6">Sustainability Flywheel: How It All Stays Strong</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The Cashback Loop is built on a self-reinforcing model. As more users participate and choose the growth path, the system's reserve strengthens, enabling more rewards and building greater trust.</p>
+                <div class="flex flex-col items-center justify-center relative py-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-x-16 md:grid-rows-2">
+                        <div class="flywheel-node bg-[#00F0B5] text-white">
+                            <span class="text-3xl md:text-4xl">👥</span>
+                            <span class="text-sm md:text-base font-bold">More Users</span>
+                        </div>
+                        <div class="flywheel-node bg-[#00E0D8] text-white md:row-span-2 md:col-start-2 flex items-center justify-center">
+                            <span class="text-3xl md:text-4xl">💰</span>
+                            <span class="text-sm md:text-base font-bold">Bigger Reserves</span>
+                        </div>
+                        <div class="flywheel-node bg-[#00C0FF] text-white md:col-start-1 md:row-start-2">
+                            <span class="text-3xl md:text-4xl">✅</span>
+                            <span class="text-sm md:text-base font-bold">Safer Payouts</span>
+                        </div>
+                        <div class="flywheel-node bg-[#0080FF] text-white md:col-start-2 md:row-start-1">
+                            <span class="text-3xl md:text-4xl">🤝</span>
+                            <span class="text-sm md:text-base font-bold">More Trust</span>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center z-0">
+                        <span class="text-[15rem] md:text-[20rem] text-gray-100 opacity-75 animate-spin-slow">♻️</span>
+                    </div>
+                    <style>
+                        @keyframes spin-slow {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                        .animate-spin-slow {
+                            animation: spin-slow 20s linear infinite;
+                        }
+                    </style>
+                </div>
+            </section>
+            
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6">Getting Started in 4 Simple Steps</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">Begin your journey with The Cashback Loop today. It's designed to be straightforward, allowing you to start earning rewards on your everyday spending immediately.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="step-panel">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00F0B5] text-white text-3xl font-bold mb-4">1</div>
+                        <h3 class="font-semibold text-xl mb-2">Download the App</h3>
+                        <p class="text-sm text-gray-600">Get the free app. No banking details needed to start exploring.</p>
+                    </div>
+                    <div class="step-panel">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00E0D8] text-white text-3xl font-bold mb-4">2</div>
+                        <h3 class="font-semibold text-xl mb-2">Try a Small Purchase</h3>
+                        <p class="text-sm text-gray-600">Buy a gift card for something you'd normally buy. See your cashback grow.</p>
+                    </div>
+                    <div class="step-panel">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00C0FF] text-white text-3xl font-bold mb-4">3</div>
+                        <h3 class="font-semibold text-xl mb-2">Choose Your Path</h3>
+                        <p class="text-sm text-gray-600">After 121 days, decide: withdraw for immediate use or loop for more.</p>
+                    </div>
+                    <div class="step-panel">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#0080FF] text-white text-3xl font-bold mb-4">4</div>
+                        <h3 class="font-semibold text-xl mb-2">Enjoy the Growth</h3>
+                        <p class="text-sm text-gray-600">Watch your cashback accumulate, turning spending into a wealth tool.</p>
+                    </div>
+                </div>
+            </section>
 
-    // Map every slide title (e.g., headline) to its index for jumps
-    if (parseInt(story['Slide #']) === 1 && story['Story Title']) {
-  const normalizedTitle = story['Story Title'].trim().toLowerCase();
-  if (!(normalizedTitle in storyMap)) {
-    storyMap[normalizedTitle] = index;
-  }
-}
+        </main>
 
-  });
-   
-  if (currentSequence) {
-    sequenceRanges.push({ title: currentSequence, start: currentStartIndex, end: data.length - 1 });
-  }
+        <footer class="text-center py-12 mt-10 border-t border-gray-200">
+            <p class="text-gray-600">Your loop starts today. How far does it go? That’s up to you.</p>
+            <p class="text-xs text-gray-400 mt-4">The Cashback Loop Infographic. All Rights Reserved.</p>
+        </footer>
 
-    // Build slidesData array
-    window.slidesData = data
-      .map((story, index) => {
-        if (!story['Image URL']) return null;
+    </div>
 
-        let sequenceName = '';
-        for (let seq of sequenceRanges) {
-          if (index >= seq.start && index <= seq.end) {
-            sequenceName = seq.title;
-            break;
-          }
-        }
-
-        return {
-          index,
-          sequence: sequenceName,
-          image: story['Image URL'],
-          title: (parseInt(story['Slide #']) === 1 && story['Story Title']) ? story['Story Title'] : story['Title'],
-          description: story['Description'],
-          ctaText: story['CTA Text'],
-          ctaLink: story['CTA Link'],
-          ctaText2: story['CTA Text 2'],
-          storyJump: story['Story Jump'],
-          sponsored: story['Sponsored'],
-          brandLogo: story['Brand Logo'],
+    <script>
+        const energeticPlayfulPalette = {
+            greenAqua: '#00F0B5',
+            cyan: '#00E0D8',
+            lightBlue: '#00C0FF',
+            mediumBlue: '#0080FF',
+            darkBlue: '#0040FF',
+            lightGrayBg: '#F0F4F8',
+            cardBg: '#FFFFFF',
+            textPrimary: '#374151',
+            textSecondary: '#6B7280',
+            redAccent: '#FF4081',
+            orangeAccent: '#FFC107',
+            lightGreen: '#E0F7FA',
+            lightRed: '#FFEBEE',
+            lightOrange: '#FFF3E0',
+            veryLightRed: '#FBE9E7'
         };
-      })
-      .filter(Boolean);
 
-    showStoryList();
-  }
+        const defaultTooltipCallback = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
 
-  function groupSlidesBySequence(slides) {
-    const sequences = {};
-    slides.forEach(slide => {
-      if (!sequences[slide.sequence]) sequences[slide.sequence] = [];
-      sequences[slide.sequence].push(slide);
-    });
-    return sequences;
-  }
-
-  function renderSlides(slides) {
-    const wrapper = document.getElementById('storyWrapper');
-    wrapper.innerHTML = '';
-
-    slides.forEach((story, i) => {
-      const slide = document.createElement('div');
-      slide.className = 'swiper-slide';
-      slide.style.backgroundImage = `url(${story.image})`;
-
-      slide.dataset.index = story.globalIndex ?? i;
-     
-      const overlay = document.createElement('div');
-      overlay.className = 'slide-overlay';
-
-      // Big headline for first slide in sequence (Slide # 1)
-      if (parseInt(story.index) === slides[0].index) {
-        slide.classList.add('headline-slide');
-        const title = document.createElement('div');
-        title.className = 'slide-title';
-        title.textContent = story.title;
-        overlay.appendChild(title);
-      } else if (story.title) {
-        const title = document.createElement('div');
-        title.className = 'slide-title';
-        title.textContent = story.title;
-        overlay.appendChild(title);
-      }
-
-      if (story.description) {
-        const desc = document.createElement('div');
-        desc.className = 'slide-desc';
-        desc.textContent = story.description;
-        overlay.appendChild(desc);
-      }
-
-      const ctaContainer = document.createElement('div');
-      ctaContainer.className = 'cta-container';
-
-      if (story.ctaText && story.ctaLink) {
-        const linkBtn = document.createElement('a');
-        linkBtn.className = 'cta-button cta-link-button';
-        linkBtn.href = story.ctaLink;
-        linkBtn.target = '_blank';
-        linkBtn.textContent = story.ctaText;
-        linkBtn.addEventListener('click', e => e.stopPropagation());
-        ctaContainer.appendChild(linkBtn);
-      }
-
-    if (story.ctaText2 && story.storyJump) {
-  const jumpBtn = document.createElement('button');
-  jumpBtn.className = 'cta-button cta-jump-button';
-  jumpBtn.textContent = story.ctaText2;
-
-  jumpBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const jumpTitle = story.storyJump.trim().toLowerCase();
-    const jumpIndex = storyMap[jumpTitle];
-
-    if (jumpIndex !== undefined) {
-      const jumpSlide = window.slidesData[jumpIndex];
-      const jumpSequence = jumpSlide.sequence;
-
-      // Open the new sequence
-      openStorySequence(jumpSequence);
-
-      setTimeout(() => {
-        const updatedSlides = document.querySelectorAll('.swiper-slide');
-        const localIndex = Array.from(updatedSlides).findIndex(slide =>
-          slide.dataset.index == jumpIndex
-        );
-        if (localIndex !== -1) {
-          swiper.slideTo(localIndex);
-          updateProgress(localIndex);
-        } else {
-          console.warn('Jump slide not found in loaded sequence');
+        function wrapLabels(label, maxLength) {
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += ' ' + word;
+                }
+            });
+            lines.push(currentLine.trim());
+            return lines;
         }
-      }, 300);
-    } else {
-      console.warn('Jump target not found:', story.storyJump);
-      console.log('Available titles:', Object.keys(storyMap));
-    }
-  });
 
-  // ✕ Close button
- const closeBtn = document.createElement('button');
-closeBtn.className = 'cta-button cta-close-button';
-closeBtn.textContent = 'X'; // Or 'Close'
-closeBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  closeStoryViewer();
-});
-  ctaContainer.appendChild(jumpBtn);
-  ctaContainer.appendChild(closeBtn);
-}
+        if (document.getElementById('tradingSuccessChart')) {
+            new Chart(document.getElementById('tradingSuccessChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: [wrapLabels('Retail Traders Who Lose Money', 16), wrapLabels('Traders Who Break Even or Profit', 16)],
+                    datasets: [{
+                        data: [85, 15],
+                        backgroundColor: [energeticPlayfulPalette.mediumBlue, energeticPlayfulPalette.greenAqua],
+                        borderColor: energeticPlayfulPalette.cardBg,
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: energeticPlayfulPalette.textPrimary } },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                        return label.join(' ');
+                                    }
+                                    return label;
+                                },
+                                label: function(context) {
+                                    return `${context.parsed}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
+        if (document.getElementById('reserveAllocationChart')) {
+            new Chart(document.getElementById('reserveAllocationChart'), {
+                type: 'pie',
+                data: {
+                    labels: [wrapLabels('Cashback Reserve', 16), wrapLabels('Merchant Fee', 16), wrapLabels('Operational Costs', 16)],
+                    datasets: [{
+                        data: [60, 25, 15],
+                        backgroundColor: [energeticPlayfulPalette.greenAqua, energeticPlayfulPalette.lightBlue, energeticPlayfulPalette.mediumBlue],
+                        borderColor: energeticPlayfulPalette.cardBg,
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: energeticPlayfulPalette.textPrimary } },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                        return label.join(' ');
+                                    }
+                                    return label;
+                                },
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed + '%';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-      if (ctaContainer.childElementCount > 0) {
-        overlay.appendChild(ctaContainer);
-      }
+        if (document.getElementById('bufferGrowthChart')) {
+            new Chart(document.getElementById('bufferGrowthChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 4', 'Week 8', 'Week 12', 'Week 16', 'Week 17.2 (Day 121)'],
+                    datasets: [{
+                        label: 'Cashback Reserve Growth (Example $1000)',
+                        data: [100, 250, 400, 600, 800, 1000],
+                        borderColor: energeticPlayfulPalette.cyan,
+                        backgroundColor: energeticPlayfulPalette.cyan + '33',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...defaultTooltipCallback,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${value}`
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
 
-      if (story.sponsored && story.sponsored.toLowerCase() === 'true') {
-        const label = document.createElement('div');
-        label.className = 'sponsored-label';
-        label.textContent = 'Sponsored';
-        slide.appendChild(label);
-      }
-
-      if (story.brandLogo) {
-        const logo = document.createElement('img');
-        logo.className = 'brand-logo';
-        logo.src = story.brandLogo;
-        logo.alt = 'Logo';
-        slide.appendChild(logo);
-      }
-
-      slide.appendChild(overlay);
-      wrapper.appendChild(slide);
-    });
-  }
-
-function closeStoryViewer() {
-  const swiperContainer = document.querySelector('.swiper');
-  const storyList = document.getElementById('storyListContainer');
-  const viewAllBtn = document.getElementById('viewAllButton');
-
-  if (swiperContainer) {
-    swiperContainer.style.display = 'none';  // Hide swiper (story viewer)
-  }
-
-  if (storyList) {
-    storyList.style.display = 'grid'; // Show story list grid (adjust display as needed)
-  }
-
-  if (viewAllBtn) {
-    viewAllBtn.style.display = 'inline-block'; // Show View All button
-  }
-
-  document.body.classList.remove('popup-open'); // Remove any body class related to popup
-}
-
- 
-  function initSwiper() {
-    if (swiper) swiper.destroy(true, true);
-
-    swiper = new Swiper('.swiper', {
-      direction: 'horizontal',
-      slidesPerView: 1,
-      allowTouchMove: false,
-      watchSlidesProgress: true,
-      observer: true,
-      observeParents: true,
-    });
-
-    swiper.on('slideChangeTransitionEnd', () => {
-      updateProgress(swiper.activeIndex);
-    });
-
-    // Tap zones for navigation
-    document.getElementById('tapLeft').onclick = () => swiper.slidePrev();
-    document.getElementById('tapRight').onclick = () => swiper.slideNext();
-  }
-
-  function updateProgress(index) {
-  const progressBar = document.getElementById('progressBar');
-  if (!swiper || !progressBar) return;
-
-  const total = swiper.slides.length;
-
-  progressBar.innerHTML = ''; // Clear previous segments
-
-  for (let i = 0; i < total; i++) {
-    const seg = document.createElement('div');
-    seg.className = 'progress-segment';
-
-    const fill = document.createElement('div');
-    fill.className = 'progress-fill';
-
-    if (i < index) {
-      fill.style.width = '100%';
-    } else if (i === index) {
-      fill.style.width = '0%';
-      fill.style.transition = 'width 5s linear'; // match to slide duration if autoplay
-      requestAnimationFrame(() => {
-        fill.style.width = '100%';
-      });
-    }
-
-    seg.appendChild(fill);
-    progressBar.appendChild(seg);
-  }
-}
-
-
- function renderStoryTiles() {
-  const container = document.getElementById('storyListContainer');
-  container.innerHTML = '';
-
-  const sequences = groupSlidesBySequence(window.slidesData || []);
-  Object.keys(sequences).forEach(seqKey => {
-    const firstSlide = sequences[seqKey][0];
-    const tile = document.createElement('div');
-    tile.className = 'story-tile';
-    tile.onclick = () => openStorySequence(seqKey);
-
-    tile.innerHTML = `
-      <img src="${firstSlide.image || ''}" alt="Story preview">
-      <h3>${firstSlide.title || 'Untitled'}</h3>
-    `;
-
-    container.appendChild(tile);
-  });
-}
-
-function openStorySequence(sequenceKey) {
-  const sequences = groupSlidesBySequence(window.slidesData || []);
-  const sequenceSlides = sequences[sequenceKey];
-  if (!sequenceSlides) return;
-
-  document.querySelector('.swiper').style.display = 'block';
-  document.getElementById('storyListContainer').style.display = 'none';
-  document.getElementById('viewAllButton').style.display = 'none';
-
-  renderSlides(sequenceSlides);
-  initSwiper();
-  updateProgress(0);
-}
-
-function showStoryList() {
-  // Load stories if they haven't been loaded yet
-  if (!window.slidesData) {
-    loadStories().then(() => {
-      actuallyShowTiles();
-    });
-  } else {
-    actuallyShowTiles();
-  }
-
-  function actuallyShowTiles() {
-    document.querySelector('.swiper').style.display = 'none';
-    document.getElementById('storyListContainer').style.display = 'grid';
-    document.getElementById('viewAllButton').style.display = 'none';
-    renderStoryTiles();
-  }
-}
-
-document.getElementById('viewAllButton').addEventListener('click', showStoryList);
-
-</script>
+        if (document.getElementById('payoutComparisonChart')) {
+            new Chart(document.getElementById('payoutComparisonChart'), {
+                type: 'bar',
+                data: {
+                    labels: [wrapLabels('Path 1: Simple Cashback', 16), wrapLabels('Path 2: Cashback Loop (Boosted)', 16)],
+                    datasets: [{
+                        label: 'Potential Cashback',
+                        data: [500, 10000],
+                        backgroundColor: [energeticPlayfulPalette.lightBlue, energeticPlayfulPalette.greenAqua],
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...defaultTooltipCallback,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${value}`
+                            }
+                        },
+                        y: {
+                             ticks: {
+                                callback: function(value) {
+                                    return wrapLabels(this.getLabelForValue(value), 16);
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
