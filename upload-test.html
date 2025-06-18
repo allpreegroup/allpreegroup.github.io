@@ -3,299 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaldi: Shop, Save & Invest</title>
+    <title>WhatsApp Messenger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light background */
+            background-color: #ffffff; /* White background */
             color: #333;
         }
         .container {
-            max-width: 960px; /* Max width for content, similar to app store layout */
+            max-width: 960px; /* Wider content area */
             margin: 0 auto;
-            padding: 1rem 1.5rem; /* Reduced vertical padding */
+            padding: 1rem 1.5rem;
         }
-        .card {
+        .section-card { /* Generic section styling, flatter design */
             background-color: #ffffff;
-            border-radius: 1rem; /* Adjusted to 1rem for main cards */
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08); /* Softer, larger shadow */
-            padding: 1.5rem; /* Adjusted padding */
-            margin-bottom: 1.25rem; /* Adjusted margin between cards */
+            border-radius: 0; /* No rounded corners on main sections */
+            box-shadow: none; /* No shadow on main sections */
+            padding: 0; /* Handled by internal elements */
+            margin-bottom: 1.5rem; /* Space between sections */
         }
-        .app-icon-header {
-            width: 90px; /* Matches image */
-            height: 90px;
-            border-radius: 22%; /* Squarish-rounded, matches image */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            background-color: #FCD34D; /* Specific yellow from image */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align icon to top of its space */
+            padding-bottom: 1.5rem; /* Separator for header */
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .app-icon-large {
+            width: 120px; /* Larger icon */
+            height: 120px;
+            border-radius: 1.5rem; /* Rounded square */
+            background-color: #25D366; /* WhatsApp Green */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            margin-left: 1.5rem; /* Space from left content */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Ensure content stays within rounded corners */
         }
-        .app-icon-header svg {
-            color: #000; /* Black arrow */
-            width: 48px; /* Icon size, matches image */
-            height: 48px;
-            /* Custom double arrow SVG - scaled slightly to match visual weight in image */
-            transform: scale(1.1);
+        .app-icon-large svg {
+            color: #ffffff; /* White icon */
+            width: 70%; /* Size of WhatsApp icon within its container */
+            height: 70%;
         }
-        .screenshot-container {
+        .rating-item, .download-item, .everyone-item {
             display: flex;
-            overflow-x: auto; /* Enable horizontal scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            gap: 0.75rem; /* Tighter gap between screenshots */
-            padding-bottom: 0.5rem; /* Padding for scrollbar visibility */
-            white-space: nowrap; /* Prevent items from wrapping */
-        }
-        .screenshot-card {
-            background-color: #f8fafc;
-            border-radius: 0.5rem; /* Adjusted to 0.5rem for screenshots */
-            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-            display: inline-flex; /* For flex item sizing with nowrap */
             flex-direction: column;
-            align-items: flex-start; /* Align text to left within card */
-            text-align: left; /* Text aligned left */
-            padding: 0.6rem; /* Slightly reduced padding */
-            width: 170px; /* Adjusted fixed width for each screenshot card, matches phone aspect */
-            flex-shrink: 0; /* Prevent shrinking */
+            align-items: flex-start; /* Align text within columns */
+            white-space: nowrap; /* Prevent wrapping */
+            padding-right: 1.5rem; /* Space between items */
+            border-right: 1px solid #e0e0e0; /* Vertical divider */
         }
-        .screenshot-card img {
+        .rating-item:last-child, .download-item:last-child {
+            border-right: none; /* No border on last item */
+            padding-right: 0;
+        }
+        .screenshot-gallery {
+            display: flex;
+            overflow-x: auto; /* Horizontal scrolling */
+            -webkit-overflow-scrolling: touch;
+            gap: 1rem; /* Space between screenshots */
+            padding-bottom: 0.5rem;
+            white-space: nowrap;
+            align-items: center; /* Vertically align items in the flex container */
+        }
+        .screenshot-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            width: 200px; /* Fixed width for each item */
+            flex-shrink: 0;
+            padding-top: 0.5rem; /* Space for descriptive text above image */
+        }
+        .screenshot-item .description {
+            font-size: 0.875rem; /* Text above screenshot */
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+            white-space: normal; /* Allow text to wrap */
+            padding: 0 0.25rem; /* Small horizontal padding for text */
+        }
+        .screenshot-item img {
             width: 100%;
-            height: 280px; /* Fixed height for phone screen aspect ratio, matches image */
-            object-fit: cover; /* Ensure image covers the area */
-            border-radius: 0.4rem; /* Adjusted to 0.4rem for image inside card */
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            margin-bottom: 0.4rem; /* Slightly reduced margin */
+            height: 350px; /* Taller phone screens */
+            object-fit: cover;
+            border-radius: 0.5rem; /* Slightly rounded corners for screenshots */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .screenshot-card p {
-            font-size: 0.825rem; /* Slightly smaller text for captions, matches image */
-            line-height: 1.3;
-            color: #4b5563; /* Darker text */
-            white-space: normal; /* Allow text to wrap within caption */
-        }
-        .section-heading-card {
-            font-size: 1.375rem; /* Adjusted heading size, matches image */
-            font-weight: 700;
+        .info-section-header {
+            font-size: 1.3rem; /* Heading size */
+            font-weight: 600;
             color: #1f2937;
-        }
-        .info-item {
+            padding-top: 1rem; /* Padding at top of section */
+            padding-bottom: 1rem; /* Padding at bottom of section */
+            border-bottom: 1px solid #e0e0e0; /* Separator */
+            margin-bottom: 1rem; /* Space after header */
             display: flex;
-            justify-content: space-between; /* Space out content within each item */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.4rem 0; /* Vertical spacing for each list item */
-            border-bottom: 1px solid #e5e7eb; /* Subtle separator, matches image */
         }
-        .info-item:last-child {
-            border-bottom: none; /* No border for the last item */
-        }
-        .info-item .label {
-            font-size: 0.9rem; /* Smaller text size for label, matches image */
-            color: #374151; /* Darker text for info */
-            text-align: left; /* Label aligned to the left */
-            flex-grow: 1; /* Allow label to take available space */
-            flex-shrink: 1;
-            min-width: 0; /* Allow label to shrink if needed */
-        }
-        .info-item .value {
+        .info-list-item {
             display: flex;
             align-items: center;
-            font-size: 0.9rem; /* Smaller text size for value, matches image */
-            color: #374151; /* Darker text for info */
-            text-align: right; /* Value aligned to the right */
-            flex-grow: 0; /* Prevent value from growing */
-            flex-shrink: 0; /* Prevent shrinking on its own */
-            white-space: nowrap; /* Keep value on one line */
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            color: #4b5563;
         }
-        .info-item a {
+        .info-list-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            color: #6b7280; /* Muted icon color */
+        }
+        .info-list-item a {
             color: #1a73e8; /* Blue link color */
             text-decoration: none;
         }
-        .info-item a:hover {
+        .info-list-item a:hover {
             text-decoration: underline;
         }
-        .info-item svg {
-            color: #6b7280; /* Muted icon color, matches image */
-            width: 18px;
-            height: 18px;
-            margin-left: 0.75rem; /* Space between text and icon */
+        .about-app-text {
+            font-size: 0.95rem;
+            color: #4b5563;
+            line-height: 1.5;
+            padding-top: 0.5rem;
         }
-        .developer-info {
-            display: flex; /* Make developer-info a flex container */
-            flex-direction: column; /* Stack items vertically */
-            align-items: flex-end; /* Align items to the right */
-            text-align: right; /* Fallback for text alignment */
-            font-size: 0.875rem; /* Smaller font size to match image */
-            line-height: 1.3; /* Adjusted line height */
-            color: #4b5563; /* Darker text */
+        .install-button {
+            background-color: #075E54; /* WhatsApp Green */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(7, 94, 84, 0.3);
+            text-align: center;
+            display: block; /* Make it a block element */
+            width: 100%; /* Full width */
+            max-width: 180px; /* Adjust max width to match image */
+            margin-right: 1.5rem; /* Space from share/wishlist */
+            font-size: 1rem; /* Match button text size */
         }
-        .developer-info p {
-            margin: 0; /* Remove default paragraph margins */
-            padding: 0; /* Remove default paragraph padding */
-        }
-        .developer-info .font-semibold {
-             font-weight: 600; /* Match image's bolder text */
+        .install-button:hover {
+            background-color: #064A41;
+            box-shadow: 0 6px 15px rgba(7, 94, 84, 0.4);
         }
     </style>
 </head>
-<body class="selection:bg-blue-200 selection:text-blue-900">
+<body class="selection:bg-green-200 selection:text-green-900">
     <div class="container py-8">
 
         <!-- App Header Section -->
-        <div class="card flex flex-col md:flex-row items-start justify-between">
-            <!-- Left Content: Title and Info -->
-            <div class="flex-1 pr-0 md:pr-8 mb-4 md:mb-0">
-                <h1 class="text-3xl font-extrabold text-gray-900 mb-1 leading-tight">Kaldi: Shop, Save & Invest</h1>
-                <p class="text-gray-600 text-base mb-3">Kaldi Financial Technology Ltd</p>
+        <div class="section-card">
+            <div class="header-content">
+                <!-- Left: Title and Info -->
+                <div class="flex-1">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-1 leading-tight">WhatsApp Messenger</h1>
+                    <p class="text-gray-600 text-base mb-3">WhatsApp LLC</p>
 
-                <!-- Ratings and Downloads -->
-                <div class="flex items-center space-x-4 text-gray-700 text-sm mb-4">
-                    <div class="flex items-center space-x-1">
-                        <span class="font-semibold text-base">3.6</span>
-                        <span class="text-yellow-500 text-base">★</span>
-                        <span class="text-gray-500 text-xs">(25 reviews)</span>
+                    <!-- Ratings and Downloads -->
+                    <div class="flex items-center space-x-4 text-gray-700 text-sm mb-4">
+                        <div class="rating-item">
+                            <span class="font-bold text-lg">4.3</span>
+                            <span class="text-yellow-500 text-base">★</span>
+                            <span class="text-gray-500 text-xs mt-1">209M reviews</span>
+                        </div>
+                        <div class="download-item">
+                            <span class="font-bold text-lg">10B +</span>
+                            <span class="text-gray-500 text-xs mt-1">Downloads</span>
+                        </div>
+                        <div class="everyone-item">
+                            <span class="font-bold text-lg">E</span>
+                            <span class="text-gray-500 text-xs mt-1">Everyone</span>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-1">
-                        <span class="font-semibold text-base">10K+</span>
-                        <span class="text-gray-500 text-xs">Downloads</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <span class="font-semibold text-base">E</span>
-                        <span class="text-gray-500 text-xs">Everyone</span>
+
+                    <!-- Install Button & Share/Wishlist -->
+                    <div class="flex items-center space-x-4 mt-6">
+                        <a href="#" class="install-button">Install</a>
+                        <div class="flex space-x-6 text-gray-500">
+                            <button aria-label="Share App" class="flex items-center hover:text-green-600 transition">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 16.08a2.25 2.25 0 00-.75-1.57l-6-3.75a2.25 2.25 0 00-2.5 0l-6 3.75a2.25 2.25 0 00-.75 1.57 2.25 2.25 0 102.25 2.25 2.25 2.25 0 00-.08-.5L6.5 17.16a2.25 2.25 0 002.5 0l6-3.75a2.25 2.25 0 00.08-.5 2.25 2.25 0 102.25-2.25zM18 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM6 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"></path>
+                                </svg>
+                                <span class="text-sm ml-1 text-gray-700">Share</span>
+                            </button>
+                            <button aria-label="Add to Wishlist" class="flex items-center hover:text-green-600 transition">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.75 3.75v16.5a.75.75 0 01-1.2.6L12 16.25l-6.55 4.6a.75.75 0 01-1.2-.6V3.75A1.75 1.75 0 016.75 2h10.5A1.75 1.75 0 0119.75 3.75z"></path>
+                                </svg>
+                                <span class="text-sm ml-1 text-gray-700">Add to wishlist</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Share and Save Icons -->
-                <div class="flex space-x-4 text-gray-500 mt-2">
-                    <button aria-label="Share App" class="flex items-center hover:text-blue-600 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 16.08a2.25 2.25 0 00-.75-1.57l-6-3.75a2.25 2.25 0 00-2.5 0l-6 3.75a2.25 2.25 0 00-.75 1.57 2.25 2.25 0 102.25 2.25 2.25 2.25 0 00-.08-.5L6.5 17.16a2.25 2.25 0 002.5 0l6-3.75a2.25 2.25 0 00.08-.5 2.25 2.25 0 102.25-2.25zM18 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM6 6.5a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"></path>
-                        </svg>
-                    </button>
-                    <button aria-label="Add to Library" class="flex items-center hover:text-blue-600 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19.75 3.75v16.5a.75.75 0 01-1.2.6L12 16.25l-6.55 4.6a.75.75 0 01-1.2-.6V3.75A1.75 1.75 0 016.75 2h10.5A1.75 1.75 0 0119.75 3.75z"></path>
-                        </svg>
-                    </button>
+                <!-- Right: App Icon -->
+                <div class="app-icon-large">
+                    <!-- WhatsApp Icon SVG (Simplified for demonstration) -->
+                    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.04 2C6.59 2 2.14 6.45 2.14 11.9S6.59 21.8 12.04 21.8C14.77 21.8 17.1 20.65 18.88 18.87L21.43 21.42L22.84 20L20.29 17.45C21.03 16.25 21.49 14.88 21.49 13.4V11.9C21.49 6.45 17.04 2 12.04 2ZM17.42 16.3C17.05 16.92 16.5 17.47 15.8 17.84L16.54 18.58L15.12 20L13.68 18.56C12.98 18.93 12.21 19.14 11.41 19.14C6.59 19.14 2.87 15.42 2.87 10.6C2.87 5.78 6.59 2.06 11.41 2.06C16.23 2.06 19.95 5.78 19.95 10.6C19.95 11.96 19.49 13.25 18.72 14.35L19.46 15.09L18.04 16.51L17.42 16.3ZM12.04 3.4C7.39 3.4 3.59 7.2 3.59 11.85C3.59 16.5 7.39 20.3 12.04 20.3C16.69 20.3 20.49 16.5 20.49 11.85C20.49 7.2 16.69 3.4 12.04 3.4Z"/>
+                        <path d="M14.65 10.22H9.45V13.82L10.95 15.32L12.45 13.82L13.95 15.32L15.45 13.82V10.22Z" fill="#ffffff"/>
+                    </svg>
                 </div>
-            </div>
-
-            <!-- Right Content: App Icon -->
-            <div class="app-icon-header">
-                <!-- Custom double arrow SVG from reference image -->
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.5 12C15.5 11.7239 15.2761 11.5 15 11.5H9C8.72386 11.5 8.5 11.7239 8.5 12C8.5 12.2761 8.72386 12.5 9 12.5H15C15.2761 12.5 15.5 12.2761 15.5 12Z" fill="currentColor"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12Z" fill="currentColor"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5303 9.46967C14.8232 9.17678 14.8232 8.70711 14.5303 8.41421C14.2374 8.12132 13.7678 8.12132 13.4749 8.41421L10.9749 10.9142C10.682 11.2071 10.682 11.6768 10.9749 11.9697C11.2678 12.2626 11.7374 12.2626 12.0303 11.9697L14.5303 9.46967Z" fill="currentColor"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.46967 14.5303C9.17678 14.8232 8.70711 14.8232 8.41421 14.5303C8.12132 14.2374 8.12132 13.7678 8.41421 13.4749L10.9142 10.9749C11.2071 10.682 11.6768 10.682 11.9697 10.9749C12.2626 11.2678 12.2626 11.7374 11.9697 12.0303L9.46967 14.5303Z" fill="currentColor"/>
-                </svg>
             </div>
         </div>
 
         <!-- App Screenshots & Key Features Section -->
-        <div class="card">
-            <h2 class="section-heading-card mb-4 text-center">App Features</h2>
-            <div class="screenshot-container">
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/B0E0E6/000000?text=App+Screen+1" alt="App Screenshot 1">
-                    <p>Make your money work harder for you</p>
-                </div>
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/ADD8E6/000000?text=App+Screen+2" alt="App Screenshot 2">
-                    <p>Save everyday towards your house deposit</p>
-                </div>
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/87CEEB/000000?text=App+Screen+3" alt="App Screenshot 3">
-                    <p>Shop using the Kaldi app Instore & online</p>
-                </div>
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/6495ED/000000?text=App+Screen+4" alt="App Screenshot 4">
-                    <p>No more forgotten or wasted rewards</p>
-                </div>
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/4169E1/000000?text=App+Screen+5" alt="App Screenshot 5">
-                    <p>Put your savings to work with easy to understand funds</p>
-                </div>
-                <!-- Add more placeholder screenshots as needed for horizontal scroll effect -->
-                 <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/A0D8EE/000000?text=App+Screen+6" alt="App Screenshot 6">
-                    <p>Track your progress and manage savings</p>
-                </div>
-                <div class="screenshot-card">
-                    <img src="https://placehold.co/170x300/ADD8FF/000000?text=App+Screen+7" alt="App Screenshot 7">
-                    <p>Secure and easy withdrawals</p>
+        <div class="section-card pt-6">
+            <div class="flex items-start mb-4">
+                <p class="text-xl font-bold text-gray-800 pr-8 whitespace-normal w-48 flex-shrink-0 leading-snug">
+                    Simple.<br>Reliable.<br>Private.
+                </p>
+                <div class="screenshot-gallery flex-grow">
+                    <div class="screenshot-item">
+                        <p class="description">Message privately with end-to-end encryption</p>
+                        <img src="https://placehold.co/200x350/E6F3E6/000000?text=Screenshot+1" alt="App Screenshot 1">
+                    </div>
+                    <div class="screenshot-item">
+                        <p class="description">Make calls across the world</p>
+                        <img src="https://placehold.co/200x350/E6F3E6/000000?text=Screenshot+2" alt="App Screenshot 2">
+                    </div>
+                    <div class="screenshot-item">
+                        <p class="description">Group chat with friends and family</p>
+                        <img src="https://placehold.co/200x350/E6F3E6/000000?text=Screenshot+3" alt="App Screenshot 3">
+                    </div>
+                    <div class="screenshot-item">
+                        <p class="description">Share daily moments through status</p>
+                        <img src="https://placehold.co/200x350/E6F3E6/000000?text=Screenshot+4" alt="App Screenshot 4">
+                    </div>
+                    <!-- Placeholder for the right scroll arrow -->
+                    <div class="flex items-center justify-center h-full w-10 flex-shrink-0">
+                         <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L12.586 12l-2.293-2.293a1 1 0 111.414-1.414l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- About This App Section -->
-        <div class="card">
-            <h2 class="section-heading-card mb-4 flex items-center">
+        <div class="section-card pt-6">
+            <h2 class="info-section-header">
                 About this app
                 <svg class="ml-2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
             </h2>
-            <p class="text-gray-700 text-sm mb-3">
-                Kaldi is the only app to link shopping rewards to investing.
-            </p>
-            <p class="text-gray-700 text-sm">
-                Kaldi is an easy-to-understand shopping & investing app, helping you to save earlier
-                and better. With automated tools to improve your saving ability without sacrificing
-                time and energy.
-            </p>
+            <div class="about-app-text">
+                <p class="mb-3">
+                    WhatsApp from Meta is a FREE messaging and video calling app. It's used by over 2B people in more than 180 countries. It's simple,
+                    reliable, and private, so you can easily keep in touch with your friends and family. WhatsApp works across mobile and desktop even on
+                    slow connections, with no subscription fees.
+                </p>
+            </div>
         </div>
 
         <!-- App Support Section -->
-        <div class="card">
-            <h2 class="section-heading-card mb-2 flex items-center justify-between">
+        <div class="section-card pt-6">
+            <h2 class="info-section-header">
                 App support
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </h2>
-            <ul class="text-gray-700 space-y-0">
-                <li class="info-item">
-                    <span class="label">Website</span>
-                    <span class="value">
-                        <!-- Custom SVG for website icon (circular with dash) -->
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                            <path d="M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </span>
+            <ul class="space-y-2">
+                <li class="info-list-item">
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
+                    </svg>
+                    <a href="#" class="text-blue-600">Website</a>
                 </li>
-                <li class="info-item">
-                    <span class="label">Support email</span>
-                    <a href="mailto:general@kaldiapp.co.uk" class="value">general@kaldiapp.co.uk</a>
+                <li class="info-list-item">
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    <a href="mailto:android@support.whatsapp.com" class="text-blue-600">Support email: android@support.whatsapp.com</a>
                 </li>
-                <li class="info-item">
-                    <span class="label">Privacy Policy</span>
-                    <span class="value">
-                        <!-- Custom SVG for privacy policy icon (circular with dash) -->
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                            <path d="M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </span>
+                <li class="info-list-item">
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
+                    </svg>
+                    <a href="#" class="text-blue-600">Privacy Policy</a>
                 </li>
             </ul>
         </div>
 
         <!-- About the Developer Section -->
-        <div class="card">
-            <h2 class="section-heading-card mb-2">About the developer</h2>
-            <div class="text-gray-700 text-sm space-y-1 developer-info">
-                <p class="font-semibold">KALDI FINANCIAL TECHNOLOGY LIMITED</p>
-                <p>general@kaldiapp.co.uk</p>
-                <p>1 Lyric Square</p>
-                <p>LONDON</p>
-                <p>W6 0NB</p>
-                <p>United Kingdom</p>
-                <p>+44 7598 827640</p>
+        <div class="section-card pt-6">
+            <h2 class="info-section-header">
+                About the developer
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </h2>
+            <div class="text-gray-700 text-sm space-y-1">
+                <p class="font-semibold">Meta Platforms, Inc.</p>
+                <p>android@support.whatsapp.com</p>
+                <p>1 Meta Way</p>
+                <p>Menlo Park, CA 94025-1444</p>
+                <p>United States</p>
+                <p>+1 650-853-1300</p>
             </div>
+        </div>
+
+        <!-- Similar Apps Section -->
+        <div class="section-card pt-6">
+            <h2 class="info-section-header">
+                Similar apps
+                <svg class="ml-2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </h2>
+            <!-- Placeholder for similar apps content -->
+            <p class="text-gray-500 text-sm">Similar apps will be displayed here.</p>
         </div>
 
     </div>
