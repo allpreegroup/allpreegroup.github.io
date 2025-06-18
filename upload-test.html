@@ -106,11 +106,20 @@
             align-items: center;
         }
         .info-list-item {
-            display: flex;
+            display: flex; /* Use flexbox */
+            justify-content: space-between; /* Pushes label left, value right */
             align-items: center;
             padding: 0.5rem 0;
             font-size: 0.95rem;
             color: #4b5563;
+        }
+        .info-list-item .label {
+            /* No flex-grow on label to let it take natural width */
+        }
+        .info-list-item .value {
+            display: flex; /* Keep flex for icon alignment */
+            align-items: center;
+            /* margin-left: auto is removed as space-between handles it */
         }
         .info-list-item svg {
             width: 1.25rem;
@@ -245,9 +254,9 @@
             </div>
 
             <!-- Right Column: App Support and About the Developer -->
-            <div class="md:w-2/5 md:pl-8">
+            <div class="md:w-2/5 md:pl-2"> <!-- Reduced pl-4 to pl-2 here for tighter spacing -->
                 <!-- App Support Section -->
-                <div class="section-card pt-6">
+                <div class="section-card"> <!-- No pt-6 here -->
                     <h2 class="info-section-header">
                         App support
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -256,22 +265,24 @@
                     </h2>
                     <ul class="space-y-2">
                         <li class="info-list-item">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
-                            </svg>
-                            <a href="#" class="text-blue-600">Website</a>
+                            <span class="label">Website</span>
+                            <span class="value">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
+                                </svg>
+                            </span>
                         </li>
                         <li class="info-list-item">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            <a href="mailto:android@support.whatsapp.com" class="text-blue-600">Support email: android@support.whatsapp.com</a>
+                            <span class="label">Support email</span>
+                            <a href="mailto:android@support.whatsapp.com" class="value">android@support.whatsapp.com</a>
                         </li>
                         <li class="info-list-item">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
-                            </svg>
-                            <a href="#" class="text-blue-600">Privacy Policy</a>
+                            <span class="label">Privacy Policy</span>
+                            <span class="value">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 11H8a1 1 0 010-2h8a1 1 0 010 2z"/>
+                                </svg>
+                            </span>
                         </li>
                     </ul>
                 </div>
