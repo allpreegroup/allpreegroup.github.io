@@ -19,17 +19,17 @@
         }
         .card {
             background-color: #ffffff;
-            border-radius: 1.25rem; /* Consistent border radius */
+            border-radius: 1rem; /* Adjusted to 1rem for main cards */
             box-shadow: 0 8px 25px rgba(0,0,0,0.08); /* Softer, larger shadow */
             padding: 1.5rem; /* Adjusted padding */
             margin-bottom: 1.25rem; /* Adjusted margin between cards */
         }
         .app-icon-header {
-            width: 90px; /* Slightly smaller */
+            width: 90px; /* Matches image */
             height: 90px;
-            border-radius: 22%; /* Closer to the image's squarish-rounded shape */
+            border-radius: 22%; /* Squarish-rounded, matches image */
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            background-color: #f7e65f; /* Specific yellow from image */
+            background-color: #FCD34D; /* Specific yellow from image */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -37,10 +37,10 @@
         }
         .app-icon-header svg {
             color: #000; /* Black arrow */
-            width: 48px; /* Icon size */
+            width: 48px; /* Icon size, matches image */
             height: 48px;
-            /* Custom double arrow SVG */
-            transform: scale(1.1); /* Slightly larger within its container */
+            /* Custom double arrow SVG - scaled slightly to match visual weight in image */
+            transform: scale(1.1);
         }
         .screenshot-container {
             display: flex;
@@ -52,32 +52,32 @@
         }
         .screenshot-card {
             background-color: #f8fafc;
-            border-radius: 0.75rem; /* Smaller border radius for screenshots */
+            border-radius: 0.5rem; /* Adjusted to 0.5rem for screenshots */
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
             display: inline-flex; /* For flex item sizing with nowrap */
             flex-direction: column;
             align-items: flex-start; /* Align text to left within card */
             text-align: left; /* Text aligned left */
-            padding: 0.75rem; /* Smaller padding */
-            width: 170px; /* Adjusted fixed width for each screenshot card */
+            padding: 0.6rem; /* Slightly reduced padding */
+            width: 170px; /* Adjusted fixed width for each screenshot card, matches phone aspect */
             flex-shrink: 0; /* Prevent shrinking */
         }
         .screenshot-card img {
             width: 100%;
-            height: 280px; /* Fixed height for phone screen aspect ratio */
+            height: 280px; /* Fixed height for phone screen aspect ratio, matches image */
             object-fit: cover; /* Ensure image covers the area */
-            border-radius: 0.5rem; /* Smaller rounded corners for image inside card */
+            border-radius: 0.4rem; /* Adjusted to 0.4rem for image inside card */
             box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            margin-bottom: 0.5rem; /* Space between image and text */
+            margin-bottom: 0.4rem; /* Slightly reduced margin */
         }
         .screenshot-card p {
-            font-size: 0.825rem; /* Slightly smaller text for captions */
+            font-size: 0.825rem; /* Slightly smaller text for captions, matches image */
             line-height: 1.3;
             color: #4b5563; /* Darker text */
             white-space: normal; /* Allow text to wrap within caption */
         }
         .section-heading-card {
-            font-size: 1.375rem; /* Adjusted heading size */
+            font-size: 1.375rem; /* Adjusted heading size, matches image */
             font-weight: 700;
             color: #1f2937;
         }
@@ -86,23 +86,28 @@
             justify-content: space-between; /* Space out content within each item */
             align-items: center;
             padding: 0.4rem 0; /* Vertical spacing for each list item */
-            border-bottom: 1px solid #e5e7eb; /* Subtle separator */
+            border-bottom: 1px solid #e5e7eb; /* Subtle separator, matches image */
         }
         .info-item:last-child {
             border-bottom: none; /* No border for the last item */
         }
         .info-item .label {
-            font-size: 0.9rem; /* Smaller text size for label */
+            font-size: 0.9rem; /* Smaller text size for label, matches image */
             color: #374151; /* Darker text for info */
-            flex-grow: 1; /* Allow label to take available space */
             text-align: left; /* Label aligned to the left */
+            flex-grow: 1; /* Allow label to take available space */
+            flex-shrink: 1;
+            min-width: 0; /* Allow label to shrink if needed */
         }
         .info-item .value {
             display: flex;
             align-items: center;
-            font-size: 0.9rem; /* Smaller text size for value */
+            font-size: 0.9rem; /* Smaller text size for value, matches image */
             color: #374151; /* Darker text for info */
             text-align: right; /* Value aligned to the right */
+            flex-grow: 0; /* Prevent value from growing */
+            flex-shrink: 0; /* Prevent shrinking on its own */
+            white-space: nowrap; /* Keep value on one line */
         }
         .info-item a {
             color: #1a73e8; /* Blue link color */
@@ -112,13 +117,26 @@
             text-decoration: underline;
         }
         .info-item svg {
-            color: #6b7280; /* Muted icon color */
+            color: #6b7280; /* Muted icon color, matches image */
             width: 18px;
             height: 18px;
             margin-left: 0.75rem; /* Space between text and icon */
         }
+        .developer-info {
+            display: flex; /* Make developer-info a flex container */
+            flex-direction: column; /* Stack items vertically */
+            align-items: flex-end; /* Align items to the right */
+            text-align: right; /* Fallback for text alignment */
+            font-size: 0.875rem; /* Smaller font size to match image */
+            line-height: 1.3; /* Adjusted line height */
+            color: #4b5563; /* Darker text */
+        }
         .developer-info p {
-            text-align: right; /* Align developer info to the right */
+            margin: 0; /* Remove default paragraph margins */
+            padding: 0; /* Remove default paragraph padding */
+        }
+        .developer-info .font-semibold {
+             font-weight: 600; /* Match image's bolder text */
         }
     </style>
 </head>
@@ -242,6 +260,7 @@
                 <li class="info-item">
                     <span class="label">Website</span>
                     <span class="value">
+                        <!-- Custom SVG for website icon (circular with dash) -->
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                             <path d="M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -255,6 +274,7 @@
                 <li class="info-item">
                     <span class="label">Privacy Policy</span>
                     <span class="value">
+                        <!-- Custom SVG for privacy policy icon (circular with dash) -->
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                             <path d="M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
