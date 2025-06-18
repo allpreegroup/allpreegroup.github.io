@@ -117,46 +117,32 @@
             color: #2563EB;
             text-decoration: underline;
         }
-        /* Testimonial specific styles */
+        /* Testimonial specific styles - Adapted for Tailwind and responsiveness */
         .testimonial__title {
             margin: 0 0 0.90909em;
             font-weight: normal;
             font-size: 1.2rem;
-            color: rgba(0, 0, 0, 0.7); /* Changed to black for better contrast on white background */
+            color: rgba(0, 0, 0, 0.7);
         }
         .testimonial__quote {
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -ms-flex-align: center;
             align-items: center;
             padding: 0;
             border: none;
             flex-direction: column; /* Default for mobile */
             text-align: center;
         }
-        @media (min-width: 43.8125em) {
+        @media (min-width: 43.8125em) { /* equivalent to Tailwind 'md' breakpoint */
             .testimonial__quote {
                 flex-direction: row; /* Desktop layout */
                 text-align: left;
-            }
-        }
-        @media (max-width: 43.75em) {
-            .testimonial__quote {
-                -ms-flex-wrap: wrap;
-                flex-wrap: wrap;
             }
         }
         .testimonial__quote footer::before {
             content: "";
         }
         .testimonial__text {
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -ms-flex-align: center;
             align-items: center;
             min-height: 9.09091em;
             padding: 1.36364em 1.81818em;
@@ -186,12 +172,8 @@
             }
         }
         .testimonial__meta {
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
             background-color: transparent;
-            -webkit-box-align: center;
-            -ms-flex-align: center;
             align-items: center;
             margin-top: 1.25em; /* Space for mobile */
         }
@@ -255,8 +237,8 @@
         </nav>
 
         <!-- Hero Section -->
-        <header class="relative bg-gradient-to-br from-blue-50 to-purple-50 py-16 md:py-24 lg:py-32 overflow-hidden flex-grow">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between relative z-10">
+        <header class="relative bg-gradient-to-br from-blue-50 to-purple-50 py-16 md:py-24 lg:py-32 overflow-hidden flex-grow flex items-center justify-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-center relative z-10 w-full">
                 <!-- Left Content -->
                 <div class="md:w-1/2 text-center md:text-left mb-12 md:mb-0">
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
@@ -282,36 +264,37 @@
                         </svg>
                     </a>
                     <p class="text-gray-500 text-sm mb-6">Start shopping smarter without any friction. Cashback requires a free account.</p>
-                    <a href="#" class="blue-button text-lg px-8 py-3">Install the App Now!</a>
+                    <a href="#" class="blue-button text-lg px-8 py-3">Install Now!</a>
                 </div>
 
-                <!-- Right Content - Image and Overlays -->
-                <div class="md:w-1/2 relative flex justify-center md:justify-end">
-                    <div class="relative w-full max-w-md h-96 bg-gray-200 rounded-3xl overflow-hidden shadow-2xl">
-                        <!-- Main image for the phone mockup -->
-                        <img src="https://www.allpree.com/img/pwaapp.jpg" alt="Allpree PWA App Mockup" class="absolute inset-0 w-full h-full object-cover rounded-3xl">
+                <!-- Right Content - Image and Overlays (Recreated with placeholders) -->
+                <div class="md:w-1/2 relative flex justify-center items-center h-96 md:h-auto">
+                    <!-- Main image for the hero section (girls) -->
+                    <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/website-homepage.png" alt="Girls looking at phone" class="relative w-full h-full object-cover rounded-3xl shadow-2xl z-0">
 
-                        <!-- Uber, Spotify, etc. icons (placeholders retained for visual structure) -->
-                        <div class="absolute top-4 right-4 flex flex-col space-y-2">
-                            <img src="https://placehold.co/40x40/000000/FFFFFF?text=Uber" alt="Uber" class="w-10 h-10 rounded-full shadow-lg">
-                            <img src="https://placehold.co/40x40/1ED760/FFFFFF?text=Spotify" alt="Spotify" class="w-10 h-10 rounded-full shadow-lg">
-                            <img src="https://placehold.co/40x40/FF0000/FFFFFF?text=App" alt="Another App" class="w-10 h-10 rounded-full shadow-lg">
-                        </div>
+                    <!-- Phone image with app screen -->
+                    <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="App on phone" class="absolute h-4/5 md:h-auto w-auto rounded-xl shadow-lg z-10" style="top: 15%; left: 50%; transform: translateX(-50%) rotate(5deg);">
 
-                        <!-- Effort Free button -->
-                        <div class="absolute bottom-1/4 right-4 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg font-medium text-sm flex items-center space-x-1">
-                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span>Effort Free</span>
-                        </div>
+                    <!-- Uber, Spotify, etc. icons -->
+                    <div class="absolute top-4 right-4 flex flex-col space-y-2 z-20">
+                        <img src="https://placehold.co/40x40/000000/FFFFFF?text=Uber" alt="Uber icon" class="w-10 h-10 rounded-full shadow-lg">
+                        <img src="https://placehold.co/40x40/1ED760/FFFFFF?text=Spotify" alt="Spotify icon" class="w-10 h-10 rounded-full shadow-lg">
+                        <img src="https://placehold.co/40x40/FF0000/FFFFFF?text=App" alt="Generic App icon" class="w-10 h-10 rounded-full shadow-lg">
+                    </div>
 
-                        <!-- Shop, Save, Invest overlay -->
-                        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-center">
-                            <h2 class="text-3xl font-bold mb-2">Shop</h2>
-                            <h2 class="text-3xl font-bold mb-2">Save</h2>
-                            <h2 class="text-3xl font-bold">Invest</h2>
-                        </div>
+                    <!-- Effort Free button -->
+                    <div class="absolute bottom-1/4 right-4 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg font-medium text-sm flex items-center space-x-1 z-20">
+                        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Effort Free</span>
+                    </div>
+
+                    <!-- Shop, Save, Invest overlay -->
+                    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-center z-20">
+                        <h2 class="text-3xl font-bold mb-2">Shop</h2>
+                        <h2 class="text-3xl font-bold mb-2">Save</h2>
+                        <h2 class="text-3xl font-bold">Invest</h2>
                     </div>
                 </div>
             </div>
@@ -519,6 +502,25 @@
             </div>
         </section>
 
+        <!-- Download Now Section (New section inspired by kaldiapp.co.uk) -->
+        <section id="download-now" class="py-16 bg-blue-600 text-white text-center">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-extrabold mb-6">Ready to Start Saving?</h2>
+                <p class="text-xl mb-8">
+                    Scan the QR code or click the button to download the Allpree app and unlock instant deals and cashback rewards.
+                </p>
+                <div class="flex flex-col items-center justify-center space-y-8 md:space-y-0 md:flex-row md:space-x-12">
+                    <div class="flex-shrink-0">
+                        <!-- Placeholder QR Code for app download -->
+                        <img src="https://placehold.co/150x150/FFFFFF/000000?text=QR+Code" alt="QR Code to download app" class="w-36 h-36 rounded-lg shadow-lg">
+                    </div>
+                    <a href="#" class="blue-button bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-200 px-8 py-3 text-xl">
+                        Install Now
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- Your Two Paths Section -->
         <section id="your-paths" class="py-16 bg-blue-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -565,7 +567,7 @@
         </section>
 
         <!-- Testimonials Section -->
-        <section id="testimonials" class="py-16 bg-blue-50">
+        <section id="testimonials" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="section-heading text-blue-800">🗣️ What People Are Saying</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
