@@ -70,11 +70,14 @@
             justify-content: space-between;
             height: 100%; /* Ensure cards are same height */
         }
+        /* Adjusted styles for the exclusive pricing card */
         .pricing-card.exclusive {
-            background: linear-gradient(135deg, #FFD700, #DAA520); /* Gold gradient for Exclusivity */
+            background-color: #ffffff; /* Clean white background for high-end feel */
             color: #333;
             font-weight: 600;
-            padding: 2.5rem; /* Adjust padding for better content spacing */
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* More pronounced, elegant shadow */
+            border: 1px solid #e2e8f0; /* Subtle light gray border */
         }
         .pricing-card .feature-list li {
             margin-bottom: 0.5rem;
@@ -88,7 +91,7 @@
             color: #10B981; /* Green checkmark */
         }
         .pricing-card.exclusive .feature-list li svg {
-             color: #333; /* Darker checkmark for gold background */
+             color: #007bff; /* Primary blue checkmark for exclusive card */
         }
         .pricing-header {
             margin-bottom: 1.5rem;
@@ -100,14 +103,14 @@
             margin-bottom: 1rem;
         }
         .pricing-card.exclusive .pricing-price {
-            color: #8B4513; /* Darker brown for gold background */
+            color: #0056b3; /* Darker blue for pricing on white background */
         }
         .pricing-period {
             font-size: 1.125rem;
             color: #6B7280;
         }
         .pricing-card.exclusive .pricing-period {
-            color: #333;
+            color: #4a5568;
         }
         .btn-secondary {
             background-color: #F3F4F6; /* Light gray for secondary buttons */
@@ -140,6 +143,87 @@
         }
         .max-w-7xl-custom {
             max-width: 90rem; /* Increased max-width for wider content */
+        }
+
+        /* NEW COMPARISON TABLE STYLES */
+        .comparison-table-container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            overflow-x: auto; /* Ensures responsiveness for table on small screens */
+            margin-bottom: 3rem;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px; /* Minimum width for the table */
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 1.5rem 2rem; /* Increased padding for more space */
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #2D3748; /* Darker header background */
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #ffffff; /* White text for headers */
+        }
+        .comparison-table th:first-child {
+            border-top-left-radius: 1rem;
+        }
+        .comparison-table th:last-child {
+            border-top-right-radius: 1rem;
+        }
+        .comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .comparison-table .feature-column {
+            font-weight: 600;
+            color: #2D3748;
+            font-size: 1.05rem;
+        }
+        .comparison-table .allpree-column {
+            color: #047857; /* A deeper, richer green (emerald-700) */
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        .comparison-table .allpree-column svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.75rem; /* More space for icon */
+        }
+        .comparison-table .diy-column {
+            color: #DC2626; /* A clear, but not overly harsh red */
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        .comparison-table .diy-column svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.75rem;
+        }
+        .comparison-table .diy-column .cost-detail {
+            font-size: 0.9rem;
+            color: #4A5568;
+            margin-top: 0.25rem;
+            line-height: 1.4; /* Better readability for small text */
+        }
+        .comparison-table .total-row th,
+        .comparison-table .total-row td {
+            border-top: 2px solid #2D3748; /* Stronger border for totals */
+            font-weight: 700;
+            font-size: 1.5rem; /* Larger total text */
+            background-color: #F3F4F6; /* Light grey background for totals */
+            color: #2D3748;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+        .comparison-table .total-row .allpree-total {
+            color: #007bff; /* Primary blue for Allpree total */
+        }
+        .comparison-table .total-row .diy-total {
+            color: #B91C1C; /* Dark red for DIY total */
         }
     </style>
 </head>
@@ -241,7 +325,7 @@
                  <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
                     <svg class="w-12 h-12 text-purple-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"></path></svg>
                     <h4 class="text-xl font-semibold mb-2">Built-In Navigation</h4>
-                    <p class="text-gray-400">Your brand includes directions to your front door, which gives a branded experience.</p>
+                    <p class="text-400">Your brand includes directions to your front door, which gives a branded experience.</p>
                 </div>
                  <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
                     <svg class="w-12 h-12 text-orange-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
@@ -445,7 +529,7 @@
                 For elite businesses that demand a dedicated solution, the Allpree Exclusivity Plan acts as your white-label deal platform, fostering unparalleled customer loyalty and direct engagement.
             </p>
 
-            <div class="pricing-card exclusive mx-auto max-w-4xl text-left p-8"> <!-- Increased max-width and padding -->
+            <div class="pricing-card exclusive mx-auto max-w-4xl text-left p-8">
                 <div class="pricing-header text-center mb-8">
                     <h3 class="text-3xl font-bold text-gray-800 mb-2">Exclusivity Plan</h3>
                     <p class="text-xl text-gray-700">Your Business. Your Customers. Ultimate Loyalty.</p>
@@ -455,25 +539,85 @@
                     <span class="pricing-period block text-lg font-normal text-gray-800">/ yearly</span>
                 </div>
 
-                <div class="mb-12 bg-white rounded-lg p-6 shadow-md border border-gray-200">
-                    <h4 class="text-2xl font-bold mb-4 text-gray-900">Why the Allpree Exclusivity Plan is Unmatched:</h4>
-                    <ul class="list-disc list-inside pl-4 space-y-3 text-gray-800">
-                        <li>
-                            <strong class="text-primary-blue">Ultimate Customer Loyalty and Retention:</strong> For a brand, getting its customers to install an app and then keeping them focused almost exclusively on their brand within that app is the holy grail of loyalty. Allpree offers a sophisticated loyalty app experience without the business having to build their own custom app (which can cost J$785,000 - J$1,570,000+ for a complex solution in Jamaica, plus ongoing maintenance).
-                        </li>
-                        <li>
-                            <strong class="text-primary-blue">Reduced Customer Acquisition Cost (CAC):</strong> The dedicated deal website (<span class="font-semibold">allpree.com/yourbrand</span>) acts as a powerful acquisition tool. It funnels your existing audience and new prospects directly into a dedicated, branded app experience, significantly lowering your cost to acquire loyal customers.
-                        </li>
-                        <li>
-                            <strong class="text-primary-blue">Competitive Advantage:</strong> This offers a unique edge. You can tell your customers, "Download our app for exclusive deals!" – but it's Allpree's powerful technology doing all the heavy lifting and offering sophisticated features, at a fraction of the investment of building from scratch.
-                        </li>
-                        <li>
-                            <strong class="text-primary-blue">Controlled Exposure to Other Brands:</strong> The 1-hour guest window is a calculated feature. It subtly introduces your customers to the wider Allpree ecosystem in a way that always prioritizes your Elite Business, eventually bringing the focus back to you. It showcases the breadth of deals available, making the app more valuable overall, without directly competing with your core offering.
-                        </li>
-                        <li>
-                            <strong class="text-primary-blue">Comprehensive Digital Solution:</strong> It’s more than just a listing; it’s an integrated digital presence including a powerful web portal and a branded app-based loyalty program that maintains brand focus and drives engagement.
-                        </li>
-                    </ul>
+                <div class="mb-12 comparison-table-container">
+                    <h4 class="text-2xl font-bold mb-6 text-gray-900 text-center pt-6">The Allpree Advantage vs. DIY Costs:</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th class="rounded-tl-xl">Feature / Benefit</th>
+                                <th>Allpree Exclusivity Plan (Included)</th>
+                                <th class="rounded-tr-xl">Estimated DIY Cost (Jamaica)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="feature-column">White-Label Loyalty App Experience</td>
+                                <td class="allpree-column">
+                                    <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                                    Full-featured, sophisticated app
+                                </td>
+                                <td class="diy-column">
+                                    <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    J$<span class="diy-cost">785,000 - J$1,570,000+</span> (Initial Dev)
+                                    <p class="cost-detail">Plus J$<span class="diy-cost">30,000 - J$50,000</span> / month (Maintenance)</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="feature-column">Dedicated Branded Deal Website</td>
+                                <td class="allpree-column">
+                                    <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                                    Zero setup, integrated hosting (allpree.com/yourbrand)
+                                </td>
+                                <td class="diy-column">
+                                    <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    J$<span class="diy-cost">50,000 - J$250,000+</span> (Initial Dev)
+                                    <p class="cost-detail">Plus J$<span class="diy-cost">25,000 - J$50,000+</span> / year (Hosting)</p>
+                                    <p class="cost-detail">Plus J$<span class="diy-cost">30,000 - J$50,000</span> / month (Maintenance)</p>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td class="feature-column">Customer Acquisition & Loyalty Tools</td>
+                                <td class="allpree-column">
+                                    <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                                    Reduced CAC, controlled exposure, direct funnels
+                                </td>
+                                <td class="diy-column">
+                                    <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    <span class="diy-cost">High variable costs</span> (Advertising, fragmented platforms)
+                                    <p class="cost-detail">Difficulty in direct loyalty building and brand control</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="feature-column">Ongoing Feature Updates & Support</td>
+                                <td class="allpree-column">
+                                    <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                                    Automatic access to all new features & dedicated manager
+                                </td>
+                                <td class="diy-column">
+                                    <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    <span class="diy-cost">Significant development costs</span> for new features & dedicated staff/consultants
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="feature-column">Integrated Digital Presence</td>
+                                <td class="allpree-column">
+                                    <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                                    Unified web portal & app loyalty program
+                                </td>
+                                <td class="diy-column">
+                                    <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    <span class="diy-cost">Complex integration & management challenges</span> across disparate systems
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <th colspan="1">Your Investment with Allpree (Annual):</th>
+                                <td class="allpree-total">J$318,000</td>
+                                <td class="diy-total">Estimated DIY Annual Cost: J$830,000 - J$1,870,000+</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -545,6 +689,7 @@
                     <p class="text-xl mb-4">🔥 SPECIAL OFFER - 33% Off</p>
                     <p class="text-2xl font-bold mb-2">J$636,000</p>
                     <p class="text-lg mb-4">Billed Every 3 Years</p>
+                    <p class="text-base font-normal">That's equivalent to only J$212,000 per year – saving you J$106,000 annually compared to the yearly plan!</p>
                     <p class="text-base font-normal">All upgrades included. No annual renewals.</p>
                 </div>
                 <a href="#contact-faqs" class="btn-primary w-full mt-8">Contact Sales for Elite Solutions</a>
