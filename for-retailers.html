@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allpree for Businesses - Partner with Us</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll due to potential overflow */
+        }
+        .header-bg {
+            background-color: #ffffff; /* White background for header */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        }
+        .hero-bg {
+            background-color: #E6F7F7; /* Light teal background, similar to image */
+        }
+        .btn-primary {
+            background-color: #007bff; /* Primary blue for CTA */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1.25rem; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .section-title {
+            color: #333;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        .text-gradient-blue-green {
+            background: linear-gradient(90deg, #3B82F6, #10B981); /* Blue to Green gradient */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+        .text-primary-blue {
+            color: #007bff;
+        }
+        .bg-teal-light {
+            background-color: #E6F7F7;
+        }
+        .bg-dark-blue {
+            background-color: #1A202C; /* Dark background for features section */
+            color: white;
+        }
+        .pricing-card {
+            background-color: white;
+            border-radius: 1.25rem; /* Rounded corners */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More prominent shadow for pricing */
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%; /* Ensure cards are same height */
+        }
+        /* Adjusted styles for the exclusive pricing card */
+        .pricing-card.exclusive {
+            background-color: #2D3748; /* Deep charcoal/dark blue for high-end feel */
+            color: white; /* White text for contrast */
+            font-weight: 600;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); /* More pronounced, elegant shadow */
+            border: none; /* Remove border for sleeker look */
+        }
+        .pricing-card .feature-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .pricing-card .feature-list li svg {
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+            color: #10B981; /* Green checkmark */
+        }
+        .pricing-card.exclusive .feature-list li svg {
+             color: #007bff; /* Primary blue checkmark for exclusive card */
+        }
+        .pricing-header {
+            margin-bottom: 1.5rem;
+        }
+        .pricing-card.exclusive .pricing-header h3 {
+            color: white; /* White for header title */
+        }
+        .pricing-card.exclusive .pricing-header p {
+            color: #cbd5e0; /* Light gray for header description */
+        }
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 1rem;
+        }
+        .pricing-card.exclusive .pricing-price {
+            color: #34D399; /* Bright green for price on dark background */
+        }
+        .pricing-period {
+            font-size: 1.125rem;
+            color: #6B7280;
+        }
+        .pricing-card.exclusive .pricing-period {
+            color: #a0aec0; /* Lighter gray for period text */
+        }
+        .btn-secondary {
+            background-color: #F3F4F6; /* Light gray for secondary buttons */
+            color: #333;
+            padding: 12px 24px;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        .btn-secondary:hover {
+            background-color: #E5E7EB;
+        }
+        .boost-table th, .boost-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+        .boost-table th {
+            background-color: #F3F4F6;
+            font-weight: 600;
+        }
+        .boost-table tr:last-child td {
+            border-bottom: none;
+        }
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .max-w-7xl-custom {
+            max-width: 90rem; /* Increased max-width for wider content */
+        }
+
+        /* NEW COMPARISON TABLE STYLES */
+        .comparison-table-container {
+            background-color: #ffffff; /* White background for the table content */
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* Lighter shadow for table */
+            overflow-x: auto; /* Ensures responsiveness for table on small screens */
+            margin-bottom: 3rem;
+            border: 1px solid #e2e8f0; /* Subtle border for the container */
+            flex-grow: 1; /* Allows table container to grow and fill available height in flex parent */
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 768px; /* Minimum width for the table to prevent squishing */
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 1.25rem 1.5rem; /* Slightly reduced padding */
+            border-bottom: 1px solid #e2e8f0; /* Light, subtle row separator */
+            text-align: left;
+            vertical-align: top; /* Align content to the top */
+        }
+        .comparison-table th {
+            background-color: #007bff; /* Primary blue for table headers */
+            font-weight: 700;
+            font-size: 1rem; /* Smaller font size for headers */
+            color: #ffffff; /* White text for headers */
+        }
+        .comparison-table th:first-child {
+            border-top-left-radius: 1rem;
+        }
+        .comparison-table th:last-child {
+            border-top-right-radius: 1rem;
+        }
+        .comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .comparison-table .feature-column {
+            font-weight: 600;
+            color: #2D3748;
+            font-size: 0.95rem; /* Smaller font size */
+        }
+        .comparison-table .allpree-column {
+            color: #047857; /* A deeper, richer green (emerald-700) */
+            font-weight: 600;
+            font-size: 0.95rem; /* Smaller font size */
+        }
+        .comparison-table .allpree-column svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.5rem; /* Reduced space for icon */
+        }
+        .comparison-table .diy-column {
+            color: #DC2626; /* A clear, but not overly harsh red */
+            font-weight: 600;
+            font-size: 0.95rem; /* Smaller font size */
+        }
+        .comparison-table .diy-column svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+        .comparison-table .diy-column .cost-detail {
+            font-size: 0.85rem; /* Slightly smaller */
+            color: #4A5568;
+            margin-top: 0.25rem;
+            line-height: 1.4; /* Better readability for small text */
+        }
+        .comparison-table .total-row th,
+        .comparison-table .total-row td {
+            border-top: 2px solid #2D3748; /* Stronger border for totals */
+            font-weight: 700;
+            font-size: 1.25rem; /* Smaller total text */
+            background-color: #F3F4F6; /* Light grey background for totals */
+            color: #2D3748;
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+        }
+        .comparison-table .total-row .allpree-total {
+            color: #007bff; /* Primary blue for Allpree total */
+        }
+        .comparison-table .total-row .diy-total {
+            color: #B91C1C; /* Dark red for DIY total */
+        }
+
+        /* Special Offer Box new styling */
+        .special-offer-box {
+            background-color: #007bff; /* Primary blue */
+            color: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .special-offer-box p {
+            color: white; /* Ensure text remains white */
+        }
+        .special-offer-box .text-2xl {
+            color: #34D399; /* Bright green for the price */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header-bg py-4 sticky top-0 z-50">
+        <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <!-- Allpree Logo Placeholder -->
+                <svg class="w-8 h-8 text-primary-blue" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="text-2xl font-bold text-primary-blue">Allpree</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#how-it-works" class="text-gray-600 hover:text-primary-blue transition">How it works</a>
+                <a href="#mission" class="text-gray-600 hover:text-primary-blue transition">Mission</a>
+                <a href="#money-matters" class="text-gray-600 hover:text-primary-blue transition">Contact & FAQs</a>
+                <a href="#contact-faqs" class="text-gray-600 hover:text-primary-blue transition">Contact & FAQs</a>
+                
+            </nav>
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button class="text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-bg py-20 px-6">
+        <div class="max-w-7xl-custom mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
+                    Partner with Allpree: <br class="hidden md:block"/><span class="text-gradient-blue-green">Elevate Your Business.</span>
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-lg mx-auto md:mx-0">
+                    Connect with a deal-hungry audience, drive customer loyalty, and simplify your promotions. Allpree brings your offers directly to shoppers, effortlessly.
+                </p>
+                <div> <!-- This div now wraps all buttons, allowing the last one to stack below -->
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start mb-4">
+                        <a href="#pricing" class="btn-primary text-lg w-full sm:w-auto">See Our Plans</a>
+                        <a href="#how-it-works" class="btn-secondary text-lg w-full sm:w-auto">Learn More</a>
+                    </div>
+                    <!-- Updated button text -->
+                    <a href="#exclusivity-solution" class="btn-primary text-lg w-full sm:w-auto mt-4 sm:mt-0">White-Label Loyalty</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center relative">
+                <!-- App Screenshots - adapted from Kaldi image -->
+                <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="Allpree App Showcase" class="rounded-3xl shadow-xl transform rotate-3 scale-105 relative z-10 mr-8">
+                <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="Allpree App Profile" class="rounded-3xl shadow-xl transform -rotate-6 scale-95 absolute top-10 right-0">
+                <!-- Placeholder for partner logos - adapt with relevant Jamaican brands or industry types -->
+                <div class="absolute top-4 right-4 flex flex-col space-y-3">
+                    <div class="bg-white rounded-full p-2 shadow-md">
+                        <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v.5c0 .28.22.5.5.5h3c.28 0 .5-.22.5-.5V15l5.79-8.72c.1-.15.21-.29.31-.44.82-1.38 1.25-2.92 1.25-4.57 0-.41-.03-.82-.09-1.22l-1.39-1.39C16.92 3.03 14.51 2 12 2c-4.42 0-8 3.58-8 8 0 3.73 2.55 6.86 6 7.74V19.93zM12 4.04c1.78 0 3.3.71 4.5 1.87L12 9.5l-4.5-3.59C8.7 4.75 10.22 4.04 12 4.04zM16 11.23l-3 2.4V15.5c0 .28-.22.5-.5.5h-1c-.28 0-.5-.22-.5-.5V13.63l-3-2.4V8.5L12 12.04l4-3.2V11.23z"></path></svg>
+                    </div>
+                    <div class="bg-white rounded-full p-2 shadow-md">
+                        <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-9.5V17h1V10.5H9.5zM12 17h1.5v-7H12v7zm2.5-9.5V17h1V7.5h-1z"></path></svg>
+                    </div>
+                    <div class="bg-white rounded-full p-2 shadow-md">
+                        <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-3.5-9.5c.83 0 1.5-.67 1.5-1.5S9.33 7.5 8.5 7.5 7 8.17 7 9s.67 1.5 1.5 1.5zm7 0c.83 0 1.5-.67 1.5-1.5S16.33 7.5 15.5 7.5 14 8.17 14 9s.67 1.5 1.5 1.5zM12 17c-2.21 0-4-1.79-4-4h8c0 2.21-1.79 4-4 4z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works Section - Combined from user's input -->
+    <section id="how-it-works" class="bg-dark-blue py-20 px-6">
+        <div class="max-w-7xl-custom mx-auto">
+            <h2 class="text-white section-title text-center mb-10">Transform How Customers See Your Business</h2>
+            <p class="text-xl text-gray-400 text-center mb-12 max-w-3xl mx-auto">
+                Join our powerful deal platform and get discovered by thousands of nearby customers. List your deals, grow your visibility, and drive real foot traffic.
+            </p>
+
+            <h3 class="text-white text-3xl font-bold text-center mb-10">💡 Why Businesses Love This Platform</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-green-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Simple to Use</h4>
+                    <p class="text-gray-400">Update your Google Sheet. Press one button. Your deals go live instantly.</p>
+                </div>
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-blue-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-.5 15.5c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Smart Deal Targeting</h4>
+                    <p class="text-gray-400">Showcase limited-time offers with timers, cashback, and striking visuals.</p>
+                </div>
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-yellow-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-1.8-1.5l-2.1-3.6-2.9 2.1c-.2.1-.4.2-.6.2-.2 0-.4-.1-.5-.2L7 11.2V5h2l-3 4-2-3-4 6h11.2l-1.9 3.3z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Full Shopping Experience</h4>
+                    <p class="text-gray-400">Customers can browse, like, even add deals to a cart, and save their shopping list all inside the app.</p>
+                </div>
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-pink-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Ongoing Engagement</h4>
+                    <p class="text-gray-400">When users open the app or brand, deals reshuffle, keeping things fresh, which keeps users returning.</p>
+                </div>
+                 <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-purple-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Built-In Navigation</h4>
+                    <p class="text-400">Your brand includes directions to your front door, which gives a branded experience.</p>
+                </div>
+                 <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-orange-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Fast Local Discovery</h4>
+                    <p class="text-gray-400">Be instantly visible to nearby users actively looking for deals, no ads, just real results.</p>
+                </div>
+            </div>
+
+            <h3 class="text-white text-3xl font-bold text-center mb-10">🌐 Two Ways to Join</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-blue-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 5h10v12H7V5z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">Main App Listing</h4>
+                    <p class="text-gray-400">Join a growing community of businesses inside the app—visible to thousands nearby.</p>
+                </div>
+                <div class="card bg-gray-800 text-white p-6 shadow-lg rounded-2xl flex flex-col items-center">
+                    <svg class="w-12 h-12 text-yellow-400 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 11.5c.83 0 1.5-.67 1.5-1.5S12.83 8.5 12 8.5 10.5 9.17 10.5 10s.67 1.5 1.5 1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM12 14c-2.67 0-5.33 1.34-8 4v2h16v-2c-2.67-2.66-5.33-4-8-4z"></path></svg>
+                    <h4 class="text-xl font-semibold mb-2">White-Label Solution</h4>
+                    <p class="text-gray-400">Only your business for your customer base, full control, plus visibility in the main listing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Tiers Section - Main App Listing Plans -->
+    <section id="pricing" class="py-20 px-6 bg-teal-light">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="section-title mb-10">Plans & Pricing: Main App Listing</h2>
+            <p class="text-xl text-gray-700 mb-12 max-w-2xl mx-auto">
+                Select the tier that best fits your business needs for general visibility within the Allpree app. All prices are yearly.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Starter Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="text-2xl font-bold text-primary-blue mb-2">Starter Plan</h3>
+                        <p class="text-gray-600">Perfect for small businesses getting started.</p>
+                    </div>
+                    <div class="pricing-price">
+                        J$31,000
+                        <span class="pricing-period block text-base font-normal">/ yearly</span>
+                    </div>
+                    <ul class="feature-list text-gray-700 text-left mx-auto max-w-xs mb-8">
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Manage up to 10 deals
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Post unlimited times
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Deals run for 7 days
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Custom branding
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Dedicated Deal Website
+                        </li>
+                    </ul>
+                    <a href="#" class="btn-primary mt-auto">Get Started</a>
+                </div>
+
+                <!-- Diamond Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="text-2xl font-bold text-primary-blue mb-2">Diamond Plan</h3>
+                        <p class="text-gray-600">For growing businesses needing more reach.</p>
+                    </div>
+                    <div class="pricing-price">
+                        J$79,000
+                        <span class="pricing-period block text-base font-normal">/ yearly</span>
+                    </div>
+                    <ul class="feature-list text-gray-700 text-left mx-auto max-w-xs mb-8">
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Manage up to 50 deals
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Post unlimited times
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Deals run for 14 days
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Custom branding (in-app)
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Dedicated Deal Website
+                        </li>
+                    </ul>
+                    <a href="#" class="btn-primary mt-auto">Choose Diamond</a>
+                </div>
+
+                <!-- Crown Diamond Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="text-2xl font-bold text-primary-blue mb-2">Crown Diamond</h3>
+                        <p class="text-gray-600">Maximize your visibility and control.</p>
+                    </div>
+                    <div class="pricing-price">
+                        J$158,000
+                        <span class="pricing-period block text-base font-normal">/ yearly</span>
+                    </div>
+                    <ul class="feature-list text-gray-700 text-left mx-auto max-w-xs mb-8">
+                        <li>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Manage up to 150 deals
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Post unlimited times
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Flexible (you choose) deal duration
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Custom branding (in-app)
+                        </li>
+                        <li>
+                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Dedicated Deal Website
+                        </li>
+                    </ul>
+                    <a href="#" class="btn-primary mt-auto">Go Crown</a>
+                </div>
+            </div>
+             <!-- Moved button's original div is now empty or removed -->
+        </div>
+    </section>
+
+    <!-- Optional Add-On Power Boosts Section -->
+    <section class="py-20 px-6 bg-white">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="section-title mb-10">Optional Add-On Power Boosts</h2>
+            <p class="text-xl text-gray-700 mb-12 max-w-2xl mx-auto">
+                Upgrade your visibility and engagement within the Allpree app with these premium add-ons, available for Starter, Diamond, and Crown Diamond plans.
+            </p>
+            
+            <!-- Removed max-w-4xl and mx-auto from this div. Added md:flex-row to make them side-by-side on medium screens and up. -->
+            <div class="flex flex-col md:flex-row justify-center gap-6 text-gray-800 mb-8">
+                <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 w-full md:w-1/2">
+                    <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                    <p class="text-left"><strong>Featured Brand Top Spot Placement:</strong> Your brand always appears first. Auto-opened grid and more visibility to capture user attention instantly.</p>
+                </div>
+                <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 w-full md:w-1/2">
+                    <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                    <p class="text-left"><strong>Top 5 Premium Spots:</strong> Secure one of only 5 exclusive top positions that appear above all other brands.</p>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-8 max-w-2xl mx-auto">
+                <strong>Flexible Durations:</strong> Choose how long you want to shine with any of the addons – 24 hours, 7 days, 14 days, or 30 days. Perfect for flash sales, new arrivals, or seasonal promos.
+            </p>
+
+            <div class="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                <table class="w-full boost-table min-w-[600px]">
+                    <thead>
+                        <tr>
+                            <th class="py-4 px-6 rounded-tl-xl">Add-On</th>
+                            <th class="py-4 px-6">Top 5 Premium Spots</th>
+                            <th class="py-4 px-6 rounded-tr-xl">Featured Brand Top Spot Placement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold text-gray-800">⏱️ 24 Hours</td>
+                            <td>J$1,000</td>
+                            <td>J$3,000</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-gray-800">⏱️ 7 Days</td>
+                            <td>J$6,000</td>
+                            <td>J$14,000</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-gray-800">⏱️ 14 Days</td>
+                            <td>J$10,000</td>
+                            <td>J$23,000</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-gray-800">⏱️ 30 Days</td>
+                            <td>J$18,000</td>
+                            <td>J$39,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- NEW: Consolidated Exclusivity Plan Section -->
+    <section id="exclusivity-solution" class="py-20 px-6 bg-teal-light">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="section-title mb-10 text-primary-blue">Exclusivity Plan: Your Bespoke Loyalty & Marketing Platform</h2>
+            <p class="text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+                For elite businesses that demand a dedicated solution, the Allpree Exclusivity Plan acts as your white-label deal platform, fostering unparalleled customer loyalty and direct engagement.
+            </p>
+
+            <!-- Moved "Core Exclusivity Features" section here -->
+            <div class="mb-12">
+                <h4 class="text-2xl font-bold mb-6 text-gray-900 text-center">Core Exclusivity Features:</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Achieve complete brand immersion with custom logo, colors, and tailored deals.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Unlock seamless growth with access to every innovation and future enhancement.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Benefit from a dedicated support team and a personal account manager committed to your success.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Enjoy the flexibility to manage an unlimited number of deals, scaling with your ambition.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Gain prominent exposure by being listed in the main Allpree app directory for broader discovery.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-5 shadow-md border border-gray-200 flex items-start space-x-3 text-left">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+                        <p class="text-gray-800">Offer a controlled discovery experience with a strategic 1-hour guest window for your customers to explore other brands, always reverting focus to your business.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining Feature Details (now moved above the pricing/comparison block) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+                    <h4 class="text-2xl font-bold mb-4 text-gray-900 text-center">🌐 Your Exclusive Digital Gateway: The Dedicated Deal Website</h4>
+                    <p class="text-lg mb-4 text-gray-800 text-left">This is your powerful, custom-branded external marketing arm. It's a shareable digital storefront that <strong>exclusively showcases your business's deals</strong>, acting as a direct funnel to captivate new customers and drive app installations.</p>
+                    <p class="text-gray-800 text-left mb-4"><strong>Unrivaled Control:</strong> Your deals only – no competing brands to distract your customers.</p>
+                    <p class="text-lg font-semibold mb-4 text-gray-900 text-left">plus A shareable, branded link, perfect for:</p>
+                    <ul class="list-disc list-inside pl-4 space-y-2 mb-6 text-gray-800 text-left">
+                        <li>Instagram bio</li>
+                        <li>Facebook</li>
+                        <li>TikTok</li>
+                        <li>WhatsApp Channels</li>
+                        <li>In-store QR codes</li>
+                        <li>Google Business profile</li>
+                    </ul>
+                    <p class="text-lg font-semibold mb-4 text-gray-900 text-left">🔗 Example: <span class="text-primary-blue font-bold">allpree.com/yourbrand</span></p>
+                    <ul class="list-disc list-inside pl-4 space-y-2 text-gray-800 text-left">
+                        <li><strong>Always Current:</strong> Deals update instantly, ensuring your promotions are always live and accurate.</li>
+                        <li><strong>Optimized for Impact:</strong> Flawlessly mobile-optimized for a seamless experience on any device, maximizing engagement.</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+                    <h4 class="text-2xl font-bold mb-4 text-gray-900 text-center">📱 Your Brand's Command Center: The In-App Exclusive Zone</h4>
+                    <p class="text-lg mb-4 text-gray-800 text-left">Once your customer enters the Allpree ecosystem (primarily through your dedicated website), their in-app experience becomes an <strong>exclusive showcase of YOUR business's deals.</strong> This is essentially a branded mini-app, leveraging Allpree's robust technology to ensure your brand's dominance.</p>
+                    <p class="text-lg font-bold mb-4 text-gray-900 text-left">🔓 <strong>Unlocking Superior Engagement:</strong></p>
+                    <ul class="list-disc list-inside pl-4 space-y-2 mb-6 text-gray-800 text-left">
+                        <li><strong>Dynamic Engagement:</strong> Utilize Badges and Deal Countdown Timers to create urgency and excitement.</li>
+                        <li><strong>Seamless Shopping:</strong> Empower customers with Add to Cart & Shopping List functionalities for a frictionless experience.</li>
+                        <li><strong>Ever-Fresh Offers:</strong> Auto-expiring & reshuffling deals keep your content dynamic and users returning.</li>
+                        <li><strong>Direct to Your Door:</strong> Built-in Google Maps navigation guides customers directly to your physical store.</li>
+                        <li><strong>Strategic Cross-Discovery:</strong> The optional "1-hour guest window" allows for controlled exposure to the broader Allpree ecosystem. Your customers can briefly explore other brands, but the app automatically reverts to prioritizing <strong>your</strong> business's deals after the hour, ensuring your brand remains paramount.</li>
+                    </ul>
+                    <p class="text-lg font-semibold mt-6 text-gray-900 text-left">➡️ This meticulously designed, dedicated app experience ensures your customers remain deeply engaged and loyal to <span class="font-bold text-primary-blue">your</span> brand's latest offers.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:items-start lg:space-x-8 mb-12">
+                <!-- Pricing Card Column (Left/Top) -->
+                <div class="lg:w-1/3 w-full mb-8 lg:mb-0">
+                    <div class="pricing-card exclusive text-left p-8 h-full flex flex-col justify-between">
+                        <div class="pricing-header text-center mb-8">
+                            <h3 class="text-3xl font-bold mb-2">Exclusivity Plan</h3>
+                            <p class="text-xl">Your Business. Your Customers. Ultimate Loyalty.</p>
+                        </div>
+                        <div class="pricing-price text-center mb-10">
+                            J$318,000
+                            <span class="pricing-period block text-lg font-normal">/ yearly</span>
+                        </div>
+
+                        <div class="special-offer-box mb-8">
+                            <p class="text-xl mb-4">🔥 SPECIAL OFFER - 33% Off</p>
+                            <p class="text-2xl font-bold mb-2">J$636,000</p>
+                            <p class="text-lg mb-4">Billed Every 3 Years</p>
+                            <p class="text-base font-normal">Save you J$106,000 annually compared to the yearly plan!</p>
+                            <p class="text-base font-normal">All upgrades included. No annual renewals.</p>
+                        </div>
+                        <a href="#contact-faqs" class="btn-primary w-full mt-auto">Contact Sales for Elite Solutions</a>
+                    </div>
+                </div>
+
+
+                <div class="lg:w-2/3 w-full">
+                    <div class="comparison-table-container h-full flex flex-col">
+
+                        <table class="comparison-table flex-grow"> <!-- flex-grow to make it fill height -->
+                            <thead>
+                                <tr>
+                                    <th class="rounded-tl-xl">Feature / Benefit</th>
+                                    <th>Exclusivity Plan</th>
+                                    <th class="rounded-tr-xl"> DIY Cost </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="feature-column">Loyalty App Development</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">1,570,000+</span><strong>Upfront</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">App Ongoing Maintenance</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">600,000+</span> <strong>yearly</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">Website Development</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">250,000+</span><strong>Upfront</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">Website Hosting</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">50,000+</span><strong>yearly</strong> </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">Website Maintenance</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">600,000+</span><strong>yearly</strong> </td>
+                                </tr>
+                                 <tr>
+                                    <td class="feature-column">Marketing & CAC Tools</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">300,000+</span><strong>yearly</strong> </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">Ongoing Feature Updates & Development</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">400,000+</span><strong>yearly</strong> </td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-column">Dedicated Account & Project Management</td>
+                                    <td class="allpree-column">
+                                        <svg class="w-5 h-5 inline-block text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+
+                                    </td>
+                                    <td class="diy-column">
+                                        <svg class="w-5 h-5 inline-block text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        J$<span class="diy-cost">100,000+</span><strong>yearly</strong> </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <th class="diy-total" colspan="1"><span class="diy-cost">DIY Cost</span></th>
+                                    <td class="diy-total">J$<span class="diy-cost">2M+</span>Yearly</td>
+                                    <td class="diy-total">
+
+                                        J$<span class="diy-cost">1.8M+</span>Upfront
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+    <!-- Footer - Simple placeholder -->
+    <footer class="bg-gray-800 text-white py-10 px-6 mt-16">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <p>&copy; 2025 Allpree. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
