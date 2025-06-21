@@ -3,907 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allpree.com™ - Browse Local Deals, Visit, Shop & Save </title>
+    <title>Allpree: The Leading Online-to-Offline Shopping Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff; /* Lighter, more modern background */
-            color: #333;
+            overflow-x: hidden;
+            background-color: #f7fafc; /* Light gray background */
         }
-        .text-gradient-purple-blue {
-            background-image: linear-gradient(to right, #8B5CF6, #3B82F6);
+        .header-bg {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .hero-top-bg {
+            background-color: #e0f2f7; /* Light blue/teal for the top hero */
+            background-image: url('https://placehold.co/1200x600/e0f2f7/e0f2f7?text='); /* Subtle background pattern if needed */
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-bottom-bg {
+            background-color: #ffffff; /* White background for the bottom hero */
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #F3F4F6;
+            color: #333;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            border: 1px solid #d1d5db; /* Light border for secondary button */
+        }
+        .btn-secondary:hover {
+            background-color: #E5E7EB;
+        }
+        .text-gradient-blue-green {
+            background: linear-gradient(90deg, #3B82F6, #10B981);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
         }
-        .blue-button {
-            background-color: #3B82F6; /* A shade of blue */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px; /* Fully rounded */
-            font-weight: 600;
-            transition: background-color 0.2s;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); /* Subtle shadow for buttons */
+        .max-w-7xl-custom {
+            max-width: 90rem;
         }
-        .blue-button:hover {
-            background-color: #2563EB; /* Darker blue on hover */
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
-        }
-        .feature-card {
-            background-color: #ffffff; /* White background for feature cards */
-            color: #333;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05); /* Softer shadow */
-            transition: transform 0.3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-        .icon-wrapper {
-            background-color: #EEF2FF; /* Light blue background for icons */
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        .section-heading {
-            font-size: 2.5rem; /* Larger headings */
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            color: #1F2937; /* Darker grey for headings */
-        }
-        .faq-item {
-            background-color: #f8fafc;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            overflow: hidden; /* Ensures content doesn't spill during transition */
-        }
-        .faq-question-button {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            text-align: left;
-            font-weight: 700;
-            color: #3B82F6; /* Blue for questions */
-            cursor: pointer;
-            padding: 0; /* Remove default button padding */
-            background: none; /* Remove default button background */
-            border: none; /* Remove default button border */
-        }
-        .faq-question-button svg {
-            transition: transform 0.3s ease;
-        }
-        .faq-question-button[aria-expanded="true"] svg {
-            transform: rotate(180deg);
-        }
-        .faq-answer {
-            color: #4B5563; /* Darker gray for answers */
-            font-size: 0.95rem;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
-            overflow: hidden;
-            padding-top: 0;
-            margin-top: 0.5rem; /* Space between question and answer */
-        }
-        .faq-answer.expanded {
-            max-height: 500px; /* Adjust based on max expected answer height */
-            opacity: 1;
-            padding-top: 1rem;
-        }
-        .footer-section {
-            background-color: #f0f4ff; /* Match body background or slightly different */
-            color: #6B7280;
-            padding: 2rem;
-            text-align: center;
-            font-size: 0.875rem;
-            border-top: 1px solid #E5E7EB; /* Subtle separator */
-        }
-        .footer-section a {
-            color: #3B82F6;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .footer-section a:hover {
-            color: #2563EB;
-            text-decoration: underline;
-        }
-        /* Testimonial specific styles - Adapted for Tailwind and responsiveness */
-        .testimonial__title {
-            margin: 0 0 0.90909em;
-            font-weight: normal;
-            font-size: 1.2rem;
-            color: rgba(0, 0, 0, 0.7);
-        }
-        .testimonial__quote {
-            display: flex;
-            align-items: center;
-            padding: 0;
-            border: none;
-            flex-direction: column; /* Default for mobile */
-            text-align: center;
-        }
-        @media (min-width: 43.8125em) { /* equivalent to Tailwind 'md' breakpoint */
-            .testimonial__quote {
-                flex-direction: row; /* Desktop layout */
-                text-align: left;
-            }
-        }
-        .testimonial__quote footer::before {
-            content: "";
-        }
-        .testimonial__text {
-            display: flex;
-            align-items: center;
-            min-height: 9.09091em;
-            padding: 1.36364em 1.81818em;
-            font-size: 0.75rem;
-            line-height: 1.55;
-            color: #888;
-            background: white;
-            border-radius: 0 30px;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-            width: 100%; /* Full width on mobile */
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__text {
-                max-width: 70%;
-                padding: 2.27273em 2.72727em;
-                padding-right: 4.09091em;
-            }
-        }
-        @media (max-width: 43.75em) {
-            .testimonial__text {
-                margin-bottom: 1.36364em;
-            }
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__text {
-                border-radius: 0 50px;
-            }
-        }
-        .testimonial__meta {
-            display: flex;
-            background-color: transparent;
-            align-items: center;
-            margin-top: 1.25em; /* Space for mobile */
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__meta {
-                margin-top: 0; /* Reset for desktop */
-            }
-        }
-        .testimonial__img {
-            min-width: 5em;
-            width: 5em;
-            height: 5em;
-            margin-right: 1.25em;
-            font-size: 1rem;
-            border-radius: 50%;
-            background: white;
-            border: solid 2px white;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__img {
-                min-width: 7.25em;
-                width: 7.25em;
-                height: 7.25em;
-                margin: 0 1.875em 0 -3.625em;
-            }
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__img {
-                border-width: 3px;
-            }
-        }
-        .testimonial__author {
-            font-size: 1.2rem;
-            line-height: 1.1;
-            color: black;
-        }
-        .testimonial__position {
-            font-size: 0.75rem;
-            color: rgba(0, 0, 0, 0.7);
+        .shadow-custom {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
     </style>
 </head>
-<body class="overflow-x-hidden">
-    <div class="min-h-screen flex flex-col">
-        <!-- Navbar -->
-        <nav class="bg-white p-4 shadow-sm flex justify-between items-center px-8 md:px-16 lg:px-24 rounded-b-xl">
+<body>
+
+    <!-- Header -->
+    <header class="header-bg py-4 sticky top-0 z-50">
+        <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <!-- Allpree Logo -->
-                <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-8 w-auto">
+                <!-- Allpree Logo Placeholder -->
+                <svg class="w-8 h-8 text-primary-blue" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="text-2xl font-bold text-primary-blue">Allpree</span>
             </div>
-            <div class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
-                <a href="#explore-deals" class="hover:text-blue-600 transition duration-150">Deals</a>
-                <a href="#how-it-works" class="hover:text-blue-600 transition duration-150">Cashback</a>
-                <a href="#sustainability" class="hover:text-blue-600 transition duration-150">Sustainability</a>
-                <a href="#testimonials" class="hover:text-blue-600 transition duration-150">Testimonials</a>
-                <a href="#faq" class="hover:text-blue-600 transition duration-150">FAQs</a>
-                <a href="#get-started" class="hover:text-blue-600 transition duration-150">Started</a>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#" class="text-gray-600 hover:text-primary-blue transition">About</a>
+                <a href="#" class="text-gray-600 hover:text-primary-blue transition">Contact</a>
+            </nav>
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button class="text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
-            <a href="https://www.allpree.com/install" class="blue-button">Install</a>
-        </nav>
+        </div>
+    </header>
 
-        <!-- Hero Section -->
-        <header class="relative bg-gradient-to-br from-blue-50 to-purple-50 py-16 md:py-24 lg:py-32 overflow-hidden flex-grow flex items-center justify-center">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-center relative z-10 w-full">
-                <!-- Left Content -->
-                <div class="md:w-1/2 text-center md:text-left mb-12 md:mb-0">
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
-                        Discover Instant <span class="text-gradient-purple-blue">Deals Nearby.</span> <br class="hidden sm:inline">
-                        No Signup. Just <span class="bg-yellow-200 px-2 py-1 rounded-md inline-block">Install & Go.</span>
-                    </h1>
-                    <p class="text-gray-700 text-lg sm:text-xl mb-8 max-w-lg mx-auto md:mx-0">
-                        Access exclusive deals and find savings immediately. No account needed to browse, like, and get directions.
+    <!-- Top Hero Section: For Shoppers -->
+    <section class="hero-top-bg py-20 px-6">
+        <div class="max-w-7xl-custom mx-auto flex flex-col lg:flex-row items-center justify-between">
+            <div class="lg:w-1/2 text-center lg:text-left mb-12 lg:mb-0">
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-gray-900">
+                    The Leading Online-to-Offline <br class="hidden md:block"/>
+                    <span class="text-gradient-blue-green">Shopping Platform</span>
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-lg mx-auto lg:mx-0">
+                    Allpree connects shoppers with local stores and brands, providing a seamless way to discover deals and buy across digital and physical channels.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start">
+                    <a href="#" class="btn-primary text-lg w-full sm:w-auto flex items-center justify-center">
+                        Buy It Locally
+                        <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+            <div class="lg:w-1/2 flex justify-center relative">
+                <!-- Image of person using phone - adapted from user's screenshot -->
+                <img src="https://placehold.co/400x500/A0D9D9/FFFFFF?text=Shopper+Using+App" alt="Shopper using Allpree app" class="rounded-3xl shadow-custom transform rotate-3 scale-105 relative z-10 w-full max-w-sm md:max-w-md lg:max-w-lg">
+                <!-- Placeholder for "Item is in Stock!" bubble -->
+                <div class="absolute top-8 left-1/2 -translate-x-1/2 bg-white rounded-full px-4 py-2 shadow-md text-sm font-semibold text-green-600 animate-bounce-slow" style="animation-duration: 2s;">
+                    Item is in Stock!
+                </div>
+                <!-- Placeholder for location pin -->
+                <div class="absolute bottom-8 right-1/4 bg-white rounded-full p-3 shadow-md text-primary-blue">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"></path></svg>
+                    <span class="ml-1 text-sm font-medium">North Tinafort, FL</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Hero Section: For Retailers & Brands -->
+    <section class="hero-bottom-bg py-20 px-6">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="text-5xl md:text-6xl font-extrabold leading-tight mb-8 text-gray-900">
+                The Leading <span class="text-gradient-blue-green">Omnichannel Shopping Solution</span>
+            </h2>
+            <p class="text-xl text-gray-700 mb-16 max-w-3xl mx-auto">
+                Join over 1,000 global brands using Allpree to connect online and in-store shopping. Deliver a seamless omnichannel experience with real-time local inventory tools.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+                <!-- For Retailers Card -->
+                <div class="flex flex-col items-center p-8 bg-gray-50 rounded-xl shadow-lg border border-gray-200">
+                    <svg class="w-20 h-20 text-indigo-500 mb-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V8h16v10zm-12-6h4v4h-4v-4z"></path>
+                    </svg>
+                    <h3 class="text-3xl font-bold mb-4 text-gray-900">For Retailers</h3>
+                    <p class="text-lg text-gray-700 mb-8">
+                        Turn online shoppers into your in-store customers with powerful local discovery tools.
                     </p>
-                    <div class="flex items-center justify-center md:justify-start space-x-2 mb-8">
-                        <span class="text-blue-600 font-semibold text-lg">INSTANT ACCESS</span>
-                        <div class="relative group">
-                            <span class="text-gray-500 text-sm">ZERO FRICTION</span>
-                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
-                                ✅
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#explore-deals" class="text-blue-600 font-medium flex items-center justify-center md:justify-start mb-4">
-                        Explore Deals Now
-                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V8m-4 8l4-4m-4-4l4 4"></path>
-                        </svg>
+                    <a href="/for-retailers.html" class="btn-secondary text-lg flex items-center justify-center">
+                        Learn More
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
-                    <p class="text-gray-500 text-sm mb-6">Start shopping smarter without any friction. Cashback requires a free account.</p>
-                    <a href="https://www.allpree.com/install" class="blue-button text-lg px-8 py-3">Install Now!</a>
                 </div>
 
-                <!-- Right Content - Image and Overlays (Recreated with placeholders and adjusted positioning) -->
-                <div class="md:w-1/2 relative flex justify-center items-center h-96 md:h-auto">
-                    <!-- Main image for the hero section (girls) -->
-                    <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/website-homepage.png" alt="Girls looking at phone" class="relative w-full h-full object-cover rounded-3xl shadow-2xl z-0">
-
-                    <!-- Phone image with app screen - Adjusted position for overlap -->
-                    <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="App on phone" class="absolute h-auto rounded-xl shadow-lg z-10" style="bottom: 0%; left: 50%; transform: translateX(-50%); width: 70%;">
-
-                    <!-- Uber, Spotify, etc. icons - Positioned relative to the main image area -->
-                    <div class="absolute top-4 right-4 flex flex-col space-y-2 z-20">
-                        <img src="https://placehold.co/40x40/0D509E/FFFFFF?text=Maxie" alt="Uber icon" class="w-10 h-10 rounded-full shadow-lg">
-                        <img src="https://placehold.co/40x40/864A90/FFFFFF?text=Progressive" alt="Spotify icon" class="w-10 h-10 rounded-full shadow-lg">
-                        <img src="https://placehold.co/40x40/1226AA/FFFFFF?text=Hi-Lo" alt="Generic App icon" class="w-10 h-10 rounded-full shadow-lg">
-                    </div>
-
-                    <!-- Effort Free button - Positioned relative to the main image area -->
-                    <div class="absolute bottom-1/4 right-4 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg font-medium text-sm flex items-center space-x-1 z-20">
-                        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>It's Free</span>
-                    </div>
-
-                </div>
-            </div>
-        </header>
-
-        <!-- Section: Explore Deals Immediately -->
-        <section id="explore-deals" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-heading text-blue-800">🛍️ Why Smart Shoppers Use This App Every Day</h2>
-                <p class="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-                    No signup, no commitment. Just install the app and immediately start browsing thousands of exclusive deals from your favorite brands.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Map Pin Icon -->
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 0110.9 9.897L12 21l-3.95-7.053A7 7 0 015.05 4.05zM12 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Nearby Deals</h3>
-                        <p class="text-gray-600 text-base">
-                            Instantly see local deals based on your location, no setup required. Find savings right around you.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Clock / Spark Icon -->
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.453-11.332a.803.803 0 00-1.129 1.129L10 9.774 12.565 7.21a.803.803 0 00-1.129-1.129L10 8.016 7.435 5.45a.803.803 0 00-1.129 1.129L8.016 10 5.45 12.565a.803.803 0 001.129 1.129L10 11.984l2.565 2.565a.803.803 0 001.129-1.129L11.984 10l2.565-2.565a.803.803 0 00-1.129-1.129L10 8.016z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Real-Time Offers & Timers</h3>
-                        <p class="text-gray-600 text-base">
-                            New deals appear as businesses update them, always fresh and timely. Know when deals expire with live countdowns.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Shopping Bag / Heart Icon -->
-                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10.519 14.129c-.066.027-.132.054-.2.081-.295.122-.593.245-.89.367a1.502 1.502 0 01-1.611-.796.804.804 0 01.156-.848c.112-.11.226-.217.34-.321.4-.356.8-.711 1.201-1.066l1.328-1.171c.421-.37.842-.741 1.263-1.111a.8.8 0 01.986-.145c.421.139.736.527.736.985v2.302a.8.8 0 01-.8.8H12a.8.8 0 01-.8-.8v-.575l-.337.297zM20 7v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2zm-4.307 2.057a1.5 1.5 0 10-2.122 2.121L12 12.535l-.57.57a.8.8 0 01-1.131-1.131L10.293 11l-2.062-2.062a.8.8 0 011.131-1.131l1.496 1.496 1.496-1.496a.8.8 0 011.131 1.131l-2.062 2.062.57.57c.234.234.234.614 0 .848a.8.8 0 01-.848 0l-.57-.57-2.062 2.062a.8.8 0 01-1.131-1.131l1.496-1.496-1.496-1.496a.8.8 0 011.131-1.131l2.062 2.062.57-.57a.8.8 0 01.848 0c.234.234.234.614 0 .848z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Add to Cart & Like Deals</h3>
-                        <p class="text-gray-600 text-base">
-                            Save deals you like in a built-in cart to keep track. Heart your favorites to easily revisit them later.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Gift / Money Bag Icon -->
-                            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2zm1 14.75a.75.75 0 01-1.5 0V13a.75.75 0 011.5 0v3.75zm.75-8.25a.75.75 0 00-1.5 0v1.5a.75.75 0 001.5 0V8.5zm3.75-.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm-5.25 0a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm-5.25 0a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm8.25 5.25a.75.75 0 00-1.5 0v1.5a.75.75 0 001.5 0v-1.5z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Cashback: Deal Plus⁺ Program</h3>
-                        <p class="text-gray-600 text-base">
-                            Unlock cashback rewards up to 49% with our exclusive Deal Plus⁺ Program. **Requires a free account.**
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Compass / List Icon -->
-                            <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4ZM10 9L14 12L10 15V9Z" fill="#3B82F6"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Instant Directions & Shopping List</h3>
-                        <p class="text-gray-600 text-base">
-                            Tap any store to get turn-by-turn directions. You can also save your shopping cart as a list to view later.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Refresh / Mobile Icon -->
-                            <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 4C8.68629 4 6 6.68629 6 10V14C6 17.3137 8.68629 20 12 20C15.3137 20 18 17.3137 18 14V10C18 6.68629 15.3137 4 12 4ZM12 6C14.2091 6 16 7.79086 16 10V14C16 16.2091 14.2091 18 12 18C9.79086 18 8 16.2091 8 14V10C8 7.79086 9.79086 6 12 6Z" fill="currentColor"/>
-                                <path d="M12 2C10.8954 2 10 2.89543 10 4V6C10 7.10457 10.8954 8 12 8C13.1046 8 14 7.10457 14 6V4C14 2.89543 13.1046 2 12 2Z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Dynamic Browsing & App-Like Feel</h3>
-                        <p class="text-gray-600 text-base">
-                            Deals reshuffle each time you explore, keeping things exciting. **Add to your home screen** for a super-fast, no-download app experience.
-                        </p>
-                    </div>
-                </div>
-                <p class="text-center text-gray-600 mt-8 max-w-2xl mx-auto">
-                    Enjoy all these immediate benefits! To unlock cashback rewards and the full Cashback Loop, you'll need to create a free account within the app.
-                </p><br>
-                <a href="https://www.allpree.com/install" class="blue-button mt-12 text-lg px-8 py-3">Install the App to See Deals!</a>
-            </div>
-        </section>
-
-
-        <!-- Section: How the Cashback Loop Works (Requires Account) -->
-        <section id="how-it-works" class="py-16 bg-blue-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-heading text-blue-800">The Cashback Loop That Turn Spending Into Wealth</h2>
-                <p class="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-                    Ready to turn everyday spending into long-term wealth? Once you create your free account, you can activate the Cashback Loop.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 6C4 5.44772 4.44772 5 5 5H19C19.5523 5 20 5.44772 20 6V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M17 9H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M13 13H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Spend as Usual (with Account)</h3>
-                        <p class="text-gray-600 text-base">
-                            With your free account, buy gift cards through the app for things you already spend on.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M15 9V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9 9V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 7V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Earn Account-Bound Cashback</h3>
-                        <p class="text-gray-600 text-base">
-                            Your earned cashback is securely tied to your free account and enters a reserve, held for 121 days.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 17L12 8L21 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M3 13L12 4L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Choose Your Boost (via Account)</h3>
-                        <p class="text-gray-600 text-base">
-                            After 121 days, log in to withdraw your cashback or leave it for 365 more days to unlock up to 100% of your original spend value.
-                        </p>
-                    </div>
-                </div>
-                <p class="text-center text-gray-600 mt-8 max-w-2xl mx-auto">
-                    The 121-day delay makes the system strong, allowing for cash flow management, fraud prevention, and bigger, sustainable rewards. You track your earnings daily, transparently from your account dashboard.
-                </p>
-            </div>
-        </section>
-
-        <!-- Sustainability Section -->
-        <section id="sustainability" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-heading text-blue-800">Sustainability & Trust</h2>
-                <p class="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
-                    Unlike other fast-reward schemes that crash, the Cashback Loop is built to last. Our unique reserve model and delayed payouts ensure stability and protect everyone.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">The Reserve Model</h3>
-                        <p class="text-gray-600 text-sm">
-                            A portion of every gift card purchase is earmarked for your cashback reserve, allowing time to manage risk, prevent fraud, and build liquidity.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">Power of Holding</h3>
-                        <p class="text-gray-600 text-sm">
-                            Choosing to hold your cashback longer (365 days) not only boosts your payout but also strengthens the entire system for all users.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">Transparency & Control</h3>
-                        <p class="text-gray-600 text-sm">
-                            No games, no hidden fees, no pressure to recruit. You see your cashback daily and have full control over when to withdraw.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">Not a Scam, No Risk</h3>
-                        <p class="text-gray-600 text-sm">
-                            You're not investing, just shopping differently. You're buying real gift cards for real merchants and earning real cashback. You can't lose capital.
-                        </p>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">Community Supported</h3>
-                        <p class="text-gray-600 text-sm">
-                            When users hold cashback longer, they strengthen the reserve, reduce payout pressure, and help us offer even better promotions.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="font-bold text-lg mb-2 text-blue-700">Flexibility to Withdraw</h3>
-                        <p class="text-gray-600 text-sm">
-                            You can always choose to withdraw after 121 days with your guaranteed portion, demonstrating the system's flexibility.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Download Now Section (New section inspired by kaldiapp.co.uk) -->
-        <section id="download-now" class="py-16 bg-blue-600 text-white text-center">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-4xl font-extrabold mb-6">Ready to Start Saving?</h2>
-                <p class="text-xl mb-8">
-                    Scan the QR code or click the button to download the Allpree app and unlock instant deals and cashback rewards.
-                </p>
-                <div class="flex flex-col items-center justify-center space-y-8 md:space-y-0 md:flex-row md:space-x-12">
-                    <div class="flex-shrink-0">
-                        <!-- Placeholder QR Code for app download -->
-                        <img src="https://placehold.co/150x150/FFFFFF/000000?text=QR+Code" alt="QR Code to download app" class="w-36 h-36 rounded-lg shadow-lg">
-                    </div>
-                    <a href="https://www.allpree.com/install" class="blue-button bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-200 px-8 py-3 text-xl">
-                        Install Now
+                <!-- For Brands Card -->
+                <div class="flex flex-col items-center p-8 bg-gray-50 rounded-xl shadow-lg border border-gray-200">
+                    <svg class="w-20 h-20 text-purple-500 mb-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V7.07L12 3.3l7 3.77V11.99z"></path>
+                    </svg>
+                    <h3 class="text-3xl font-bold mb-4 text-gray-900">For Brands</h3>
+                    <p class="text-lg text-gray-700 mb-8">
+                        Boost sales across all channels with a seamless online-to-offline solution.
+                    </p>
+                    <a href="/for-brands.html" class="btn-secondary text-lg flex items-center justify-center">
+                        Learn More
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Your Two Paths Section -->
-        <section id="your-paths" class="py-16 bg-blue-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-heading text-blue-800">Your Two Paths: Choose Your Journey</h2>
-                <p class="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-                    The Cashback Loop offers flexibility. You decide how deep you want to go and what works best for your financial goals.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <!-- Path 1: Simple Cashback -->
-                    <div class="feature-card p-8 items-center text-center border-2 border-blue-200">
-                        <span class="text-5xl mb-4">🟢</span>
-                        <h3 class="text-2xl font-bold mb-4 text-blue-700">Path 1: Simple Cashback (with Account)</h3>
-                        <p class="text-gray-700 mb-6">
-                            You buy gift cards through the app, earn cashback, and it's held for 121 days. After this period, it becomes eligible for payout. No strings attached.
-                        </p>
-                        <h4 class="font-semibold text-blue-600 mb-2">Good for you if...</h4>
-                        <ul class="list-disc list-inside text-gray-600 text-left space-y-1">
-                            <li>You need access to your funds sooner.</li>
-                            <li>You want to test the full Cashback Loop system first.</li>
-                            <li>You're looking for a simple reward from your regular spending, managed through your account.</li>
-                        </ul>
-                    </div>
-
-                    <!-- Path 2: The Cashback Loop Route -->
-                    <div class="feature-card p-8 items-center text-center border-2 border-purple-200">
-                        <span class="text-5xl mb-4">⏳</span>
-                        <h3 class="text-2xl font-bold mb-4 text-purple-700">Path 2: The Cashback Loop Route (with Account)</h3>
-                        <p class="text-gray-700 mb-6">
-                            After the 121-day period, you choose to leave your cashback in for 365 more days to unlock a boost of up to 100% of your original spend value.
-                        </p>
-                        <h4 class="font-semibold text-purple-600 mb-2">Good for you if...</h4>
-                        <ul class="list-disc list-inside text-gray-600 text-left space-y-1">
-                            <li>You want to turn everyday spending into a future payout.</li>
-                            <li>You're not in a rush for small cash now, you want real money later.</li>
-                            <li>You like the idea of your cashback growing passively through your account, while you continue spending as usual.</li>
-                        </ul>
-                    </div>
-                </div>
-                <p class="text-center text-gray-600 mt-8 max-w-2xl mx-auto">
-                    You can switch between paths, or even do both! The power of the Cashback Loop is that it's flexible and entirely yours, all managed within your free account.
-                </p>
+    <!-- Footer - Simple placeholder -->
+    <footer class="bg-gray-800 text-white py-10 px-6 mt-16">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <p>&copy; 2025 Allpree. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a>
             </div>
-        </section>
+        </div>
+    </footer>
 
-        <!-- Testimonials Section -->
-        <section id="testimonials" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-heading text-blue-800">🗣️ What People Are Saying</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">I love this option as a way to get even more for my money. I simply purchase the gift card ahead of time and then make my purchases as normal. It goes a long way in helping me save money!</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/Screenshot_20220417-164539_WhatsApp.jpg" alt="Abegayle" />
-                                <div>
-                                    <cite class="testimonial__author">Abegayle</cite><br>
-                                    <span class="testimonial__position">Shop @ HiLo Fairview</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">I love Allpree.com, the fact that it's convenient, and it's only one card I need plus they help me get a little money back for purchases I plan to make anyway.</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/Screenshot_20220417-170432_WhatsApp.jpg" alt="Garen" />
-                                <div>
-                                    <cite class="testimonial__author">Garen</cite><br>
-                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">On February 24, 2024, was the first time I used the Allpree Gift Card at the Progressive supermarket! The process was super easy, just like using my debit card to pay.</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/tricia%202024-02-24.jpg" alt="Tricia" />
-                                <div>
-                                    <cite class="testimonial__author">Tricia</cite><br>
-                                    <span class="testimonial__position">Shop @ Progressive Fairview</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">I've been using my gift card for about 11 months and reached over $115,700 in cashback, It’s safe and I highly recommend them! I intend to stay with them.</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/20241117_221141.jpg" alt="Lisa" />
-                                <div>
-                                    <cite class="testimonial__author">Lisa</cite><br>
-                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">At first there were glitches at the supermarket with their device not working, but now! I can say it's much better. I look forward to receiving the cashback. It's a good investment.</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/Kim20241209-163411.jpg" alt="Kimone" />
-                                <div>
-                                    <cite class="testimonial__author">Kimone</cite><br>
-                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                    <div class="testimonial">
-                        <blockquote class="testimonial__quote">
-                            <p class="testimonial__text">I've been using the Allpree Gift Card for some time now, it is simple to use and I look forward to receiving the CashBack every month.</p>
-                            <div class="testimonial__meta">
-                                <img class="testimonial__img" src="https://www.allpree.com/img/kadian20241210-071943.jpg" alt="Kadian" />
-                                <div>
-                                    <cite class="testimonial__author">Kadian</cite><br>
-                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
-                                </div>
-                            </div>
-                        </blockquote>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Final Words / Call to Action -->
-        <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-4xl font-extrabold mb-6">It's Not Magic. It's Math.</h2>
-                <p class="text-xl mb-8">
-                    The Cashback Loop is re-engineered for people tired of the old system. Turn everyday spending into meaningful growth.
-                </p>
-                <p class="text-lg font-light mb-8">
-                    You've learned how the Cashback Loop works, why it's built to last, and how it puts power back in your hands. Now, you get to choose: keep spending like always and get nothing back, or spend smart and let your money start working for you.
-                </p>
-                <a href="https://www.allpree.com/install" class="blue-button bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-200 px-8 py-3 text-xl">
-                    Welcome to the Loop!
-                </a>
-            </div>
-        </section>
-
-        <!-- New Section: Frequently Asked Questions -->
-        <section id="faq" class="py-16 bg-white">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="section-heading text-blue-800">Frequently Asked Questions</h2>
-
-                <div class="space-y-6">
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>1. How does the cashback gift card system work?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Sign up to get a universal digital gift card accepted at all partner merchants. Buy gift card vouchers from us at a 25% markup. After 121 days, receive up to 49% cashback paid to your bank.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>2. Where can I use the gift cards?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Gift cards are redeemable at local physical stores that participate in the gift card system managed by our partner. Any store listed in their network can accept the digital gift card we provide you. Our app shows deals and promotions from some of these local stores to encourage shopping. We track only the gift cards you buy from us and manage your cashback payouts accordingly.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>3. Where does the cashback come from?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>The cashback comes entirely from our company’s income. When you buy a gift card, the full value goes directly to our partner, who manages the gift card system. We use a portion of the markup (company income) to generate returns through our internal operations. That’s what powers the cashback you receive.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>4. Do I need a membership?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>No. But members pay J$8,400 per year to unlock up to 49% cashback on select gift card vouchers.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>5. What are the cashback tiers?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>
-                                Free members: 30% cashback <br>
-                                Paid members: <br>
-                                &nbsp;- J$20,000 vouchers &rarr; 49% cashback <br>
-                                &nbsp;- J$15,000 vouchers &rarr; 41% cashback <br>
-                                &nbsp;- J$10,000 vouchers &rarr; 37% cashback <br>
-                                (All cashback paid 121 days after purchase.)
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>6. When do I get paid?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Exactly 121 days after your gift card purchase, your cashback is sent directly to your linked bank account.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>7. Is this a financial product or investment?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>No. This is not an investment. You are purchasing a retail gift card. Cashback is a loyalty reward funded by our company’s income, not from your payment.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>8. What happens if I don’t use the gift card?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Gift card vouchers are valid at listed stores. To activate the cashback payout after 121 days, you must make at least one purchase using the gift card following your gift card voucher top-up.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>9. Can I see my purchases and payouts?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Yes. Your app dashboard shows all gift cards you’ve bought, expected cashback, and payout schedule. To view your balance and in-store transactions, please check our partner’s gift card system.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>10. Will stores pay to be listed in the app?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Eventually, yes. For now, listing deals is free for participating stores.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>11. How are payouts sent?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>Payouts are made via bank transfer to your linked Jamaican bank account. You’ll need to provide your account number and bank name in the app to receive funds.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>12. Can I get paid in cash or mobile wallet instead?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>For now, we only support payouts to Jamaican bank accounts. We may add support for wallets like Lynk or JN Pay later on.</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <button class="faq-question-button" aria-expanded="false">
-                            <span>13. Is this available outside Jamaica?</span>
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <p>No. At this time, cashback rewards are only available to users in Jamaica with a local bank account.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Important Notice -->
-                <div class="mt-12 p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg shadow-sm">
-                    <h3 class="font-bold text-lg mb-2">Important Notice:</h3>
-                    <p class="text-sm">Cashback rewards are issued as loyalty payouts and not as part of any financial service or investment product. Terms and eligibility may vary. Please use responsibly.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Get Started Section (Moved) -->
-        <section id="get-started" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-heading text-blue-800">How to Get Started</h2>
-                <p class="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
-                    It's simple to begin your journey with the Cashback Loop. Start by exploring deals instantly, then create your free account to unlock cashback.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 4C8.68629 4 6 6.68629 6 10V14C6 17.3137 8.68629 20 12 20C15.3137 20 18 17.3137 18 14V10C18 6.68629 15.3137 4 12 4ZM12 6C14.2091 6 16 7.79086 16 10V14C16 16.2091 14.2091 18 12 18C9.79086 18 8 16.2091 8 14V10C8 7.79086 9.79086 6 12 6Z" fill="currentColor"/>
-                                <path d="M12 2C10.8954 2 10 2.89543 10 4V6C10 7.10457 10.8954 8 12 8C13.1046 8 14 7.10457 14 6V4C14 2.89543 13.1046 2 12 2Z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Step 1: Install & Explore</h3>
-                        <p class="text-gray-600 text-sm">
-                            Get the free app and instantly browse local deals, like favorites, and get directions, no signup needed.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Step 2: Create Your Free Account</h3>
-                        <p class="text-gray-600 text-sm">
-                            Ready for cashback? Create your free account in minutes to activate your Cashback Loop benefits.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M18 13L12 19L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Step 3: Buy a Gift Card Voucher</h3>
-                        <p class="text-gray-600 text-sm">
-                            Make purchases through the app with your account to earn and track your cashback.
-                        </p>
-                    </div>
-
-                    <div class="feature-card items-center text-center">
-                        <div class="icon-wrapper">
-                            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Step 4: Shop & Use Your Gift Card</h3>
-                        <p class="text-gray-600 text-sm">
-                            Visit the store, shop for your items, and easily pay using the digital gift card from your app.
-                        </p>
-                    </div>
-                </div> <br>
-                <a href="https://www.allpree.com/install" class="blue-button mt-20 text-lg">Your Loop Starts Today!</a>
-            </div>
-        </section>
-
-        <!-- Privacy & Copyright (Footer) -->
-        <footer class="footer-section">
-            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
-            <p class="mb-2">&copy; Copyright 2024 - 2025 Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-            <p class="mb-4">To access exclusive deals and earn rewards, **install the Allpree app today!**</p>
-            <p>By using our services, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
-        </footer>
-
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const faqButtons = document.querySelectorAll('.faq-question-button');
-
-            faqButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const answer = button.nextElementSibling; // Get the .faq-answer div
-                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-
-                    // Toggle aria-expanded attribute
-                    button.setAttribute('aria-expanded', !isExpanded);
-
-                    // Toggle 'expanded' class on the answer for CSS transitions
-                    if (isExpanded) {
-                        answer.classList.remove('expanded');
-                    } else {
-                        answer.classList.add('expanded');
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
-
