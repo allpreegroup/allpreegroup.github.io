@@ -346,13 +346,13 @@
                             <p class="text-xl">Your Business. Your Customers. Ultimate Loyalty.</p>
                         </div>
                         <div class="pricing-price text-center mb-10">
-                            J$318,000
-                            <span class="pricing-period block text-lg font-normal">/ yearly</span>
+                            <span id="jmd-elite"></span>
+                            
                         </div>
 
                         <div class="special-offer-box mb-8">
                             <p class="text-xl mb-4">🔥 <strong>SPECIAL OFFER - 33% Off</strong></p>
-                            <p class="text-2xl font-bold mb-2">J$636,000</p>
+                            <p class="text-2xl font-bold mb-2"><span id="jmd-license"></span></p>
                             <p class="text-lg mb-4"><strong>Billed Every 3 Years</strong></p>
                             <p class="text-base font-normal">Save you J$106,000 annually!</p>
                             
@@ -485,6 +485,68 @@
             </div>
         </div>
     </footer>
+
+
+ <script>
+function zeroOutAfterFirstComma(n) {
+  const num = Math.floor(n); // Ensure integer
+  const parts = num.toLocaleString().split(',');
+  if (parts.length === 1) return num; // No comma, return as-is
+
+  const firstPart = parts[0];
+  const zeroed = firstPart + ','.padEnd(parts.slice(1).join('').length + 1, '0');
+  return parseInt(zeroed.replace(/,/g, ''), 10);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4')
+    .then(res => res.json())
+    .then(data => {
+      const rate = parseFloat(data[0]['USD Rate']);
+      if (isNaN(rate)) return;
+
+      // Plan pricing
+      const plans = ['starter', 'diamond', 'crown', 'elite', 'license'];
+      plans.forEach(plan => {
+        const usdVal = parseFloat(data[0][`jmd-${plan}`]);
+        if (!isNaN(usdVal)) {
+          const rawJmd = usdVal * rate;
+          const roundedJmd = zeroOutAfterFirstComma(rawJmd).toLocaleString();
+
+          const usdEl = document.getElementById(`usd-${plan}`);
+          const jmdEl = document.getElementById(`jmd-${plan}`);
+          if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()}${plan === 'license' ? ' / 3 year' : ' / year'}`;
+          if (jmdEl) jmdEl.textContent = `J$${roundedJmd.toLocaleString()}${plan === 'license' ? ' ' : ' / yearly'}`;
+        }
+      });
+
+      // Add-on pricing (Featured Brand & Premium Spot)
+      const durations = ['24', '7', '14', '30']; // in days
+      durations.forEach((d, i) => {
+        const featuredUSD = parseFloat(data[i]['featured brand']);
+        const premiumUSD = parseFloat(data[i]['premium spots']);
+
+        if (!isNaN(featuredUSD)) {
+          const jmd = zeroOutAfterFirstComma(featuredUSD * rate).toLocaleString();
+          const usdEl = document.getElementById(`usd-featured-${d}`);
+          const jmdEl = document.getElementById(`jmd-featured-${d}`);
+          if (usdEl) usdEl.textContent = `USD $${featuredUSD}`;
+          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+        }
+
+        if (!isNaN(premiumUSD)) {
+          const jmd = zeroOutAfterFirstComma(premiumUSD * rate).toLocaleString();
+          const usdEl = document.getElementById(`usd-premium-${d}`);
+          const jmdEl = document.getElementById(`jmd-premium-${d}`);
+          if (usdEl) usdEl.textContent = `USD $${premiumUSD}`;
+          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+        }
+      });
+    })
+    .catch(err => console.error('Fetch error:', err));
+});
+</script>
+ 
 
 </body>
 </html>
