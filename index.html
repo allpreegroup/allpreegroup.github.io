@@ -111,13 +111,12 @@
     <section class="hero-bottom-bg py-20 px-6">
         <div class="max-w-7xl-custom mx-auto text-center">
             <h2 class="text-5xl md:text-6xl font-extrabold leading-tight mb-8 text-gray-900">
-               Shoppers Check Deals <span class="text-gradient-blue-green">Online Before They Shop In-Store</span>
+              Shoppers Check Our App <span class="text-gradient-blue-green">Before Heading Out To Shop</span>
             </h2>
             <p class="text-xl text-gray-700 mb-16 max-w-3xl mx-auto">
                 
-           Join Allpree, the local deal platform that helps customers discover your in-store offers before they visit.
-Highlight your best deals, attract foot traffic, and turn online browsers into loyal, repeat shoppers.</p>
-
+           Join Allpree to showcase your in-store deals directly inside the app they already use.
+Put your offers in front of ready-to-shop users nearby, drive real foot traffic, and turn deal seekers into loyal customers.
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
                 <!-- For Retailers Card -->
                 <div class="flex flex-col items-center p-8 bg-gray-50 rounded-xl shadow-lg border border-gray-200">
@@ -164,65 +163,7 @@ Highlight your best deals, attract foot traffic, and turn online browsers into l
         </div>
     </footer>
 
-<script>
-function zeroOutAfterFirstComma(n) {
-  const num = Math.floor(n); // Ensure integer
-  const parts = num.toLocaleString().split(',');
-  if (parts.length === 1) return num; // No comma, return as-is
 
-  const firstPart = parts[0];
-  const zeroed = firstPart + ','.padEnd(parts.slice(1).join('').length + 1, '0');
-  return parseInt(zeroed.replace(/,/g, ''), 10);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4')
-    .then(res => res.json())
-    .then(data => {
-      const rate = parseFloat(data[0]['USD Rate']);
-      if (isNaN(rate)) return;
-
-      // Plan pricing
-      const plans = ['starter', 'diamond', 'crown', 'elite', 'license'];
-      plans.forEach(plan => {
-        const usdVal = parseFloat(data[0][`jmd-${plan}`]);
-        if (!isNaN(usdVal)) {
-          const rawJmd = usdVal * rate;
-          const roundedJmd = zeroOutAfterFirstComma(rawJmd).toLocaleString();
-
-          const usdEl = document.getElementById(`usd-${plan}`);
-          const jmdEl = document.getElementById(`jmd-${plan}`);
-          if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()}${plan === 'license' ? ' / 3 year' : ' / year'}`;
-          if (jmdEl) jmdEl.textContent = `J$${roundedJmd.toLocaleString()}${plan === 'license' ? ' / 3 year' : ' /yrly'}`;
-        }
-      });
-
-      // Add-on pricing (Featured Brand & Premium Spot)
-      const durations = ['24', '7', '14', '30']; // in days
-      durations.forEach((d, i) => {
-        const featuredUSD = parseFloat(data[i]['featured brand']);
-        const premiumUSD = parseFloat(data[i]['premium spots']);
-
-        if (!isNaN(featuredUSD)) {
-          const jmd = zeroOutAfterFirstComma(featuredUSD * rate).toLocaleString();
-          const usdEl = document.getElementById(`usd-featured-${d}`);
-          const jmdEl = document.getElementById(`jmd-featured-${d}`);
-          if (usdEl) usdEl.textContent = `USD $${featuredUSD}`;
-          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
-        }
-
-        if (!isNaN(premiumUSD)) {
-          const jmd = zeroOutAfterFirstComma(premiumUSD * rate).toLocaleString();
-          const usdEl = document.getElementById(`usd-premium-${d}`);
-          const jmdEl = document.getElementById(`jmd-premium-${d}`);
-          if (usdEl) usdEl.textContent = `USD $${premiumUSD}`;
-          if (jmdEl) jmdEl.textContent = `J$${jmd}`;
-        }
-      });
-    })
-    .catch(err => console.error('Fetch error:', err));
-});
-</script>
 
 </body>
 </html>
