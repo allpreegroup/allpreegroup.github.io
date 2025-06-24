@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jamaica First In-Store Deal App</title>
+    <title>Jamaica First In-Store Deal App With Cashback</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -16,31 +16,39 @@
             background-color: #ffffff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
+        .hero-top-bg {
+            background-color: #e0f2f7; /* Very light blue for top hero */
+        }
         .hero-bottom-bg {
             background-color: #ffffff; /* White background for the bottom hero */
         }
         .btn-primary {
-            background-color: #007bff;
+            background-color: #007bff; /* Primary blue for CTA */
             color: white;
-            padding: 12px 24px;
-            border-radius: 9999px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
+            padding: 14px 28px; /* Slightly larger padding */
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 700; /* Bolder */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.25); /* Blue shadow */
         }
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: #0056b3; /* Darker blue on hover */
+            box-shadow: 0 8px 16px rgba(0, 123, 255, 0.35);
         }
         .btn-secondary {
-            background-color: #F3F4F6;
+            background-color: #F3F4F6; /* Light gray for secondary buttons */
             color: #333;
-            padding: 12px 24px;
-            border-radius: 9999px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            border: 1px solid #d1d5db; /* Light border for secondary button */
+            padding: 14px 28px;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 700;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 2px solid #d1d5db; /* Light border for secondary button */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
         }
         .btn-secondary:hover {
             background-color: #E5E7EB;
+            border-color: #a1a1aa;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
         }
         .text-gradient-blue-green {
             background: linear-gradient(90deg, #3B82F6, #10B981);
@@ -49,11 +57,62 @@
             background-clip: text;
             color: transparent;
         }
+        .text-gradient-red-orange {
+            background-image: linear-gradient(to right, #EF4444, #F97316); /* Red-500 to Orange-500 */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .max-w-7xl-custom {
-            max-width: 90rem;
+            max-width: 90rem; /* Increased max-width for wider content */
         }
         .shadow-custom {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        /* Card styles for bottom hero sections and contact section */
+        .feature-card {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded */
+            padding: 2.5rem; /* More padding */
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1); /* Stronger shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content in cards by default */
+            text-align: center; /* Center text in cards by default */
+            height: 100%; /* Ensure cards have consistent height */
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+        }
+        .feature-icon {
+            width: 5rem; /* Larger icons */
+            height: 5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-heading-large {
+            font-size: 3.5rem; /* Even larger heading */
+            font-weight: 800; /* Extra bold */
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: #1F2937; /* Darker text for headings */
+        }
+        .footer-section {
+            background-color: #1F2937; /* Dark background color (equivalent to Tailwind's gray-900) */
+            color: white; /* White text for contrast */
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            border-top: 1px solid #374151; /* Darker subtle separator */
+        }
+        .footer-section a {
+            color: #60A5FA; /* Lighter blue for links on dark background */
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: #93C5FD; /* Even lighter blue on hover */
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -64,12 +123,9 @@
         <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <!-- Allpree Logo -->
-                <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto"> <!-- Changed h-8 to h-10 -->
+                <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
             </div>
-            <nav class="hidden md:flex items-center space-x-8">
-                <a href="#" class="text-gray-600 hover:text-primary-blue transition">About</a>
-                <a href="#" class="text-gray-600 hover:text-primary-blue transition">Contact</a>
-            </nav>
+            
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
                 <button class="text-gray-600 focus:outline-none">
@@ -81,68 +137,110 @@
         </div>
     </header>
 
-    <!-- Top Hero Section: For Shoppers -->
-    <section class="hero-top-bg py-20 px-6 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div class="max-w-7xl-custom mx-auto flex flex-col lg:flex-row items-center justify-between">
-            <div class="lg:w-1/2 text-center lg:text-left mb-12 lg:mb-0">
-                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-gray-900">
-                    Jamaica First <br class="hidden md:block"/><span class="text-gradient-blue-green">In-Store Deal App</span>
+    <!-- Top Hero Section: For Shoppers & Overall App -->
+    <section class="hero-top-bg py-20 md:py-28 lg:py-36 px-6 relative overflow-hidden">
+        <div class="max-w-7xl-custom mx-auto flex flex-col lg:flex-row items-center justify-between z-10 relative">
+            <div class="lg:w-1/2 text-center lg:text-left mb-16 lg:mb-0">
+                <h1 class="section-heading-large text-gray-900">
+                    Your Gateway to <br> <span class="text-gradient-blue-green">Local Deals</span> & <span class="text-gradient-red-orange">Cashback.</span>
                 </h1>
-                <p class="text-xl text-gray-700 mb-8 max-w-lg mx-auto lg:mx-0">
-                    Allpree connects deal hunters to local stores, providing a seamless way to discover deals from physical stores.
+                <p class="text-xl text-gray-700 mb-10 max-w-lg mx-auto lg:mx-0">
+                    Allpree connects deal hunters with local physical stores, and helps them earn valuable cashback on everyday spending.
                 </p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start">
-                    <a href="/for-shoppers" class="btn-primary text-lg w-full sm:w-auto flex items-center justify-center">
-                        For Shoppers
-                        <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                
+                    <a href="https://www.allpree.com/install" class="btn-secondary text-lg px-8 py-4 flex items-center justify-center">
+                        Install the App
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </a>
                 </div>
             </div>
-            <div class="lg:w-1/2 flex justify-center relative">
-                <!-- Image of person using phone - adapted from user's screenshot -->
-                <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="Shopper using Allpree app" class="rounded-3xl shadow-custom transform rotate-3 scale-105 relative z-10 w-full max-w-sm md:max-w-md lg:max-w-lg">
-                
-      
+            <div class="lg:w-1/2 flex justify-center relative mt-16 lg:mt-0">
+                <!-- Image of phone with app interface -->
+                <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="Allpree app interface on phone" class="rounded-3xl shadow-custom transform rotate-3 scale-105 relative z-10 w-full max-w-sm md:max-w-md lg:max-w-lg">
             </div>
         </div>
     </section>
 
-    <!-- Bottom Hero Section: For Retailers & Brands -->
+    <!-- Deals & Cashback Section -->
+    <section id="contact" class="py-20 px-6 bg-white">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="section-heading-large text-gray-900 mb-10">For Shoppers</h2>
+            <p class="text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+                Whether you're looking for great deals or curious about how to earn cashback, we have the answers you need.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- For Shoppers: Deals Card -->
+                <div class="feature-card text-left p-8">
+                    <svg class="feature-icon text-green-500 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.21 9.17c-.32-.3-.76-.47-1.22-.47H9.5c-.32 0-.6-.16-.78-.44-.22-.3-.28-.67-.18-1.04l.43-1.48C9.07 5.17 9.59 4 10.43 4H18c1.11 0 2 .89 2 2v7.5c0 .83-.67 1.5-1.5 1.5H16.27l-.76 1.86c-.25.6-.82 1.01-1.48 1.01H12c-.55 0-1.07-.22-1.47-.64l-2.17-2.3c-.2-.22-.3-.5-.3-.78V8h-2c-1.11 0-2 .89-2 2v7c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2V9.5c0-.28-.11-.55-.3-.74zM7 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold text-blue-700 mb-4 text-center">Deals</h3>
+                    <p class="text-gray-700 mb-4 text-center">
+                        Looking for the best local deals and discounts? Discover how Allpree connects you with amazing offers from nearby stores.
+                    </p>
+                    <a href="/for-deals" class="btn-secondary mt-auto w-full max-w-xs mx-auto">Learn More</a>
+                </div>
+                <!-- For Shoppers: Cashback Card -->
+                <div class="feature-card text-left p-8">
+                    <svg class="feature-icon text-blue-500 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-4h-2V7h6v6h-2v4z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold text-blue-700 mb-4 text-center">Cashback</h3>
+                    <p class="text-gray-700 mb-4 text-center">
+                        Interested in turning your everyday spending into real money back? Learn the ins and outs of our unique CashBack Loophole.
+                    </p>
+                    <a href="/for-cashback" class="btn-secondary mt-auto w-full max-w-xs mx-auto">Learn More</a>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-6 bg-blue-50">
+        <div class="max-w-7xl-custom mx-auto text-center">
+            <h2 class="section-heading-large text-blue-800 mb-10">Our Mission</h2>
+            <p class="text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+                Our mission is to empower both shoppers and local businesses in Jamaica. We believe in strengthening local economies by making it easier for consumers to discover great deals and for retailers to reach more customers effectively, all while offering innovative cashback rewards.
+            </p>
+        </div>
+    </section>
+
+    <!-- Bottom Hero Section: For Retailers & Exclusivity -->
     <section class="hero-bottom-bg py-20 px-6">
         <div class="max-w-7xl-custom mx-auto text-center">
-            <h2 class="text-5xl md:text-6xl font-extrabold leading-tight mb-8 text-gray-900">
-              Shoppers Check Our App <span class="text-gradient-blue-green">Before Heading Out To Shop</span>
+            <h2 class="section-heading-large mb-12">
+                For Business 
             </h2>
             <p class="text-xl text-gray-700 mb-16 max-w-3xl mx-auto">
-                
-           Join Allpree to showcase your in-store deals directly inside the app they already use.
-Put your offers in front of ready-to-shop users nearby, drive real foot traffic, and turn deal seekers into loyal customers.
+                Allpree offers powerful solutions for businesses looking to connect with a thriving local customer base or boost loyalty with your own customer.
+            </p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
                 <!-- For Retailers Card -->
-                <div class="flex flex-col items-center p-8 bg-gray-50 rounded-xl shadow-lg border border-gray-200">
-                    <svg class="w-20 h-20 text-indigo-500 mb-6" fill="currentColor" viewBox="0 0 24 24">
+                <div class="feature-card">
+                    <svg class="feature-icon text-indigo-500" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V8h16v10zm-12-6h4v4h-4v-4z"></path>
                     </svg>
                     <h3 class="text-3xl font-bold mb-4 text-gray-900">For Retailers</h3>
                     <p class="text-lg text-gray-700 mb-8">
-                        Turn our deal hunters into your in-store customers with powerful local discovery tools.
+                        Attract new customers and boost sales by showcasing your deals to a local, engaged audience.
                     </p>
-                    <a href="/for-retailers" class="btn-secondary text-lg flex items-center justify-center">
+                    <a href="/for-retailers" class="btn-secondary text-lg flex items-center justify-center w-full max-w-xs">
                         Learn More
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
                 </div>
 
                 <!-- For Exclusivity Card -->
-                <div class="flex flex-col items-center p-8 bg-gray-50 rounded-xl shadow-lg border border-gray-200">
-                    <svg class="w-20 h-20 text-purple-500 mb-6" fill="currentColor" viewBox="0 0 24 24">
+                <div class="feature-card">
+                    <svg class="feature-icon text-purple-500" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V7.07L12 3.3l7 3.77V11.99z"></path>
                     </svg>
-                    <h3 class="text-3xl font-bold mb-4 text-gray-900">For Exclusivity</h3>
+                    <h3 class="text-3xl font-bold mb-4 text-gray-900">Want Exclusivity</h3>
                     <p class="text-lg text-gray-700 mb-8">
-                        With our <strong>Exclusivity Plan</strong>. You get your own <strong>dedicated deal site</strong> and <strong>your brand is the ONLY brand in the app</strong>.
-                    </p>
-                    <a href="/for-exclusivity" class="btn-secondary text-lg flex items-center justify-center">
+                        With our Exclusivity Plan. You get your own dedicated deal site plus your brand is the ONLY brand in the app</p>
+                    <a href="/for-exclusivity" class="btn-secondary text-lg flex items-center justify-center w-full max-w-xs">
                         Learn More
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
@@ -151,19 +249,12 @@ Put your offers in front of ready-to-shop users nearby, drive real foot traffic,
         </div>
     </section>
 
-    <!-- Footer - Simple placeholder -->
-    <footer class="bg-gray-800 text-white py-10 px-6 mt-16">
-        <div class="max-w-7xl-custom mx-auto text-center">
-            <p>&copy; 2025 Allpree. All rights reserved.</p>
-            <div class="flex justify-center space-x-6 mt-4">
-                <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
-                <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
-                <a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a>
-            </div>
-        </div>
+    <!-- Footer -->
+    <footer class="footer-section mt-auto">
+        <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+        <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+        <p>By using our services, you agree to our <a href="/legal" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
     </footer>
-
-
 
 </body>
 </html>
