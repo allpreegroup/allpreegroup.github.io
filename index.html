@@ -148,11 +148,15 @@
                     Allpree connects deal hunters with local physical stores, and helps them earn valuable cashback on everyday spending.
                 </p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start">
-                
                     <a href="https://www.allpree.com/install" class="btn-secondary text-lg px-8 py-4 flex items-center justify-center">
                         Install the App
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </a>
+                </div>
+                <!-- Stats display area -->
+                <div class="mt-8 text-gray-800 text-lg font-semibold flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                    <p>Total CashBack: <span id="savedAmount" class="text-green-600">Loading...</span></p>
+                    <p>Total Spent: <span id="spentAmount" class="text-blue-600">Loading...</span></p>
                 </div>
             </div>
             <div class="lg:w-1/2 flex justify-center relative mt-16 lg:mt-0">
@@ -253,8 +257,55 @@
     <footer class="footer-section mt-auto">
         <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
         <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-        <p>By using our services, you agree to our <a href="/legal" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
+        <p>By using our services, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
     </footer>
 
+    <script>
+        async function fetchStatsAndUpdateUI() {
+            try {
+                const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+                const data = await response.json();
+
+                let totalSaved = 0;
+                let totalSpent = 0;
+
+                data.forEach(row => {
+                    const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
+                    const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
+                    totalSaved += isNaN(saved) ? 0 : saved;
+                    totalSpent += isNaN(spent) ? 0 : spent;
+                });
+
+                const savedEl = document.getElementById("savedAmount");
+                const spentEl = document.getElementById("spentAmount");
+
+                if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+                if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Call the new stats function on page load
+            fetchStatsAndUpdateUI();
+
+            // Existing FAQ button logic
+            const faqButtons = document.querySelectorAll('.faq-question-button');
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const answer = button.nextElementSibling;
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                    button.setAttribute('aria-expanded', !isExpanded);
+                    if (isExpanded) {
+                        answer.classList.remove('expanded');
+                    } else {
+                        answer.classList.add('expanded');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
