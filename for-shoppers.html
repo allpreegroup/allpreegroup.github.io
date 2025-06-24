@@ -11,6 +11,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff; /* Lighter, more modern background */
             color: #333;
+            overflow-x: hidden;
         }
         .text-gradient-purple-blue {
             background-image: linear-gradient(to right, #8B5CF6, #3B82F6);
@@ -221,6 +222,209 @@
             font-size: 0.75rem;
             color: rgba(0, 0, 0, 0.7);
         }
+
+        /* App Sample Specific CSS */
+        #deals-container {
+            display: block; /* Changed from absolute to block */
+            max-height: auto; /* Default full height */
+            gap: 12px;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            max-width: 450px; /* Default full width */
+            margin: 0 auto;
+            border-radius: 1.25rem; /* Consistent with other cards */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15); /* Consistent with other cards */
+            background-color: #f8fafc; /* Slightly off-white for contrast */
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .brand-section {
+            margin-bottom: 30px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: #fff;
+            padding: 1px 1px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1px;
+            min-height: 60px; /* Adjusted from 7px for better display */
+        }
+
+        .brand-logo-container {
+            height: 60px;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo-container img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        /* Overridden by brand-logo-container img and brand-logo-container */
+        .brand img {
+            width: 60px; /* Adjusted to fit container */
+            height: 60px; /* Adjusted to fit container */
+            border-radius: 1px;
+            object-fit: contain;
+        }
+        .brand-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000; /* Set brand name text to black */
+        }
+        .brand-timer { /* Added style for the timer text */
+            color: #000; /* Set timer text to black */
+        }
+
+        .deal {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 0 0 auto;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            cursor: pointer;
+        }
+        .deal-grid {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(2, 1fr); /* 2 rows */
+            grid-auto-columns: 50%;
+            gap: 15px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 10px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .deal-grid::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+        .deal img {
+            width: 100%;
+            height: 90px; /* Increased height to give more room for text */
+            object-fit: cover;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .deal-content {
+            padding: 10px;
+        }
+        .deal-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: normal; /* Allow text to wrap */
+            overflow-wrap: break-word; /* Break long words */
+        }
+        .price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+        }
+        .discount {
+            color: #e60000;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 4px 6px;
+            border-radius: 4px;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .popup-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .popup-content img {
+            width: 100%; /* Adjusted from 93.7% */
+            max-height: 250px;
+            object-fit: contain;
+            /* padding: 10px; Removed padding here, added to popup-body */
+            background: #f9f9f9;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            position: relative;
+        }
+        .popup-body {
+            padding: 20px; /* Added padding here for image */
+        }
+        .popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .popup-price {
+            font-size: 14px;
+            text-decoration: line-through;
+            color: #888;
+        }
+        .popup-discount {
+            font-size: 18px;
+            color: #e60000;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .popup-description { /* Added styles for popup description */
+            color: #000;
+            font-size: 0.75rem; /* Even smaller font size */
+            line-height: 1.4;
+        }
+        .popup-discount-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: red;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            color: #333;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -276,10 +480,6 @@
                     <!-- Main image for the hero section (girls) -->
                     <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="Girls looking at phone" class="relative w-full h-full object-cover rounded-3xl shadow-2xl z-0">
 
-                    <!-- Phone image with app screen - Adjusted position for overlap 
-                    <img src="https://raw.githubusercontent.com/allpreegroup/allpreegroup.github.io/refs/heads/main/img/pwaapp.png" alt="App on phone" class="absolute h-auto rounded-xl shadow-lg z-10" style="bottom: 0%; left: 50%; transform: translateX(-50%); width: 70%;">
--->
-
                     <!-- Effort Free button - Positioned relative to the main image area -->
                     <div class="absolute bottom-1/4 right-4 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg font-medium text-sm flex items-center space-x-1 z-20">
                         <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -300,7 +500,8 @@
                     No signup, no commitment. Just install the app and immediately start browsing thousands of exclusive deals from your favorite brands.
                 </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Original feature cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
                     <div class="card items-center text-center">
                         <div class="icon-wrapper">
                             <!-- Map Pin Icon -->
@@ -393,29 +594,266 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-4xl font-extrabold mb-6">Ready to Start Saving?</h2>
                 <p class="text-xl mb-8">
-                    Scan the QR code or click the button to download the Allpree app and unlock instant deals and cashback rewards.
+                    Explore active deals directly from the app sample below!
                 </p>
-                <div class="flex flex-col items-center justify-center space-y-8 md:space-y-0 md:flex-row md:space-x-12">
-                    <div class="flex-shrink-0">
-                        <!-- Placeholder QR Code for app download -->
-                        <img src="https://placehold.co/150x150/FFFFFF/000000?text=QR+Code" alt="QR Code to download app" class="w-36 h-36 rounded-lg shadow-lg">
+                <!-- App Sample HTML goes here -->
+                <div id="deals-container" class="mb-12">Loading deals...</div>
+
+                <div class="popup-overlay" id="popup">
+                    <div class="popup-content" id="popupContent">
+                        <span class="popup-close" onclick="closePopup()">×</span>
+                        <div style="position: relative;">
+                            <span class="popup-discount-badge" id="popupBadge"></span>
+                            <img id="popupImg" src="" alt="Product">
+                        </div>
+                        <div class="popup-body">
+                            <div class="popup-title" id="popupTitle"></div>
+                            <div class="popup-price" id="popupPrice"></div>
+                            <div class="popup-discount" id="popupDiscount"></div>
+                            <div class="popup-description" id="popupDesc"></div>
+                        </div>
                     </div>
-                    <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-200 px-8 py-3 text-xl">
-                        Install Now
-                    </a>
                 </div>
+                <!-- End App Sample HTML -->
             </div>
         </section>
 
-       
+        <!-- Get Started Section (Moved) -->
+        <section id="get-started" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="section-title text-blue-800">How to Get Started</h2>
+                <p class="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
+                    It's simple to begin your journey with the Cashback Loop. Start by exploring deals instantly, then create your free account to unlock cashback.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4C8.68629 4 6 6.68629 6 10V14C6 17.3137 8.68629 20 12 20C15.3137 20 18 17.3137 18 14V10C18 6.68629 15.3137 4 12 4ZM12 6C14.2091 6 16 7.79086 16 10V14C16 16.2091 14.2091 18 12 18C9.79086 18 8 16.2091 8 14V10C8 7.79086 9.79086 6 12 6Z" fill="currentColor"/>
+                                <path d="M12 2C10.8954 2 10 2.89543 10 4V6C10 7.10457 10.8954 8 12 8C13.1046 8 14 7.10457 14 6V4C14 2.89543 13.1046 2 12 2Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Step 1: Install & Explore</h3>
+                        <p class="text-gray-600 text-sm">
+                            Get the free app and instantly browse local deals, like favorites, and get directions, no signup needed.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Step 2: Create Your Free Account</h3>
+                        <p class="text-gray-600 text-sm">
+                            Ready for cashback? Create your free account in minutes to activate your Cashback Loop benefits.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18 13L12 19L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Step 3: Buy a Gift Card Voucher</h3>
+                        <p class="text-gray-600 text-sm">
+                            Make purchases through the app with your account to earn and track your cashback.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Step 4: Shop & Use Your Gift Card</h3>
+                        <p class="text-gray-600 text-sm">
+                            Visit the store, shop for your items, and easily pay using the digital gift card from your app.
+                        </p>
+                    </div>
+                </div>
+                <br>
+                <a href="https://www.allpree.com/install" class="btn-primary mt-20 text-lg">Your Loop Starts Today!</a>
+            </div>
+        </section>
+
         <!-- Privacy & Copyright (Footer) -->
-        <footer class="footer-section">
+        <footer class="footer-section mt-auto">
             <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
             <p class="mb-2">&copy; Copyright 2024 - 2025 Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
             <p class="mb-4">To access exclusive deals and earn rewards, **install the Allpree app today!**</p>
             <p>By using our services, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
         </footer>
     </div>
-    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqButtons = document.querySelectorAll('.faq-question-button');
+
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const answer = button.nextElementSibling; // Get the .faq-answer div
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+                    // Toggle aria-expanded attribute
+                    button.setAttribute('aria-expanded', !isExpanded);
+
+                    // Toggle 'expanded' class on the answer for CSS transitions
+                    if (isExpanded) {
+                        answer.classList.remove('expanded');
+                    } else {
+                        answer.classList.add('expanded');
+                    }
+                });
+            });
+        });
+
+        // App Sample JavaScript
+        const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
+        
+        function openPopup({ image, name, original, discount, description }) {
+            const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+            const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+            const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+
+            document.getElementById('popupImg').src = image;
+            document.getElementById('popupTitle').textContent = name;
+            document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+            document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+            document.getElementById('popupDesc').textContent = description || '';
+            document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        async function loadDeals() {
+            const container = document.getElementById('deals-container');
+            container.innerHTML = 'Loading deals...'; // Keep loading message visible initially
+
+            try {
+                const res = await fetch(sheetUrl);
+                const rows = await res.json();
+
+                // Clear container before adding content
+                container.innerHTML = ''; 
+
+                let currentBrand = '';
+                let currentLogo = '';
+                let brandSection = null;
+                let grid = null;
+
+                rows.forEach(row => {
+                    // Check if it's a new brand section
+                    if (row.BrandName && row.BrandLogo) {
+                        currentBrand = row.BrandName;
+                        currentLogo = row.BrandLogo;
+
+                        brandSection = document.createElement('div');
+                        brandSection.className = 'brand-section';
+
+                        const brandDiv = document.createElement('div');
+                        brandDiv.className = 'brand';
+                        const expireDate = row.ExpiryDate;
+                        const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+                        brandDiv.innerHTML = `
+                            <div class="brand-logo-container">
+                                <img src="${currentLogo}" alt="${currentBrand}" />
+                            </div>
+                            <span class="brand-name">${currentBrand}</span>
+                            <span class="brand-timer" id="${timerId}"></span>
+                        `;
+
+                        if (expireDate) {
+                            startBrandCountdown(expireDate, timerId);
+                        }
+
+                        grid = document.createElement('div');
+                        grid.className = 'deal-grid';
+
+                        brandSection.appendChild(brandDiv);
+                        brandSection.appendChild(grid);
+                        container.appendChild(brandSection);
+                    }
+
+                    // Add deal card if deal data exists
+                    if (row.ProductName && row.ImageURL) {
+                        const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+                        const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+                        const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+                        // Adjusted shortName logic to allow more characters and ensure proper display
+                        const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+
+                        const dealCard = document.createElement('div');
+                        dealCard.className = 'deal';
+                        dealCard.innerHTML = `
+                            <span class="discount-badge">${percentOff}% OFF</span>
+                            <img src="${row.ImageURL}" alt="${row.ProductName}">
+                            <div class="deal-content">
+                                <div class="deal-title">${shortName}</div>
+                                <div class="price">JMD $${original.toLocaleString()}</div>
+                                <div class="discount">JMD $${discount.toLocaleString()}</div>
+                            </div>
+                        `;
+                        dealCard.addEventListener('click', () => {
+                            openPopup({
+                                image: row.ImageURL,
+                                name: row.ProductName,
+                                original: original.toLocaleString(), // Ensure formatted for popup
+                                discount: discount.toLocaleString(), // Ensure formatted for popup
+                                description: row.Description
+                            });
+                        });
+
+                        grid?.appendChild(dealCard);
+                    }
+                });
+
+            } catch (err) {
+                console.error('Failed to load deals:', err);
+                container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
+            }
+        }
+
+        // Call loadDeals when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', loadDeals);
+        
+        // Event listener for closing popup when clicking outside content
+        document.getElementById('popup').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        function startBrandCountdown(expireDate, elementId) {
+            function update() {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+
+                const timeLeft = new Date(expireDate) - new Date();
+                if (timeLeft <= 0) {
+                    el.textContent = ' - Deal ended';
+                    clearInterval(timer);
+                } else {
+                    const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+                    const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+                    const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+                    el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+                }
+            }
+
+            update();
+            const timer = setInterval(update, 1000);
+        }
+    </script>
 </body>
 </html>
