@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashback Loophole</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js library for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -217,6 +219,19 @@
             font-size: 0.75rem;
             color: rgba(0, 0, 0, 0.7);
         }
+        /* Chart specific styles */
+        .chart-container {
+            position: relative;
+            height: 300px; /* Fixed height for charts */
+            width: 100%;
+            margin: 0 auto;
+        }
+        .gradient-text {
+            background-image: linear-gradient(to right, #6366F1, #8B5CF6, #EC4899); /* Indigo, Purple, Pink */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900; /* Ensure the text is bold for gradient to stand out */
+        }
     </style>
 </head>
 <body>
@@ -225,15 +240,120 @@
         <header class="bg-white p-4 shadow-sm flex justify-between items-center px-8 md:px-16 lg:px-24 rounded-b-xl sticky top-0 z-50">
             <div class="flex items-center space-x-2">
                 <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
-            </div> 
+            </div>
             <div class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
                 <a href="https://www.allpree.com/cashback" class="hover:text-blue-600 transition duration-150">Go Back </a>
-               </div>
+            </div>
+        </header>
 
-              </header>
+        <!-- New Introductory Section -->
+        <header class="text-center py-12 px-4">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight gradient-text">The Cashback Loop</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">How Turning Everyday Spending Into a Smarter Wealth Tool Actually Works</p>
+        </header>
 
-        
-        <!-- Section: How the Cashback Loop Works (Requires Account) -->
+        <main class="space-y-12 md:space-y-20 px-4 max-w-7xl mx-auto">
+
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">Why Most People Get Stuck Financially</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The traditional financial system isn't built for the average person to win. Savings get eaten by inflation, and high risk ventures like trading often lead to losses. It’s a cycle of effort with little reward.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-gray-50 rounded-xl p-6 h-full flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">The Inflation Trap</h3>
+                            <p class="text-gray-500 mb-4 text-sm">Traditional savings accounts offer minimal interest, failing to keep pace with the rising cost of living. Your hard-earned money loses purchasing power over time.</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="inflationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-6 h-full flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">The Trading Gamble</h3>
+                            <p class="text-gray-500 mb-4 text-sm">While promising high returns, trading is brutal. The vast majority of retail traders lose money, making it an unreliable path to wealth for most.</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tradingRiskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">How The Cashback Loop Works</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-10">We reimagined cashback not as pennies, but as a real wealth tool. By redirecting your everyday spending through gift cards, you enter a sustainable loop designed to grow your money safely.</p>
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0">
+                    <div class="flex-1 text-center bg-white rounded-xl shadow-md p-6 m-2 max-w-xs">
+                        <div class="text-4xl mb-3">🛍️</div>
+                        <h3 class="font-bold text-lg">1. Spend Smarter</h3>
+                        <p class="text-sm text-gray-600">Buy gift cards for things you already purchase, groceries, fuel, bills.</p>
+                    </div>
+                    <div class="text-4xl text-gray-300 hidden md:block">→</div>
+                    <div class="text-4xl text-gray-300 md:hidden">↓</div>
+                    <div class="flex-1 text-center bg-white rounded-xl shadow-md p-6 m-2 max-w-xs">
+                        <div class="text-4xl mb-3">💰</div>
+                        <h3 class="font-bold text-lg">2. Earn Real Cashback</h3>
+                        <p class="text-sm text-gray-600">A percentage of your spending goes into your personal cashback reserve.</p>
+                    </div>
+                    <div class="text-4xl text-gray-300 hidden md:block">→</div>
+                    <div class="text-4xl text-gray-300 md:hidden">↓</div>
+                    <div class="flex-1 text-center bg-white rounded-xl shadow-md p-6 m-2 max-w-xs">
+                        <div class="text-4xl mb-3">⏳</div>
+                        <h3 class="font-bold text-lg">3. Wait 121 Days</h3>
+                        <p class="text-sm text-gray-600">This delay is key to the system's stability and sustainability.</p>
+                    </div>
+                    <div class="text-4xl text-gray-300 hidden md:block">→</div>
+                    <div class="text-4xl text-gray-300 md:hidden">↓</div>
+                    <div class="flex-1 text-center bg-white rounded-xl shadow-md p-6 m-2 max-w-xs">
+                        <div class="text-4xl mb-3">🚀</div>
+                        <h3 class="font-bold text-lg">4. Choose Your Path</h3>
+                        <p class="text-sm text-gray-600">Withdraw your cashback or leave it in the loop to grow even more.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">Your Two Paths to Wealth</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">The system is flexible, offering two distinct paths. You decide what works best for your financial goals, quick returns or long term growth.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="h-full flex flex-col justify-center">
+                        <h3 class="text-xl font-semibold mb-2">Path 1: Simple Cashback</h3>
+                        <p class="text-gray-500 mb-4">Perfect for those who want to test the system or need access to funds sooner. After the initial 121 days hold, you can withdraw your earned cashback. It's a straightforward reward on your spending.</p>
+                        <h3 class="text-xl font-semibold mb-2 mt-6">Path 2: The Cashback Loop</h3>
+                        <p class="text-gray-500 mb-4">For the patient wealth builder. By leaving your cashback in the system for an additional 365 days, you unlock a boosted return potentially up to 100% of your original spending. This transforms everyday shopping into a powerful savings tool.</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-6 h-full">
+                        <div class="chart-container">
+                            <canvas id="pathsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">Built on a Sustainable Foundation</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8">Unlike platforms that collapse under pressure, the Cashback Loop is designed for longevity. The delayed payout model and user participation create a self-reinforcing reserve that protects everyone.</p>
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                    <h3 class="text-xl font-semibold mb-2">The Growing Reserve Pool</h3>
+                    <p class="text-gray-500 mb-4 text-sm max-w-2xl mx-auto">As users spend and choose to keep their cashback in the loop, the collective reserve strengthens. This stability allows the system to offer significant rewards without relying on risky speculation.</p>
+                    <div class="chart-container">
+                        <canvas id="sustainabilityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">The Power of Patient Growth</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">Let's visualize the potential. This chart shows the projected annual cashback for a user who consistently spends $480,000 per year on essentials and chooses the "Cashback Loop" path every time. Their patience is rewarded with compounding growth.</p>
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Section: How the Cashback Loop Works (Requires Account) - Existing section -->
         <section id="how-it-works" class="py-16 bg-blue-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="section-title text-blue-800">The Cashback Loophole That Turn Spending Into Wealth</h2>
@@ -305,7 +425,7 @@
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">BASIC Membership</h3>
                         <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">FREE</strong></p>
                         <p class="text-gray-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">30%</strong></p>
-                        
+
                         <div class="w-full text-left">
                             <h4 class="font-semibold text-green-600 mb-2">Cashback Rates:</h4>
                             <ul class="list-disc list-inside text-gray-600 space-y-1">
@@ -319,11 +439,11 @@
 
                     <!-- Standard Tier Card (Box 2) -->
                     <div class="card p-8 items-center text-center border-2 border-blue-200">
-                        
+
                         <h3 class="text-2xl font-bold mb-4 text-blue-700">STANDARD Membership</h3>
                         <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">J$4,200</strong> / year</p>
                         <p class="text-gray-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">33–36%</strong></p>
-                        
+
                         <div class="w-full text-left">
                             <h4 class="font-semibold text-blue-600 mb-2">Cashback Rates:</h4>
                             <ul class="list-disc list-inside text-gray-600 space-y-1">
@@ -337,11 +457,11 @@
 
                     <!-- Premium Tier Card (Box 3) -->
                     <div class="card p-8 items-center text-center border-2 border-purple-200">
-                        
+
                         <h3 class="text-2xl font-bold mb-4 text-purple-700">PREMIUM Membership</h3>
                         <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">J$8,400</strong> / year</p>
                         <p class="text-gray-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">37–49%</strong></p>
-                        
+
                         <div class="w-full text-left">
                             <h4 class="font-semibold text-purple-600 mb-2">Cashback Rates:</h4>
                             <ul class="list-disc list-inside text-gray-600 space-y-1">
@@ -386,6 +506,13 @@
                         <h3 class="font-bold text-lg mb-2 text-blue-700">Not a Scam, No Risk</h3>
                         <p class="text-gray-600 text-sm">
                             You're not investing, just shopping differently. You're buying real gift cards for real merchants and earning real cashback. You can't lose capital.
+                        </p>
+                    </div>
+                    <!-- New Card: Advanced Security Measures -->
+                    <div class="card bg-white p-6 shadow-lg rounded-2xl">
+                        <h3 class="font-bold text-lg mb-2 text-blue-700">Advanced Security Measures</h3>
+                        <p class="text-gray-600 text-sm">
+                            We employ state-of-the-art encryption and fraud detection systems to ensure your data and earnings are always protected. Your security is our top priority.
                         </p>
                     </div>
                     <div class="card bg-white p-6 shadow-lg rounded-2xl">
@@ -559,7 +686,7 @@
                 <p class="text-lg font-light mb-8">
                     You've learned how the Cashback Loop works, why it's built to last, and how it puts power back in your hands. Now, you get to choose: keep spending like always and get nothing back, or spend smart and let your money start working for you.
                 </p>
-                <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-200 px-8 py-3 text-xl">
+                <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-white transition-colors duration-200 px-8 py-3 text-xl">
                     Welcome to the Loop!
                 </a>
             </div>
@@ -724,7 +851,7 @@
                 <p> It's simple to begin, install the app and immediately start browsing thousands of exclusive deals. </p>
 
                 <br>
-                
+
                 <a href="https://www.allpree.com/install" class="btn-primary mt-20 text-lg">Install The App</a>
             </div>
         </section>
@@ -738,32 +865,31 @@
     </div>
 
     <script>
-        
         async function fetchStatsAndUpdateUI() {
-  try {
-    const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
-    const data = await response.json();
+            try {
+                const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+                const data = await response.json();
 
-    let totalSaved = 0;
-    let totalSpent = 0;
+                let totalSaved = 0;
+                let totalSpent = 0;
 
-    data.forEach(row => {
-      const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
-      const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
-      totalSaved += isNaN(saved) ? 0 : saved;
-      totalSpent += isNaN(spent) ? 0 : spent;
-    });
+                data.forEach(row => {
+                    const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
+                    const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
+                    totalSaved += isNaN(saved) ? 0 : saved;
+                    totalSpent += isNaN(spent) ? 0 : spent;
+                });
 
-    const savedEl = document.getElementById("savedAmount");
-    const spentEl = document.getElementById("spentAmount");
+                const savedEl = document.getElementById("savedAmount");
+                const spentEl = document.getElementById("spentAmount");
 
-    if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
-    if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+                if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+                if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
 
-  } catch (error) {
-    console.error("Error fetching stats:", error);
-  }
-}
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+            }
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const faqButtons = document.querySelectorAll('.faq-question-button');
 
@@ -783,6 +909,202 @@
                     }
                 });
             });
+
+            // New chart-related JavaScript from user's input
+            const vibrantPalette = {
+                green: '#00F0B5',
+                cyan: '#00E0D8',
+                blue: '#00C0FF',
+                deepBlue: '#0080FF',
+                indigo: '#0040FF',
+                lightGray: '#F0F4F8',
+                darkGray: '#6B7280'
+            };
+
+            const defaultTooltipCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            };
+
+            function wrapLabels(label, maxLength) {
+                if (label.length <= maxLength) {
+                    return label;
+                }
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + ' ' + word).length > maxLength) {
+                        lines.push(currentLine.trim());
+                        currentLine = word;
+                    } else {
+                        currentLine += ' ' + word;
+                    }
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            }
+
+
+            if (document.getElementById('inflationChart')) {
+                new Chart(document.getElementById('inflationChart'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                        datasets: [{
+                            label: 'Savings Growth (0.5%)',
+                            data: [1000, 1005, 1010.03, 1015.08, 1020.15],
+                            borderColor: vibrantPalette.blue,
+                            backgroundColor: vibrantPalette.blue + '33',
+                            fill: true,
+                            tension: 0.3,
+                        }, {
+                            label: 'Value Lost to Inflation (3%)',
+                            data: [1000, 970, 940.9, 912.67, 885.29],
+                            borderColor: vibrantPalette.deepBlue,
+                            backgroundColor: vibrantPalette.deepBlue + '33',
+                            fill: true,
+                            tension: 0.3,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        ...defaultTooltipCallback,
+                        scales: { y: { beginAtZero: false, ticks: { callback: (value) => `$${value.toFixed(0)}` } } }
+                    }
+                });
+            }
+
+            if (document.getElementById('tradingRiskChart')) {
+                new Chart(document.getElementById('tradingRiskChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Retail Traders Who Lose Money', 'Traders Who Break Even or Profit'],
+                        datasets: [{
+                            data: [85, 15],
+                            backgroundColor: [vibrantPalette.deepBlue, vibrantPalette.green],
+                            borderColor: vibrantPalette.lightGray,
+                            borderWidth: 4,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        return wrapLabels(label, 16).join(' ');
+                                    },
+                                    label: function(context) {
+                                        return `${context.parsed}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (document.getElementById('pathsChart')) {
+                new Chart(document.getElementById('pathsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Simple Cashback (Withdraw after 121 days)', 'Cashback Loop (Hold for +365 days)'],
+                        datasets: [{
+                            label: 'Potential Return on $20000 Spend',
+                            data: [9800, 20000],
+                            backgroundColor: [vibrantPalette.blue, vibrantPalette.green],
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        ...defaultTooltipCallback,
+                        scales: {
+                            x: { ticks: { callback: (value) => `$${value}` } },
+                            y: { ticks: { callback: function(value) { return wrapLabels(this.getLabelForValue(value), 16) } } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            if (document.getElementById('sustainabilityChart')) {
+                new Chart(document.getElementById('sustainabilityChart'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'],
+                        datasets: [{
+                            label: 'Base Cashback in Reserve',
+                            data: [100, 150, 220, 300, 400, 510, 630, 760],
+                            backgroundColor: vibrantPalette.blue + '80',
+                            borderColor: vibrantPalette.blue,
+                            fill: true,
+                            tension: 0.4
+                        }, {
+                            label: 'Held (Boosted) Cashback',
+                            data: [20, 50, 90, 150, 250, 380, 520, 680],
+                            backgroundColor: vibrantPalette.green + '80',
+                            borderColor: vibrantPalette.green,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        ...defaultTooltipCallback,
+                        scales: {
+                            y: { stacked: true, ticks: { callback: (value) => `$${value}k` } }
+                        },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            if (document.getElementById('growthChart')) {
+                new Chart(document.getElementById('growthChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Year 1 Payout', 'Year 2 Payout', 'Year 3 Payout', 'Year 4 Payout'],
+                        datasets: [{
+                            label: 'Annual Cashback Payout',
+                            data: [235200, 470400, 705600, 940800],
+                            backgroundColor: [vibrantPalette.cyan, vibrantPalette.blue, vibrantPalette.deepBlue, vibrantPalette.indigo],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        ...defaultTooltipCallback,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: (value) => `$${value}` } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
         });
     </script>
 </body>
