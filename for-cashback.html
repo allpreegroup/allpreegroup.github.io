@@ -349,7 +349,7 @@
 
             <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
                 <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">The Power of Patient Growth</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">Let's visualize the potential. This chart shows the projected annual cashback for a user who consistently spends $5,000 per year on essentials and chooses the "Cashback Loop" path every time. Their patience is rewarded with compounding growth.</p>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">Let's visualize the potential. This chart shows the projected annual cashback for a user who consistently spends J$480,000 per year on essentials and chooses the "Cashback Loop" path every time. Their patience is rewarded with compounding growth.</p>
                 <div class="bg-gray-50 rounded-xl p-6">
                     <div class="chart-container">
                         <canvas id="growthChart"></canvas>
@@ -360,12 +360,14 @@
 
        
 
+      
+
         <!-- Sustainability Section -->
         <section id="sustainability" class="py-16 bg-blue-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="section-title text-blue-800">Sustainability & Trust</h2>
                 <p class="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
-                    Unlike other fast-reward schemes that crash, the Cashback Loophole is built to last. Our unique reserve model and delayed payouts ensure stability and protect everyone.
+                    Unlike other fast-reward schemes that crash, the Cashback Loophole is built to last. Our unique reserve model and delayed payouts ensure stability and protection for everyone.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
                     <div class="card bg-white p-6 shadow-lg rounded-2xl">
@@ -392,7 +394,7 @@
                             You're not investing, just shopping differently. You're buying real gift cards for real merchants and earning real cashback. You can't lose capital.
                         </p>
                     </div>
-                  
+                    
                     <div class="card bg-white p-6 shadow-lg rounded-2xl">
                         <h3 class="font-bold text-lg mb-2 text-blue-700">Community Supported</h3>
                         <p class="text-gray-600 text-sm">
@@ -409,7 +411,7 @@
             </div>
         </section>
 
-          <!-- Final Words / Call to Action -->
+         <!-- Final Words / Call to Action -->
         <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-4xl font-extrabold mb-6">It's Not Magic. It's Math.</h2>
@@ -419,11 +421,13 @@
                 <p class="text-lg font-light mb-8">
                     You've learned how the Cashback Loop works, why it's built to last, and how it puts power back in your hands. Now, you get to choose: keep spending like always and get nothing back, or spend smart and let your money start working for you.
                 </p>
-             <!--   <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-white transition-colors duration-200 px-8 py-3 text-xl">
+                <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-white transition-colors duration-200 px-8 py-3 text-xl">
                     Welcome to the Loop!
-                </a> -->
+                </a>
             </div>
         </section>
+
+        
 
 
         <!-- Testimonials Section -->
@@ -507,7 +511,7 @@
             </div>
         </section>
 
-      
+       
 
         <!-- New Section: Frequently Asked Questions -->
         <section id="faq" class="py-16 bg-white">
@@ -563,6 +567,8 @@
                         <div class="faq-answer">
                             <p>
                                 Free members: 30% cashback <br>
+
+
                                 Paid members: <br>
                                 &nbsp;- J$20,000 vouchers &rarr; 49% cashback <br>
                                 &nbsp;- J$15,000 vouchers &rarr; 41% cashback <br>
@@ -661,12 +667,13 @@
             </div>
         </section>
 
- <!-- New Section: Cashback Tiers -->
+
+          <!-- New Section: Cashback Tiers -->
         <section id="cashback-tiers" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="section-title text-blue-800">💎Our CashBack Tiers</h2>
                 <p class="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
-                    Choose the membership level that best fits your spending habits to maximize your cashback earnings.
+                    Choose whats best for your spending habits to maximize your cashback earnings.
                 </p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -747,10 +754,6 @@
             </div>
         </section>
 
-     
-
-
-
          <!-- Footer -->
     <footer class="footer-section mt-auto">
         <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
@@ -827,6 +830,16 @@
                                     return label.join(' ');
                                 }
                                 return label;
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    return label + 'J$' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
                             }
                         }
                     }
@@ -860,14 +873,14 @@
                         labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
                         datasets: [{
                             label: 'Savings Growth (0.5%)',
-                            data: [1000, 1005, 1010.03, 1015.08, 1020.15],
+                            data: [20000, 20100, 20200.5, 20301.5, 20403.01], /* Scaled for J$20,000 */
                             borderColor: vibrantPalette.blue,
                             backgroundColor: vibrantPalette.blue + '33',
                             fill: true,
                             tension: 0.3,
                         }, {
                             label: 'Value Lost to Inflation (3%)',
-                            data: [1000, 970, 940.9, 912.67, 885.29],
+                            data: [20000, 19400, 18818, 18253.46, 17705.85], /* Scaled for J$20,000 */
                             borderColor: vibrantPalette.deepBlue,
                             backgroundColor: vibrantPalette.deepBlue + '33',
                             fill: true,
@@ -877,8 +890,31 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        ...defaultTooltipCallback,
-                        scales: { y: { beginAtZero: false, ticks: { callback: (value) => `$${value.toFixed(0)}` } } }
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        if (Array.isArray(label)) {
+                                            return label.join(' ');
+                                        }
+                                        return label;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            return label + 'J$' + context.parsed.y.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: { y: { beginAtZero: false, ticks: { callback: (value) => `J$${value.toLocaleString()}` } } }
                     }
                 });
             }
@@ -925,8 +961,8 @@
                     data: {
                         labels: ['Simple Cashback (Withdraw after 121 days)', 'Cashback Loop (Hold for +365 days)'],
                         datasets: [{
-                            label: 'Potential Return on $1000 Spend',
-                            data: [50, 1000],
+                            label: 'Potential Return on J$20,000 Spend',
+                            data: [9800, 20000], /* Updated for J$20,000 spend */
                             backgroundColor: [vibrantPalette.blue, vibrantPalette.green],
                             borderRadius: 6,
                         }]
@@ -935,9 +971,32 @@
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        ...defaultTooltipCallback,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        if (Array.isArray(label)) {
+                                            return label.join(' ');
+                                        }
+                                        return label;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            return label + 'J$' + context.parsed.x.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            x: { ticks: { callback: (value) => `$${value}` } },
+                            x: { ticks: { callback: (value) => `J$${value.toLocaleString()}` } },
                             y: { ticks: { callback: function(value) { return wrapLabels(this.getLabelForValue(value), 16) } } }
                         },
                         plugins: { legend: { display: false } }
@@ -952,14 +1011,14 @@
                         labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'],
                         datasets: [{
                             label: 'Base Cashback in Reserve',
-                            data: [100, 150, 220, 300, 400, 510, 630, 760],
+                            data: [100000, 150000, 220000, 300000, 400000, 510000, 630000, 760000], /* Multiplied by 1000 for JMD values */
                             backgroundColor: vibrantPalette.blue + '80',
                             borderColor: vibrantPalette.blue,
                             fill: true,
                             tension: 0.4
                         }, {
                             label: 'Held (Boosted) Cashback',
-                            data: [20, 50, 90, 150, 250, 380, 520, 680],
+                            data: [20000, 50000, 90000, 150000, 250000, 380000, 520000, 680000], /* Multiplied by 1000 for JMD values */
                             backgroundColor: vibrantPalette.green + '80',
                             borderColor: vibrantPalette.green,
                             fill: true,
@@ -969,9 +1028,32 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        ...defaultTooltipCallback,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        if (Array.isArray(label)) {
+                                            return label.join(' ');
+                                        }
+                                        return label;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            return label + 'J$' + context.parsed.y.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            y: { stacked: true, ticks: { callback: (value) => `$${value}k` } }
+                            y: { stacked: true, ticks: { callback: (value) => `J$${value.toLocaleString()}` } } /* Changed to JMD formatting */
                         },
                         plugins: { legend: { position: 'bottom' } }
                     }
@@ -985,16 +1067,39 @@
                         labels: ['Year 1 Payout', 'Year 2 Payout', 'Year 3 Payout', 'Year 4 Payout'],
                         datasets: [{
                             label: 'Annual Cashback Payout',
-                            data: [1200, 2500, 4100, 5000],
+                            data: [115200, 240000, 393600, 480000], /* Scaled for J$480,000 annual spend */
                             backgroundColor: [vibrantPalette.cyan, vibrantPalette.blue, vibrantPalette.deepBlue, vibrantPalette.indigo],
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        ...defaultTooltipCallback,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const item = tooltipItems[0];
+                                        let label = item.chart.data.labels[item.dataIndex];
+                                        if (Array.isArray(label)) {
+                                            return label.join(' ');
+                                        }
+                                        return label;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            return label + 'J$' + context.parsed.y.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            y: { beginAtZero: true, ticks: { callback: (value) => `$${value}` } }
+                            y: { beginAtZero: true, ticks: { callback: (value) => `J$${value.toLocaleString()}` } }
                         },
                         plugins: { legend: { display: false } }
                     }
