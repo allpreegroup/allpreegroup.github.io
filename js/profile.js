@@ -235,7 +235,13 @@ document.addEventListener('click', function (event) {
   }
 });
 
-
+document.addEventListener('click', function (event) {
+  if (event.target.closest('#balancecard')) {
+    const realButton = document.querySelector('.menu-button[data-view="balance"]:not(#balancacard)');
+    if (realButton) realButton.click();
+    else console.error('Target action button not found.');
+  }
+});
   
 document.addEventListener('click', function (event) {
     // Check if the click was on the #account link or within it
