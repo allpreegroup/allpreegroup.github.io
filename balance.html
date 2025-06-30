@@ -33,7 +33,7 @@ button:hover {
 </style>	
 
  <center>
- <h4> <strong>CHECK YOUR eGIFT CARD BALANCE</strong> </h4>
+ <h4> <strong>BALANCE & BILL PAYMENT</strong> </h4>
  </center>
 
 
@@ -42,7 +42,7 @@ button:hover {
 
 
 
- <center>  <img src="{{site.baseurl}}/img/digicardone.png" width="150" height="" alt="150"> </center>
+ <center>  <img src="/img/digicardone.png" width="150" height="" alt="150"> </center>
 
 			
  <center>  
@@ -59,38 +59,43 @@ button:hover {
     <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit">Submit</button>
 </form> </center>
 	 
-	<!-- <form id="redirectForm">
-        <label for="code">Card Number:</label>
-        <input type="text" id="code" name="code" required>
-        <br> <br>
-        <label for="pin">Enter&nbsp;Ur&nbsp;&nbsp;&nbsp;Pin:</label>
-        <input type="password" id="pin" name="pin" required>
-        <br><br>
-        <button class="btn btn-outline btn-xla" id="mc-embedded-subscribe" type="submit"><i class="fa-solid fa-computer-mouse"></i> Check Your Balance </button>
-    </form> --> 
 
-    <script>
-    document.getElementById("redirectForm").addEventListener("submit", function(event) {
-        event.preventDefault();
+ <script>
+// On page load: auto-fill fields from localStorage if available
+window.addEventListener('DOMContentLoaded', () => {
+    const savedCode = localStorage.getItem('savedCode');
+    const savedPin = localStorage.getItem('savedPin');
 
-        const code = document.getElementById("code").value;
-        const pin = document.getElementById("pin").value;
+    if (savedCode) document.getElementById('code').value = savedCode;
+    if (savedPin) document.getElementById('pin').value = savedPin;
+});
 
-        if (code && pin) {
-            const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
-            window.location.href = url;
-        }
-    });
+// On form submission: save to localStorage and redirect
+document.getElementById("redirectForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const code = document.getElementById("code").value;
+    const pin = document.getElementById("pin").value;
+
+    if (code && pin) {
+        localStorage.setItem('savedCode', code);
+        localStorage.setItem('savedPin', pin);
+
+        const url = `https://billpayment.getgiftme.com/?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}&context=modal`;
+        window.location.href = url;
+    }
+});
 </script>
 
-<br><center> <b>Note:</b> To return to this page<br> Clcik the <b>X</b> on the top off the next page </center>
 <strong> <hr/> </strong>
-<center>  <img src="{{site.baseurl}}/img/IMG_20250401_195001_287.png" width="100" height="" alt="100"> 
+<br><center> <b>Note:</b> To return to this page<br> Clcik the <b>X</b> on the top off the next page & remember that giftme charge 5% + GCT if you are paying bills using their service</center>
+
+<!--  <center>  <img src="{{site.baseurl}}/img/IMG_20250401_195001_287.png" width="100" height="" alt="100"> 
 
 <br><br>
  
-       <center> <strong>WHATSAPP MR PREE <br> </strong> TO CHECK YOUR CASHBACK SUMMARY</center><br>
+      <center> <strong>WHATSAPP MR PREE <br> </strong> TO CHECK YOUR CASHBACK SUMMARY</center><br>
       <a href="https://api.whatsapp.com/send?phone={{site.tellbot}}&text=Send my CashBack summary please" class="page-scroll"><button class="btn btn-outline btn-xl" id="#signup"><strong><i class="fa-solid fa-computer-mouse"></i> Click Here</strong></button></a>
   </center> <br>
-			
+		-->	
      
