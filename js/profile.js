@@ -241,13 +241,16 @@ document.addEventListener('click', function (event) {
     if (realButton) {
       realButton.click();
 
-      // Auto-fill fields once the panel is loaded
-      setTimeout(autofillSavedCodeAndPin, 200); // Delay to ensure DOM is ready
+      setTimeout(() => {
+        autofillSavedCodeAndPin();
+        init_balance();
+      }, 400);
     } else {
       console.error('Target action button not found.');
     }
   }
 });
+
 
   
 document.addEventListener('click', function (event) {
