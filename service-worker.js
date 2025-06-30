@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v92";
+const CACHE_NAME = "offline-v93";
 
 const urlsToCache = [
     "/balance/",
