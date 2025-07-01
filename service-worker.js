@@ -1,7 +1,8 @@
-const CACHE_NAME = "offline-v95";
+const CACHE_NAME = "offline-v96";
 
 const urlsToCache = [
-    "/balance/",
+    "/balance",
+    "/js/balance.js",
     "/deals",
     "/profile",
     "/install",
