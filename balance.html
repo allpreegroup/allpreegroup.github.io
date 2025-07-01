@@ -60,6 +60,32 @@ button:hover {
 </form> </center>
 <br><br>
 <strong> <hr/> </strong>
+
+<input type="number" id="amountInput" value="5200" placeholder="Enter amount" />
+<button onclick="calculateTotal()">Calculate</button>
+
+<div id="output" style="margin-top: 10px; font-family: sans-serif;">
+  
+</div>
+
+<script>
+function calculateTotal() {
+  const amount = parseFloat(document.getElementById("amountInput").value);
+  if (isNaN(amount)) return;
+
+  const pct526 = amount * 0.0526;
+  const pct16 = pct526 * 0.16;
+  const total = pct526 + pct16;
+
+  document.getElementById("output").innerHTML = `
+    <p>Amount entered: <strong>$${amount.toFixed(2)}</strong></p>
+    <p>5.26% of amount: <strong>$${pct526.toFixed(2)}</strong></p>
+    <p>16% of 5.26%: <strong>$${pct16.toFixed(2)}</strong></p>
+    <p style="border-top: 1px solid #ccc; padding-top: 5px;">Total: <strong>$${total.toFixed(2)}</strong></p>
+  `;
+}
+</script>
+
 <br><center> <b>Note:</b> To return to this page<br> Clcik the <b>X</b> on the top off the next page & remember that giftme charge 5.26% + GCT if you are paying bills using their service</center>
 
 <!--  <center>  <img src="{{site.baseurl}}/img/IMG_20250401_195001_287.png" width="100" height="" alt="100"> 
