@@ -4,6 +4,7 @@ function init_balance() {
 
   form.addEventListener("submit", function(event) {
     event.preventDefault();
+    event.stopPropagation();
 
     const code = document.getElementById("code").value;
     const pin = document.getElementById("pin").value;
