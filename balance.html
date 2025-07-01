@@ -61,12 +61,11 @@ button:hover {
 <br><br>
 <strong> <hr/> </strong>
 
-<input type="number" id="amountInput" value="5200" placeholder="Enter amount" />
+ <center> 
+<input type="number" id="amountInput" value="" placeholder="Enter Bill Amount To" />
 <button onclick="calculateTotal()">Calculate</button>
-
-<div id="output" style="margin-top: 10px; font-family: sans-serif;">
-  
-</div>
+</center>
+<div id="output" style="margin-top: 10px; font-family: sans-serif;"></div>
 
 <script>
 function calculateTotal() {
@@ -76,12 +75,14 @@ function calculateTotal() {
   const pct526 = amount * 0.0526;
   const pct16 = pct526 * 0.16;
   const total = pct526 + pct16;
+  const grandTotal = amount + total;
 
   document.getElementById("output").innerHTML = `
     <p>Amount entered: <strong>$${amount.toFixed(2)}</strong></p>
     <p>5.26% of amount: <strong>$${pct526.toFixed(2)}</strong></p>
     <p>16% of 5.26%: <strong>$${pct16.toFixed(2)}</strong></p>
-    <p style="border-top: 1px solid #ccc; padding-top: 5px;">Total: <strong>$${total.toFixed(2)}</strong></p>
+    <p>Total (5.26% + 16%): <strong>$${total.toFixed(2)}</strong></p>
+    <p style="border-top: 1px solid #ccc; padding-top: 5px;">Grand Total (Amount + Total): <strong>$${grandTotal.toFixed(2)}</strong></p>
   `;
 }
 </script>
