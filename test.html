@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physical Stores Deals</title>
+    <title>Allpree: Your Smart Way to Earn Cashback</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -18,96 +18,31 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Standardized Primary Button (formerly .blue-button) */
         .btn-primary {
             background-color: #007bff; /* Primary blue for CTA */
             color: white;
-            padding: 12px 24px; /* Consistent padding */
+            padding: 12px 28px; /* Slightly larger padding for main CTA */
             border-radius: 9999px; /* Fully rounded */
             font-weight: 600;
-            transition: background-color 0.2s, box-shadow 0.2s, color 0.2s, border-color 0.2s; /* Added transitions for outline hover */
+            transition: background-color 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Consistent shadow */
+            display: inline-flex; /* For better alignment with icon if added */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space for potential icon */
         }
         .btn-primary:hover {
             background-color: #0056b3; /* Darker blue on hover */
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-
-        /* Standardized Card Style */
-        .card {
-            background-color: #ffffff; /* White background for cards */
-            color: #333;
-            border-radius: 1.25rem; /* Consistent rounded corners */
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15); /* Consistent shadow */
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .icon-wrapper {
-            background-color: #EEF2FF; /* Light blue background for icons */
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        /* Standardized Section Title (formerly .section-heading) */
-        .section-title {
+        .section-heading {
             font-size: 2.5rem; /* Larger headings */
             font-weight: 800; /* Consistent with business page */
             margin-bottom: 1.5rem; /* Consistent with business page */
             text-align: center;
             color: #1F2937; /* Darker grey for headings */
         }
-        /* Standardized FAQ Item (now uses .card) */
-        .faq-item {
-            background-color: #f8fafc; /* Slightly off-white for FAQ items */
-            border-radius: 1.25rem; /* Consistent rounded corners */
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* Slightly lighter shadow for FAQ */
-            overflow: hidden; /* Ensures content doesn't spill during transition */
-        }
-        .faq-question-button {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            text-align: left;
-            font-weight: 700;
-            color: #3B82F6; /* Blue for questions */
-            cursor: pointer;
-            padding: 0; /* Remove default button padding */
-            background: none; /* Remove default button background */
-            border: none; /* Remove default button border */
-        }
-        .faq-question-button svg {
-            transition: transform 0.3s ease;
-        }
-        .faq-question-button[aria-expanded="true"] svg {
-            transform: rotate(180deg);
-        }
-        .faq-answer {
-            color: #4B5563; /* Darker gray for answers */
-            font-size: 0.95rem;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
-            overflow: hidden;
-            padding-top: 0;
-            margin-top: 0.5rem; /* Space between question and answer */
-        }
-        .faq-answer.expanded {
-            max-height: 500px; /* Adjust based on max expected answer height */
-            opacity: 1;
-            padding-top: 1rem;
-        }
         .footer-section {
-            /* Updated to match other footers */
             background-color: #1F2937; /* Dark background color (equivalent to Tailwind's gray-900) */
             color: white; /* White text for contrast */
             padding: 2rem;
@@ -124,669 +59,621 @@
             color: #93C5FD; /* Even lighter blue on hover */
             text-decoration: underline;
         }
-        /* Testimonial specific styles - Adapted for Tailwind and responsiveness */
-        .testimonial__title {
-            margin: 0 0 0.90909em;
-            font-weight: normal;
-            font-size: 1.2rem;
-            color: rgba(0, 0, 0, 0.7);
-        }
-        .testimonial__quote {
+        .brand-logo-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 0;
-            border: none;
-            flex-direction: column; /* Default for mobile */
             text-align: center;
-        }
-        @media (min-width: 43.8125em) { /* equivalent to Tailwind 'md' breakpoint */
-            .testimonial__quote {
-                flex-direction: row; /* Desktop layout */
-                text-align: left;
-            }
-        }
-        .testimonial__quote footer::before {
-            content: "";
-        }
-        .testimonial__text {
-            display: flex;
-            align-items: center;
-            min-height: 9.09091em;
-            padding: 1.36364em 1.81818em;
-            font-size: 0.75rem;
-            line-height: 1.55;
-            color: #888;
-            background: white;
-            border-radius: 0 30px;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-            width: 100%; /* Full width on mobile */
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__text {
-                max-width: 70%;
-                padding: 2.27273em 2.72727em;
-                padding-right: 4.09091em;
-            }
-        }
-        @media (max-width: 43.75em) {
-            .testimonial__text {
-                margin-bottom: 1.36364em;
-            }
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__text {
-                border-radius: 0 50px;
-            }
-        }
-        .testimonial__meta {
-            display: flex;
-            background-color: transparent;
-            align-items: center;
-            margin-top: 1.25em; /* Space for mobile */
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__meta {
-                margin-top: 0; /* Reset for desktop */
-            }
-        }
-        .testimonial__img {
-            min-width: 5em;
-            width: 5em;
-            height: 5em;
-            margin-right: 1.25em;
-            font-size: 1rem;
-            border-radius: 50%;
-            background: white;
-            border: solid 2px white;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__img {
-                min-width: 7.25em;
-                width: 7.25em;
-                height: 7.25em;
-                margin: 0 1.875em 0 -3.625em;
-            }
-        }
-        @media (min-width: 43.8125em) {
-            .testimonial__img {
-                border-width: 3px;
-            }
-        }
-        .testimonial__author {
-            font-size: 1.2rem;
-            line-height: 1.1;
-            color: black;
-        }
-        .testimonial__position {
-            font-size: 0.75rem;
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        /* App Sample Specific CSS */
-        #deals-container {
-            display: block;
-            height: 90%; /* Let height be fluid too within constraints */
-            width: 95%; /* Adjusted for better mobile responsiveness */
-            max-width: 450px; /* Max width remains for larger screens */
-            gap: 12px;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-            margin: 0 auto;
+            background-color: #ffffff;
             border-radius: 1.25rem;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            background-color: #f8fafc;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-in-out;
+            height: 100%; /* Ensure consistent height */
+            justify-content: space-between; /* Pushes name to bottom if image is smaller */
         }
-
-        .countdown {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
+        .brand-logo-item:hover {
+            transform: translateY(-3px);
         }
-        .brand-section {
-            margin-bottom: 30px;
+        .brand-logo-item img {
+            width: 100px; /* Fixed size for logos */
+            height: 100px;
+            object-fit: contain; /* Ensures logo fits without distortion */
+            margin-bottom: 0.75rem;
+            border-radius: 0.5rem; /* Slightly rounded corners for images */
+            background-color: #f8fafc; /* Light background for logos */
+            padding: 5px; /* Small padding inside image container */
         }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background-color: #fff;
-            padding: 1px 1px;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            margin-bottom: 1px;
-            min-height: 60px;
-        }
-
-        .brand-logo-container {
-            height: 60px;
-            width: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .brand-logo-container img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        .brand img {
-            width: 60px;
-            height: 60px;
-            border-radius: 1px;
-            object-fit: contain;
-        }
-        .brand-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-        }
-        .brand-timer {
-            color: #000;
-        }
-
-        .deal {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex: 0 0 auto;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            cursor: pointer;
-        }
-        .deal-grid {
-            display: grid;
-            grid-auto-flow: column;
-            grid-template-rows: repeat(2, 1fr); /* 2 rows */
-            grid-auto-columns: 60%; /* Adjusted for better mobile experience, showing one full item and a hint of the next */
-            gap: 15px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            margin-bottom: -40px;
-            padding: 10px;
-            scrollbar-width: none; /* Firefox */
-        }
-        .deal-grid::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
-        }
-        .deal img {
-            width: 100%;
-            height: 90px;
-            object-fit: cover;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-        .deal-content {
-            padding: 10px;
-        }
-        .deal-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            white-space: normal;
-            overflow-wrap: break-word;
-        }
-        .price {
-            color: #999;
-            text-decoration: line-through;
-            font-size: 14px;
-        }
-        .discount {
-            color: #e60000;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        .discount-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: red;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 4px 6px;
-            border-radius: 4px;
-        }
-
-        /* Popup Styles */
-        .popup-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        .popup-content {
-            background: white;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .popup-content img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: contain;
-            background: #f9f9f9;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            position: relative;
-        }
-        .popup-body {
-            padding: 20px;
-        }
-        .popup-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .popup-price {
-            font-size: 14px;
-            text-decoration: line-through;
-            color: #888;
-        }
-        .popup-discount {
-            font-size: 18px;
-            color: #e60000;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .popup-description {
-            color: #000;
-            font-size: 0.75rem;
-            line-height: 1.4;
-        }
-        .popup-discount-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: red;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 5px 8px;
-            border-radius: 4px;
-            z-index: 10;
-        }
-        .popup-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
+        .brand-name-text {
+            font-size: 0.95rem; /* Slightly smaller font for brand names */
+            font-weight: 600;
             color: #333;
-            cursor: pointer;
-            font-weight: bold;
+            word-break: break-word; /* Break long names */
+            line-height: 1.3;
+        }
+        .gradient-text {
+            background-image: linear-gradient(to right, #6366F1, #8B5CF6, #EC4899); /* Indigo, Purple, Pink */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900; /* Ensure the text is bold for gradient to stand out */
+        }
+        .step-card {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        .step-icon {
+            font-size: 3rem; /* Large icons for steps */
+            color: #8B5CF6; /* Purple color for icons */
+            margin-bottom: 1rem;
+        }
+        .benefit-item {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+        .benefit-item:hover {
+            transform: translateY(-3px);
+        }
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: #3B82F6; /* Blue color for benefit icons */
+            margin-bottom: 0.75rem;
         }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body>
     <div class="min-h-screen flex flex-col">
-        <!-- Navbar -->
-        <nav class="bg-white p-4 shadow-sm flex justify-between items-center px-8 md:px-16 lg:px-24 rounded-b-xl sticky top-0 z-50">
+        <!-- Header -->
+        <header class="bg-white p-4 shadow-sm flex justify-between items-center px-8 md:px-16 lg:px-24 rounded-b-xl sticky top-0 z-50">
             <div class="flex items-center space-x-2">
-                <!-- Allpree Logo -->
                 <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
             </div>
-            <div class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
-                <a href="https://www.allpree.com/cashback" class="hover:text-blue-600 transition duration-150">CashBack Loophole</a>
-               </div>
-        </nav>
-
-        <!-- Hero Section -->
-        <header class="relative bg-gradient-to-br from-blue-50 to-purple-50 py-16 md:py-24 lg:py-32 overflow-hidden flex-grow flex items-center justify-center">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-center relative z-10 w-full">
-                <!-- Left Content -->
-                <div class="md:w-1/2 text-center md:text-left mb-12 md:mb-0">
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
-                        Discover Instant <span class="text-gradient-purple-blue">Deals Nearby.</span> <br class="hidden sm:inline">
-                        No Signup. Just <span class="bg-yellow-200 px-2 py-1 rounded-md inline-block">Install & Go.</span>
-                    </h1>
-                    <p class="text-gray-700 text-lg sm:text-xl mb-8 max-w-lg mx-auto md:mx-0">
-                        Access exclusive deals and find savings immediately. No account needed to browse, like, and get directions.
-                    </p>
-                    <div class="flex items-center justify-center md:justify-start space-x-2 mb-8">
-                        <span class="text-blue-600 font-semibold text-lg">INSTANT ACCESS</span>
-                        <div class="relative group">
-                            <span class="text-gray-500 text-sm">ZERO FRICTION</span>
-                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
-                                ✅
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#explore-deals" class="text-blue-600 font-medium flex items-center justify-center md:justify-start mb-4">
-                        Explore Deals Now
-                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V8m-4 8l4-4m-4-4l4 4"></path>
-                        </svg>
-                    </a>
-                    <p class="text-gray-500 text-sm mb-6">Start shopping smarter without any friction. Cashback requires a free account.</p>
-                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
-                        <a href="https://www.allpree.com/install" class="btn-primary text-lg px-8 py-3 w-full sm:w-auto">Install!</a>
-                        <a href="https://www.allpree.com/cashback" class="btn-primary text-lg px-8 py-3 bg-transparent text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white w-full sm:w-auto">Learn About CashBack Loophole</a>
-                    </div>
-                   
-                </div>
-
-                <!-- Right Content - App Sample and Overlays -->
-                <div class="md:w-1/2 relative flex justify-center items-center h-96 md:h-auto mb-12 md:mb-0">
-                    <!-- Live Feed button - Positioned at the top and centered, with text wrapping -->
-                    <div class="absolute top-[-1rem] left-1/2 -translate-x-1/2 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg font-medium text-sm flex items-center space-x-1 z-20 text-center max-w-[100%] text-wrap">
-                        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>App Eg: Scroll Horizontally</span>
-                    </div>
-
-                    <!-- App Sample HTML goes here -->
-                    <br>
-                    <div id="deals-container" class="mb-12 mt-16">Loading deals...</div>
-
-                    <div class="popup-overlay" id="popup">
-                        <div class="popup-content" id="popupContent">
-                            <span class="popup-close" onclick="closePopup()">×</span>
-                            <div style="position: relative;">
-                                <span class="popup-discount-badge" id="popupBadge"></span>
-                                <img id="popupImg" src="" alt="Product">
-                            </div>
-                            <div class="popup-body">
-                                <div class="popup-title" id="popupTitle"></div>
-                                <div class="popup-price" id="popupPrice"></div>
-                                <div class="popup-discount" id="popupDiscount"></div>
-                                <div class="popup-description" id="popupDesc"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End App Sample HTML -->
-                </div>
-            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
+                <a href="#how-it-works" class="hover:text-blue-600 transition duration-150">How It Works</a>
+                <a href="#brands" class="hover:text-blue-600 transition duration-150">Brands</a>
+                <a href="#benefits" class="hover:text-blue-600 transition duration-150">Benefits</a>
+                <a href="https://www.allpree.com/contact" class="hover:text-blue-600 transition duration-150">Contact</a>
+                <a href="https://www.allpree.com/install" class="btn-primary py-2 px-6 text-base shadow-md">Download App</a>
+            </nav>
+            <!-- Mobile Menu Button (Hamburger) - You'd typically add JS for this -->
+            <button class="md:hidden text-gray-600 focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
         </header>
 
-        <!-- Section: Explore Deals Immediately -->
-        <section id="explore-deals" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-title text-blue-800">🛍️ Why Smart Shoppers Use This App Every Day</h2>
-                <p class="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-                    No signup, no commitment. Just install the app and immediately start browsing thousands of exclusive deals from your favorite brands.
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-blue-500 to-purple-600 text-white py-20 px-4 text-center rounded-b-3xl shadow-xl">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+                    Unlock <span class="text-yellow-300">Instant Cashback</span> on Every Purchase
+                </h1>
+                <p class="text-xl md:text-2xl mb-10 opacity-90">
+                    With Allpree, your gift cards become a powerful tool for savings. Shop at your favorite stores and watch the cashback roll in!
                 </p>
-
-                <!-- Original feature cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Map Pin Icon -->
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 0110.9 9.897L12 21l-3.95-7.053A7 7 0 015.05 4.05zM12 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Nearby Deals</h3>
-                        <p class="text-gray-600 text-base">
-                            Instantly see local deals based on your location, no setup required. Find savings right around you.
-                        </p>
-                    </div>
-
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Clock / Spark Icon -->
-                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.453-11.332a.803.803 0 00-1.129 1.129L10 9.774 12.565 7.21a.803.803 0 00-1.129-1.129L10 8.016 7.435 5.45a.803.803 0 00-1.129 1.129L8.016 10 5.45 12.565a.803.803 0 001.129 1.129L10 11.984l2.565 2.565a.803.803 0 001.129-1.129L11.984 10l2.565-2.565a.803.803 0 00-1.129-1.129L10 8.016z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Real-Time Offers & Timers</h3>
-                        <p class="text-gray-600 text-base">
-                            New deals appear as businesses update them, always fresh and timely. Know when deals expire with live countdowns.
-                        </p>
-                    </div>
-
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Shopping Bag / Heart Icon -->
-                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M10.519 14.129c-.066.027-.132.054-.2.081-.295.122-.593.245-.89.367a1.502 1.502 0 01-1.611-.796.804.804 0 01.156-.848c.112-.11.226-.217.34-.321.4-.356.8-.711 1.201-1.066l1.328-1.171c.421-.37.842-.741 1.263-1.111a.8.8 0 01.986-.145c.421.139.736.527.736.985v2.302a.8.8 0 01-.8.8H12a.8.8 0 01-.8-.8v-.575l-.337.297zM20 7v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2zm-4.307 2.057a1.5 1.5 0 10-2.122 2.121L12 12.535l-.57.57a.8.8 0 01-1.131-1.131L10.293 11l-2.062-2.062a.8.8 0 011.131-1.131l1.496 1.496 1.496-1.496a.8.8 0 011.131 1.131l2.062 2.062.57.57c.234.234.234.614 0 .848a.8.8 0 01-.848 0l-.57-.57-2.062 2.062a.8.8 0 01-1.131-1.131l1.496-1.496-1.496-1.496a.8.8 0 011.131-1.131l2.062 2.062.57-.57a.8.8 0 01.848 0c.234.234.234.614 0 .848z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Add to Cart & Like Deals</h3>
-                        <p class="text-gray-600 text-base">
-                            Save deals you like in a built-in cart to keep track. Heart your favorites to easily revisit them later.
-                        </p>
-                    </div>
-
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Gift / Money Bag Icon -->
-                            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2zm1 14.75a.75.75 0 01-1.5 0V13a.75.75 0 011.5 0v3.75zm.75-8.25a.75.75 0 00-1.5 0v1.5a.75.75 0 001.5 0V8.5zm3.75-.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm-5.25 0a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm-5.25 0a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zm8.25 5.25a.75.75 0 00-1.5 0v1.5a.75.75 0 001.5 0v-1.5z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Cashback: Deal Plus⁺ Program</h3>
-                        <p class="text-gray-600 text-base">
-                            Unlock cashback rewards up to 49% with our exclusive Deal Plus⁺ Program. <strong>Requires a free account.</strong>
-                        </p>
-                    </div>
-
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Compass / List Icon -->
-                            <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20C7.589 20 4 16.411 4 12C4 7.589 7.589 4 12 4ZM10 9L14 12L10 15V9Z" fill="#3B82F6"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Instant Directions & Shopping List</h3>
-                        <p class="text-gray-600 text-base">
-                            Tap any store to get turn-by-turn directions. You can also save your shopping cart as a list to view later.
-                        </p>
-                    </div>
-
-                    <div class="card items-center text-center">
-                        <div class="icon-wrapper">
-                            <!-- Refresh / Mobile Icon -->
-                            <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 4C8.68629 4 6 6.68629 6 10V14C6 17.3137 8.68629 20 12 20C15.3137 20 18 17.3137 18 14V10C18 6.68629 15.3137 4 12 4ZM12 6C14.2091 6 16 7.79086 16 10V14C16 16.2091 14.2091 18 12 18C9.79086 18 8 16.2091 8 14V10C8 7.79086 9.79086 6 12 6Z" fill="currentColor"/>
-                                <path d="M12 2C10.8954 2 10 2.89543 10 4V6C10 7.10457 10.8954 8 12 8C13.1046 8 14 7.10457 14 6V4C14 2.89543 13.1046 2 12 2Z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Dynamic Browsing & App-Like Feel</h3>
-                        <p class="text-gray-600 text-base">
-                            Deals reshuffle each time you explore, keeping things exciting. <strong>Add to your home screen</strong> for a super-fast, no-download app experience.
-                        </p>
-                    </div>
-                </div>
-                 </div>
-        </section>
-
-        <!-- Download Now Section (This section content was moved to Hero) -->
-        <!-- Removed this section as its content has been moved -->
-
-        <!-- Get Started Section (Moved) -->
-        <section id="get-started" class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="section-title text-blue-800">How to Get Started</h2>
-                <p> It's simple to begin your journey with the Cashback Loop. Start by exploring deals instantly, then create your free account to unlock cashback. </p>
-
-                <br>
-                
-                <a href="https://www.allpree.com/install" class="btn-primary mt-20 text-lg">Install The App</a>
+                <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-300 transform hover:scale-105 px-10 py-4 text-xl md:text-2xl">
+                    Get the Allpree App Now!
+                    <!-- SVG for download icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                </a>
             </div>
         </section>
 
+        <main class="space-y-16 md:space-y-24 px-4 py-12 max-w-7xl mx-auto">
+
+            <!-- How It Works Section -->
+            <section id="how-it-works" class="bg-white rounded-2xl shadow-lg p-6 md:p-12">
+                <h2 class="section-heading gradient-text">How Allpree Makes Saving Simple</h2>
+                <p class="text-lg text-gray-600 text-center mb-12 max-w-3xl mx-auto">
+                    Earning cashback with Allpree is easy! Follow these simple steps to start saving today.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="step-card">
+                        <span class="step-icon">🛒</span>
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">1. Buy Gift Cards</h3>
+                        <p class="text-gray-600">Purchase digital gift cards for your favorite stores directly through the Allpree app.</p>
+                    </div>
+                    <div class="step-card">
+                        <span class="step-icon">🛍️</span>
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">2. Shop & Pay</h3>
+                        <p class="text-gray-600">Use your purchased gift cards to pay for your everyday shopping online or in-store.</p>
+                    </div>
+                    <div class="step-card">
+                        <span class="step-icon">💰</span>
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">3. Earn Cashback</h3>
+                        <p class="text-gray-600">Receive instant cashback directly into your Allpree wallet, ready for your next purchase!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Choose Allpree Section -->
+            <section id="benefits" class="bg-white rounded-2xl shadow-lg p-6 md:p-12">
+                <h2 class="section-heading text-gradient-purple-blue">Why Allpree is Your Best Choice for Savings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">💸</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Real Cashback, Real Savings</h3>
+                        <p class="text-gray-600">Get tangible cashback on purchases you already make, putting money back in your pocket.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🌐</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Wide Range of Brands</h3>
+                        <p class="text-gray-600">Access hundreds of popular brands across various categories, from groceries to fashion.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">📱</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Easy & Secure App</h3>
+                        <p class="text-gray-600">Our user-friendly app makes buying and managing gift cards simple and secure.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">⚡</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Instant Rewards</h3>
+                        <p class="text-gray-600">Cashback is credited instantly, so you can see your savings grow in real-time.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🎁</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Perfect for Gifting</h3>
+                        <p class="text-gray-600">Buy gift cards for friends and family and still earn cashback on your purchase!</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🔒</span>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">Trusted & Reliable</h3>
+                        <p class="text-gray-600">Allpree partners with reputable brands to ensure a safe and rewarding experience.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Brands Section -->
+            <section id="brands" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+                <h2 class="section-heading gradient-text">Shop at Your Favorite Brands, Earn Cashback!</h2>
+                <p class="max-w-4xl mx-auto text-gray-600 mb-12">We're constantly expanding our network to bring you more opportunities to save. Here are just some of the popular brands where your Allpree Gift Card is accepted:</p>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start justify-center">
+                    <!-- Dynamically generated brand logos - Sorted Alphabetically -->
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9a1158154dfa42caddbd0694a4e9bdc8/logo_1622490807.png" alt="100 Restaurant Logo">
+                        <span class="brand-name-text">100 Restaurant</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/04ecb1fa28506ccb6f72b12c0245ddbc/logo_1721837387.png" alt="360 Wellness Club Logo">
+                        <span class="brand-name-text">360 Wellness Club</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/6ecbdd6ec859d284dc13885a37ce8d81/logo_1686611146.png" alt="432 Body Works Logo">
+                        <span class="brand-name-text">432 Body Works</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/fe131d7f5a6b38b23cc967316c13dae2/logo_1652080510.jpg" alt="7Krave Logo">
+                        <span class="brand-name-text">7Krave</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/94f6d7e04a4d452035300f18b984988c/logo_1664556513.png" alt="876 Beachwear Logo">
+                        <span class="brand-name-text">876 Beachwear</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/dd458505749b2941217ddd59394240e8/logo_1711388199.png" alt="94G Eatery Logo">
+                        <span class="brand-name-text">94G Eatery</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/bd4c9ab730f5513206b999ec0d90d1fb/logo_1641934233.png" alt="A&E Makeup World Logo">
+                        <span class="brand-name-text">A&E Makeup World</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/c16a5320fa475530d9583c34fd356ef5/logo.png" alt="Adam and Eve Day Spa Logo">
+                        <span class="brand-name-text">Adam and Eve Day Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/a532400ed62e772b9dc0b86f46e583ff/logo_1733486786.png" alt="aFresh Marketplace Logo">
+                        <span class="brand-name-text">aFresh Marketplace</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/918317b57931b6b7a7d29490fe5ec9f9/logo_1660150327.png" alt="Airdrop JA Logo">
+                        <span class="brand-name-text">Airdrop JA</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/eccbc87e4b5ce2fe28308fd9f2a7baf3/logo.png" alt="American Jewellery Co Logo">
+                        <span class="brand-name-text">American Jewellery Co</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/c3992e9a68c5ae12bd18488bc579b30d/logo_1719682120.png" alt="Amodein Hair Solutions Logo">
+                        <span class="brand-name-text">Amodein Hair Solutions</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/ed265bc903a5a097f61d3ec064d96d2e/logo_1708476532.png" alt="Appliance Traders Limited (ATL) Logo">
+                        <span class="brand-name-text">Appliance Traders Limited (ATL)</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/a3f390d88e4c41f2747bfa2f1b5f87db/logo_1627088353.jpg" alt="Azan Supercentre Logo">
+                        <span class="brand-name-text">Azan Supercentre</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/303ed4c69846ab36c2904d3ba8573050/logo_1733424748.png" alt="B&D Trawling Logo">
+                        <span class="brand-name-text">B&D Trawling</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/3435c378bb76d4357324dd7e69f3cd18/logo_1720461735.png" alt="Bashco Jamaica Logo">
+                        <span class="brand-name-text">Bashco Jamaica</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/1c383cd30b7c298ab50293adfecb7b18/logo.png" alt="Bella Oasis Day Spa Logo">
+                        <span class="brand-name-text">Bella Oasis Day Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/26657d5ff9020d2abefe558796b99584/logo_1632259545.png" alt="Best Buds Logo">
+                        <span class="brand-name-text">Berts Auto Parts</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/07a96b1f61097ccb54be14d6a47439b0/logo_1746715903.png" alt="Bettino’s Fine Italian Logo">
+                        <span class="brand-name-text">Bettino’s Fine Italian</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/1651cf0d2f737d7adeab84d339dbabd3/logo_1688385966.png" alt="Bijoux Logo">
+                        <span class="brand-name-text">Bijoux</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/63923f49e5241343aa7acb6a06a751e7/logo_1656114981.jpg" alt="BirdShack Fried Chicken Logo">
+                        <span class="brand-name-text">BirdShack Fried Chicken</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/67c6a1e7ce56d3d6fa748ab6d9af3fd7/logo_1621536217.png" alt="Blinds Designs Logo">
+                        <span class="brand-name-text">Blinds Designs</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/02522a2b2726fb0a03bb19f2d8d9524d/logo_1638501331.png" alt="Blow by Blow Logo">
+                        <span class="brand-name-text">Blow by Blow</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/34ed066df378efacc9b924ec161e7639/logo_1665530433.png" alt="Blue Brews Bistro Logo">
+                        <span class="brand-name-text">Blue Brews Bistro</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/41f1f19176d383480afa65d325c06ed0/logo_1678719042.png" alt="Body Studio Skincare Logo">
+                        <span class="brand-name-text">Body Studio Skincare</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/39059724f73a9969845dfe4146c5660e/logo_1653755677.jpg" alt="Bold Cutz Barbers Lounge Logo">
+                        <span class="brand-name-text">Bold Cutz Barbers Lounge</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/7cbbc409ec990f19c78c75bd1e06f215/logo_1650590363.jpg" alt="Bombay Darbar by Nirvanna Logo">
+                        <span class="brand-name-text">Bombay Darbar by Nirvanna</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/2b24d495052a8ce66358eb576b8912c8/logo_1640490984.png" alt="Boot Gas Station Logo">
+                        <span class="brand-name-text">Boot Gas Station</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/0a09c8844ba8f0936c20bd791130d6b6/logo_1640491119.png" alt="Boot Supermarket & Deli Logo">
+                        <span class="brand-name-text">Boot Supermarket & Deli</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/8d34201a5b85900908db6cae92723617/logo_1708703524.png" alt="Bowl & Spoon Logo">
+                        <span class="brand-name-text">Bowl & Spoon</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/f4b9ec30ad9f68f89b29639786cb62ef/logo_1632165658.png" alt="Broken Plate Logo">
+                        <span class="brand-name-text">Broken Plate</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/eaae339c4d89fc102edd9dbdb6a28915/logo_1734897828.png" alt="Brooklyn Supermarket Logo">
+                        <span class="brand-name-text">Brooklyn Supermarket</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/10a5ab2db37feedfdeaab192ead4ac0e/logo_1748368043.png" alt="Bubble Chick Logo">
+                        <span class="brand-name-text">Bubble Chick</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/37bc2f75bf1bcfe8450a1a41c200364c/logo_1666624371.png" alt="Buzzers Logo">
+                        <span class="brand-name-text">Buzzers</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9f61408e3afb633e50cdf1b20de6f466/logo_1623343398.png" alt="Cafe Blue Logo">
+                        <span class="brand-name-text">Cafe Blue</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/816b112c6105b3ebd537828a39af4818/logo_1683248720.png" alt="Cafe Hibiscus Logo">
+                        <span class="brand-name-text">Cafe Hibiscus</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/1c9ac0159c94d8d0cbedc973445af2da/logo_1641543699.png" alt="Candy Craze Logo">
+                        <span class="brand-name-text">Candy Craze</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/33e75ff09dd601bbe69f351039152189/logo.png" alt="Cannonball Cafe Logo">
+                        <span class="brand-name-text">Cannonball Cafe</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d709f38ef758b5066ef31b18039b8ce5/logo_1677090317.png" alt="Catch 22 Lounge Logo">
+                        <span class="brand-name-text">Catch 22 Lounge</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/877a9ba7a98f75b90a9d49f53f15a858/logo_1695658086.png" alt="Cattleya Perfect 10 Med Spa Logo">
+                        <span class="brand-name-text">Cattleya Perfect 10 Med Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/6c8349cc7260ae62e3b1396831a8398f/logo_1621286701.png" alt="Cellar 8 Ltd Logo">
+                        <span class="brand-name-text">Cellar 8 Ltd</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/f8c1f23d6a8d8d7904fc0ea8e066b3bb/logo_1683248754.png" alt="Cheffin’z with Jollydon Logo">
+                        <span class="brand-name-text">Cheffin’z with Jollydon</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/f033ab37c30201f73f142449d037028d/logo_1628152754.png" alt="Chez Maria Logo">
+                        <span class="brand-name-text">Chez Maria</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/16c222aa19898e5058938167c8ab6c57/logo_1707751798.png" alt="Chicken & Tings Logo">
+                        <span class="brand-name-text">Chicken & Tings</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9a96876e2f8f3dc4f3cf45f02c61c0c1/logo_1691015328.png" alt="Child's Play Logo">
+                        <span class="brand-name-text">Child's Play</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/03afdbd66e7929b125f8597834fa83a4/logo_1624289878.png" alt="Chilitos Jamexican Logo">
+                        <span class="brand-name-text">Chilitos Jamexican</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/1d7f7abc18fcb43975065399b0d1e48e/logo_1641247910.png" alt="Chillin Restaurant & Bar Logo">
+                        <span class="brand-name-text">Chillin Restaurant & Bar</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/3295c76acbf4caaed33c36b1b5fc2cb1/logo_1624646356.png" alt="Chive Logo">
+                        <span class="brand-name-text">Chive</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/f7177163c833dff4b38fc8d2872f1ec6/logo_1621286676.png" alt="Chocolate Dreams Logo">
+                        <span class="brand-name-text">Chocolate Dreams</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/556f391937dfd4398cbac35e050a2177/logo_1742410224.png" alt="Chop’d Logo">
+                        <span class="brand-name-text">Chop’d</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/4a47d2983c8bd392b120b627e0e1cab4/logo_1748784441.png" alt="Chukka Caribbean Adventures Logo">
+                        <span class="brand-name-text">Chukka Caribbean Adventures</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9fe8593a8a330607d76796b35c64c600/logo_1742341493.png" alt="Chungs Catering Logo">
+                        <span class="brand-name-text">Chungs Catering</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/08b255a5d42b89b0585260b6f2360bdd/logo_1716656007.png" alt="ChunScents Limited Logo">
+                        <span class="brand-name-text">ChunScents Limited</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9dcb88e0137649590b755372b040afad/logo_1723742954.png" alt="City Flames Logo">
+                        <span class="brand-name-text">City Flames</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/98f13708210194c475687be6106a3b84/logo.png" alt="Closet Cloud Logo">
+                        <span class="brand-name-text">Closet Cloud</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/185c29dc24325934ee377cfda20e414c/logo_1728402230.png" alt="Collectibles Logo">
+                        <span class="brand-name-text">Collectibles</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/647bba344396e7c8170902bcf2e15551/logo_1708703177.png" alt="Comcare Optical Logo">
+                        <span class="brand-name-text">Comcare Optical</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/97e8527feaf77a97fc38f34216141515/logo_1708703251.png" alt="Comprehensive Eyecare Logo">
+                        <span class="brand-name-text">Comprehensive Eyecare</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d34ab169b70c9dcd35e62896010cd9ff/logo_1683043940.png" alt="Coral Cliff Logo">
+                        <span class="brand-name-text">Coral Cliff</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9461cce28ebe3e76fb4b931c35a169b0/logo_1696875739.png" alt="CPJ Logo">
+                        <span class="brand-name-text">CPJ</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/3328bdf9a4b9504b9398284244fe97c2/logo_1744039470.png" alt="Crayfish Wendaze Logo">
+                        <span class="brand-name-text">Crayfish Wendaze</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/3a066bda8c96b9478bb0512f0a43028c/logo_1737490886.png" alt="Creative Building Finishes Logo">
+                        <span class="brand-name-text">Creative Building Finishes</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/f73b76ce8949fe29bf2a537cfa420e8f/logo_1680750478.png" alt="Creep In Closet Logo">
+                        <span class="brand-name-text">Creep In Closet</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/b83aac23b9528732c23cc7352950e880/logo_1674574908.png" alt="Cru Bar & Kitchen Logo">
+                        <span class="brand-name-text">Cru Bar & Kitchen</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/1be3bc32e6564055d5ca3e5a354acbef/logo_1699051455.jpg" alt="Cscouriers & Auto Sales Ltd Logo">
+                        <span class="brand-name-text">Cscouriers & Auto Sales Ltd</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/5b69b9cb83065d403869739ae7f0995e/logo_1700767153.png" alt="Cuncharo Cocoa Logo">
+                        <span class="brand-name-text">Cuncharo Cocoa</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/443cb001c138b2561a0d90720d6ce111/logo_1733775052.png" alt="Danya's Coffee Barrel Logo">
+                        <span class="brand-name-text">Danya's Coffee Barrel</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/25b2822c2f5a3230abfadd476e8b04c9/logo_1686456820.png" alt="Day and Night Beauty Salon and Spa Logo">
+                        <span class="brand-name-text">Day and Night Beauty Salon and Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/2f37d10131f2a483a8dd005b3d14b0d9/logo_1738599503.png" alt="Debbie's Catering Logo">
+                        <span class="brand-name-text">Debbie's Catering</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/c8ffe9a587b126f152ed3d89a146b445/logo_1637284779.png" alt="Deerrs Bar and Chill Restaurant Logo">
+                        <span class="brand-name-text">Deerrs Bar and Chill Restaurant</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/a5e00132373a7031000fd987a3c9f87b/logo_1640490876.png" alt="Delexis Pharmacy Logo">
+                        <span class="brand-name-text">Delexis Pharmacy</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/65b9eea6e1cc6bb9f0cd2a47751a186f/logo_1634963994.png" alt="Deli Works Logo">
+                        <span class="brand-name-text">Deli Works</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/38913e1d6a7b94cb0f55994f679f5956/logo_1702287742.png" alt="Della Dea Jewelry Logo">
+                        <span class="brand-name-text">Della Dea Jewelry</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9b04d152845ec0a378394003c96da594/logo_1648096122.png" alt="Dermatology Solutions Logo">
+                        <span class="brand-name-text">Dermatology Solutions</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d61e4bbd6393c9111e6526ea173a7c8b/logo_1692643316.png" alt="Devon House Bakery Logo">
+                        <span class="brand-name-text">Devon House Bakery</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/85422afb467e9456013a2a51d4dff702/logo_1705003873.png" alt="DJ Water Refill Store Logo">
+                        <span class="brand-name-text">DJ Water Refill Store</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/084b6fbb10729ed4da8c3d3f5a3ae7c9/logo_1651527257.jpg" alt="DJs Cafe Restaurant Logo">
+                        <span class="brand-name-text">DJs Cafe Restaurant</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/084b6fbb10729ed4da8c3d3f5a3ae7c9/logo_1651527257.jpg" alt="DLE Cafe Logo">
+                        <span class="brand-name-text">DLE Cafe</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/b337e84de8752b27eda3a12363109e80/logo_1701362163.png" alt="Dulce Lounge Limited Logo">
+                        <span class="brand-name-text">Dulce Lounge Limited</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/98b297950041a42470269d56260243a1/logo_1694211187.png" alt="Earth Elements Logo">
+                        <span class="brand-name-text">Earth Elements</span>
+                    </div>
+
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/142949df56ea8ae0be8b5306971900a4/logo_1678543232.png" alt="Elevate Logo">
+                        <span class="brand-name-text">Elevate</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/2050e03ca119580f74cca14cc6e97462/logo_1696869322.png" alt="Eleven Restaurant Logo">
+                        <span class="brand-name-text">Eleven Restaurant</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d395771085aab05244a4fb8fd91bf4ee/logo_1657071082.jpg" alt="Emanuel's Kitchen Logo">
+                        <span class="brand-name-text">Emanuel's Kitchen</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d82c8d1619ad8176d665453cfb2e55f0/logo_1622576131.png" alt="eMed Spa Logo">
+                        <span class="brand-name-text">eMed Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/496e05e1aea0a9c4655800e8a7b9ea28/logo_1666624387.png" alt="Endzzone Sports Bar & Restaurant Logo">
+                        <span class="brand-name-text">Endzzone Sports Bar & Restaurant</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/e4bb4c5173c2ce17fd8fcd40041c068f/logo_1746210443.png" alt="Enersave Solar Logo">
+                        <span class="brand-name-text">Enersave Solar</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/e555ebe0ce426f7f9b2bef0706315e0c/logo_1746210417.png" alt="Enersave Solutions Logo">
+                        <span class="brand-name-text">Enersave Solutions</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/812b4ba287f5ee0bc9d43bbf5bbe87fb/logo_1634186529.png" alt="Enigma Logo">
+                        <span class="brand-name-text">Enigma</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/66808e327dc79d135ba18e051673d906/logo_1685040426.png" alt="Enigma Montego Bay Logo">
+                        <span class="brand-name-text">Enigma Montego Bay</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/55743cc0393b1cb4b8b37d09ae48d097/logo_1734386378.png" alt="Essence of Afrikah & Shooz Guru Logo">
+                        <span class="brand-name-text">Essence of Afrikah & Shooz Guru</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/4c5bde74a8f110656874902f07378009/logo_1644299464.png" alt="Express Fitness Logo">
+                        <span class="brand-name-text">Express Fitness</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/00411460f7c92d2124a67ea0f4cb5f85/logo_1675286237.png" alt="Eye Q Optical Logo">
+                        <span class="brand-name-text">Eye Q Optical</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9bf31c7ff062936a96d3c8bd1f8f2ff3/logo.png" alt="Face to Face Skin Care Salon & Day Spa Logo">
+                        <span class="brand-name-text">Face to Face Skin Care Salon & Day Spa</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/d7a728a67d909e714c0774e22cb806f2/logo_1721836296.png" alt="FAIRVIEW ELECTRONICS Logo">
+                        <span class="brand-name-text">FAIRVIEW ELECTRONICS</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/b5dc4e5d9b495d0196f61d45b26ef33e/logo_1741615658.png" alt="Fashion House Logo">
+                        <span class="brand-name-text">Fashion House</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/115f89503138416a242f40fb7d7f338e/logo_1647122939.png" alt="Father Bull Logo">
+                        <span class="brand-name-text">Father Bull</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/7ef605fc8dba5425d6965fbd4c8fbe1f/logo_1640492645.png" alt="FESCO Logo">
+                        <span class="brand-name-text">FESCO</span>
+                    </div>
+                    <div class="brand-logo-item">
+                        <img src="https://giftme.nyc3.digitaloceanspaces.com/gift-me/9fc3d7152ba9336a670e36d0ed79bc43/logo_1638501373.png" alt="First Bite Restaurant Logo">
+                        <span class="brand-name-text">First Bite Restaurant</span>
+                    </div>
+                </div>
+
+                <p class="mt-12 text-lg text-gray-600 max-w-3xl mx-auto">
+                    Don't see your favorite brand? We're constantly adding new partners! Check the Allpree app for the most up-to-date list and exclusive deals.
+                </p>
+            </section>
+
+            <!-- Final Call to Action -->
+            <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-2xl shadow-lg">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-4xl font-extrabold mb-6">Ready to Start Earning Cashback?</h2>
+                    <p class="text-xl mb-8">
+                        Download the Allpree app today and begin your journey to smarter spending and greater savings!
+                    </p>
+                    <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-200 px-8 py-3 text-xl">
+                        Install the App Now!
+                    </a>
+                </div>
+            </section>
+        </main>
+
         <!-- Footer -->
-    <footer class="footer-section mt-auto">
-        <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
-        <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-        <p>By using our services, you agree to our <a href="/legal" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
-    </footer>
+        <footer class="footer-section mt-auto">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p>By using our services, you agree to our <a href="/legal" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
+        </footer>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const faqButtons = document.querySelectorAll('.faq-question-button');
-
-            faqButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const answer = button.nextElementSibling; // Get the .faq-answer div
-                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-
-                    // Toggle aria-expanded attribute
-                    button.setAttribute('aria-expanded', !isExpanded);
-
-                    // Toggle 'expanded' class on the answer for CSS transitions
-                    if (isExpanded) {
-                        answer.classList.remove('expanded');
-                    } else {
-                        answer.classList.add('expanded');
-                    }
-                });
-            });
-        });
-
-        // App Sample JavaScript
-        const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
-        
-        function openPopup({ image, name, original, discount, description }) {
-            const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
-            const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
-            const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
-
-            document.getElementById('popupImg').src = image;
-            document.getElementById('popupTitle').textContent = name;
-            document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
-            document.getElementById('popupDesc').textContent = description || '';
-            document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-            document.getElementById('popup').style.display = 'flex';
-        }
-
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
-
-        async function loadDeals() {
-            const container = document.getElementById('deals-container');
-            container.innerHTML = 'Loading deals...'; // Keep loading message visible initially
-
-            try {
-                const res = await fetch(sheetUrl);
-                const rows = await res.json();
-
-                // Clear container before adding content
-                container.innerHTML = ''; 
-
-                let currentBrand = '';
-                let currentLogo = '';
-                let brandSection = null;
-                let grid = null;
-
-                rows.forEach(row => {
-                    // Check if it's a new brand section
-                    if (row.BrandName && row.BrandLogo) {
-                        currentBrand = row.BrandName;
-                        currentLogo = row.BrandLogo;
-
-                        brandSection = document.createElement('div');
-                        brandSection.className = 'brand-section';
-
-                        const brandDiv = document.createElement('div');
-                        brandDiv.className = 'brand';
-                        const expireDate = row.ExpiryDate;
-                        const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-                        brandDiv.innerHTML = `
-                            <div class="brand-logo-container">
-                                <img src="${currentLogo}" alt="${currentBrand}" />
-                            </div>
-                            <span class="brand-name">${currentBrand}</span>
-                            <span class="brand-timer" id="${timerId}"></span>
-                        `;
-
-                        if (expireDate) {
-                            startBrandCountdown(expireDate, timerId);
-                        }
-
-                        grid = document.createElement('div');
-                        grid.className = 'deal-grid';
-
-                        brandSection.appendChild(brandDiv);
-                        brandSection.appendChild(grid);
-                        container.appendChild(brandSection);
-                    }
-
-                    // Add deal card if deal data exists
-                    if (row.ProductName && row.ImageURL) {
-                        const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-                        const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
-                        const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-                        // Adjusted shortName logic to allow more characters and ensure proper display
-                        const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
-
-                        const dealCard = document.createElement('div');
-                        dealCard.className = 'deal';
-                        dealCard.innerHTML = `
-                            <span class="discount-badge">${percentOff}% OFF</span>
-                            <img src="${row.ImageURL}" alt="${row.ProductName}">
-                            <div class="deal-content">
-                                <div class="deal-title">${shortName}</div>
-                                <div class="price">JMD $${original.toLocaleString()}</div>
-                                <div class="discount">JMD $${discount.toLocaleString()}</div>
-                            </div>
-                        `;
-                        dealCard.addEventListener('click', () => {
-                            openPopup({
-                                image: row.ImageURL,
-                                name: row.ProductName,
-                                original: original.toLocaleString(), // Ensure formatted for popup
-                                discount: discount.toLocaleString(), // Ensure formatted for popup
-                                description: row.Description
-                            });
-                        });
-
-                        grid?.appendChild(dealCard);
-                    }
-                });
-
-            } catch (err) {
-                console.error('Failed to load deals:', err);
-                container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
-            }
-        }
-
-        // Call loadDeals when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', loadDeals);
-        
-        // Event listener for closing popup when clicking outside content
-        document.getElementById('popup').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closePopup();
-            }
-        });
-
-        function startBrandCountdown(expireDate, elementId) {
-            function update() {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-
-                const timeLeft = new Date(expireDate) - new Date();
-                if (timeLeft <= 0) {
-                    el.textContent = ' - Deal ended';
-                    clearInterval(timer);
-                } else {
-                    const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
-                    const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-                    const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-                    el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
-                }
-            }
-
-            update();
-            const timer = setInterval(update, 1000);
-        }
-    </script>
 </body>
 </html>
