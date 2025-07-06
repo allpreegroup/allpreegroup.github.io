@@ -19,11 +19,11 @@
             min-height: 100vh; /* Ensure it takes full viewport height */
             padding: 2rem 0; /* Add vertical padding */
         }
-        .container-wrapper { 
-            margin: 0 auto; /* Center horizontally */
+        .container-wrapper {
+            
             max-width: 1200px; /* Max width for content */
             width: 95%; /* Responsive width */
-            
+            overflow: hidden; /* Ensure rounded corners clip content */
         }
 
         /* Global Site Brand Name */
@@ -163,6 +163,7 @@
 
         /* Current Brand Info Card (per brand section) */
         .category-icon-card {
+            /* Default background, will be overridden by JS if colors are available */
             background-color: #2C3E50;
             color: white;
             display: flex;
@@ -174,6 +175,8 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             min-height: 250px;
             text-align: center;
+            /* Added transition for smoother color changes if any */
+            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
         }
         .category-icon-card .category-brand-logo {
             width: 80px;
@@ -335,7 +338,7 @@
 </head>
 <body>
     <div class="container-wrapper">
-        
+       
 
         <div id="all-brands-container">
             <!-- Each brand's section will be dynamically added here -->
@@ -493,7 +496,7 @@
 
             // Add a temporary loading state for the brand section
             brandSection.innerHTML = `
-                
+               
                 <div id="deals-container-${brandId}" class="deal-grid">
                     <!-- The special category brand card (now current brand info) -->
                     <div id="category-brand-card-${brandId}" class="category-icon-card">
@@ -522,8 +525,7 @@
                 let featuredBrandData = null;
                 let tempProducts = [];
                 for (const row of rows) {
-                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate but no ProductName)
-                    // Also check if BrandName matches the current brand being processed, or if ProductName is empty
+                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor but no ProductName)
                     if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                         featuredBrandData = row;
                     } else if (row.ProductName && row.ImageURL) {
@@ -532,14 +534,12 @@
                     }
                 }
 
-                // *******************************************************************
-                // NEW LOGIC: If no products, remove the entire brand section
+                // If no products, remove the entire brand section
                 if (tempProducts.length === 0) {
                     console.log(`Brand "${brandName}" has no products. Removing its section.`);
                     brandSection.remove();
                     return; // Exit the function, no need to render anything for this brand
                 }
-                // *******************************************************************
 
                 // Store data for this brand
                 brandDataMap[brandId] = {
@@ -548,6 +548,7 @@
                 };
 
                 // Update the Current Brand Info Card for this section
+                const categoryBrandCard = document.getElementById(`category-brand-card-${brandId}`); // Get the card element
                 const categoryBrandLogo = document.getElementById(`category-brand-logo-${brandId}`);
                 const categoryBrandNameText = document.getElementById(`category-brand-name-text-${brandId}`);
                 const categoryBrandCountdown = document.getElementById(`category-brand-countdown-${brandId}`);
@@ -563,12 +564,33 @@
                     } else {
                         categoryBrandCountdown.textContent = '';
                     }
+
+                    // *******************************************************************
+                    // NEW LOGIC: Apply primary and secondary colors to the card background
+                    const primaryColor = featuredBrandData.PrimaryColor;
+                    const secondaryColor = featuredBrandData.SecondaryColor;
+
+                    if (primaryColor && secondaryColor) {
+                        categoryBrandCard.style.backgroundImage = `linear-gradient(to bottom, ${primaryColor}, ${secondaryColor})`;
+                        categoryBrandCard.style.backgroundColor = ''; // Clear fallback background color
+                    } else if (primaryColor) {
+                        categoryBrandCard.style.backgroundColor = primaryColor;
+                        categoryBrandCard.style.backgroundImage = '';
+                    } else {
+                        // Fallback to default if colors are not provided
+                        categoryBrandCard.style.backgroundColor = '#2C3E50';
+                        categoryBrandCard.style.backgroundImage = '';
+                    }
+                    // *******************************************************************
+
                 } else {
                     // Fallback if no dedicated brand row in the specific sheet
                     categoryBrandLogo.src = 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
                     categoryBrandLogo.alt = `${brandName} Logo`;
                     categoryBrandNameText.textContent = brandName;
                     categoryBrandCountdown.textContent = ''; // No countdown if no specific expiry date found
+                    categoryBrandCard.style.backgroundColor = '#2C3E50'; // Ensure default if no featured data
+                    categoryBrandCard.style.backgroundImage = '';
                 }
 
                 // Render initial products for this brand
