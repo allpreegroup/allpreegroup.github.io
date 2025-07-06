@@ -112,7 +112,7 @@
             position: absolute;
             top: 0.75rem;
             right: 0.75rem;
-            background-color: #2C3E50;
+            background-color: red;
             color: white;
             padding: 0.3rem 0.6rem;
             border-radius: 0.5rem;
@@ -373,6 +373,16 @@
                 <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
             </div>
             
+            <!-- Search Bar -->
+            <div class="relative flex-grow mx-4 max-w-md">
+                <input type="text" id="brandSearchInput" placeholder="Search brands..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
                 <button class="text-gray-600 focus:outline-none">
@@ -431,7 +441,7 @@
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0 } }
+        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
 
         /**
@@ -445,7 +455,7 @@
                 [array[i], array[j]] = [array[j], array[i]]; // Swap elements
             }
             return array;
-            }
+        }
 
         function openPopup({ image, name, original, discount, description, brandName }) {
             const originalPrice = parseFloat(String(original).replace(/,/g, '')) || 0;
@@ -572,8 +582,7 @@
 
             // Add a temporary loading state for the brand section
             brandSection.innerHTML = `
-                
-                <div id="deals-container-${brandId}" class="deal-grid">
+               <div id="deals-container-${brandId}" class="deal-grid">
                     <!-- The special category brand card (now current brand info) -->
                     <div id="category-brand-card-${brandId}" class="category-icon-card">
                         <img id="category-brand-logo-${brandId}" src="https://placehold.co/80x80/ffffff/2C3E50?text=Loading" alt="Brand Logo" class="category-brand-logo">
@@ -623,7 +632,8 @@
                 // Store data for this brand
                 brandDataMap[brandId] = {
                     allProducts: tempProducts,
-                    currentProductIndex: 0
+                    currentProductIndex: 0,
+                    brandName: brandName // Store brand name for search functionality
                 };
 
                 // Update the Current Brand Info Card for this section
@@ -761,6 +771,54 @@
             update(); // Initial call to display immediately
             countdownIntervals[elementId] = setInterval(update, 1000); // Store interval ID
         }
+
+        // Search functionality
+        const brandSearchInput = document.getElementById('brandSearchInput');
+        let searchTimeout;
+
+        function filterBrands() {
+            const searchTerm = brandSearchInput.value.toLowerCase().trim();
+            const allBrandSections = document.querySelectorAll('[id^="brand-section-"]');
+            let foundBrands = false;
+
+            allBrandSections.forEach(section => {
+                const brandId = section.id.replace('brand-section-', '');
+                const brandData = brandDataMap[brandId];
+                
+                if (brandData && brandData.brandName) {
+                    const brandName = brandData.brandName.toLowerCase();
+                    if (brandName.includes(searchTerm)) {
+                        section.style.display = 'block'; // Show the section
+                        foundBrands = true;
+                    } else {
+                        section.style.display = 'none'; // Hide the section
+                    }
+                } else {
+                    // If brandData is not available or brandName is missing, hide it
+                    section.style.display = 'none';
+                }
+            });
+
+            const allBrandsContainer = document.getElementById('all-brands-container');
+            const noResultsMessage = document.getElementById('no-results-message');
+
+            if (!foundBrands && searchTerm !== '') {
+                if (!noResultsMessage) {
+                    const msg = document.createElement('p');
+                    msg.id = 'no-results-message';
+                    msg.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
+                    msg.textContent = `No brands found matching "${searchTerm}".`;
+                    allBrandsContainer.appendChild(msg);
+                }
+            } else if (noResultsMessage) {
+                noResultsMessage.remove();
+            }
+        }
+
+        brandSearchInput.addEventListener('keyup', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterBrands, 300); // Debounce for 300ms
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             loadMasterSheet();
