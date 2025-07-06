@@ -3,84 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allpree Deals</title>
+    <title>Allpree Deals - Car Accessories</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* Base styles from previous version, adjusted for new aesthetic */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff; /* Light background */
             color: #333;
             overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            padding: 2rem 0; /* Add vertical padding */
         }
         .container-wrapper {
             background-color: #ffffff;
             border-radius: 1.5rem; /* Rounded corners for the main container */
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-            padding: 2rem;
-            margin: 2rem auto;
+            padding: 0; /* Remove padding here, it's inside sections */
+            margin: 0 auto; /* Center horizontally */
             max-width: 1200px; /* Max width for content */
             width: 95%; /* Responsive width */
+            overflow: hidden; /* Ensure rounded corners clip content */
         }
-        .section-header {
-            background-color: #3f51b5; /* Deep indigo for header */
+        .category-header {
+            background-color: #2C3E50; /* Dark blue from screenshot */
             color: white;
             padding: 1.5rem 2rem;
-            border-radius: 1rem; /* Rounded corners for header */
-            margin-bottom: 2rem;
+            border-radius: 1.5rem 1.5rem 0 0; /* Rounded top corners only */
             font-size: 1.875rem; /* text-3xl */
             font-weight: 700; /* font-bold */
-            text-align: center;
+            text-align: left;
         }
-        .brand-section {
-            margin-bottom: 3rem;
-            background-color: #f8fafc; /* Very light grey for brand section background */
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0; /* Light border below brand info */
-        }
-        .brand-logo-container {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        .brand-logo-container img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-        }
-        .brand-name {
-            font-size: 1.75rem; /* text-2xl */
-            font-weight: 700;
-            color: #1a202c; /* Dark text */
-        }
-        .brand-timer {
-            font-size: 1rem;
-            color: #ef4444; /* Red for timer */
-            font-weight: 500;
-            margin-left: auto; /* Pushes timer to the right */
-        }
+
+        /* Deal Grid and Cards */
         .deal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted for smaller cards */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusted for screenshot card size */
             gap: 1.5rem;
+            padding: 2rem; /* Padding for the grid itself */
         }
-        .deal {
+        .deal-card { /* Renamed from .deal for clarity */
             background-color: #ffffff;
             border-radius: 0.75rem; /* Rounded corners for deal cards */
             overflow: hidden;
@@ -90,15 +56,15 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
+            align-items: center; /* Center content horizontally */
+            text-align: left; /* Text alignment for content */
             padding-bottom: 1rem; /* Padding for content below image */
         }
-        .deal:hover {
+        .deal-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
-        .deal img {
+        .deal-card img {
             width: 100%;
             height: 150px; /* Fixed height for consistency */
             object-fit: cover; /* Cover ensures image fills space */
@@ -109,7 +75,7 @@
             position: absolute;
             top: 0.75rem;
             right: 0.75rem;
-            background-color: #ef4444; /* Red badge */
+            background-color: #2C3E50; /* Dark blue from screenshot */
             color: white;
             padding: 0.3rem 0.6rem;
             border-radius: 0.5rem;
@@ -120,6 +86,10 @@
         .deal-content {
             padding: 0.75rem;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Push button to bottom if needed */
+            flex-grow: 1; /* Allow content to grow */
         }
         .deal-title {
             font-weight: 600;
@@ -133,19 +103,100 @@
             -webkit-line-clamp: 2; /* Limit to 2 lines */
             -webkit-box-orient: vertical;
         }
-        .price {
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto; /* Push to bottom */
+        }
+        .price-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .original-price {
             text-decoration: line-through;
             color: #6b7280; /* Gray for original price */
             font-size: 0.875rem;
-            margin-bottom: 0.25rem;
         }
-        .discount {
+        .discount-price {
             font-weight: 700;
-            color: #10b981; /* Green for discount price */
+            color: #1a202c; /* Darker text for new price */
             font-size: 1.125rem;
         }
+        .add-to-cart-button {
+            background-color: #2C3E50; /* Dark blue button */
+            color: white;
+            width: 36px; /* Circular button */
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .add-to-cart-button:hover {
+            background-color: #34495E; /* Slightly lighter blue on hover */
+        }
 
-        /* Popup Styles */
+        /* Special Category Icon Card */
+        .category-icon-card {
+            background-color: #2C3E50; /* Dark blue background */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-height: 250px; /* Match height of other cards */
+            text-align: center;
+        }
+        .category-icon-card svg {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            margin-bottom: 1rem;
+        }
+        .category-icon-card .card-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Shop More Deals Button */
+        .shop-more-deals-container {
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem 2rem;
+            background-color: #ffffff; /* Match container background */
+            border-radius: 0 0 1.5rem 1.5rem; /* Rounded bottom corners only */
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.03); /* Subtle shadow at the bottom */
+        }
+        .shop-more-button {
+            background-color: #2C3E50; /* Dark blue button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .shop-more-button:hover {
+            background-color: #34495E;
+        }
+        .shop-more-button svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        /* Popup Styles (retained, minor adjustments for consistency) */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -157,7 +208,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(5px); /* Blurred background */
+            backdrop-filter: blur(5px);
         }
         .popup-content {
             background-color: white;
@@ -204,7 +255,7 @@
             color: #1a202c;
             margin-bottom: 0.75rem;
         }
-        .popup-price-info {
+        .popup-price-info-popup { /* Specific class for popup prices */
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -246,73 +297,55 @@
         .shop-button:hover {
             background-color: #303f9f; /* Darker indigo on hover */
         }
-        .view-more-button {
-            background-color: #4a5568; /* Darker gray for view more */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            margin-top: 1.5rem;
-        }
-        .view-more-button:hover {
-            background-color: #2d3748;
-        }
-        .category-header {
-            background-color: #4a5568; /* Darker gray for category headers */
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
-    <div id="deals-container" class="mb-12 mt-16">Loading deals...</div>
+    <div class="container-wrapper">
+        <h1 class="category-header">Car Accessories</h1>
 
-                    <div class="popup-overlay" id="popup">
-                        <div class="popup-content" id="popupContent">
-                            <span class="popup-close" onclick="closePopup()">×</span>
-                            <div style="position: relative;">
-                                <span class="popup-discount-badge" id="popupBadge"></span>
-                                <img id="popupImg" src="" alt="Product">
-                            </div>
-                            <div class="popup-body">
-                                <div class="popup-title" id="popupTitle"></div>
-                                <div class="popup-price" id="popupPrice"></div>
-                                <div class="popup-discount" id="popupDiscount"></div>
-                                <div class="popup-description" id="popupDesc"></div>
-                            </div>
-                        </div>
-                    </div>
-      <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const faqButtons = document.querySelectorAll('.faq-question-button');
+        <div id="deals-container" class="deal-grid">
+            <!-- Deals will be loaded here by JavaScript -->
+            <!-- Placeholder for the special category icon card -->
+            <div class="category-icon-card">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M18.92 2.01c-.02-.01-.06-.02-.08-.03-.08-.03-.16-.06-.25-.09-.09-.03-.18-.06-.27-.08-.09-.02-.18-.04-.27-.05-.09-.01-.18-.02-.27-.02H5.08c-.09 0-.18.01-.27.02-.09.01-.18.03-.27.05-.09.02-.18.05-.27.08-.09.03-.17.06-.25.09-.02.01-.06.02-.08.03-.45.19-.85.44-1.2.75-.35.31-.64.68-.87 1.1-.23.42-.39.88-.47 1.37-.08.49-.12 1-.12 1.52V19c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9.5c0-.52-.04-1.03-.12-1.52-.08-.49-.24-.95-.47-1.37-.23-.42-.52-.79-.87-1.1-.35-.31-.75-.56-1.2-.75zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM4 9h16V6c0-.42.04-.83.11-1.22.07-.39.19-.75.34-1.08.15-.33.34-.63.56-.89.22-.26.47-.48.75-.66.28-.18.59-.31.92-.4.33-.09.68-.14 1.05-.14h9.84c.37 0 .72.05 1.05.14.33.09.64.22.92.4.28.18.53.4.75.66.19.26.34.55.47.89.13.33.23.69.29 1.08.06.39.1.8.11 1.22V9H4z"/>
+                </svg>
+                <div class="card-text">Car Accessories</div>
+            </div>
+        </div>
 
-            faqButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const answer = button.nextElementSibling; // Get the .faq-answer div
-                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        <div class="shop-more-deals-container">
+            <button class="shop-more-button">
+                SHOP <span id="remaining-deals-count">0</span> MORE DEALS
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-                    // Toggle aria-expanded attribute
-                    button.setAttribute('aria-expanded', !isExpanded);
+    <!-- Popup Modal -->
+    <div id="popup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closePopup()">&times;</span>
+            <img id="popupImg" src="" alt="Deal Image" class="popup-img" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
+            <h2 id="popupTitle" class="popup-title"></h2>
+            <div class="popup-price-info-popup">
+                <p id="popupPrice" class="popup-price"></p>
+                <p id="popupDiscount" class="popup-discount"></p>
+            </div>
+            <p id="popupDesc" class="popup-desc"></p>
+            <span id="popupBadge" class="popup-badge"></span>
+            <button class="shop-button mt-4">Shop Now</button>
+        </div>
+    </div>
 
-                    // Toggle 'expanded' class on the answer for CSS transitions
-                    if (isExpanded) {
-                        answer.classList.remove('expanded');
-                    } else {
-                        answer.classList.add('expanded');
-                    }
-                });
-            });
-        });
-
-        // App Sample JavaScript
+    <script>
         const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
-        
+        const productsPerPage = 5; // Number of products to show initially (excluding the category card)
+        let allProducts = [];
+        let currentProductIndex = 0;
+
         function openPopup({ image, name, original, discount, description }) {
             const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
             const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -331,98 +364,148 @@
             document.getElementById('popup').style.display = 'none';
         }
 
+        function renderProducts(productsToRender) {
+            const container = document.getElementById('deals-container');
+            // Keep the category icon card, clear only dynamically added products
+            const existingCategoryCard = container.querySelector('.category-icon-card');
+            container.innerHTML = '';
+            if (existingCategoryCard) {
+                container.appendChild(existingCategoryCard);
+            }
+
+            productsToRender.forEach(row => {
+                if (row.ProductName && row.ImageURL) {
+                    const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
+                    const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
+                    const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+                    const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+
+                    const dealCard = document.createElement('div');
+                    dealCard.className = 'deal-card'; // Use new class name
+                    dealCard.innerHTML = `
+                        <span class="discount-badge">SAVE ${percentOff}%</span>
+                        <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
+                        <div class="deal-content">
+                            <div class="deal-title">${shortName}</div>
+                            <div class="price-section">
+                                <div class="price-info">
+                                    <div class="discount-price">R${discount.toLocaleString()}</div>
+                                    <div class="original-price">R${original.toLocaleString()}</div>
+                                </div>
+                                <button class="add-to-cart-button">+</button>
+                            </div>
+                        </div>
+                    `;
+                    dealCard.addEventListener('click', () => {
+                        openPopup({
+                            image: row.ImageURL,
+                            name: row.ProductName,
+                            original: original.toLocaleString(),
+                            discount: discount.toLocaleString(),
+                            description: row.Description
+                        });
+                    });
+                    container.appendChild(dealCard);
+                }
+            });
+            updateShopMoreButton();
+        }
+
+        function updateShopMoreButton() {
+            const remainingCount = allProducts.length - currentProductIndex;
+            const shopMoreButton = document.getElementById('remaining-deals-count');
+            const shopMoreContainer = document.querySelector('.shop-more-deals-container');
+
+            if (remainingCount > 0) {
+                shopMoreButton.textContent = remainingCount;
+                shopMoreContainer.style.display = 'flex';
+            } else {
+                shopMoreContainer.style.display = 'none';
+            }
+        }
+
         async function loadDeals() {
             const container = document.getElementById('deals-container');
-            container.innerHTML = 'Loading deals...'; // Keep loading message visible initially
+            container.innerHTML = `
+                <div class="category-icon-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M18.92 2.01c-.02-.01-.06-.02-.08-.03-.08-.03-.16-.06-.25-.09-.09-.03-.18-.06-.27-.08-.09-.02-.18-.04-.27-.05-.09-.01-.18-.02-.27-.02H5.08c-.09 0-.18.01-.27.02-.09.01-.18.03-.27.05-.09.02-.18.05-.27.08-.09.03-.17.06-.25.09-.02.01-.06.02-.08.03-.45.19-.85.44-1.2.75-.35.31-.64.68-.87 1.1-.23.42-.39.88-.47 1.37-.08.49-.12 1-.12 1.52V19c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9.5c0-.52-.04-1.03-.12-1.52-.08-.49-.24-.95-.47-1.37-.23-.42-.52-.79-.87-1.1-.35-.31-.75-.56-1.2-.75zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM4 9h16V6c0-.42.04-.83.11-1.22.07-.39.19-.75.34-1.08.15-.33.34-.63.56-.89.22-.26.47-.48.75-.66.28-.18.59-.31.92-.4.33-.09.68-.14 1.05-.14h9.84c.37 0 .72.05 1.05.14.33.09.64.22.92.4.28.18.53.4.75.66.19.26.34.55.47.89.13.33.23.69.29 1.08.06.39.1.8.11 1.22V9H4z"/>
+                    </svg>
+                    <div class="card-text">Car Accessories</div>
+                </div>
+            `; // Initial category card
 
             try {
                 const res = await fetch(sheetUrl);
                 const rows = await res.json();
+                
+                // Filter out rows that are just brand headers and keep only product rows
+                allProducts = rows.filter(row => row.ProductName && row.ImageURL);
+                currentProductIndex = 0; // Reset index
 
-                // Clear container before adding content
-                container.innerHTML = ''; 
+                renderProducts(allProducts.slice(currentProductIndex, currentProductIndex + productsPerPage));
+                currentProductIndex += productsPerPage;
 
-                let currentBrand = '';
-                let currentLogo = '';
-                let brandSection = null;
-                let grid = null;
+            } catch (err) {
+                console.error('Failed to load deals:', err);
+                container.innerHTML += '<p class="text-center text-red-500 col-span-full">Failed to load deals. Please check the sheet URL.</p>';
+            }
+        }
 
-                rows.forEach(row => {
-                    // Check if it's a new brand section
-                    if (row.BrandName && row.BrandLogo) {
-                        currentBrand = row.BrandName;
-                        currentLogo = row.BrandLogo;
-
-                        brandSection = document.createElement('div');
-                        brandSection.className = 'brand-section';
-
-                        const brandDiv = document.createElement('div');
-                        brandDiv.className = 'brand';
-                        const expireDate = row.ExpiryDate;
-                        const timerId = `timer-${Math.random().toString(36).substring(2)}`;
-
-                        brandDiv.innerHTML = `
-                            <div class="brand-logo-container">
-                                <img src="${currentLogo}" alt="${currentBrand}" />
-                            </div>
-                            <span class="brand-name">${currentBrand}</span>
-                            <span class="brand-timer" id="${timerId}"></span>
-                        `;
-
-                        if (expireDate) {
-                            startBrandCountdown(expireDate, timerId);
-                        }
-
-                        grid = document.createElement('div');
-                        grid.className = 'deal-grid';
-
-                        brandSection.appendChild(brandDiv);
-                        brandSection.appendChild(grid);
-                        container.appendChild(brandSection);
-                    }
-
-                    // Add deal card if deal data exists
+        // Function to load more deals
+        function loadMoreDeals() {
+            const productsToAdd = allProducts.slice(currentProductIndex, currentProductIndex + productsPerPage);
+            if (productsToAdd.length > 0) {
+                const container = document.getElementById('deals-container');
+                productsToAdd.forEach(row => {
                     if (row.ProductName && row.ImageURL) {
-                        const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
-                        const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+                        const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
+                        const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
                         const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
-                        // Adjusted shortName logic to allow more characters and ensure proper display
                         const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
 
                         const dealCard = document.createElement('div');
-                        dealCard.className = 'deal';
+                        dealCard.className = 'deal-card';
                         dealCard.innerHTML = `
-                            <span class="discount-badge">${percentOff}% OFF</span>
-                            <img src="${row.ImageURL}" alt="${row.ProductName}">
+                            <span class="discount-badge">SAVE ${percentOff}%</span>
+                            <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                             <div class="deal-content">
                                 <div class="deal-title">${shortName}</div>
-                                <div class="price">JMD $${original.toLocaleString()}</div>
-                                <div class="discount">JMD $${discount.toLocaleString()}</div>
+                                <div class="price-section">
+                                    <div class="price-info">
+                                        <div class="discount-price">R${discount.toLocaleString()}</div>
+                                        <div class="original-price">R${original.toLocaleString()}</div>
+                                    </div>
+                                    <button class="add-to-cart-button">+</button>
+                                </div>
                             </div>
                         `;
                         dealCard.addEventListener('click', () => {
                             openPopup({
                                 image: row.ImageURL,
                                 name: row.ProductName,
-                                original: original.toLocaleString(), // Ensure formatted for popup
-                                discount: discount.toLocaleString(), // Ensure formatted for popup
+                                original: original.toLocaleString(),
+                                discount: discount.toLocaleString(),
                                 description: row.Description
                             });
                         });
-
-                        grid?.appendChild(dealCard);
+                        container.appendChild(dealCard);
                     }
                 });
-
-            } catch (err) {
-                console.error('Failed to load deals:', err);
-                container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
+                currentProductIndex += productsToAdd.length;
+                updateShopMoreButton();
             }
         }
 
+
         // Call loadDeals when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', loadDeals);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDeals();
+            // Attach event listener to the "Shop More Deals" button
+            document.querySelector('.shop-more-button').addEventListener('click', loadMoreDeals);
+        });
         
         // Event listener for closing popup when clicking outside content
         document.getElementById('popup').addEventListener('click', function (e) {
@@ -431,6 +514,9 @@
             }
         });
 
+        // The startBrandCountdown function is no longer directly used for brand sections
+        // but keeping it here as it was part of the original script.
+        // It's not called in this new layout.
         function startBrandCountdown(expireDate, elementId) {
             function update() {
                 const el = document.getElementById(elementId);
@@ -439,17 +525,30 @@
                 const timeLeft = new Date(expireDate) - new Date();
                 if (timeLeft <= 0) {
                     el.textContent = ' - Deal ended';
-                    clearInterval(timer);
+                    clearInterval(el.timerInterval);
                 } else {
-                    const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
                     const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
                     const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-                    el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
+                    
+                    let timeString = '';
+                    if (days > 0) {
+                        timeString += `${days}d `;
+                    }
+                    timeString += `${hrs}:${mins}:${secs}`;
+
+                    el.textContent = ` - Ends in: ${timeString}`;
                 }
+            }
+
+            if (document.getElementById(elementId) && document.getElementById(elementId).timerInterval) {
+                clearInterval(document.getElementById(elementId).timerInterval);
             }
 
             update();
             const timer = setInterval(update, 1000);
+            document.getElementById(elementId).timerInterval = timer;
         }
     </script>
 </body>
