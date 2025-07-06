@@ -20,8 +20,7 @@
             padding: 2rem 0; /* Add vertical padding */
         }
         .container-wrapper {
-            
-            max-width: 1200px; /* Max width for content */
+         max-width: 1200px; /* Max width for content */
             width: 95%; /* Responsive width */
             overflow: hidden; /* Ensure rounded corners clip content */
         }
@@ -339,7 +338,6 @@
 <body>
     <div class="container-wrapper">
        
-
         <div id="all-brands-container">
             <!-- Each brand's section will be dynamically added here -->
             <p class="col-span-full text-center text-gray-500 py-4" id="loading-brands-message">Loading Brands...</p>
@@ -370,6 +368,19 @@
         // Store product data and current index per brand
         const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0 } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
+
+        /**
+         * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
+         * @param {Array} array The array to shuffle.
+         * @returns {Array} The shuffled array (same reference).
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
+        }
 
         function openPopup({ image, name, original, discount, description, brandName }) {
             const originalPrice = parseFloat(String(original).replace(/,/g, '')) || 0;
@@ -496,7 +507,7 @@
 
             // Add a temporary loading state for the brand section
             brandSection.innerHTML = `
-               
+                
                 <div id="deals-container-${brandId}" class="deal-grid">
                     <!-- The special category brand card (now current brand info) -->
                     <div id="category-brand-card-${brandId}" class="category-icon-card">
@@ -541,6 +552,11 @@
                     return; // Exit the function, no need to render anything for this brand
                 }
 
+                // *******************************************************************
+                // NEW LOGIC: Shuffle products before storing them
+                shuffleArray(tempProducts);
+                // *******************************************************************
+
                 // Store data for this brand
                 brandDataMap[brandId] = {
                     allProducts: tempProducts,
@@ -565,8 +581,7 @@
                         categoryBrandCountdown.textContent = '';
                     }
 
-                    // *******************************************************************
-                    // NEW LOGIC: Apply primary and secondary colors to the card background
+                    // Apply primary and secondary colors to the card background
                     const primaryColor = featuredBrandData.PrimaryColor;
                     const secondaryColor = featuredBrandData.SecondaryColor;
 
@@ -581,7 +596,6 @@
                         categoryBrandCard.style.backgroundColor = '#2C3E50';
                         categoryBrandCard.style.backgroundImage = '';
                     }
-                    // *******************************************************************
 
                 } else {
                     // Fallback if no dedicated brand row in the specific sheet
