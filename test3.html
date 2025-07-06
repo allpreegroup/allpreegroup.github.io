@@ -3,509 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Cashback Loop Infographic</title>
+    <title>Allpree Deals</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F0F4F8;
+            background-color: #f0f4ff; /* Light background */
+            color: #333;
+            overflow-x: hidden;
         }
-        .chart-container {
+        .container-wrapper {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* Rounded corners for the main container */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px; /* Max width for content */
+            width: 95%; /* Responsive width */
+        }
+        .section-header {
+            background-color: #3f51b5; /* Deep indigo for header */
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem; /* Rounded corners for header */
+            margin-bottom: 2rem;
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            text-align: center;
+        }
+        .brand-section {
+            margin-bottom: 3rem;
+            background-color: #f8fafc; /* Very light grey for brand section background */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0; /* Light border below brand info */
+        }
+        .brand-logo-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .brand-logo-container img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+        .brand-name {
+            font-size: 1.75rem; /* text-2xl */
+            font-weight: 700;
+            color: #1a202c; /* Dark text */
+        }
+        .brand-timer {
+            font-size: 1rem;
+            color: #ef4444; /* Red for timer */
+            font-weight: 500;
+            margin-left: auto; /* Pushes timer to the right */
+        }
+        .deal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted for smaller cards */
+            gap: 1.5rem;
+        }
+        .deal {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners for deal cards */
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 1rem; /* Padding for content below image */
+        }
+        .deal:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        .deal img {
             width: 100%;
+            height: 150px; /* Fixed height for consistency */
+            object-fit: cover; /* Cover ensures image fills space */
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        .discount-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #ef4444; /* Red badge */
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            z-index: 10;
+        }
+        .deal-content {
+            padding: 0.75rem;
+            width: 100%;
+        }
+        .deal-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+            height: 2.5rem; /* Fixed height for title to prevent layout shifts */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+        .price {
+            text-decoration: line-through;
+            color: #6b7280; /* Gray for original price */
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .discount {
+            font-weight: 700;
+            color: #10b981; /* Green for discount price */
+            font-size: 1.125rem;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px); /* Blurred background */
+        }
+        .popup-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 320px;
-            max-height: 400px;
+            width: 90%;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .gradient-text {
-            background: linear-gradient(90deg, #00C0FF, #0080FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .popup-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
         }
-        .icon-bg {
-            background-color: #E0F7FA;
+        .popup-close:hover {
+            color: #ef4444;
         }
-        .flow-step {
-            @apply flex flex-col items-center p-4 rounded-xl shadow-md bg-white text-center;
+        .popup-img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8fafc;
+            padding: 1rem;
         }
-        .arrow-right {
-            @apply text-4xl text-gray-300 mx-4 hidden md:block;
+        .popup-title {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
         }
-        .arrow-down {
-            @apply text-4xl text-gray-300 my-4 md:hidden;
+        .popup-price-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        .cycle-step {
-            @apply flex flex-col items-center p-4 rounded-xl shadow-md bg-white text-center;
+        .popup-price {
+            text-decoration: line-through;
+            color: #6b7280;
+            font-size: 1.125rem;
         }
-        .cycle-arrow {
-            @apply text-4xl text-gray-300;
+        .popup-discount {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 1.5rem;
         }
-        .path-box {
-            @apply flex-1 p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center m-2;
+        .popup-desc {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
         }
-        .flywheel-node {
-            @apply flex flex-col items-center p-4 rounded-full shadow-md bg-white text-center justify-center h-32 w-32 md:h-40 md:w-40;
+        .popup-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 1rem;
         }
-        .step-panel {
-            @apply bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center;
+        .shop-button {
+            background-color: #3f51b5; /* Indigo button */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .shop-button:hover {
+            background-color: #303f9f; /* Darker indigo on hover */
+        }
+        .view-more-button {
+            background-color: #4a5568; /* Darker gray for view more */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            margin-top: 1.5rem;
+        }
+        .view-more-button:hover {
+            background-color: #2d3748;
+        }
+        .category-header {
+            background-color: #4a5568; /* Darker gray for category headers */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
+    <div class="container-wrapper">
+        <h1 class="section-header">Exclusive Deals from Our Partners</h1>
 
-    <div class="container mx-auto p-4 md:p-8">
+        <div id="deals-container" class="space-y-8">
+            <!-- Deals will be loaded here by JavaScript -->
+            <p class="text-center text-gray-600">Loading deals...</p>
+        </div>
+    </div>
 
-        <header class="text-center py-12">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tight gradient-text">The Cashback Loop</h1>
-            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">How I Turned Everyday Spending Into a Smarter Wealth Tool</p>
-        </header>
-
-        <main class="space-y-12 md:space-y-20">
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">The Financial Trap vs. The Cashback Loop</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8">Most traditional financial advice leaves people stuck. The Cashback Loop offers a fundamentally different path to financial growth by leveraging your existing spending habits.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="flex flex-col items-center">
-                        <h3 class="text-xl font-semibold mb-4 text-[#0080FF]">Traditional Path: The Trap</h3>
-                        <div class="flow-step">
-                            <span class="text-5xl mb-2">💼</span>
-                            <span class="font-bold text-lg">Work & Earn</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step">
-                            <span class="text-5xl mb-2">💸</span>
-                            <span class="font-bold text-lg">Spend Money</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-gray-100">
-                            <span class="text-5xl mb-2">🤷</span>
-                            <span class="font-bold text-lg">Nothing Back</span>
-                            <span class="text-sm text-gray-500 mt-1">Inflation eats savings.</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <h3 class="text-xl font-semibold mb-4 text-[#00F0B5]">Cashback Loop: The Solution</h3>
-                        <div class="flow-step">
-                            <span class="text-5xl mb-2">💼</span>
-                            <span class="font-bold text-lg">Work & Earn</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-[#E0F7FA]">
-                            <span class="text-5xl mb-2">💳</span>
-                            <span class="font-bold text-lg">Spend via Gift Cards</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step">
-                            <span class="text-5xl mb-2">💰</span>
-                            <span class="font-bold text-lg">Earn Cashback</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-[#D1F7F8]">
-                            <span class="text-5xl mb-2">🔄</span>
-                            <span class="font-bold text-lg">Withdraw or Loop Again</span>
-                            <span class="text-sm text-gray-500 mt-1">Boosted returns for patience.</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">Why Trading Doesn’t Work for Most People</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The allure of trading is strong, but the reality is harsh. It's a high-pressure environment where most individuals struggle, leading to predictable cycles of loss and disillusionment. The Cashback Loop offers a no-risk alternative.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div class="flow-chart flex flex-col items-center justify-center">
-                        <div class="flow-step bg-[#E0F7FA] text-[#0080FF]">
-                            <span class="text-5xl mb-2">🤩</span>
-                            <span class="font-bold text-lg">Excitement</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-[#FFEBEE] text-[#FF4081]">
-                            <span class="text-5xl mb-2">📉</span>
-                            <span class="font-bold text-lg">Losses</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-[#FFF3E0] text-[#FFC107]">
-                            <span class="text-5xl mb-2">🔄</span>
-                            <span class="font-bold text-lg">Attempt to Double Down</span>
-                        </div>
-                        <div class="arrow-down">↓</div>
-                        <div class="flow-step bg-[#FBE9E7] text-[#D32F2F]">
-                            <span class="text-5xl mb-2">💔</span>
-                            <span class="font-bold text-lg">Burnout & Quitting</span>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-6">
-                        <h3 class="text-xl font-semibold mb-2">Retail Trading Success Rate</h3>
-                        <p class="text-gray-500 mb-4 text-sm">A staggering majority of retail traders (85%) consistently lose money, highlighting the inherent risk and difficulty for the average person.</p>
-                        <div class="chart-container">
-                            <canvas id="tradingSuccessChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">How the Cashback Loop Works (Core Loop)</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The Cashback Loop is designed for simplicity and maximum user benefit. It's a continuous cycle where your regular spending activities become the engine for your financial growth.</p>
-                <div class="relative flex flex-col items-center justify-center md:flex-row md:justify-around">
-                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00F0B5] text-white">
-                        <span class="text-5xl mb-2">🛒</span>
-                        <span class="font-bold text-lg">Spend</span>
-                    </div>
-                    <div class="cycle-arrow md:absolute md:top-1/2 md:left-1/4 md:-translate-x-1/2 md:-translate-y-1/2 md:rotate-0">→</div>
-                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00E0D8] text-white">
-                        <span class="text-5xl mb-2">💸</span>
-                        <span class="font-bold text-lg">Earn Cashback</span>
-                    </div>
-                    <div class="cycle-arrow md:absolute md:top-1/2 md:right-1/4 md:translate-x-1/2 md:-translate-y-1/2 md:rotate-0">→</div>
-                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#00C0FF] text-white">
-                        <span class="text-5xl mb-2">⏱️</span>
-                        <span class="font-bold text-lg">Wait 121 Days</span>
-                    </div>
-                    <div class="cycle-arrow md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 md:translate-y-1/2 md:rotate-90 md:rotate-180">→</div>
-                    <div class="cycle-step w-40 h-40 flex-shrink-0 bg-[#0080FF] text-white mt-4 md:mt-0">
-                        <span class="text-5xl mb-2">🎁</span>
-                        <span class="font-bold text-lg">Withdraw or Loop Again</span>
-                    </div>
-                    <div class="cycle-arrow md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rotate-90">→</div>
-                     <div class="cycle-arrow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-gray-100 z-0">↻</div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Where the Money Comes From: The Reserve Model</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">The system's financial strength comes from a carefully managed reserve. Each gift card purchase contributes to this reserve, which in turn fuels the cashback payouts, ensuring stability and long-term viability without relying on risky investments.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Purchase Allocation</h3>
-                        <p class="text-gray-500 mb-4 text-sm">When you buy a gift card, a portion of that value is strategically allocated to different components to ensure the system's health and your cashback payout.</p>
-                        <div class="chart-container">
-                            <canvas id="reserveAllocationChart"></canvas>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">121-Day Buffer: Liquidity Protection</h3>
-                        <p class="text-gray-500 mb-4 text-sm">The 121-day delay isn't arbitrary. It's a crucial mechanism that allows for robust cash flow management, fraud prevention, and building sufficient liquidity to guarantee payouts.</p>
-                        <div class="chart-container">
-                            <canvas id="bufferGrowthChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Your Choice: Short Path vs. Loop Path</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8 text-center">After the initial 121-day holding period, you have the power to decide. Choose the option that aligns with your immediate needs or long-term wealth goals.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="path-box bg-[#F0F4F8] border-2 border-[#00C0FF]">
-                        <h3 class="font-bold text-lg mb-2 text-[#00C0FF]">Path 1: Simple Cashback</h3>
-                        <span class="text-5xl mb-3">⏱️</span>
-                        <p class="text-sm text-gray-600">Withdraw your cashback at the next payout window after 121 days. Ideal for quick access to earned rewards.</p>
-                        <p class="text-xl font-bold text-[#00C0FF] mt-4">Typical Return: Moderate</p>
-                    </div>
-                    <div class="path-box bg-[#F0F4F8] border-2 border-[#00F0B5]">
-                        <h3 class="font-bold text-lg mb-2 text-[#00F0B5]">Path 2: The Cashback Loop</h3>
-                        <span class="text-5xl mb-3">🚀</span>
-                        <p class="text-sm text-gray-600">Leave your cashback for an additional 365 days to unlock up to 100% of your original spend value. Designed for long-term growth.</p>
-                        <p class="text-xl font-bold text-[#00F0B5] mt-4">Typical Return: Up to 100%</p>
-                    </div>
-                </div>
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold text-center mb-4">Illustrative Payout Comparison (on $10,000 spend)</h3>
-                    <div class="chart-container">
-                        <canvas id="payoutComparisonChart"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">Sustainability Flywheel: How It All Stays Strong</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8">The Cashback Loop is built on a self-reinforcing model. As more users participate and choose the growth path, the system's reserve strengthens, enabling more rewards and building greater trust.</p>
-                <div class="flex flex-col items-center justify-center relative py-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-x-16 md:grid-rows-2">
-                        <div class="flywheel-node bg-[#00F0B5] text-white">
-                            <span class="text-3xl md:text-4xl">👥</span>
-                            <span class="text-sm md:text-base font-bold">More Users</span>
-                        </div>
-                        <div class="flywheel-node bg-[#00E0D8] text-white md:row-span-2 md:col-start-2 flex items-center justify-center">
-                            <span class="text-3xl md:text-4xl">💰</span>
-                            <span class="text-sm md:text-base font-bold">Bigger Reserves</span>
-                        </div>
-                        <div class="flywheel-node bg-[#00C0FF] text-white md:col-start-1 md:row-start-2">
-                            <span class="text-3xl md:text-4xl">✅</span>
-                            <span class="text-sm md:text-base font-bold">Safer Payouts</span>
-                        </div>
-                        <div class="flywheel-node bg-[#0080FF] text-white md:col-start-2 md:row-start-1">
-                            <span class="text-3xl md:text-4xl">🤝</span>
-                            <span class="text-sm md:text-base font-bold">More Trust</span>
-                        </div>
-                    </div>
-                    <div class="absolute inset-0 flex items-center justify-center z-0">
-                        <span class="text-[15rem] md:text-[20rem] text-gray-100 opacity-75 animate-spin-slow">♻️</span>
-                    </div>
-                    <style>
-                        @keyframes spin-slow {
-                            from { transform: rotate(0deg); }
-                            to { transform: rotate(360deg); }
-                        }
-                        .animate-spin-slow {
-                            animation: spin-slow 20s linear infinite;
-                        }
-                    </style>
-                </div>
-            </section>
-            
-            <section class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6">Getting Started in 4 Simple Steps</h2>
-                <p class="max-w-4xl mx-auto text-gray-600 mb-8">Begin your journey with The Cashback Loop today. It's designed to be straightforward, allowing you to start earning rewards on your everyday spending immediately.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="step-panel">
-                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00F0B5] text-white text-3xl font-bold mb-4">1</div>
-                        <h3 class="font-semibold text-xl mb-2">Download the App</h3>
-                        <p class="text-sm text-gray-600">Get the free app. No banking details needed to start exploring.</p>
-                    </div>
-                    <div class="step-panel">
-                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00E0D8] text-white text-3xl font-bold mb-4">2</div>
-                        <h3 class="font-semibold text-xl mb-2">Try a Small Purchase</h3>
-                        <p class="text-sm text-gray-600">Buy a gift card for something you'd normally buy. See your cashback grow.</p>
-                    </div>
-                    <div class="step-panel">
-                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#00C0FF] text-white text-3xl font-bold mb-4">3</div>
-                        <h3 class="font-semibold text-xl mb-2">Choose Your Path</h3>
-                        <p class="text-sm text-gray-600">After 121 days, decide: withdraw for immediate use or loop for more.</p>
-                    </div>
-                    <div class="step-panel">
-                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-[#0080FF] text-white text-3xl font-bold mb-4">4</div>
-                        <h3 class="font-semibold text-xl mb-2">Enjoy the Growth</h3>
-                        <p class="text-sm text-gray-600">Watch your cashback accumulate, turning spending into a wealth tool.</p>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <footer class="text-center py-12 mt-10 border-t border-gray-200">
-            <p class="text-gray-600">Your loop starts today. How far does it go? That’s up to you.</p>
-            <p class="text-xs text-gray-400 mt-4">The Cashback Loop Infographic. All Rights Reserved.</p>
-        </footer>
-
+    <!-- Popup Modal -->
+    <div id="popup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closePopup()">&times;</span>
+            <img id="popupImg" src="" alt="Deal Image" class="popup-img">
+            <h2 id="popupTitle" class="popup-title"></h2>
+            <div class="popup-price-info">
+                <p id="popupPrice" class="popup-price"></p>
+                <p id="popupDiscount" class="popup-discount"></p>
+            </div>
+            <p id="popupDesc" class="popup-desc"></p>
+            <span id="popupBadge" class="popup-badge"></span>
+            <button class="shop-button mt-4">Shop Now</button>
+        </div>
     </div>
 
     <script>
-        const energeticPlayfulPalette = {
-            greenAqua: '#00F0B5',
-            cyan: '#00E0D8',
-            lightBlue: '#00C0FF',
-            mediumBlue: '#0080FF',
-            darkBlue: '#0040FF',
-            lightGrayBg: '#F0F4F8',
-            cardBg: '#FFFFFF',
-            textPrimary: '#374151',
-            textSecondary: '#6B7280',
-            redAccent: '#FF4081',
-            orangeAccent: '#FFC107',
-            lightGreen: '#E0F7FA',
-            lightRed: '#FFEBEE',
-            lightOrange: '#FFF3E0',
-            veryLightRed: '#FBE9E7'
-        };
+        const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
 
-        const defaultTooltipCallback = {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        title: function(tooltipItems) {
-                            const item = tooltipItems[0];
-                            let label = item.chart.data.labels[item.dataIndex];
-                            if (Array.isArray(label)) {
-                                return label.join(' ');
-                            }
-                            return label;
-                        }
+        function openPopup({ image, name, original, discount, description }) {
+            const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
+            const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
+            const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+
+            document.getElementById('popupImg').src = image;
+            document.getElementById('popupTitle').textContent = name;
+            document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
+            document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+            document.getElementById('popupDesc').textContent = description || '';
+            document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        async function loadDeals() {
+            const container = document.getElementById('deals-container');
+            container.innerHTML = '<p class="text-center text-gray-600">Loading deals...</p>'; // Keep loading message visible initially
+
+            try {
+                const res = await fetch(sheetUrl);
+                const rows = await res.json();
+
+                // Group deals by category first
+                const categorizedDeals = {};
+                rows.forEach(row => {
+                    const category = row.Category || 'Uncategorized';
+                    if (!categorizedDeals[category]) {
+                        categorizedDeals[category] = [];
                     }
-                }
-            }
-        };
+                    categorizedDeals[category].push(row);
+                });
 
-        function wrapLabels(label, maxLength) {
-            if (label.length <= maxLength) {
-                return label;
+                // Clear container before adding content
+                container.innerHTML = '';
+
+                for (const category in categorizedDeals) {
+                    const categoryHeader = document.createElement('h2');
+                    categoryHeader.className = 'category-header mt-8 mb-4';
+                    categoryHeader.textContent = category;
+                    container.appendChild(categoryHeader);
+
+                    let currentBrand = '';
+                    let currentLogo = '';
+                    let brandSection = null;
+                    let grid = null;
+
+                    categorizedDeals[category].forEach(row => {
+                        // Check if it's a new brand section within the category
+                        if (row.BrandName && row.BrandLogo && row.BrandName !== currentBrand) {
+                            currentBrand = row.BrandName;
+                            currentLogo = row.BrandLogo;
+
+                            brandSection = document.createElement('div');
+                            brandSection.className = 'brand-section';
+
+                            const brandDiv = document.createElement('div');
+                            brandDiv.className = 'brand';
+                            const expireDate = row.ExpiryDate;
+                            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+
+                            brandDiv.innerHTML = `
+                                <div class="brand-logo-container">
+                                    <img src="${currentLogo}" alt="${currentBrand}" onerror="this.onerror=null;this.src='https://placehold.co/80x80/e0e0e0/555555?text=Logo';">
+                                </div>
+                                <span class="brand-name">${currentBrand}</span>
+                                <span class="brand-timer" id="${timerId}"></span>
+                            `;
+
+                            if (expireDate) {
+                                startBrandCountdown(expireDate, timerId);
+                            }
+
+                            grid = document.createElement('div');
+                            grid.className = 'deal-grid';
+
+                            brandSection.appendChild(brandDiv);
+                            brandSection.appendChild(grid);
+                            container.appendChild(brandSection);
+                        }
+
+                        // Add deal card if deal data exists and belongs to the current brand/category
+                        if (row.ProductName && row.ImageURL && row.BrandName === currentBrand) {
+                            const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
+                            const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
+                            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+                            const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+
+                            const dealCard = document.createElement('div');
+                            dealCard.className = 'deal';
+                            dealCard.innerHTML = `
+                                <span class="discount-badge">${percentOff}% OFF</span>
+                                <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
+                                <div class="deal-content">
+                                    <div class="deal-title">${shortName}</div>
+                                    <div class="price">JMD $${original.toLocaleString()}</div>
+                                    <div class="discount">JMD $${discount.toLocaleString()}</div>
+                                </div>
+                            `;
+                            dealCard.addEventListener('click', () => {
+                                openPopup({
+                                    image: row.ImageURL,
+                                    name: row.ProductName,
+                                    original: original.toLocaleString(), // Ensure formatted for popup
+                                    discount: discount.toLocaleString(), // Ensure formatted for popup
+                                    description: row.Description
+                                });
+                            });
+
+                            grid?.appendChild(dealCard);
+                        }
+                    });
+                }
+
+                if (Object.keys(categorizedDeals).length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-600">No deals found.</p>';
+                }
+
+            } catch (err) {
+                console.error('Failed to load deals:', err);
+                container.innerHTML = '<p class="text-center text-red-500">Failed to load deals. Please check the sheet URL or your network connection.</p>';
             }
-            const words = label.split(' ');
-            const lines = [];
-            let currentLine = '';
-            words.forEach(word => {
-                if ((currentLine + ' ' + word).length > maxLength) {
-                    lines.push(currentLine.trim());
-                    currentLine = word;
+        }
+
+        // Call loadDeals when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', loadDeals);
+
+        // Event listener for closing popup when clicking outside content
+        document.getElementById('popup').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        function startBrandCountdown(expireDate, elementId) {
+            function update() {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+
+                const timeLeft = new Date(expireDate) - new Date();
+                if (timeLeft <= 0) {
+                    el.textContent = ' - Deal ended';
+                    clearInterval(el.timerInterval); // Clear the specific interval
                 } else {
-                    currentLine += ' ' + word;
-                }
-            });
-            lines.push(currentLine.trim());
-            return lines;
-        }
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                    const mins = String(Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                    const secs = String(Math.floor((timeLeft % (1000 * 60)) / 1000)).padStart(2, '0');
 
-        if (document.getElementById('tradingSuccessChart')) {
-            new Chart(document.getElementById('tradingSuccessChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: [wrapLabels('Retail Traders Who Lose Money', 16), wrapLabels('Traders Who Break Even or Profit', 16)],
-                    datasets: [{
-                        data: [85, 15],
-                        backgroundColor: [energeticPlayfulPalette.mediumBlue, energeticPlayfulPalette.greenAqua],
-                        borderColor: energeticPlayfulPalette.cardBg,
-                        borderWidth: 4,
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: energeticPlayfulPalette.textPrimary } },
-                        tooltip: {
-                            callbacks: {
-                                title: function(tooltipItems) {
-                                    const item = tooltipItems[0];
-                                    let label = item.chart.data.labels[item.dataIndex];
-                                    if (Array.isArray(label)) {
-                                        return label.join(' ');
-                                    }
-                                    return label;
-                                },
-                                label: function(context) {
-                                    return `${context.parsed}%`;
-                                }
-                            }
-                        }
+                    let timeString = '';
+                    if (days > 0) {
+                        timeString += `${days}d `;
                     }
-                }
-            });
-        }
+                    timeString += `${hrs}:${mins}:${secs}`;
 
-        if (document.getElementById('reserveAllocationChart')) {
-            new Chart(document.getElementById('reserveAllocationChart'), {
-                type: 'pie',
-                data: {
-                    labels: [wrapLabels('Cashback Reserve', 16), wrapLabels('Merchant Fee', 16), wrapLabels('Operational Costs', 16)],
-                    datasets: [{
-                        data: [60, 25, 15],
-                        backgroundColor: [energeticPlayfulPalette.greenAqua, energeticPlayfulPalette.lightBlue, energeticPlayfulPalette.mediumBlue],
-                        borderColor: energeticPlayfulPalette.cardBg,
-                        borderWidth: 4,
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: energeticPlayfulPalette.textPrimary } },
-                        tooltip: {
-                            callbacks: {
-                                title: function(tooltipItems) {
-                                    const item = tooltipItems[0];
-                                    let label = item.chart.data.labels[item.dataIndex];
-                                    if (Array.isArray(label)) {
-                                        return label.join(' ');
-                                    }
-                                    return label;
-                                },
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.parsed + '%';
-                                    return label;
-                                }
-                            }
-                        }
-                    }
+                    el.textContent = ` - Ends in: ${timeString}`;
                 }
-            });
-        }
+            }
 
-        if (document.getElementById('bufferGrowthChart')) {
-            new Chart(document.getElementById('bufferGrowthChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 4', 'Week 8', 'Week 12', 'Week 16', 'Week 17.2 (Day 121)'],
-                    datasets: [{
-                        label: 'Cashback Reserve Growth (Example $1000)',
-                        data: [100, 250, 400, 600, 800, 1000],
-                        borderColor: energeticPlayfulPalette.cyan,
-                        backgroundColor: energeticPlayfulPalette.cyan + '33',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    ...defaultTooltipCallback,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => `$${value}`
-                            }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        if (document.getElementById('payoutComparisonChart')) {
-            new Chart(document.getElementById('payoutComparisonChart'), {
-                type: 'bar',
-                data: {
-                    labels: [wrapLabels('Path 1: Simple Cashback', 16), wrapLabels('Path 2: Cashback Loop (Boosted)', 16)],
-                    datasets: [{
-                        label: 'Potential Cashback',
-                        data: [500, 10000],
-                        backgroundColor: [energeticPlayfulPalette.lightBlue, energeticPlayfulPalette.greenAqua],
-                        borderRadius: 8,
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    ...defaultTooltipCallback,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => `$${value}`
-                            }
-                        },
-                        y: {
-                             ticks: {
-                                callback: function(value) {
-                                    return wrapLabels(this.getLabelForValue(value), 16);
-                                }
-                            }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
+            update();
+            const timer = setInterval(update, 1000);
+            document.getElementById(elementId).timerInterval = timer; // Store interval ID for clearing
         }
     </script>
 </body>
