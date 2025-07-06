@@ -29,11 +29,23 @@
             width: 95%; /* Responsive width */
             overflow: hidden; /* Ensure rounded corners clip content */
         }
+
+        /* Global Site Brand Name at the very top */
+        .site-brand-name {
+            background-color: #2C3E50; /* Match header background */
+            color: white;
+            padding: 1rem 2rem 0.5rem 2rem; /* Adjusted padding */
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 800; /* Extra bold */
+            text-align: center;
+            /* No border-radius here, as it's part of the top section */
+        }
+
         .category-header {
             background-color: #2C3E50; /* Dark blue from screenshot */
             color: white;
-            padding: 1.5rem 2rem;
-            border-radius: 1.5rem 1.5rem 0 0; /* Rounded top corners only */
+            padding: 0.5rem 2rem 1.5rem 2rem; /* Adjusted padding to flow from site brand */
+            border-radius: 1.5rem 1.5rem 0 0; /* Rounded top corners only if no site brand, otherwise inherited */
             font-size: 1.875rem; /* text-3xl */
             font-weight: 700; /* font-bold */
             text-align: left;
@@ -91,6 +103,17 @@
             justify-content: space-between; /* Push button to bottom if needed */
             flex-grow: 1; /* Allow content to grow */
         }
+        /* Product-specific brand name (text only) */
+        .product-brand-text {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* Gray text */
+            font-weight: 500;
+            margin-bottom: 0.25rem; /* Small space below brand, above title */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .deal-title {
             font-weight: 600;
             font-size: 1rem;
@@ -142,7 +165,7 @@
             background-color: #34495E; /* Slightly lighter blue on hover */
         }
 
-        /* Special Category Icon Card */
+        /* Special Category Icon Card (now dynamically populated with brand data) */
         .category-icon-card {
             background-color: #2C3E50; /* Dark blue background */
             color: white;
@@ -156,15 +179,24 @@
             min-height: 250px; /* Match height of other cards */
             text-align: center;
         }
-        .category-icon-card svg {
+        .category-icon-card .category-brand-logo { /* Specific style for the brand logo in this card */
             width: 80px;
             height: 80px;
-            fill: white;
+            object-fit: contain;
             margin-bottom: 1rem;
+            border-radius: 50%; /* Make it circular */
+            background-color: rgba(255,255,255,0.2); /* Slight background for visibility */
+            padding: 5px;
         }
         .category-icon-card .card-text {
             font-size: 1.25rem;
             font-weight: 600;
+        }
+        .category-icon-card .countdown-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            color: #e0e0e0;
         }
 
         /* Shop More Deals Button */
@@ -255,6 +287,12 @@
             color: #1a202c;
             margin-bottom: 0.75rem;
         }
+        .popup-brand { /* Style for brand name in popup */
+            font-size: 1.125rem; /* text-lg */
+            color: #4a5568; /* Slightly darker gray than card brand name */
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
         .popup-price-info-popup { /* Specific class for popup prices */
             display: flex;
             flex-direction: column;
@@ -301,17 +339,14 @@
 </head>
 <body>
     <div class="container-wrapper">
-        <h1 class="category-header">Car Accessories</h1>
-
-        <div id="deals-container" class="deal-grid">
-            <!-- Deals will be loaded here by JavaScript -->
-            <!-- Placeholder for the special category icon card -->
-            <div class="category-icon-card">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M18.92 2.01c-.02-.01-.06-.02-.08-.03-.08-.03-.16-.06-.25-.09-.09-.03-.18-.06-.27-.08-.09-.02-.18-.04-.27-.05-.09-.01-.18-.02-.27-.02H5.08c-.09 0-.18.01-.27.02-.09.01-.18.03-.27.05-.09.02-.18.05-.27.08-.09.03-.17.06-.25.09-.02.01-.06.02-.08.03-.45.19-.85.44-1.2.75-.35.31-.64.68-.87 1.1-.23.42-.39.88-.47 1.37-.08.49-.12 1-.12 1.52V19c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9.5c0-.52-.04-1.03-.12-1.52-.08-.49-.24-.95-.47-1.37-.23-.42-.52-.79-.87-1.1-.35-.31-.75-.56-1.2-.75zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM4 9h16V6c0-.42.04-.83.11-1.22.07-.39.19-.75.34-1.08.15-.33.34-.63.56-.89.22-.26.47-.48.75-.66.28-.18.59-.31.92-.4.33-.09.68-.14 1.05-.14h9.84c.37 0 .72.05 1.05.14.33.09.64.22.92.4.28.18.53.4.75.66.19.26.34.55.47.89.13.33.23.69.29 1.08.06.39.1.8.11 1.22V9H4z"/>
-                </svg>
-                <div class="card-text">Car Accessories</div>
+       <div id="deals-container" class="deal-grid">
+            <!-- Placeholder for the special category brand card - will be updated by JS -->
+            <div id="category-brand-card" class="category-icon-card">
+                <img id="category-brand-logo" src="https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo" alt="Category Brand Logo" class="category-brand-logo">
+                <div id="category-brand-name-text" class="card-text">Loading Brand...</div>
+                <div id="category-brand-countdown" class="countdown-text"></div>
             </div>
+            <!-- Deals will be loaded here by JavaScript -->
         </div>
 
         <div class="shop-more-deals-container">
@@ -330,6 +365,7 @@
             <span class="popup-close" onclick="closePopup()">&times;</span>
             <img id="popupImg" src="" alt="Deal Image" class="popup-img" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
             <h2 id="popupTitle" class="popup-title"></h2>
+            <p id="popupBrand" class="popup-brand"></p> <!-- Element for brand name in popup -->
             <div class="popup-price-info-popup">
                 <p id="popupPrice" class="popup-price"></p>
                 <p id="popupDiscount" class="popup-discount"></p>
@@ -342,19 +378,21 @@
 
     <script>
         const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
-        const productsPerPage = 5; // Number of products to show initially (excluding the category card)
+        const productsPerPage = 9; // Number of products to show initially (excluding the category card)
         let allProducts = [];
         let currentProductIndex = 0;
+        let featuredBrandData = null; // To store the identified featured brand row
 
-        function openPopup({ image, name, original, discount, description }) {
+        function openPopup({ image, name, original, discount, description, brandName }) {
             const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
             const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
             const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
 
             document.getElementById('popupImg').src = image;
             document.getElementById('popupTitle').textContent = name;
-            document.getElementById('popupPrice').textContent = `Original Price: JMD ${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: JMD ${discount}`;
+            document.getElementById('popupBrand').textContent = brandName ? `${brandName}` : ''; // Set brand name in popup
+            document.getElementById('popupPrice').textContent = `Original Price: R${original}`;
+            document.getElementById('popupDiscount').textContent = `Now: R${discount}`;
             document.getElementById('popupDesc').textContent = description || '';
             document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
             document.getElementById('popup').style.display = 'flex';
@@ -364,49 +402,78 @@
             document.getElementById('popup').style.display = 'none';
         }
 
+        // Function to load more deals
+        function loadMoreDeals() {
+            const productsToAdd = allProducts.slice(currentProductIndex, currentProductIndex + productsPerPage);
+            if (productsToAdd.length > 0) {
+                const container = document.getElementById('deals-container');
+                productsToAdd.forEach(row => {
+                    const card = createDealCard(row);
+                    if (card) {
+                        container.appendChild(card);
+                    }
+                });
+                currentProductIndex += productsToAdd.length;
+                updateShopMoreButton();
+            }
+        }
+
+        function createDealCard(row) {
+            // This function is specifically for product cards, so we ensure product data exists
+            if (!row.ProductName || !row.ImageURL) {
+                return null;
+            }
+
+            const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
+            const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
+            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+            const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+
+            const dealCard = document.createElement('div');
+            dealCard.className = 'deal-card';
+            dealCard.innerHTML = `
+                <span class="discount-badge">SAVE ${percentOff}%</span>
+                <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
+                <div class="deal-content">
+                    <!-- Product-specific brand name (text only) -->
+                    <div class="product-brand-text">${row.BrandName || 'Unknown Brand'}</div>
+                    <div class="deal-title">${shortName}</div>
+                    <div class="price-section">
+                        <div class="price-info">
+                            <div class="discount-price">R${discount.toLocaleString()}</div>
+                            <div class="original-price">R${original.toLocaleString()}</div>
+                        </div>
+                        <button class="add-to-cart-button">+</button>
+                    </div>
+                </div>
+            `;
+            dealCard.addEventListener('click', () => {
+                openPopup({
+                    image: row.ImageURL,
+                    name: row.ProductName,
+                    original: original.toLocaleString(),
+                    discount: discount.toLocaleString(),
+                    description: row.Description,
+                    brandName: row.BrandName // Pass brand name to popup
+                });
+            });
+            return dealCard;
+        }
+
         function renderProducts(productsToRender) {
             const container = document.getElementById('deals-container');
-            // Keep the category icon card, clear only dynamically added products
-            const existingCategoryCard = container.querySelector('.category-icon-card');
-            container.innerHTML = '';
-            if (existingCategoryCard) {
-                container.appendChild(existingCategoryCard);
+            // Keep the category brand card, clear only dynamically added products
+            const existingCategoryBrandCard = container.querySelector('#category-brand-card');
+            container.innerHTML = ''; // Clear existing content
+            if (existingCategoryBrandCard) {
+                container.appendChild(existingCategoryBrandCard); // Re-add the static card
             }
 
             productsToRender.forEach(row => {
-                if (row.ProductName && row.ImageURL) {
-                    const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
-                    const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
-                    const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-                    const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
-
-                    const dealCard = document.createElement('div');
-                    dealCard.className = 'deal-card'; // Use new class name
-                    dealCard.innerHTML = `
-                        <span class="discount-badge">SAVE ${percentOff}%</span>
-                        <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
-                        <div class="deal-content">
-                            <div class="deal-title">${shortName}</div>
-                            <div class="price-section">
-                                <div class="price-info">
-                                    <div class="discount-price">R${discount.toLocaleString()}</div>
-                                    <div class="original-price">R${original.toLocaleString()}</div>
-                                </div>
-                                <button class="add-to-cart-button">+</button>
-                            </div>
-                        </div>
-                    `;
-                    dealCard.addEventListener('click', () => {
-                        openPopup({
-                            image: row.ImageURL,
-                            name: row.ProductName,
-                            original: original.toLocaleString(),
-                            discount: discount.toLocaleString(),
-                            description: row.Description
-                        });
-                    });
-                    container.appendChild(dealCard);
+                const card = createDealCard(row);
+                if (card) {
+                    container.appendChild(card);
                 }
             });
             updateShopMoreButton();
@@ -414,11 +481,11 @@
 
         function updateShopMoreButton() {
             const remainingCount = allProducts.length - currentProductIndex;
-            const shopMoreButton = document.getElementById('remaining-deals-count');
+            const shopMoreButtonSpan = document.getElementById('remaining-deals-count');
             const shopMoreContainer = document.querySelector('.shop-more-deals-container');
 
             if (remainingCount > 0) {
-                shopMoreButton.textContent = remainingCount;
+                shopMoreButtonSpan.textContent = remainingCount;
                 shopMoreContainer.style.display = 'flex';
             } else {
                 shopMoreContainer.style.display = 'none';
@@ -427,23 +494,62 @@
 
         async function loadDeals() {
             const container = document.getElementById('deals-container');
+            // Initial setup of the category brand card placeholder
             container.innerHTML = `
-                <div class="category-icon-card">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M18.92 2.01c-.02-.01-.06-.02-.08-.03-.08-.03-.16-.06-.25-.09-.09-.03-.18-.06-.27-.08-.09-.02-.18-.04-.27-.05-.09-.01-.18-.02-.27-.02H5.08c-.09 0-.18.01-.27.02-.09.01-.18.03-.27.05-.09.02-.18.05-.27.08-.09.03-.17.06-.25.09-.02.01-.06.02-.08.03-.45.19-.85.44-1.2.75-.35.31-.64.68-.87 1.1-.23.42-.39.88-.47 1.37-.08.49-.12 1-.12 1.52V19c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9.5c0-.52-.04-1.03-.12-1.52-.08-.49-.24-.95-.47-1.37-.23-.42-.52-.79-.87-1.1-.35-.31-.75-.56-1.2-.75zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM4 9h16V6c0-.42.04-.83.11-1.22.07-.39.19-.75.34-1.08.15-.33.34-.63.56-.89.22-.26.47-.48.75-.66.28-.18.59-.31.92-.4.33-.09.68-.14 1.05-.14h9.84c.37 0 .72.05 1.05.14.33.09.64.22.92.4.28.18.53.4.75.66.19.26.34.55.47.89.13.33.23.69.29 1.08.06.39.1.8.11 1.22V9H4z"/>
-                    </svg>
-                    <div class="card-text">Car Accessories</div>
+                <div id="category-brand-card" class="category-icon-card">
+                    <img id="category-brand-logo" src="https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo" alt="Category Brand Logo" class="category-brand-logo">
+                    <div id="category-brand-name-text" class="card-text">Loading Brand...</div>
+                    <div id="category-brand-countdown" class="countdown-text"></div>
                 </div>
-            `; // Initial category card
+            `;
 
             try {
                 const res = await fetch(sheetUrl);
                 const rows = await res.json();
                 
-                // Filter out rows that are just brand headers and keep only product rows
-                allProducts = rows.filter(row => row.ProductName && row.ImageURL);
-                currentProductIndex = 0; // Reset index
+                // --- Identify Featured Brand and Filter Products ---
+                let tempProducts = [];
+                for (const row of rows) {
+                    if (row.BrandName && row.BrandLogo && !row.ProductName) {
+                        // This looks like a dedicated brand entry
+                        featuredBrandData = row;
+                    } else if (row.ProductName && row.ImageURL) {
+                        // This looks like a product entry
+                        tempProducts.push(row);
+                    }
+                }
+                allProducts = tempProducts; // Set allProducts to only contain actual products
+                currentProductIndex = 0; // Reset index for fresh load
 
+                // --- Update the Category Brand Card ---
+                const categoryBrandLogo = document.getElementById('category-brand-logo');
+                const categoryBrandNameText = document.getElementById('category-brand-name-text');
+                const categoryBrandCountdown = document.getElementById('category-brand-countdown');
+
+                if (featuredBrandData) {
+                    categoryBrandLogo.src = featuredBrandData.BrandLogo || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
+                    categoryBrandLogo.alt = `${featuredBrandData.BrandName || 'Featured'} Brand Logo`;
+                    categoryBrandNameText.textContent = featuredBrandData.BrandName || 'Featured Brand';
+                    if (featuredBrandData.ExpiryDate) {
+                        startBrandCountdown(featuredBrandData.ExpiryDate, 'category-brand-countdown');
+                    } else {
+                        categoryBrandCountdown.textContent = ''; // Clear if no expiry date
+                    }
+                } else if (allProducts.length > 0) {
+                    // Fallback: if no dedicated brand entry, use the first product's brand
+                    const firstProduct = allProducts[0];
+                    categoryBrandLogo.src = firstProduct.BrandImage || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
+                    categoryBrandLogo.alt = `${firstProduct.BrandName || 'Featured'} Brand Logo`;
+                    categoryBrandNameText.textContent = firstProduct.BrandName || 'Featured Brand';
+                    categoryBrandCountdown.textContent = ''; // No countdown for product brand fallback
+                } else {
+                    categoryBrandLogo.src = 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
+                    categoryBrandLogo.alt = 'No Brands Found';
+                    categoryBrandNameText.textContent = 'No Brands Found';
+                    categoryBrandCountdown.textContent = '';
+                }
+
+                // --- Render Products ---
                 renderProducts(allProducts.slice(currentProductIndex, currentProductIndex + productsPerPage));
                 currentProductIndex += productsPerPage;
 
@@ -452,53 +558,6 @@
                 container.innerHTML += '<p class="text-center text-red-500 col-span-full">Failed to load deals. Please check the sheet URL.</p>';
             }
         }
-
-        // Function to load more deals
-        function loadMoreDeals() {
-            const productsToAdd = allProducts.slice(currentProductIndex, currentProductIndex + productsPerPage);
-            if (productsToAdd.length > 0) {
-                const container = document.getElementById('deals-container');
-                productsToAdd.forEach(row => {
-                    if (row.ProductName && row.ImageURL) {
-                        const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
-                        const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
-                        const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-                        const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
-
-                        const dealCard = document.createElement('div');
-                        dealCard.className = 'deal-card';
-                        dealCard.innerHTML = `
-                            <span class="discount-badge">SAVE ${percentOff}%</span>
-                            <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
-                            <div class="deal-content">
-                                <div class="deal-title">${shortName}</div>
-                                <div class="price-section">
-                                    <div class="price-info">
-                                        <div class="discount-price">R${discount.toLocaleString()}</div>
-                                        <div class="original-price">R${original.toLocaleString()}</div>
-                                    </div>
-                                    <button class="add-to-cart-button">+</button>
-                                </div>
-                            </div>
-                        `;
-                        dealCard.addEventListener('click', () => {
-                            openPopup({
-                                image: row.ImageURL,
-                                name: row.ProductName,
-                                original: original.toLocaleString(),
-                                discount: discount.toLocaleString(),
-                                description: row.Description
-                            });
-                        });
-                        container.appendChild(dealCard);
-                    }
-                });
-                currentProductIndex += productsToAdd.length;
-                updateShopMoreButton();
-            }
-        }
-
 
         // Call loadDeals when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
@@ -514,17 +573,20 @@
             }
         });
 
-        // The startBrandCountdown function is no longer directly used for brand sections
-        // but keeping it here as it was part of the original script.
-        // It's not called in this new layout.
+        // The startBrandCountdown function is now used for the category card's expiry date
         function startBrandCountdown(expireDate, elementId) {
-            function update() {
-                const el = document.getElementById(elementId);
-                if (!el) return;
+            const el = document.getElementById(elementId);
+            if (!el) return;
 
+            // Clear any existing interval for this element to prevent multiple timers
+            if (el.timerInterval) {
+                clearInterval(el.timerInterval);
+            }
+
+            function update() {
                 const timeLeft = new Date(expireDate) - new Date();
                 if (timeLeft <= 0) {
-                    el.textContent = ' - Deal ended';
+                    el.textContent = 'Deal ended';
                     clearInterval(el.timerInterval);
                 } else {
                     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -538,17 +600,12 @@
                     }
                     timeString += `${hrs}:${mins}:${secs}`;
 
-                    el.textContent = ` - Ends in: ${timeString}`;
+                    el.textContent = `Ends in: ${timeString}`;
                 }
             }
 
-            if (document.getElementById(elementId) && document.getElementById(elementId).timerInterval) {
-                clearInterval(document.getElementById(elementId).timerInterval);
-            }
-
-            update();
-            const timer = setInterval(update, 1000);
-            document.getElementById(elementId).timerInterval = timer;
+            update(); // Initial call to display immediately
+            el.timerInterval = setInterval(update, 1000); // Store interval ID
         }
     </script>
 </body>
