@@ -271,34 +271,48 @@
     </style>
 </head>
 <body>
-    <div class="container-wrapper">
-        <h1 class="section-header">Exclusive Deals from Our Partners</h1>
+    <div id="deals-container" class="mb-12 mt-16">Loading deals...</div>
 
-        <div id="deals-container" class="space-y-8">
-            <!-- Deals will be loaded here by JavaScript -->
-            <p class="text-center text-gray-600">Loading deals...</p>
-        </div>
-    </div>
+                    <div class="popup-overlay" id="popup">
+                        <div class="popup-content" id="popupContent">
+                            <span class="popup-close" onclick="closePopup()">×</span>
+                            <div style="position: relative;">
+                                <span class="popup-discount-badge" id="popupBadge"></span>
+                                <img id="popupImg" src="" alt="Product">
+                            </div>
+                            <div class="popup-body">
+                                <div class="popup-title" id="popupTitle"></div>
+                                <div class="popup-price" id="popupPrice"></div>
+                                <div class="popup-discount" id="popupDiscount"></div>
+                                <div class="popup-description" id="popupDesc"></div>
+                            </div>
+                        </div>
+                    </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqButtons = document.querySelectorAll('.faq-question-button');
 
-    <!-- Popup Modal -->
-    <div id="popup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img id="popupImg" src="" alt="Deal Image" class="popup-img">
-            <h2 id="popupTitle" class="popup-title"></h2>
-            <div class="popup-price-info">
-                <p id="popupPrice" class="popup-price"></p>
-                <p id="popupDiscount" class="popup-discount"></p>
-            </div>
-            <p id="popupDesc" class="popup-desc"></p>
-            <span id="popupBadge" class="popup-badge"></span>
-            <button class="shop-button mt-4">Shop Now</button>
-        </div>
-    </div>
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const answer = button.nextElementSibling; // Get the .faq-answer div
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
 
-    <script>
+                    // Toggle aria-expanded attribute
+                    button.setAttribute('aria-expanded', !isExpanded);
+
+                    // Toggle 'expanded' class on the answer for CSS transitions
+                    if (isExpanded) {
+                        answer.classList.remove('expanded');
+                    } else {
+                        answer.classList.add('expanded');
+                    }
+                });
+            });
+        });
+
+        // App Sample JavaScript
         const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
-
+        
         function openPopup({ image, name, original, discount, description }) {
             const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
             const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
@@ -319,117 +333,97 @@
 
         async function loadDeals() {
             const container = document.getElementById('deals-container');
-            container.innerHTML = '<p class="text-center text-gray-600">Loading deals...</p>'; // Keep loading message visible initially
+            container.innerHTML = 'Loading deals...'; // Keep loading message visible initially
 
             try {
                 const res = await fetch(sheetUrl);
                 const rows = await res.json();
 
-                // Group deals by category first
-                const categorizedDeals = {};
-                rows.forEach(row => {
-                    const category = row.Category || 'Uncategorized';
-                    if (!categorizedDeals[category]) {
-                        categorizedDeals[category] = [];
-                    }
-                    categorizedDeals[category].push(row);
-                });
-
                 // Clear container before adding content
-                container.innerHTML = '';
+                container.innerHTML = ''; 
 
-                for (const category in categorizedDeals) {
-                    const categoryHeader = document.createElement('h2');
-                    categoryHeader.className = 'category-header mt-8 mb-4';
-                    categoryHeader.textContent = category;
-                    container.appendChild(categoryHeader);
+                let currentBrand = '';
+                let currentLogo = '';
+                let brandSection = null;
+                let grid = null;
 
-                    let currentBrand = '';
-                    let currentLogo = '';
-                    let brandSection = null;
-                    let grid = null;
+                rows.forEach(row => {
+                    // Check if it's a new brand section
+                    if (row.BrandName && row.BrandLogo) {
+                        currentBrand = row.BrandName;
+                        currentLogo = row.BrandLogo;
 
-                    categorizedDeals[category].forEach(row => {
-                        // Check if it's a new brand section within the category
-                        if (row.BrandName && row.BrandLogo && row.BrandName !== currentBrand) {
-                            currentBrand = row.BrandName;
-                            currentLogo = row.BrandLogo;
+                        brandSection = document.createElement('div');
+                        brandSection.className = 'brand-section';
 
-                            brandSection = document.createElement('div');
-                            brandSection.className = 'brand-section';
+                        const brandDiv = document.createElement('div');
+                        brandDiv.className = 'brand';
+                        const expireDate = row.ExpiryDate;
+                        const timerId = `timer-${Math.random().toString(36).substring(2)}`;
 
-                            const brandDiv = document.createElement('div');
-                            brandDiv.className = 'brand';
-                            const expireDate = row.ExpiryDate;
-                            const timerId = `timer-${Math.random().toString(36).substring(2)}`;
+                        brandDiv.innerHTML = `
+                            <div class="brand-logo-container">
+                                <img src="${currentLogo}" alt="${currentBrand}" />
+                            </div>
+                            <span class="brand-name">${currentBrand}</span>
+                            <span class="brand-timer" id="${timerId}"></span>
+                        `;
 
-                            brandDiv.innerHTML = `
-                                <div class="brand-logo-container">
-                                    <img src="${currentLogo}" alt="${currentBrand}" onerror="this.onerror=null;this.src='https://placehold.co/80x80/e0e0e0/555555?text=Logo';">
-                                </div>
-                                <span class="brand-name">${currentBrand}</span>
-                                <span class="brand-timer" id="${timerId}"></span>
-                            `;
-
-                            if (expireDate) {
-                                startBrandCountdown(expireDate, timerId);
-                            }
-
-                            grid = document.createElement('div');
-                            grid.className = 'deal-grid';
-
-                            brandSection.appendChild(brandDiv);
-                            brandSection.appendChild(grid);
-                            container.appendChild(brandSection);
+                        if (expireDate) {
+                            startBrandCountdown(expireDate, timerId);
                         }
 
-                        // Add deal card if deal data exists and belongs to the current brand/category
-                        if (row.ProductName && row.ImageURL && row.BrandName === currentBrand) {
-                            const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
-                            const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
-                            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+                        grid = document.createElement('div');
+                        grid.className = 'deal-grid';
 
-                            const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+                        brandSection.appendChild(brandDiv);
+                        brandSection.appendChild(grid);
+                        container.appendChild(brandSection);
+                    }
 
-                            const dealCard = document.createElement('div');
-                            dealCard.className = 'deal';
-                            dealCard.innerHTML = `
-                                <span class="discount-badge">${percentOff}% OFF</span>
-                                <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
-                                <div class="deal-content">
-                                    <div class="deal-title">${shortName}</div>
-                                    <div class="price">JMD $${original.toLocaleString()}</div>
-                                    <div class="discount">JMD $${discount.toLocaleString()}</div>
-                                </div>
-                            `;
-                            dealCard.addEventListener('click', () => {
-                                openPopup({
-                                    image: row.ImageURL,
-                                    name: row.ProductName,
-                                    original: original.toLocaleString(), // Ensure formatted for popup
-                                    discount: discount.toLocaleString(), // Ensure formatted for popup
-                                    description: row.Description
-                                });
+                    // Add deal card if deal data exists
+                    if (row.ProductName && row.ImageURL) {
+                        const original = parseFloat(row.OriginalPrice.replace(/,/g, '')) || 0;
+                        const discount = parseFloat(row.DiscountPrice.replace(/,/g, '')) || 0;
+                        const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+
+                        // Adjusted shortName logic to allow more characters and ensure proper display
+                        const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+
+                        const dealCard = document.createElement('div');
+                        dealCard.className = 'deal';
+                        dealCard.innerHTML = `
+                            <span class="discount-badge">${percentOff}% OFF</span>
+                            <img src="${row.ImageURL}" alt="${row.ProductName}">
+                            <div class="deal-content">
+                                <div class="deal-title">${shortName}</div>
+                                <div class="price">JMD $${original.toLocaleString()}</div>
+                                <div class="discount">JMD $${discount.toLocaleString()}</div>
+                            </div>
+                        `;
+                        dealCard.addEventListener('click', () => {
+                            openPopup({
+                                image: row.ImageURL,
+                                name: row.ProductName,
+                                original: original.toLocaleString(), // Ensure formatted for popup
+                                discount: discount.toLocaleString(), // Ensure formatted for popup
+                                description: row.Description
                             });
+                        });
 
-                            grid?.appendChild(dealCard);
-                        }
-                    });
-                }
-
-                if (Object.keys(categorizedDeals).length === 0) {
-                    container.innerHTML = '<p class="text-center text-gray-600">No deals found.</p>';
-                }
+                        grid?.appendChild(dealCard);
+                    }
+                });
 
             } catch (err) {
                 console.error('Failed to load deals:', err);
-                container.innerHTML = '<p class="text-center text-red-500">Failed to load deals. Please check the sheet URL or your network connection.</p>';
+                container.innerHTML = 'Failed to load deals. Please check the sheet URL.';
             }
         }
 
         // Call loadDeals when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', loadDeals);
-
+        
         // Event listener for closing popup when clicking outside content
         document.getElementById('popup').addEventListener('click', function (e) {
             if (e.target === this) {
@@ -445,26 +439,17 @@
                 const timeLeft = new Date(expireDate) - new Date();
                 if (timeLeft <= 0) {
                     el.textContent = ' - Deal ended';
-                    clearInterval(el.timerInterval); // Clear the specific interval
+                    clearInterval(timer);
                 } else {
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                    const mins = String(Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                    const secs = String(Math.floor((timeLeft % (1000 * 60)) / 1000)).padStart(2, '0');
-
-                    let timeString = '';
-                    if (days > 0) {
-                        timeString += `${days}d `;
-                    }
-                    timeString += `${hrs}:${mins}:${secs}`;
-
-                    el.textContent = ` - Ends in: ${timeString}`;
+                    const hrs = String(Math.floor(timeLeft / 3600000)).padStart(2, '0');
+                    const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
+                    const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
+                    el.textContent = ` - Ends in: ${hrs}:${mins}:${secs}`;
                 }
             }
 
             update();
             const timer = setInterval(update, 1000);
-            document.getElementById(elementId).timerInterval = timer; // Store interval ID for clearing
         }
     </script>
 </body>
