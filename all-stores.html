@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Stores | Shop in-Store & Earn Cashback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .max-w-7xl-custom {
+            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4ff; /* Lighter, more modern background */
+            color: #333;
+            overflow-x: hidden;
+        }
+        .text-gradient-purple-blue {
+            background-image: linear-gradient(to right, #8B5CF6, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-primary {
+            background-color: #007bff; /* Primary blue for CTA */
+            color: white;
+            padding: 12px 28px; /* Slightly larger padding for main CTA */
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Consistent shadow */
+            display: inline-flex; /* For better alignment with icon if added */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space for potential icon */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .section-heading {
+            font-size: 2.5rem; /* Larger headings */
+            font-weight: 800; /* Consistent with business page */
+            margin-bottom: 1.5rem; /* Consistent with business page */
+            text-align: center;
+            color: #1F2937; /* Darker grey for headings */
+        }
+        .footer-section {
+            background-color: #1F2937; /* Dark background color (equivalent to Tailwind's gray-900) */
+            color: white; /* White text for contrast */
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            border-top: 1px solid #374151; /* Darker subtle separator */
+        }
+        .footer-section {
+            /* Updated to match other footers */
+            background-color: #1F2937; /* Dark background color (equivalent to Tailwind's gray-900) */
+            color: white; /* White text for contrast */
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            border-top: 1px solid #374151; /* Darker subtle separator */
+        }
+          /* Custom CSS for footer */
+        .footer-section {
+            background-color: #2C3E50; /* Dark blue background */
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .footer-section a {
+            color: #60a5fa; /* A light blue for links */
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: #93c5fd; /* Lighter blue on hover */
+            text-decoration: underline;
+        }
+        .footer-section h3 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section ul li a {
+            color: #d1d5db; /* Lighter gray for footer links */
+            font-weight: 400;
+        }
+        .footer-section ul li a:hover {
+            color: #ffffff;
+        }
+        .brand-logo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-in-out;
+            height: 100%; /* Ensure consistent height */
+            justify-content: space-between; /* Pushes name to bottom if image is smaller */
+        }
+        .brand-logo-item:hover {
+            transform: translateY(-3px);
+        }
+        .brand-logo-item img {
+            width: 100px; /* Fixed size for logos */
+            height: 100px;
+            object-fit: contain; /* Ensures logo fits without distortion */
+            margin-bottom: 0.75rem;
+            border-radius: 0.5rem; /* Slightly rounded corners for images */
+            background-color: #f8fafc; /* Light background for logos */
+            padding: 5px; /* Small padding inside image container */
+        }
+        .brand-name-text {
+            font-size: 0.95rem; /* Slightly smaller font for brand names */
+            font-weight: 600;
+            color: #333;
+            word-break: break-word; /* Break long names */
+            line-height: 1.3;
+        }
+        .gradient-text {
+            background-image: linear-gradient(to right, #6366F1, #8B5CF6, #EC4899); /* Indigo, Purple, Pink */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900; /* Ensure the text is bold for gradient to stand out */
+        }
+        .step-card {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        .step-icon {
+            font-size: 3rem; /* Large icons for steps */
+            color: #8B5CF6; /* Purple color for icons */
+            margin-bottom: 1rem;
+        }
+        .benefit-item {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+        .benefit-item:hover {
+            transform: translateY(-3px);
+        }
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: #3B82F6; /* Blue color for benefit icons */
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <div class="min-h-screen flex flex-col">
+        <!-- Navbar -->
+        <nav class="bg-white p-4 shadow-sm rounded-b-xl sticky top-0 z-50">
+            <!-- New wrapper for max-width and centering -->
+            <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <!-- Allpree Logo -->
+                    <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
+                </div>
+                <div class="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
+                    <a href="https://www.allpree.com/" class="hover:text-blue-600 transition duration-150">Go to Home</a>
+                </div>
+            </div>
+        </nav>
+       
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-blue-500 to-purple-600 text-white py-20 px-4 text-center rounded-b-3xl shadow-xl">
+            <div class="max-w-4xl mx-auto">
+                <p class="text-xl md:text-2xl mb-10 opacity-90">
+                   Discover where you can use your Allpree Gift Card and turn everyday spending into rewarding cashback.
+                </p>
+                <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-300 transform hover:scale-105 px-10 py-4 text-xl md:text-2xl">
+                    Get the Allpree App Now!
+                    <!-- SVG for download icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                </a>
+            </div>
+        </section>
+        
+        <main class="space-y-16 md:space-y-24 px-4 py-12 max-w-7xl mx-auto">
+
+            <!-- Brands Section with Search and Category Filter -->
+            <section id="brands" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+              
+                <!-- Search and Filter Controls -->
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+                    <input type="text" id="brandSearch" placeholder="Search brands..." class="p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full sm:w-1/2 md:w-1/3 shadow-sm">
+                    <select id="brandCategory" class="p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full sm:w-1/2 md:w-1/4 shadow-sm">
+                        <option value="All">All Categories</option>
+                        <!-- Categories will be populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div id="brandsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-start justify-center">
+                    <!-- Brands will be dynamically loaded here by JavaScript -->
+                    <p id="noBrandsMessage" class="col-span-full text-gray-500 text-center hidden">No brands found matching your criteria.</p>
+                </div>
+
+                <p class="mt-12 text-lg text-gray-600 max-w-3xl mx-auto">
+                    Don't see your favorite brand? We're constantly adding new partners! Check the Allpree app for the most up-to-date list and exclusive deals.
+                </p>
+            </section>
+
+            <!-- Final Call to Action -->
+            <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-2xl shadow-lg">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-4xl font-extrabold mb-6">Ready to Start Earning Cashback?</h2>
+                    <p class="text-xl mb-8">
+                        Download the Allpree app today and begin your journey to smarter spending and greater savings!
+                    </p>
+                    <a href="https://www.allpree.com/install" class="btn-primary bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-200 px-8 py-3 text-xl">
+                        Install the App Now!
+                    </a>
+                </div>
+            </section>
+        </main>
+
+          <!-- Footer -->
+    <footer class="footer-section mt-auto">
+        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
+            <!-- About Allpree Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">About Allpree</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                 Allpree shows you the best local deals. From groceries to fashion and many more. We help you save every day. We search high and low to bring you unbeatable local prices on the products you love, so you can spend less and enjoy more 
+                </p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-tiktok fa-lg"></i>
+                    </a>
+                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- My Account Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">MY ACCOUNT</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Orders</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Account Settings</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Manage My Allpree Gift Card</a></li>
+                </ul>
+            </div>
+
+            <!-- Let Us Help Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">LET US HELP</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Customer Care</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Shipping Information</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Return Policy</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Accessibility</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Frequently Asked Questions</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Information Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">COMPANY INFORMATION</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Investor Relations</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Sell Your Products</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        // Function to generate a URL-friendly slug
+        function generateSlug(name) {
+            return name.toLowerCase()
+                       .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric characters except spaces and hyphens
+                       .replace(/\s+/g, '-')        // Replace spaces with hyphens
+                       .replace(/^-+|-+$/g, '');    // Trim hyphens from start/end
+        }
+
+        // Brand data with categories and slugs
+        const brandsData = [
+            { name: "100 Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9a1158154dfa42caddbd0694a4e9bdc8/logo_1622490807.png", category: "Food & Dining" },
+            { name: "360 Wellness Club", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/04ecb1fa28506ccb6f72b12c0245ddbc/logo_1721837387.png", category: "Health & Wellness" },
+            { name: "432 Body Works", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6ecbdd6ec859d284dc13885a37ce8d81/logo_1686611146.png", category: "Health & Wellness" },
+            { name: "7Krave", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/fe131d7f5a6b38b23cc967316c13dae2/logo_1652080510.jpg", category: "Food & Dining" },
+            { name: "876 Beachwear", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/94f6d7e04a4d452035300f18b984988c/logo_1664556513.png", category: "Fashion" },
+            { name: "94G Eatery", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/dd458505749b2941217ddd59394240e8/logo_1711388199.png", category: "Food & Dining" },
+            { name: "A&E Makeup World", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/bd4c9ab730f5513206b999ec0d90d1fb/logo_1641934233.png", category: "Health & Beauty" },
+            { name: "Adam and Eve Day Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c16a5320fa475530d9583c34fd356ef5/logo.png", category: "Health & Beauty" },
+            { name: "aFresh Marketplace", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a532400ed62e772b9dc0b86f46e583ff/logo_1733486786.png", category: "Groceries" },
+            { name: "Airdrop JA", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/918317b57931b6b7a7d29490fe5ec9f9/logo_1660150327.png", category: "Services" },
+            { name: "American Jewellery Co", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/eccbc87e4b5ce2fe28308fd9f2a7baf3/logo.png", category: "Retail" },
+            { name: "Amodein Hair Solutions", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c3992e9a68c5ae12bd18488bc579b30d/logo_1719682120.png", category: "Health & Beauty" },
+            { name: "Appliance Traders Limited (ATL)", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ed265bc903a5a097f61d3ec064d96d2e/logo_1708476532.png", category: "Home & Electronics" },
+            { name: "Azan Supercentre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a3f390d88e4c41f2747bfa2f1b5f87db/logo_1627088353.jpg", category: "Groceries" },
+            { name: "B&D Trawling", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/303ed4c69846ab36c2904d3ba8573050/logo_1733424748.png", category: "Food & Dining" },
+            { name: "Bashco Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3435c378bb76d4357324dd7e69f3cd18/logo_1720461735.png", category: "Retail" },
+            { name: "Bella Oasis Day Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1c383cd30b7c298ab50293adfecb7b18/logo.png", category: "Health & Beauty" },
+            { name: "Berts Auto Parts", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/26657d5ff9020d2abefe558796b99584/logo_1632259545.png", category: "Automotive" },
+            { name: "Bettino’s Fine Italian", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/07a96b1f61097ccb54be14d6a47439b0/logo_1746715903.png", category: "Food & Dining" },
+            { name: "Bijoux", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1651cf0d2f737d7adeab84d339dbabd3/logo_1688385966.png", category: "Retail" },
+            { name: "BirdShack Fried Chicken", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/63923f49e5241343aa7acb6a06a751e7/logo_1656114981.jpg", category: "Food & Dining" },
+            { name: "Blinds Designs", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/67c6a1e7ce56d3d6fa748ab6d9af3fd7/logo_1621536217.png", category: "Home & Decor" },
+            { name: "Blow by Blow", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/02522a2b2726fb0a03bb19f2d8d9524d/logo_1638501331.png", category: "Health & Beauty" },
+            { name: "Blue Brews Bistro", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/34ed066df378efacc9b924ec161e7639/logo_1665530433.png", category: "Food & Dining" },
+            { name: "Body Studio Skincare", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/41f1f19176d383480afa65d325c06ed0/logo_1678719042.png", category: "Health & Beauty" },
+            { name: "Bold Cutz Barbers Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/39059724f73a9969845dfe4146c5660e/logo_1653755677.jpg", category: "Health & Beauty" },
+            { name: "Bombay Darbar by Nirvanna", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7cbbc409ec990f19c78c75bd1e06f215/logo_1650590363.jpg", category: "Food & Dining" },
+            { name: "Boot Gas Station", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2b24d495052a8ce66358eb576b8912c8/logo_1640490984.png", category: "Automotive" },
+            { name: "Boot Supermarket & Deli", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0a09c8844ba8f0936c20bd791130d6b6/logo_1640491119.png", category: "Groceries" },
+            { name: "Bowl & Spoon", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8d34201a5b85900908db6cae92723617/logo_1708703524.png", category: "Food & Dining" },
+            { name: "Broken Plate", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f4b9ec30ad9f68f89b29639786cb62ef/logo_1632165658.png", category: "Food & Dining" },
+            { name: "Brooklyn Supermarket", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/eaae339c4d89fc102edd9dbdb6a28915/logo_1734897828.png", category: "Groceries" },
+            { name: "Bubble Chick", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/10a5ab2db37feedfdeaab192ead4ac0e/logo_1748368043.png", category: "Food & Dining" },
+            { name: "Buzzers", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/37bc2f75bf1bcfe8450a1a41c200364c/logo_1666624371.png", category: "Entertainment" },
+            { name: "Cafe Blue", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9f61408e3afb633e50cdf1b20de6f466/logo_1623343398.png", category: "Food & Dining" },
+            { name: "Cafe Hibiscus", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/816b112c6105b3ebd537828a39af4818/logo_1683248720.png", category: "Food & Dining" },
+            { name: "Candy Craze", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1c9ac0159c94d8d0cbedc973445af2da/logo_1641543699.png", category: "Retail" },
+            { name: "Cannonball Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/33e75ff09dd601bbe69f351039152189/logo.png", category: "Food & Dining" },
+            { name: "Catch 22 Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d709f38ef758b5066ef31b18039b8ce5/logo_1677090317.png", category: "Food & Dining" },
+            { name: "Cattleya Perfect 10 Med Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/877a9ba7a98f75b90a9d49f53f15a858/logo_1695658086.png", category: "Health & Beauty" },
+            { name: "Cellar 8 Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6c8349cc7260ae62e3b1396831a8398f/logo_1621286701.png", category: "Food & Dining" },
+            { name: "Cheffin’z with Jollydon", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f8c1f23d6a8d8d7904fc0ea8e066b3bb/logo_1683248754.png", category: "Food & Dining" },
+            { name: "Chez Maria", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f033ab37c30201f73f142449d037028d/logo_1628152754.png", category: "Food & Dining" },
+            { name: "Chicken & Tings", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/16c222aa19898e5058938167c8ab6c57/logo_1707751798.png", category: "Food & Dining" },
+            { name: "Child's Play", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9a96876e2f8f3dc4f3cf45f02c61c0c1/logo_1691015328.png", category: "Retail" },
+            { name: "Chilitos Jamexican", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/03afdbd66e7929b125f8597834fa83a4/logo_1624289878.png", category: "Food & Dining" },
+            { name: "Chillin Restaurant & Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1d7f7abc18fcb43975065399b0d1e48e/logo_1641247910.png", category: "Food & Dining" },
+            { name: "Chive", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3295c76acbf4caaed33c36b1b5fc2cb1/logo_1624646356.png", category: "Food & Dining" },
+            { name: "Chocolate Dreams", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f7177163c833dff4b38fc8d2872f1ec6/logo_1621286676.png", category: "Food & Dining" },
+            { name: "Chop’d", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/556f391937dfd4398cbac35e050a2177/logo_1742410224.png", category: "Food & Dining" },
+            { name: "Chukka Caribbean Adventures", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4a47d2983c8bd392b120b627e0e1cab4/logo_1748784441.png", category: "Entertainment" },
+            { name: "Chungs Catering", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9fe8593a8a330607d76796b35c64c600/logo_1742341493.png", category: "Food & Dining" },
+            { name: "ChunScents Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/08b255a5d42b89b0585260b6f2360bdd/logo_1716656007.png", category: "Retail" },
+            { name: "City Flames", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9dcb88e0137649590b755372b040afad/logo_1723742954.png", category: "Food & Dining" },
+            { name: "Closet Cloud", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/98f13708210194c475687be6106a3b84/logo.png", category: "Fashion" },
+            { name: "Collectibles", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/185c29dc24325934ee377cfda20e414c/logo_1728402230.png", category: "Retail" },
+            { name: "Comcare Optical", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/647bba344396e7c8170902bcf2e15551/logo_1708703177.png", category: "Health & Wellness" },
+            { name: "Comprehensive Eyecare", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/97e8527feaf77a97fc38f34216141515/logo_1708703251.png", category: "Health & Wellness" },
+            { name: "Coral Cliff", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d34ab169b70c9dcd35e62896010cd9ff/logo_1683043940.png", category: "Entertainment" },
+            { name: "CPJ", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9461cce28ebe3e76fb4b931c35a169b0/logo_1696875739.png", category: "Food & Dining" },
+            { name: "Crayfish Wendaze", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3328bdf9a4b9504b9398284244fe97c2/logo_1744039470.png", category: "Food & Dining" },
+            { name: "Creative Building Finishes", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3a066bda8c96b9478bb0512f0a43028c/logo_1737490886.png", category: "Home & Decor" },
+            { name: "Creep In Closet", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f73b76ce8949fe29bf2a537cfa420e8f/logo_1680750478.png", category: "Fashion" },
+            { name: "Cru Bar & Kitchen", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b83aac23b9528732c23cc7352950e880/logo_1674574908.png", category: "Food & Dining" },
+            { name: "Cscouriers & Auto Sales Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1be3bc32e6564055d5ca3e5a354acbef/logo_1699051455.jpg", category: "Automotive" },
+            { name: "Cuncharo Cocoa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5b69b9cb83065d403869739ae7f0995e/logo_1700767153.png", category: "Food & Dining" },
+            { name: "Danya's Coffee Barrel", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/443cb001c138b2561a0d90720d6ce111/logo_1733775052.png", category: "Food & Dining" },
+            { name: "Day and Night Beauty Salon and Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/25b2822c2f5a3230abfadd476e8b04c9/logo_1686456820.png", category: "Health & Beauty" },
+            { name: "Debbie's Catering", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2f37d10131f2a483a8dd005b3d14b0d9/logo_1738599503.png", category: "Food & Dining" },
+            { name: "Deerrs Bar and Chill Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c8ffe9a587b126f152ed3d89a146b445/logo_1637284779.png", category: "Food & Dining" },
+            { name: "Delexis Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a5e00132373a7031000fd987a3c9f87b/logo_1640490876.png", category: "Health & Wellness" },
+            { name: "Deli Works", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/65b9eea6e1cc6bb9f0cd2a47751a186f/logo_1634963994.png", category: "Food & Dining" },
+            { name: "Della Dea Jewelry", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/38913e1d6a7b94cb0f55994f679f5956/logo_1702287742.png", category: "Retail" },
+            { name: "Dermatology Solutions", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9b04d152845ec0a378394003c96da594/logo_1648096122.png", category: "Health & Beauty" },
+            { name: "Devon House Bakery", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d61e4bbd6393c9111e6526ea173a7c8b/logo_1692643316.png", category: "Food & Dining" },
+            { name: "DJ Water Refill Store", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/85422afb467e9456013a2a51d4dff702/logo_1705003873.png", category: "Services" },
+            { name: "DJs Cafe Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/084b6fbb10729ed4da8c3d3f5a3ae7c9/logo_1651527257.jpg", category: "Food & Dining" },
+            { name: "DLE Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/084b6fbb10729ed4da8c3d3f5a3ae7c9/logo_1651527257.jpg", category: "Food & Dining" },
+            { name: "Dulce Lounge Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b337e84de8752b27eda3a12363109e80/logo_1701362163.png", category: "Food & Dining" },
+            { name: "Earth Elements", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/98b297950041a42470269d56260243a1/logo_1694211187.png", category: "Retail" },
+            { name: "Elevate", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/142949df56ea8ae0be8b5306971900a4/logo_1678543232.png", category: "Health & Wellness" },
+            { name: "Eleven Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2050e03ca119580f74cca14cc6e97462/logo_1696869322.png", category: "Food & Dining" },
+            { name: "Emanuel's Kitchen", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d395771085aab05244a4fb8fd91bf4ee/logo_1657071082.jpg", category: "Food & Dining" },
+            { name: "eMed Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d82c8d1619ad8176d665453cfb2e55f0/logo_1622576131.png", category: "Health & Beauty" },
+            { name: "Endzzone Sports Bar & Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/496e05e1aea0a9c4655800e8a7b9ea28/logo_1666624387.png", category: "Food & Dining" },
+            { name: "Enersave Solar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e4bb4c5173c2ce17fd8fcd40041c068f/logo_1746210443.png", category: "Services" },
+            { name: "Enersave Solutions", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e555ebe0ce426f7f9b2bef0706315e0c/logo_1746210417.png", category: "Services" },
+            { name: "Enigma", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/812b4ba287f5ee0bc9d43bbf5bbe87fb/logo_1634186529.png", category: "Entertainment" },
+            { name: "Enigma Montego Bay", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/66808e327dc79d135ba18e051673d906/logo_1685040426.png", category: "Entertainment" },
+            { name: "Essence of Afrikah & Shooz Guru", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/55743cc0393b1cb4b8b37d09ae48d097/logo_1734386378.png", category: "Fashion" },
+            { name: "Express Fitness", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4c5bde74a8f110656874902f07378009/logo_1644299464.png", category: "Health & Wellness" },
+            { name: "Eye Q Optical", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/00411460f7c92d2124a67ea0f4cb5f85/logo_1675286237.png", category: "Health & Wellness" },
+            { name: "Face to Face Skin Care Salon & Day Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9bf31c7ff062936a96d3c8bd1f8f2ff3/logo.png", category: "Health & Beauty" },
+            { name: "FAIRVIEW ELECTRONICS", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d7a728a67d909e714c0774e22cb806f2/logo_1721836296.png", category: "Home & Electronics" },
+            { name: "Fashion House", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b5dc4e5d9b495d0196f61d45b26ef33e/logo_1741615658.png", category: "Fashion" },
+            { name: "Father Bull", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/115f89503138416a242f40fb7d7f338e/logo_1647122939.png", category: "Food & Dining" },
+            { name: "FESCO", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7ef605fc8dba5425d6965fbd4c8fbe1f/logo_1640492645.png", category: "Automotive" },
+            { name: "First Bite Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9fc3d7152ba9336a670e36d0ed79bc43/logo_1638501373.png", category: "Food & Dining" },
+            { name: "Fish Pot", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/eb6fdc36b281b7d5eabf33396c2683a2/logo_1725416895.png", category: "Food & Dining" },
+            { name: "Fit Meals", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a666587afda6e89aec274a3657558a27/logo_1668730363.png", category: "Food & Dining" },
+            { name: "Fitnessjunkiesja", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c9f0f895fb98ab9159f51fd0297e236d/logo.png", category: "Health & Wellness" },
+            { name: "Flamin Wok", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/46ba9f2a6976570b0353203ec4474217/logo_1657306607.jpg", category: "Food & Dining" },
+            { name: "Fontana Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5f93f983524def3dca464469d2cf9f3e/logo_1639083491.png", category: "Health & Wellness" },
+            { name: "Fresh Approach Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/beed13602b9b0e6ecb5b568ff5058f07/logo_1679056055.png", category: "Groceries" },
+            { name: "From Head to Fleek", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4f6ffe13a5d75b2d6a3923922b3922e5/logo_1678746405.png", category: "Health & Beauty" },
+            { name: "Fruit Blossoms", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8b16ebc056e613024c057be590b542eb/logo_1712094962.png", category: "Retail" },
+            { name: "General Food Supermarket Liguanea", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/92cc227532d17e56e07902b254dfad10/logo_1631753511.png", category: "Groceries" },
+            { name: "General Food Supermarket Ocho Rios", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/903ce9225fca3e988c2af215d4e544d3/logo_1639504727.png", category: "Groceries" },
+            { name: "Gloria's Seafood City", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2421fcb1263b9530df88f7f002e78ea5/logo_1687370204.png", category: "Food & Dining" },
+            { name: "Gorgeous Flowers Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d64a340bcb633f536d56e51874281454/logo_1705943376.png", category: "Retail" },
+            { name: "Grab n Go Gas n Convenience", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/979d472a84804b9f647bc185a877a8b5/logo_1736819273.png", category: "Automotive" },
+            { name: "Green Gourmet Ja", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/fbd7939d674997cdb4692d34de8633c4/logo_1627371556.jpg", category: "Food & Dining" },
+            { name: "Gregos Seafood Bar & Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0f49c89d1e7298bb9930789c8ed59d48/logo_1657296846.jpg", category: "Food & Dining" },
+            { name: "Grillstone Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/192fc044e74dffea144f9ac5dc9f3395/logo_1739468495.png", category: "Food & Dining" },
+            { name: "Guestronomy Delight Fusion & Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/be3159ad04564bfb90db9e32851ebf9c/logo_1737996513.png", category: "Food & Dining" },
+            { name: "Hair Extreme", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8bf1211fd4b7b94528899de0a43b9fb3/logo_1678543260.png", category: "Health & Beauty" },
+            { name: "Hampden Tours Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/38af86134b65d0f10fe33d30dd76442e/logo_1643828072.png", category: "Travel" },
+            { name: "Hands of Gold Ja", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/18d8042386b79e2c279fd162df0205c8/logo_1683043977.png", category: "Retail" },
+            { name: "Harmony Health Cosmetic Clinic", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/abd815286ba1007abfbb8415b83ae2cf/logo_1729270289.png", category: "Health & Wellness" },
+            { name: "Haven Beauty House", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/35051070e572e47d2c26c241ab88307f/logo_1699635910.png", category: "Health & Beauty" },
+            { name: "Hertz Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0777d5c17d4066b82ab86dff8a46af6f/logo_1642454061.png", category: "Automotive" },
+            { name: "Hiitbox", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/13f3cf8c531952d72e5847c4183e6910/logo_1690122365.png", category: "Health & Wellness" },
+            { name: "Hillman Investments", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a516a87cfcaef229b342c437fe2b95f7/logo_1697651572.png", category: "Services" },
+            { name: "HiLo Food Stores", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/559cb990c9dffd8675f6bc2186971dc2/logo_1699378851.png", category: "Groceries" },
+            { name: "Holy Smokes Grill & Chill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e46de7e1bcaaced9a54f1e9d0d2f800d/logo_1682537677.png", category: "Food & Dining" },
+            { name: "Home of Faucets", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b7bb35b9c6ca2aee2df08cf09d7016c2/logo_1729101010.png", category: "Home & Decor" },
+            { name: "Home Up", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/58d4d1e7b1e97b258c9ed0b37e02d087/logo_1743615028.png", category: "Home & Decor" },
+            { name: "Hope Zoo", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ec8956637a99787bd197eacd77acce5e/logo_1633563292.png", category: "Entertainment" },
+            { name: "Icon Megastore", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e6b4b2a746ed40e1af829d1fa82daa10/logo_1713460868.png", category: "Retail" },
+            { name: "Icon Texaco Service Station", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e5f6ad6ce374177eef023bf5d0c018b6/logo_1713460847.png", category: "Automotive" },
+            { name: "ICraveStyleToo", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/bf8229696f7a3bb4700cfddef19fa23f/logo_1643403654.png", category: "Fashion" },
+            { name: "Imara Medical Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ec5decca5ed3d6b8079e2e7e7bacc9f2/logo_1637608013.png", category: "Health & Wellness" },
+            { name: "Incognito Vacation Stay", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ccb1d45fb76f7c5a0bf619f979c6cf36/logo_1709917349.png", category: "Travel" },
+            { name: "Infini Gelato", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/642e92efb79421734881b53e1e1b18b6/logo_1621641261.jpg", category: "Food & Dining" },
+            { name: "Innovative Superstore", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/45fbc6d3e05ebd93369ce542e8f2322d/logo_1647386212.png", category: "Retail" },
+            { name: "InSync Health Wellness Beauty", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/11b9842e0a271ff252c1903e7132cd68/logo_1665530476.png", category: "Health & Beauty" },
+            { name: "Intown Super Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4c56ff4ce4aaf9573aa5dff913df997a/logo_1677184859.jpg", category: "Retail" },
+            { name: "ipCourier", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3416a75f4cea9109507cacd8e2f2aefc/logo_1620660714.png", category: "Services" },
+            { name: "Island Athletic Co.", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1ecfb463472ec9115b10c292ef8bc986/logo_1750260689.png", category: "Fashion" },
+            { name: "Island Coffees Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/70efdf2ec9b086079795c442636b55fb/logo.png", category: "Food & Dining" },
+            { name: "Island Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c0e190d8267e36708f955d7ab048990d/logo_1651162834.jpg", category: "Food & Dining" },
+            { name: "Island Rituals Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0f28b5d49b3020afeecd95b4009adf4c/logo_1640042921.png", category: "Health & Beauty" },
+            { name: "Jamaica Automobile Association", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/65658fde58ab3c2b6e5132a39fae7cb9/logo_1706914856.png", category: "Automotive" },
+            { name: "Jamaica Liquor Warehouse", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/34173cb38f07f89ddbebc2ac9128303f/logo.png", category: "Retail" },
+            { name: "Jan's Accents", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c20ad4d76fe97759aa27a0c99bff6710/logo.png", category: "Home & Decor" },
+            { name: "Janus Cosmetic & Medical Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7f6ffaa6bb0b408017b62254211691b5/logo_1636352230.png", category: "Health & Beauty" },
+            { name: "Jay's Signature Nails", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a86c450b76fb8c371afead6410d55534/logo_1713282171.png", category: "Health & Beauty" },
+            { name: "Jermaine Market Express", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/24681928425f5a9133504de568f5f6df/logo_1750689470.png", category: "Groceries" },
+            { name: "Jewellery Collection", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e0c641195b27425bb056ac56f8953d24/logo_1685988852.png", category: "Retail" },
+            { name: "Jhux Bowties", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/aab3238922bcc25a6f606eb525ffdc56/logo.png", category: "Fashion" },
+            { name: "JIN LONG SUPERMARKET", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ca9c267dad0305d1a6308d2a0cf1c39c/logo_1741278491.png", category: "Groceries" },
+            { name: "JMG Dental", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7a614fd06c325499f1680b9896beedeb/logo_1656703225.png", category: "Health & Wellness" },
+            { name: "Jolly's Restaurant - West", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/550a141f12de6341fba65b0ad0433500/logo_1692736183.png", category: "Food & Dining" },
+            { name: "Juice Junky", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c75b6f114c23a4d7ea11331e7c00e73c/logo_1708528066.png", category: "Food & Dining" },
+            { name: "Juici Patties", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1595af6435015c77a7149e92a551338e/logo_1741035570.png", category: "Food & Dining" },
+            { name: "Julie Mango", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/698d51a19d8a121ce581499d7b701668/logo_1636261559.png", category: "Retail" },
+            { name: "Jus Natural Hair Studios", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5ef059938ba799aaa845e1c2e8a762bd/logo_1638988671.png", category: "Health & Beauty" },
+            { name: "Just Salads", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/48aedb8880cab8c45637abc7493ecddd/logo_1658503369.png", category: "Food & Dining" },
+            { name: "K-Ban Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6c4b761a28b734fe93831e3fb400ce87/logo_1644861315.jpg", category: "Home & Decor" },
+            { name: "K.E.R. FOODS", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/99c5e07b4d5de9d18c350cdf64c5aa3d/logo_1726059461.png", category: "Food & Dining" },
+            { name: "Kamilas Kitchen", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/55b37c5c270e5d84c793e486d798c01d/logo_1743620573.png", category: "Food & Dining" },
+            { name: "Kayser Collection Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7eabe3a1649ffa2b3ff8c02ebfd5659f/logo_1727798898.png", category: "Retail" },
+            { name: "Kegar’s Beauty and Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f4f6dce2f3a0f9dada0c2b5b66452017/logo_1683996714.png", category: "Health & Beauty" },
+            { name: "Kenni's Beauty Pleasures", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/59b90e1005a220e2ebc542eb9d950b1e/logo_1704468353.png", category: "Health & Beauty" },
+            { name: "Kerrz Trendz Online", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7fe1f8abaad094e0b5cb1b01d712f708/logo_1694017522.png", category: "Fashion" },
+            { name: "KfrancisArt", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b6d767d2f8ed5d21a44b0e5886680cb9/logo_1620348970.png", category: "Retail" },
+            { name: "KINGSTON BLENDZ", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/dc6a6489640ca02b0d42dabeb8e46bb7/logo_1695678573.png", category: "Food & Dining" },
+            { name: "Kingston Jerk", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/66f041e16a60928b05a7e228a89c3799/logo_1623783027.png", category: "Food & Dining" },
+            { name: "Klutch Food & Sports Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f29c21d4897f78948b91f03172341b7b/logo_1723671359.png", category: "Food & Dining" },
+            { name: "Koncept Appliance and Furniture", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c361bc7b2c033a83d663b8d9fb4be56e/logo_1721348291.png", category: "Home & Electronics" },
+            { name: "KuKUp Kreations", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/291597a100aadd814d197af4f4bab3a7/logo_1732242132.png", category: "Retail" },
+            { name: "Kulinary Professionals Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a96b65a721e561e1e3de768ac819ffbb/logo_1685546535.png", category: "Food & Dining" },
+            { name: "Kushites Vegetable Cuisine", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f74909ace68e51891440e4da0b65a70c/logo_1686869595.png", category: "Food & Dining" },
+            { name: "LaBellePeaches876", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/26dd0dbc6e3f4c8043749885523d6a25/logo_1729616169.png", category: "Fashion" },
+            { name: "Las Vegas Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3def184ad8f4755ff269862ea77393dd/logo_1637357644.png", category: "Food & Dining" },
+            { name: "Latitude Bar and grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b2eb7349035754953b57a32e2841bda5/logo_1667496327.png", category: "Food & Dining" },
+            { name: "Le Champ Cosmetics", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8fe0093bb30d6f8c31474bd0764e6ac0/logo_1685552704.png", category: "Health & Beauty" },
+            { name: "Le'Couleur Beauty Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/05049e90fa4f5039a8cadc6acbb4b2cc/logo_1676411093.png", category: "Health & Beauty" },
+            { name: "Lee's Food Fair", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/735b90b4568125ed6c3f678819b6e058/logo_1626426637.png", category: "Groceries" },
+            { name: "Legacy Mini Mart", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4e4b5fbbbb602b6d35bea8460aa8f8e5/logo_1710632241.png", category: "Groceries" },
+            { name: "Liguanea Drug and Garden Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/54229abfcfa5649e7003b83dd4755294/logo_1631511822.png", category: "Health & Wellness" },
+            { name: "Loaded Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5ef0b4eba35ab2d6180b0bca7e46b6f9/logo_1696608665.png", category: "Food & Dining" },
+            { name: "Locale Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/18997733ec258a9fcaf239cc55d53363/logo_1687188296.png", category: "Food & Dining" },
+            { name: "Loud Fashion", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/077e29b11be80ab57e1a2ecabb7da330/logo_1650590268.jpg", category: "Fashion" },
+            { name: "Lounge Zero", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/42998cf32d552343bc8e460416382dca/logo_1693002706.png", category: "Food & Dining" },
+            { name: "Lucky Crab Seafood", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b7b16ecf8ca53723593894116071700c/logo_1683142300.png", category: "Food & Dining" },
+            { name: "Ming Cuisine", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/884d247c6f65a96a7da4d1105d584ddd/logo_1734022170.png", category: "Food & Dining" },
+            { name: "Moda HomeGoods", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/cf67355a3333e6e143439161adc2d82e/logo_1703342754.png", category: "Home & Decor" },
+            { name: "Mother's", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9431c87f273e507e6040fcb07dcb4509/logo_1692644236.png", category: "Food & Dining" },
+            { name: "Mr. Breakfast", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b3e3e393c77e35a4a3f3cbd1e429b5dc/logo_1640976621.png", category: "Food & Dining" },
+            { name: "MSC McKay", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/577bcc914f9e55d5e4e4f82f9f00e7d4/logo_1665530458.png", category: "Services" },
+            { name: "My Carbys", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a1d0c6e83f027327d8461063f4ac58a6/logo_1620666040.png", category: "Food & Dining" },
+            { name: "Nadz beauty bar & spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6c9882bbac1c7093bd25041881277658/logo_1651257462.jpg", category: "Health & Beauty" },
+            { name: "Nail’d It Beauty Haus", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8c19f571e251e61cb8dd3612f26d5ecf/logo_1651824858.jpg", category: "Health & Beauty" },
+            { name: "Nature My Therapy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a733fa9b25f33689e2adbe72199f0e62/logo_1727449920.png", category: "Health & Wellness" },
+            { name: "New Kingston Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ad972f10e0800b49d76fed33a21f6698/logo_1678542829.png", category: "Health & Wellness" },
+            { name: "New Leaf Vegetarian", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a5bfc9e07964f8dddeb95fc584cd965d/logo.png", category: "Food & Dining" },
+            { name: "New Look by Mel", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7bcdf75ad237b8e02e301f4091fb6bc8/logo_1707505368.png", category: "Health & Beauty" },
+            { name: "New Panda", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c9892a989183de32e976c6f04e700201/logo_1713752855.png", category: "Food & Dining" },
+            { name: "NK Express Groceries", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/69cb3ea317a32c4e6143e665fdb20b14/logo_1683249853.png", category: "Groceries" },
+            { name: "Novelty Gadjets", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c6e19e830859f2cb9f7c8f8cacb8d2a6/logo_1715623892.png", category: "Retail" },
+            { name: "Ocean 7 Rooftop Bar & Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5ea1649a31336092c05438df996a3e59/logo_1707420641.png", category: "Food & Dining" },
+            { name: "Oceano", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f5deaeeae1538fb6c45901d524ee2f98/logo_1716652750.png", category: "Food & Dining" },
+            { name: "Ocho Rios Jerk Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ae0eb3eed39d2bcef4622b2499a05fe6/logo_1749761813.png", category: "Food & Dining" },
+            { name: "Office Supplies Brokers Ltd.", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c399862d3b9d6b76c8436e924a68c45b/logo_1706216431.png", category: "Retail" },
+            { name: "Omg Restaurant & Coffee Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0e01938fc48a2cfb5f2217fbfb00722d/logo_1658015455.png", category: "Food & Dining" },
+            { name: "One Park", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f64eac11f2cd8f0efa196f8ad173178e/logo_1748377757.png", category: "Food & Dining" },
+            { name: "Open Beauty Divine Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/db8e1af0cb3aca1ae2d0018624204529/logo_1656703202.png", category: "Health & Beauty" },
+            { name: "Orchid Thai", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d1f255a373a3cef72e03aa9d980c7eca/logo_1685636686.png", category: "Food & Dining" },
+            { name: "OSC One Stop Computers", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/310dcbbf4cce62f762a2aaa148d556bd/logo_1670255172.png", category: "Home & Electronics" },
+            { name: "Our Place on the Oasis", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ab817c9349cf9c4f6877e1894a1faa00/logo_1695058986.png", category: "Food & Dining" },
+            { name: "Palace Amusement", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d296c101daa88a51f6ca8cfc1ac79b50/logo_1663560866.png", category: "Entertainment" },
+            { name: "Palate", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a7aeed74714116f3b292a982238f83d2/logo_1713384325.png", category: "Food & Dining" },
+            { name: "Papi Chulo", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e70611883d2760c8bbafb4acb29e3446/logo_1750315286.png", category: "Food & Dining" },
+            { name: "Paradise Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f0e52b27a7a5d6a1a87373dffa53dbe5/logo_1713460832.png", category: "Health & Wellness" },
+            { name: "Parkington Dental Care", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5e388103a391daabe3de1d76a6739ccd/logo_1711472804.png", category: "Health & Wellness" },
+            { name: "Parkway Dental Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f387624df552cea2f369918c5e1e12bc/logo_1711472834.png", category: "Health & Wellness" },
+            { name: "Pastry Passions", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9be40cee5b0eee1462c82c6964087ff9/logo_1674750435.png", category: "Food & Dining" },
+            { name: "Pavilion Jewellers", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f85454e8279be180185cac7d243c5eb3/logo_1686012776.png", category: "Retail" },
+            { name: "Pelican Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e165421110ba03099a1c0393373c5b43/logo_1650590284.jpg", category: "Food & Dining" },
+            { name: "Peppa's", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ffd52f3c7e12435a724a8f30fddadd9c/logo_1677694507.png", category: "Food & Dining" },
+            { name: "Pier 1", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d947bf06a885db0d477d707121934ff8/logo_1656115006.jpg", category: "Food & Dining" },
+            { name: "Pimentos", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f5f8590cd58a54e94377e6ae2eded4d9/logo_1692642779.png", category: "Food & Dining" },
+            { name: "Pinglinks Cellular", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6ea9ab1baa0efb9e19094440c317e21b/logo.png", category: "Electronics" },
+            { name: "Pink Apron", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/daca41214b39c5dc66674d09081940f0/logo_1716653157.png", category: "Food & Dining" },
+            { name: "Pizza Please", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/44f683a84163b3523afe57c2e008bc8c/logo_1624048375.png", category: "Food & Dining" },
+            { name: "Plantation Smokehouse", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/06409663226af2f3114485aa4e0a23b4/logo_1641885877.png", category: "Food & Dining" },
+            { name: "Potwah Diner & Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3871bd64012152bfb53fdf04b401193f/logo_1727450080.png", category: "Food & Dining" },
+            { name: "PRESS Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c0c7c76d30bd3dcaefc96f40275bdc0a/logo_1622152692.png", category: "Food & Dining" },
+            { name: "Presto Pasta", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0deb1c54814305ca9ad266f53bc82511/logo_1684966391.png", category: "Food & Dining" },
+            { name: "Prince D'Bruce Fragrance", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6a10bbd480e4c5573d8f3af73ae0454b/logo_1729786103.png", category: "Retail" },
+            { name: "Progressive Foods Supermarket", logo: "https://cdn.getgiftme.com/gift-me/e96ed478dab8595a7dbda4cbcbee168f/logo_1667523754.jpg", category: "Groceries" },
+            { name: "ProSurgicare Med Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4c27cea8526af8cfee3be5e183ac9605/logo_1732729682.png", category: "Health & Beauty" },
+            { name: "Public Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2291d2ec3b3048d1a6f86c2c4591b7e0/logo_1744039233.png", category: "Health & Wellness" },
+            { name: "Pure Chocolate Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9fd81843ad7f202f26c1a174c7357585/logo_1661998820.png", category: "Food & Dining" },
+            { name: "Purity", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2838023a778dfaecdc212708f721b788/logo_1622234424.png", category: "Food & Dining" },
+            { name: "PurpleDot Logistics", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9cc138f8dc04cbf16240daa92d8d50e2/logo_1729001208.png", category: "Services" },
+            { name: "Pushpas Indian Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f457c545a9ded88f18ecee47145a72c0/logo_1622147499.jpg", category: "Food & Dining" },
+            { name: "QuickCart", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/d07e70efcfab08731a97e7b91be644de/logo_1696266159.png", category: "Groceries" },
+            { name: "Rach Royalty Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f4be00279ee2e0a53eafdaa94a151e2c/logo_1720453896.png", category: "Retail" },
+            { name: "Raffaele's Pizzeria & Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/02e74f10e0327ad868d138f2b4fdd6f0/logo.png", category: "Food & Dining" },
+            { name: "Ragamuffin Hostel & Coffee Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c7e1249ffc03eb9ded908c236bd1996d/logo_1630995987.png", category: "Food & Dining" },
+            { name: "RawBar Restaurant and Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7d04bbbe5494ae9d2f5a76aa1c00fa2f/logo_1697651582.png", category: "Food & Dining" },
+            { name: "Regency Bar and Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6cdd60ea0045eb7a6ec44c54d29ed402/logo_1643828041.png", category: "Food & Dining" },
+            { name: "Ribbiz Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e369853df766fa44e1ed0ff613f563bd/logo_1623280225.png", category: "Food & Dining" },
+            { name: "Rituals Coffee House", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c3e878e27f52e2a57ace4d9a76fd9acf/logo_1674574781.png", category: "Food & Dining" },
+            { name: "ROK Cafe & Market", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/fde9264cf376fffe2ee4ddf4a988880d/logo_1713384308.png", category: "Food & Dining" },
+            { name: "ROKstone", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ffeabd223de0d4eacb9a3e6e53e5448d/logo_1713384345.png", category: "Food & Dining" },
+            { name: "Rosh Marketing", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5c04925674920eb58467fb52ce4ef728/logo_1739285431.png", category: "Services" },
+            { name: "Roun Suh", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0c74b7f78409a4022a2c4c5a5ca3ee19/logo_1677001350.png", category: "Food & Dining" },
+            { name: "Roxanne", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/65ded5353c5ee48d0b7d48c591b8f430/logo_1638312722.png", category: "Fashion" },
+            { name: "Royale Pharmacy", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1728efbda81692282ba642aafd57be3a/logo_1711037082.png", category: "Health & Wellness" },
+            { name: "Rustique Signs", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/3988c7f88ebcb58c6ce932b957b6f332/logo_1639076793.png", category: "Home & Decor" },
+            { name: "Sakura Express", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/63dc7ed1010d3c3b8269faf0ba7491d4/logo_1645597902.png", category: "Food & Dining" },
+            { name: "Salon Phoenix Beauty Bar", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b3967a0e938dc2a6340e258630febd5a/logo_1671554367.png", category: "Health & Beauty" },
+            { name: "Sammy's Shoe Store", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/49ae49a23f67c759bf4fc791ba842aa2/logo_1692729277.png", category: "Fashion" },
+            { name: "Sampars", logo: "https://cdn.getgiftme.com/gift-me/f3f27a324736617f20abbf2ffd806f6d/logo_1702070727.png", category: "Groceries" },
+            { name: "Sangster's Book Store", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f1b6f2857fb6d44dd73c7041e0aa0f19/logo_1698849406.png", category: "Retail" },
+            { name: "Scoops Devon House", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ed3d2c21991e3bef5e069713af9fa6ca/logo_1633136261.png", category: "Food & Dining" },
+            { name: "SeaCliff Resort", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a8abb4bb284b5b27aa7cb790dc20f80b/logo_1688688713.png", category: "Travel" },
+            { name: "Seafood Market", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7380ad8a673226ae47fce7bff88e9c33/logo_1699897339.png", category: "Groceries" },
+            { name: "Sekhmet Medical Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/acc3e0404646c57502b480dc052c4fe1/logo_1721837432.png", category: "Health & Wellness" },
+            { name: "Select Grocers", logo: "https://cdn.getgiftme.com/gift-me/2b8a61594b1f4c4db0902a8a395ced93/logo_1702070747.png", category: "Groceries" },
+            { name: "Shan's Laser And Aesthetics Med Spa/Salon", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/b73ce398c39f506af761d2277d853a92/logo_1642218077.png", category: "Health & Beauty" },
+            { name: "Sharkies", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/140f6969d5213fd0ece03148e62e461e/logo_1641885959.png", category: "Food & Dining" },
+            { name: "Shays Day Spa & Beauty Clinic", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9778d5d219c5080b9a6a17bef029331c/logo_1629699054.png", category: "Health & Beauty" },
+            { name: "Shop Bouje", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1f0e3dad99908345f7439f8ffabdffc4/logo_1674575104.png", category: "Fashion" },
+            { name: "Signature Lounge at So So Seafood", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/45645a27c4f1adc8a7a835976064a86d/logo_1728067695.png", category: "Food & Dining" },
+            { name: "Signature Style - Clarks Originals", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/85fc37b18c57097425b52fc7afbb6969/logo_1727111652.png", category: "Fashion" },
+            { name: "SilliChili", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a49e9411d64ff53eccfdd09ad10a15b3/logo_1687364850.png", category: "Food & Dining" },
+            { name: "Simply Halal Baby & Maternity", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/53c3bce66e43be4f209556518c2fcb54/logo_1660675786.png", category: "Retail" },
+            { name: "Soho Boutique", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/98dce83da57b0395e163467c9dae521b/logo_1632813788.png", category: "Fashion" },
+            { name: "South Avenue Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/67e103b0761e60683e83c559be18d40c/logo_1732218034.png", category: "Food & Dining" },
+            { name: "Spa Aesthetique", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/96da2f590cd7246bbde0051047b0d6f7/logo_1643955870.png", category: "Health & Beauty" },
+            { name: "Spaces Jamaica Limited", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/17e62166fc8586dfa4d1bc0e1742c08b/logo_1620687874.png", category: "Home & Decor" },
+            { name: "Spiritz Sports Bar & Grill", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/75fc093c0ee742f6dddaa13fff98f104/logo_1686844174.png", category: "Food & Dining" },
+            { name: "Spokes Apparel", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/c74d97b01eae257e44aa9d5bade97baf/logo.png", category: "Fashion" },
+            { name: "Sta-sh Beauty Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1385974ed5904a438616ff7bdb3f7439/logo_1747163041.png", category: "Health & Beauty" },
+            { name: "Starbucks Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6883966fd8f918a4aa29be29d2c386fb/logo_1664461302.png", category: "Food & Dining" },
+            { name: "Starfishoils", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6f4922f45568161a8cdf4ad2299f6d23/logo.png", category: "Health & Beauty" },
+            { name: "Statement Pieces", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8f121ce07d74717e0b1f21d122e04521/logo_1652760889.jpg", category: "Retail" },
+            { name: "Steakhouse on the Verandah", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ad61ab143223efbc24c7d2583be69251/logo_1626379937.jpg", category: "Food & Dining" },
+            { name: "Supreme Audio & Electronics Co. Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/069d3bb002acd8d7dd095917f9efe4cb/logo_1715701615.png", category: "Electronics" },
+            { name: "SureCare Medical Centre", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6c524f9d5d7027454a783c841250ba71/logo_1695076582.png", category: "Health & Wellness" },
+            { name: "Susie's", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5878a7ab84fb43402106c575658472fa/logo_1642630744.png", category: "Food & Dining" },
+            { name: "Sweet Cakes", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/069059b7ef840f0c74a814ec9237b6ec/logo_1711395399.png", category: "Food & Dining" },
+            { name: "TacBar Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/bca82e41ee7b0833588399b1fcd177c7/logo_1678718989.png", category: "Food & Dining" },
+            { name: "Tai Tai Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/a684eceee76fc522773286a895bc8436/logo_1622743985.png", category: "Food & Dining" },
+            { name: "Taste & See Di Vibes Cooking", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/5dd9db5e033da9c6fb5ba83c7a7ebea9/logo_1739302173.png", category: "Food & Dining" },
+            { name: "TAVA", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8757150decbd89b0f5442ca3db4d0e0e/logo_1744039367.png", category: "Food & Dining" },
+            { name: "TGI Fridays Jamaica", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/051e4e127b92f5d98d3c79b195f2b291/logo_1728576706.png", category: "Food & Dining" },
+            { name: "The Clean Store", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/08c5433a60135c32e34f46a71175850c/logo_1722356025.png", category: "Retail" },
+            { name: "The Clothing Finery", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9b70e8fe62e40c570a322f1b0b659098/logo_1691774811.png", category: "Fashion" },
+            { name: "The Face Place Salon", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6364d3f0f495b6ab9dcf8d3b5c6e0b01/logo_1683842160.png", category: "Health & Beauty" },
+            { name: "The Fade Room", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/9766527f2b5d3e95d4a733fcfb77bd7e/logo_1642014073.png", category: "Health & Beauty" },
+            { name: "The In Zone Bar & Restaurant", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f770b62bc8f42a0b66751fe636fc6eb0/logo_1696963254.png", category: "Food & Dining" },
+            { name: "The Life Store", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/72b32a1f754ba1c09b3695e0cb6cde7f/logo_1623689895.png", category: "Retail" },
+            { name: "The Luxe Shoppe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0ff39bbbf981ac0151d340c9aa40e63e/logo_1733424416.png", category: "Retail" },
+            { name: "The Salon Scalp Clinic", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f2217062e9a397a1dca429e7d70bc6ca/logo_1641504049.png", category: "Health & Beauty" },
+            { name: "The Ultimate Dining Lounge & Night Club", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e3796ae838835da0b6f6ea37bcf8bcb7/logo_1657295908.jpg", category: "Entertainment" },
+            { name: "The Ultimate Skin Haven", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/05f971b5ec196b8c65b75d2ef8267331/logo_1701871076.png", category: "Health & Beauty" },
+            { name: "The Wine Shop", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2b44928ae11fb9384c4cf38708677c48/logo_1636520176.png", category: "Food & Dining" },
+            { name: "Timber Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/bd686fd640be98efaae0091fa301e613/logo_1644426157.png", category: "Food & Dining" },
+            { name: "Timeless Gifts", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f61d6947467ccd3aa5af24db320235dd/logo_1678542861.png", category: "Retail" },
+            { name: "Tools and Parts Supplies Ltd", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/01f78be6f7cad02658508fe4616098a9/logo_1708874641.png", category: "Automotive" },
+            { name: "Totally Male Spa", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/37693cfc748049e45d87b8c7d8b9aacd/logo.png", category: "Health & Beauty" },
+            { name: "Touzy's Pot", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/16a5cdae362b8d27a1d8f8c7b78b4330/logo_1657985640.png", category: "Food & Dining" },
+            { name: "TriniYaad", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/7750ca3559e5b8e1f44210283368fc16/logo_1725993117.png", category: "Food & Dining" },
+            { name: "Trudyz Amazing Nails", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/bcbe3365e6ac95ea2c0343a2395834dd/logo_1646806041.png", category: "Health & Beauty" },
+            { name: "Trudyz Amazing Nails Aesthetics", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/ad13a2a07ca4b7642959dc0c4c740ab6/logo_1667500109.png", category: "Health & Beauty" },
+            { name: "Truly Me Giftery", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/0fcbc61acd0479dc77e3cccc0f5ffca7/logo_1705944089.png", category: "Retail" },
+            { name: "Truly Me Weddings", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/298f95e1bf9136124592c8d4825a06fc/logo_1705945254.png", category: "Services" },
+            { name: "Tutti Frutti", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/e2c0be24560d78c5e599c2a9c9d0bbd2/logo_1652223613.jpg", category: "Food & Dining" },
+            { name: "Tyre Warehouse", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/4f4adcbf8c6f66dcfc8a3282ac2bf10a/logo_1683993897.png", category: "Automotive" },
+            { name: "Uncorked", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8613985ec49eb8f757ae6439e879bb2a/logo_1631300758.png", category: "Food & Dining" },
+            { name: "Usain Bolt's Tracks & Records", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f9b902fc3289af4dd08de5d1de54f68f/logo_1671032783.png", category: "Entertainment" },
+            { name: "Veganly Vegetarian Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/2a79ea27c279e471f4d180b08d62b00a/logo_1642445189.png", category: "Food & Dining" },
+            { name: "Veggie Campus", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f76a89f0cb91bc419542ce9fa43902dc/logo_1723571959.png", category: "Food & Dining" },
+            { name: "Voda Lounge", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/faa9afea49ef2ff029a833cccc778fd0/logo_1686182234.png", category: "Food & Dining" },
+            { name: "Waah Gwaan Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/233509073ed3432027d48b1a83f5fbd2/logo_1727798670.png", category: "Food & Dining" },
+            { name: "Well Fit", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/8fecb20817b3847419bb3de39a609afe/logo_1739823984.png", category: "Health & Wellness" },
+            { name: "Wholesome Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/70c639df5e30bdee440e4cdf599fec2b/logo_1680819611.png", category: "Food & Dining" },
+            { name: "Wingz & Tingz", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/1bb91f73e9d31ea2830a5e73ce3ed328/logo_1709752757.png", category: "Food & Dining" },
+            { name: "Y Not Pita", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/43ec517d68b6edd3015b3edc9a11367b/logo_1628153105.png", category: "Food & Dining" },
+            { name: "Yardie Divers", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/f7e6c85504ce6e82442c770f7c8606f0/logo_1642806926.png", category: "Entertainment" },
+            { name: "Yummy Cafe", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/109a0ca3bc27f3e96597370d5c8cf03d/logo_1744040617.png", category: "Food & Dining" },
+            { name: "Zen Oasis", logo: "https://giftme.nyc3.digitaloceanspaces.com/gift-me/6766aa2750c19aad2fa1b32f36ed4aee/logo_1729270351.png", category: "Health & Wellness" }
+        ].map(brand => ({ ...brand, slug: generateSlug(brand.name) })); // Add slug to each brand
+
+        // Get unique categories and sort them
+        const categories = ['All', ...new Set(brandsData.map(brand => brand.category))].sort();
+
+        // DOM elements
+        const brandsGrid = document.getElementById('brandsGrid');
+        const brandSearchInput = document.getElementById('brandSearch');
+        const brandCategorySelect = document.getElementById('brandCategory');
+        const noBrandsMessage = document.getElementById('noBrandsMessage');
+
+        // Function to populate category dropdown
+        function populateCategories() {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category === 'All' ? 'All Categories' : category;
+                brandCategorySelect.appendChild(option);
+            });
+        }
+
+        // Function to render brands to the grid
+        function renderBrands(filteredBrands) {
+            brandsGrid.innerHTML = ''; // Clear existing brands
+
+            if (filteredBrands.length === 0) {
+                noBrandsMessage.classList.remove('hidden');
+                return;
+            } else {
+                noBrandsMessage.classList.add('hidden');
+            }
+
+            filteredBrands.forEach(brand => {
+                const brandItem = document.createElement('div');
+                brandItem.className = 'brand-logo-item';
+                brandItem.innerHTML = `
+                    <a href="https://www.allpree.com/${brand.slug}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full h-full justify-between">
+                        <img src="${brand.logo}" alt="${brand.name} Logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/e0e0e0/555555?text=Logo';" class="mb-3">
+                        <span class="brand-name-text">${brand.name}</span>
+                    </a>
+                `;
+                brandsGrid.appendChild(brandItem);
+            });
+        }
+
+        // Function to filter brands based on search and category
+        function filterBrands() {
+            const searchTerm = brandSearchInput.value.toLowerCase();
+            const selectedCategory = brandCategorySelect.value;
+
+            const filtered = brandsData.filter(brand => {
+                const matchesSearch = brand.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory === 'All' || brand.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            renderBrands(filtered);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCategories();
+            filterBrands(); // Initial render of all brands
+        });
+
+        brandSearchInput.addEventListener('input', filterBrands);
+        brandCategorySelect.addEventListener('change', filterBrands);
+    </script>
+</body>
+</html>
