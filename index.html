@@ -10,9 +10,8 @@
      <!-- Font Awesome for social icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <style>
+   <style>
         /* Custom CSS for header */
-        
         .header-bg {
             background-color: #ffffff; /* White background for the header */
             border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
@@ -58,99 +57,6 @@
         .footer-section ul li a:hover {
             color: #ffffff;
         }
-         /* Current Brand Info Card (per brand section) */
-        .category-icon-card {
-            /* Default background, will be overridden by JS if colors are available */
-            background-color: #2C3E50;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            min-height: 250px;
-            text-align: center;
-            /* Added transition for smoother color changes if any */
-            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
-        }
-        .category-icon-card .category-brand-logo {
-            width: 150px;
-            height: 120px;
-            object-fit: contain;
-            margin-bottom: 1rem;
-            border-radius: 50%;
-            background-color: rgba(255,255,255,0.2);
-            padding: 5px;
-        }
-        .category-icon-card .card-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .category-icon-card .countdown-text {
-            font-size: 0.7rem;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            color: #e0e0e0;
-        }
-
-        /* Floating Categories Styles */
-        .floating-categories-container {
-            background-color: #f8fafc; /* Light gray background for the floating bar */
-            padding: 0.75rem 1rem;
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent items from wrapping */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 70px; /* Adjust based on your header's height */
-            z-index: 40; /* Below header, above main content */
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .categories-list {
-            display: flex;
-            align-items: center;
-            gap: 1rem; /* Space between category items */
-        }
-        .category-item {
-            display: inline-flex; /* Keep items inline for horizontal scroll */
-            flex-direction: column;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            flex-shrink: 0; /* Prevent items from shrinking */
-        }
-        .category-item:hover {
-            background-color: #e2e8f0; /* Light hover effect */
-            transform: translateY(-2px);
-        }
-        .category-item.active {
-            background-color: #dbeafe; /* Tailwind blue-100 for active state */
-            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
-        }
-        /* Removed .category-logo styles as the image is no longer present */
-        .category-name {
-            font-size: 0.75rem; /* Smaller text for category names */
-            font-weight: 500;
-            color: #4a5568;
-            text-align: center;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible; /* Ensure content is visible */
-            text-overflow: clip; /* Prevent ellipsis */
-            max-width: none; /* Remove max-width constraint */
-        }
-
-        /* Hide scrollbar for floating categories */
-        .floating-categories-container::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-        }
-        .floating-categories-container {
-            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* For Firefox */
-        }
 
         /* Base styles */
         body {
@@ -181,34 +87,13 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         .container-wrapper {
-            
             border-radius: 1.5rem; /* Rounded corners for the main container */
-            
             padding: 0; /* Remove padding here, it's inside sections */
             margin: 2rem auto; /* Center horizontally and add vertical margin */
             max-width: 1200px; /* Max width for content */
             width: 95%; /* Responsive width */
             overflow: hidden; /* Ensure rounded corners clip content */
             flex-grow: 1; /* Allow main content to grow and push footer down */
-        }
-
-        /* Global Site Brand Name (used in header - though now logo is used) */
-        .site-brand-name {
-            color: white; /* This style might not be needed if logo replaces text */
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 800; /* Extra bold */
-            text-align: center;
-        }
-
-        /* Individual Brand Section Header */
-        .brand-section-header {
-            background-color: #2C3E50; /* Dark blue from screenshot */
-            color: white;
-            padding: 0.5rem 2rem 1.5rem 2rem;
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
-            text-align: left;
-            /* No border-radius here, as it's part of the brand section's flow */
         }
 
         /* Deal Grid and Cards */
@@ -268,9 +153,9 @@
             color: #6b7280;
             font-weight: 500;
             margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap; /* Re-added for truncation */
+            overflow: hidden; /* Re-added for truncation */
+            text-overflow: ellipsis; /* Re-added for truncation */
         }
 
         .deal-title {
@@ -278,12 +163,12 @@
             font-size: 1rem;
             color: #1a202c;
             margin-bottom: 0.25rem;
-            height: 1.2rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            height: 1.2rem; /* Fixed height to allow for truncation */
+            overflow: hidden; /* Re-added for truncation */
+            text-overflow: ellipsis; /* Re-added for truncation */
+            display: -webkit-box; /* Re-added for truncation */
+            -webkit-line-clamp: 2; /* Re-added for truncation */
+            -webkit-box-orient: vertical; /* Re-added for truncation */
         }
         .price-section {
             display: flex;
@@ -500,6 +385,68 @@
         .shop-button:hover {
             background-color: #303f9f;
         }
+
+        /* Floating Categories Styles */
+        .floating-categories-container {
+            background-color: #f8fafc; /* Light gray background for the floating bar */
+            padding: 0.75rem 0; /* Vertical padding only */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 70px; /* Adjust based on your header's height */
+            z-index: 40; /* Below header, above main content */
+            border-bottom: 1px solid #e5e7eb;
+            width: 100%; /* Ensures the background spans the full width of the page */
+        }
+        .categories-list-wrapper { /* This new wrapper centers the content and handles scrolling */
+            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
+            margin: 0 auto; /* Centers the content within the full-width container */
+            padding: 0 1rem; /* Added horizontal padding for content inside */
+            overflow-x: auto; /* Now this element handles horizontal scrolling */
+            white-space: nowrap; /* Prevent items from wrapping here */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        /* Scrollbar hiding for the categories-list-wrapper */
+        .categories-list-wrapper::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .categories-list-wrapper {
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+            scrollbar-width: none;  /* For Firefox */
+        }
+
+        .categories-list {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Space between category items */
+        }
+        .category-item {
+            display: inline-flex; /* Keep items inline for horizontal scroll */
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            flex-shrink: 0; /* Prevent items from shrinking */
+        }
+        .category-item:hover {
+            background-color: #e2e8f0; /* Light hover effect */
+            transform: translateY(-2px);
+        }
+        .category-item.active {
+            background-color: #dbeafe; /* Tailwind blue-100 for active state */
+            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
+        }
+        .category-name {
+            font-size: 0.75rem; /* Smaller text for category names */
+            font-weight: 500;
+            color: #4a5568;
+            text-align: center;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Ensure content is visible */
+            text-overflow: clip; /* Prevent ellipsis */
+            max-width: none; /* Remove max-width constraint */
+        }
     </style>
 </head>
 <body>
@@ -536,15 +483,18 @@
     </header>
 
      <!-- Floating Categories Section -->
-    <div id="floating-categories-container" class="floating-categories-container max-w-7xl-custom">
-        <div id="categories-list" class="categories-list">
-            <!-- "All Brands" category item -->
-            <div class="category-item active" data-filter-type="category" data-filter-value="all">
-                <span class="category-name">All Categories</span>
+    <div id="floating-categories-container" class="floating-categories-container">
+        <div class="categories-list-wrapper"> <!-- This wrapper now handles horizontal scrolling -->
+            <div id="categories-list" class="categories-list">
+                <!-- "All Brands" category item -->
+                <div class="category-item active" data-filter-type="category" data-filter-value="all">
+                    <span class="category-name">All Categories</span>
+                </div>
+                <!-- Dynamic category items will be inserted here by JavaScript -->
             </div>
-            <!-- Dynamic category items will be inserted here by JavaScript -->
         </div>
     </div>
+
 
 
     
