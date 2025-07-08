@@ -78,6 +78,7 @@
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
                             <div class="original-price">JMD $${original.toLocaleString()}</div>
+                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹'}</div>
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
