@@ -58,6 +58,99 @@
         .footer-section ul li a:hover {
             color: #ffffff;
         }
+         /* Current Brand Info Card (per brand section) */
+        .category-icon-card {
+            /* Default background, will be overridden by JS if colors are available */
+            background-color: #2C3E50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-height: 250px;
+            text-align: center;
+            /* Added transition for smoother color changes if any */
+            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
+        }
+        .category-icon-card .category-brand-logo {
+            width: 150px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            padding: 5px;
+        }
+        .category-icon-card .card-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .category-icon-card .countdown-text {
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            color: #e0e0e0;
+        }
+
+        /* Floating Categories Styles */
+        .floating-categories-container {
+            background-color: #f8fafc; /* Light gray background for the floating bar */
+            padding: 0.75rem 1rem;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent items from wrapping */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 70px; /* Adjust based on your header's height */
+            z-index: 40; /* Below header, above main content */
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .categories-list {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Space between category items */
+        }
+        .category-item {
+            display: inline-flex; /* Keep items inline for horizontal scroll */
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            flex-shrink: 0; /* Prevent items from shrinking */
+        }
+        .category-item:hover {
+            background-color: #e2e8f0; /* Light hover effect */
+            transform: translateY(-2px);
+        }
+        .category-item.active {
+            background-color: #dbeafe; /* Tailwind blue-100 for active state */
+            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
+        }
+        /* Removed .category-logo styles as the image is no longer present */
+        .category-name {
+            font-size: 0.75rem; /* Smaller text for category names */
+            font-weight: 500;
+            color: #4a5568;
+            text-align: center;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Ensure content is visible */
+            text-overflow: clip; /* Prevent ellipsis */
+            max-width: none; /* Remove max-width constraint */
+        }
+
+        /* Hide scrollbar for floating categories */
+        .floating-categories-container::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .floating-categories-container {
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+            scrollbar-width: none;  /* For Firefox */
+        }
 
         /* Base styles */
         body {
@@ -442,6 +535,19 @@
         </div>
     </header>
 
+     <!-- Floating Categories Section -->
+    <div id="floating-categories-container" class="floating-categories-container">
+        <div id="categories-list" class="categories-list">
+            <!-- "All Brands" category item -->
+            <div class="category-item active" data-filter-type="category" data-filter-value="all">
+                <span class="category-name">All Categories</span>
+            </div>
+            <!-- Dynamic category items will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+
+    
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
             <div id="all-brands-container">
