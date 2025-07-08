@@ -511,11 +511,11 @@
     <div id="floating-categories-container" class="floating-categories-container">
         <div id="categories-list" class="categories-list">
             <!-- "All Brands" category item -->
-            <div class="category-item active" data-brand-name="all">
-                <img src="https://placehold.co/40x40/2C3E50/FFFFFF?text=All" alt="All Brands" class="category-logo">
-                <span class="category-name">All Brands</span>
+            <div class="category-item active" data-filter-type="category" data-filter-value="all">
+                <img src="https://placehold.co/40x40/2C3E50/FFFFFF?text=All" alt="All Categories" class="category-logo">
+                <span class="category-name">All Categories</span>
             </div>
-            <!-- Dynamic brand categories will be inserted here by JavaScript -->
+            <!-- Dynamic category items will be inserted here by JavaScript -->
         </div>
     </div>
 
@@ -620,9 +620,20 @@
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '' } }
+        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
         let allBrandsData = []; // To store all brands from the master sheet for filtering
+
+        // Hardcoded list of categories provided by the user
+        const allCategories = [
+            "Art & Painting", "Auto", "Baby, Kids & Toys", "Beauty", "Book Store", "Cafes",
+            "Department Stores", "Desserts", "Electronics & Office Supplies", "Entertainment",
+            "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
+            "Furniture & Appliances", "Gas", "Hardware", "Home Goods", "Hospitality",
+            "Jewellery", "Medical", "Pharmacy", "Restaurant & Beverage", "Retail",
+            "Shipping & Logistics", "Spas", "Supermarkets", "Travel & Hospitality",
+            "Weddings and Events", "Women Apparel"
+        ];
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -763,7 +774,7 @@
             const brandSection = document.createElement('div');
             brandSection.id = `brand-section-${brandId}`;
             brandSection.className = 'bg-white rounded-xl shadow-lg mb-8 overflow-hidden'; // Styling for each brand section
-            brandSection.setAttribute('data-brand-name', brandName); // Add data attribute for filtering
+            brandSection.setAttribute('data-brand-name', brandName); // Add data attribute for brand name filtering
 
             // Add a temporary loading state for the brand section
             brandSection.innerHTML = `
@@ -795,7 +806,7 @@
                 let featuredBrandData = null;
                 let tempProducts = [];
                 for (const row of rows) {
-                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor but no ProductName)
+                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor, Category but no ProductName)
                     if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                         featuredBrandData = row;
                     } else if (row.ProductName && row.ImageURL) {
@@ -814,12 +825,16 @@
                 // Shuffle products before storing them
                 shuffleArray(tempProducts);
 
-                // Store data for this brand
+                // Store data for this brand, including its category
                 brandDataMap[brandId] = {
                     allProducts: tempProducts,
                     currentProductIndex: 0,
-                    brandName: brandName // Store brand name for search functionality
+                    brandName: brandName,
+                    category: featuredBrandData ? featuredBrandData.Category : 'Uncategorized' // Assuming Category is in featuredBrandData
                 };
+                // Set data-category attribute on the brand section for filtering
+                brandSection.setAttribute('data-category', brandDataMap[brandId].category.toLowerCase());
+
 
                 // Update the Current Brand Info Card for this section
                 const categoryBrandCard = document.getElementById(`category-brand-card-${brandId}`); // Get the card element
@@ -882,17 +897,23 @@
         }
 
         // Function to create a category item for the floating bar
-        function createFloatingCategoryItem(brandName, brandLogoUrl, brandId) {
+        function createFloatingCategoryItem(categoryName) {
             const categoryItem = document.createElement('div');
             categoryItem.className = 'category-item';
-            categoryItem.setAttribute('data-brand-name', brandName);
+            categoryItem.setAttribute('data-filter-type', 'category');
+            categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
+            
+            const firstLetter = categoryName.charAt(0).toUpperCase();
+            const placeholderImageUrl = `https://placehold.co/40x40/2C3E50/FFFFFF?text=${firstLetter}`;
+
             categoryItem.innerHTML = `
-                <img src="${brandLogoUrl}" alt="${brandName} Logo" class="category-logo" onerror="this.onerror=null;this.src='https://placehold.co/40x40/2C3E50/FFFFFF?text=${brandName.charAt(0)}';">
-                <span class="category-name">${brandName}</span>
+                <img src="${placeholderImageUrl}" alt="${categoryName} Icon" class="category-logo">
+                <span class="category-name">${categoryName}</span>
             `;
             categoryItem.addEventListener('click', () => {
-                filterBrands(brandName);
+                filterContent('category', categoryName.toLowerCase());
                 highlightCategory(categoryItem);
+                brandSearchInput.value = ''; // Clear search input when a category is selected
             });
             return categoryItem;
         }
@@ -925,31 +946,31 @@
                 }
 
                 const categoriesList = document.getElementById('categories-list');
-                // Ensure "All Brands" is always the first item and active by default
-                const allBrandsItem = categoriesList.querySelector('[data-brand-name="all"]');
-                if (allBrandsItem) {
-                    allBrandsItem.addEventListener('click', () => {
-                        filterBrands('all');
-                        highlightCategory(allBrandsItem);
+                // Ensure "All Categories" is always the first item and active by default
+                const allCategoriesItem = categoriesList.querySelector('[data-filter-value="all"]');
+                if (allCategoriesItem) {
+                    allCategoriesItem.addEventListener('click', () => {
+                        filterContent('category', 'all');
+                        highlightCategory(allCategoriesItem);
+                        brandSearchInput.value = ''; // Clear search input
                     });
                 }
 
+                // Populate floating categories from the hardcoded list
+                allCategories.forEach(category => {
+                    const categoryItem = createFloatingCategoryItem(category);
+                    categoriesList.appendChild(categoryItem);
+                });
 
-                // Render each brand section and populate floating categories
+
+                // Render each brand section
                 for (const brand of brands) {
                     const brandName = brand.undefined; // Assuming 'undefined' column holds the brand name
                     const sheetUrl = brand.sheeturls;
-                    const brandLogo = brand.BrandLogo; // Assuming BrandLogo column exists in master sheet
 
                     if (brandName && sheetUrl) {
                         // Create a unique ID for each brand's section
                         const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                        
-                        // Add to floating categories
-                        if (brandLogo) { // Only add to floating categories if a logo exists
-                            const categoryItem = createFloatingCategoryItem(brandName, brandLogo, brandId);
-                            categoriesList.appendChild(categoryItem);
-                        }
                         
                         // Render the main brand section
                         await renderBrandSection(brandName, sheetUrl, brandId);
@@ -1003,51 +1024,59 @@
             countdownIntervals[elementId] = setInterval(update, 1000); // Store interval ID
         }
 
-        // Search and Filter functionality (modified to handle category clicks)
+        // Search and Filter functionality
         const brandSearchInput = document.getElementById('brandSearchInput');
         let searchTimeout;
 
-        function filterBrands(searchTerm = '') {
-            const currentSearchTerm = searchTerm === 'all' ? '' : searchTerm.toLowerCase().trim();
+        function filterContent(filterType, filterValue) {
+            const normalizedFilterValue = filterValue.toLowerCase().trim();
             const allBrandSections = document.querySelectorAll('[id^="brand-section-"]');
-            let foundBrands = false;
+            let foundContent = false;
 
             allBrandSections.forEach(section => {
                 const brandName = section.getAttribute('data-brand-name').toLowerCase();
+                const category = section.getAttribute('data-category').toLowerCase();
                 
-                if (currentSearchTerm === '' || brandName.includes(currentSearchTerm)) {
-                    section.style.display = 'block'; // Show the section
-                    foundBrands = true;
+                let shouldShow = false;
+
+                if (filterType === 'category') {
+                    if (normalizedFilterValue === 'all' || category.includes(normalizedFilterValue)) {
+                        shouldShow = true;
+                    }
+                } else if (filterType === 'brand') {
+                    if (brandName.includes(normalizedFilterValue)) {
+                        shouldShow = true;
+                    }
+                }
+
+                if (shouldShow) {
+                    section.style.display = 'block';
+                    foundContent = true;
                 } else {
-                    section.style.display = 'none'; // Hide the section
+                    section.style.display = 'none';
                 }
             });
 
             const allBrandsContainer = document.getElementById('all-brands-container');
             let noResultsMessage = document.getElementById('no-results-message');
 
-            if (!foundBrands && currentSearchTerm !== '') {
+            if (!foundContent && normalizedFilterValue !== '' && normalizedFilterValue !== 'all') {
                 if (!noResultsMessage) {
                     noResultsMessage = document.createElement('p');
                     noResultsMessage.id = 'no-results-message';
                     noResultsMessage.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
                     allBrandsContainer.appendChild(noResultsMessage);
                 }
-                noResultsMessage.textContent = `No brands found matching "${currentSearchTerm}".`;
+                noResultsMessage.textContent = `No content found matching "${normalizedFilterValue}".`;
             } else if (noResultsMessage) {
                 noResultsMessage.remove();
-            }
-
-            // Update search input value if filtering by category
-            if (searchTerm !== '') {
-                brandSearchInput.value = currentSearchTerm;
             }
         }
 
         brandSearchInput.addEventListener('keyup', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                filterBrands(brandSearchInput.value);
+                filterContent('brand', brandSearchInput.value);
                 // Remove active highlight from category items when typing in search
                 document.querySelectorAll('.category-item').forEach(item => {
                     item.classList.remove('active');
