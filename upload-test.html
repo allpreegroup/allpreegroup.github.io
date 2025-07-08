@@ -175,9 +175,7 @@
             color: #6b7280;
             font-weight: 500;
             margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            /* Removed truncation properties */
         }
 
         .deal-title {
@@ -185,12 +183,13 @@
             font-size: 1rem;
             color: #1a202c;
             margin-bottom: 0.25rem;
-            height: 1.2rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            /* Removed truncation properties */
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Ensure content is visible */
+            text-overflow: clip; /* Prevent ellipsis */
+            height: auto; /* Allow height to adjust */
+            -webkit-line-clamp: unset; /* Remove line clamp */
+            -webkit-box-orient: unset; /* Remove box orient */
         }
         .price-section {
             display: flex;
@@ -444,24 +443,17 @@
             background-color: #dbeafe; /* Tailwind blue-100 for active state */
             border: 1px solid #93c5fd; /* Tailwind blue-300 border */
         }
-        .category-logo {
-            width: 40px; /* Smaller logos for the category bar */
-            height: 40px;
-            object-fit: contain;
-            border-radius: 50%; /* Circular logos */
-            margin-bottom: 0.25rem;
-            background-color: rgba(255,255,255,0.5); /* Slightly transparent white background */
-            padding: 3px;
-        }
+        /* Removed .category-logo styles as the image is no longer present */
         .category-name {
             font-size: 0.75rem; /* Smaller text for category names */
             font-weight: 500;
             color: #4a5568;
             text-align: center;
-            white-space: nowrap; /* Prevent name from wrapping */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 80px; /* Limit width of name */
+            /* Removed truncation properties */
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Ensure content is visible */
+            text-overflow: clip; /* Prevent ellipsis */
+            max-width: none; /* Remove max-width constraint */
         }
 
         /* Hide scrollbar for floating categories */
@@ -512,7 +504,6 @@
         <div id="categories-list" class="categories-list">
             <!-- "All Brands" category item -->
             <div class="category-item active" data-filter-type="category" data-filter-value="all">
-                <img src="https://placehold.co/40x40/2C3E50/FFFFFF?text=All" alt="All Categories" class="category-logo">
                 <span class="category-name">All Categories</span>
             </div>
             <!-- Dynamic category items will be inserted here by JavaScript -->
@@ -587,7 +578,7 @@
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Investor Relations</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Sell Your Products</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline">Sell Your Products</a></li>
                 </ul>
             </div>
         </div>
@@ -695,7 +686,8 @@
             const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
             const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
-            const shortName = row.ProductName.length > 18 ? row.ProductName.slice(0, 17) + '...' : row.ProductName;
+            // Use full product name as requested
+            const fullProductName = row.ProductName;
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal-card';
@@ -703,7 +695,7 @@
                 <span class="discount-badge">SAVE ${percentOff}%</span>
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
-                   <div class="deal-title">${shortName}</div>
+                   <div class="deal-title">${fullProductName}</div>
                    
                     <div class="price-section">
                         <div class="price-info">
@@ -903,11 +895,8 @@
             categoryItem.setAttribute('data-filter-type', 'category');
             categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
             
-            const firstLetter = categoryName.charAt(0).toUpperCase();
-            const placeholderImageUrl = `https://placehold.co/40x40/2C3E50/FFFFFF?text=${firstLetter}`;
-
+            // Removed the <img> tag as requested
             categoryItem.innerHTML = `
-                <img src="${placeholderImageUrl}" alt="${categoryName} Icon" class="category-logo">
                 <span class="category-name">${categoryName}</span>
             `;
             categoryItem.addEventListener('click', () => {
