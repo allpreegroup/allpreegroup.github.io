@@ -1,9 +1,21 @@
-  const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
+const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '' } }
+        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
+        let allBrandsData = []; // To store all brands from the master sheet for filtering
+
+        // Hardcoded list of categories provided by the user
+        const allCategories = [
+            "Art & Painting", "Auto", "Baby, Kids & Toys", "Beauty", "Book Store", "Cafes",
+            "Department Stores", "Desserts", "Electronics & Office Supplies", "Entertainment",
+            "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
+            "Furniture & Appliances", "Gas", "Hardware", "Home Goods", "Hospitality",
+            "Jewellery", "Medical", "Pharmacy", "Restaurant & Beverage", "Retail",
+            "Shipping & Logistics", "Spas", "Supermarkets", "Travel & Hospitality",
+            "Weddings and Events", "Women Apparel"
+        ];
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -65,6 +77,7 @@
             const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
             const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
+            // Re-added truncation for product name
             const shortName = row.ProductName.length > 18 ? row.ProductName.slice(0, 17) + '...' : row.ProductName;
 
             const dealCard = document.createElement('div');
@@ -74,11 +87,12 @@
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
                    <div class="deal-title">${shortName}</div>
+                   
                     <div class="price-section">
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
                             <div class="original-price">JMD $${original.toLocaleString()}</div>
-                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹'}</div>
+                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹ '}</div>
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
@@ -100,6 +114,7 @@
         // Renders initial set of products for a specific brand
         function renderInitialProducts(brandId, productsToRender) {
             const container = document.getElementById(`deals-container-${brandId}`);
+            // Keep the category brand card if it exists, otherwise it will be re-added by renderBrandSection
             const existingCategoryBrandCard = container.querySelector(`#category-brand-card-${brandId}`);
             container.innerHTML = ''; // Clear existing content
             if (existingCategoryBrandCard) {
@@ -124,11 +139,13 @@
             const shopMoreButtonSpan = document.getElementById(`remaining-deals-count-${brandId}`);
             const shopMoreContainer = document.getElementById(`shop-more-container-${brandId}`);
 
-            if (remainingCount > 0) {
-                shopMoreButtonSpan.textContent = remainingCount;
-                shopMoreContainer.style.display = 'flex';
-            } else {
-                shopMoreContainer.style.display = 'none';
+            if (shopMoreButtonSpan && shopMoreContainer) {
+                if (remainingCount > 0) {
+                    shopMoreButtonSpan.textContent = remainingCount;
+                    shopMoreContainer.style.display = 'flex';
+                } else {
+                    shopMoreContainer.style.display = 'none';
+                }
             }
         }
 
@@ -140,6 +157,7 @@
             const brandSection = document.createElement('div');
             brandSection.id = `brand-section-${brandId}`;
             brandSection.className = 'bg-white rounded-xl shadow-lg mb-8 overflow-hidden'; // Styling for each brand section
+            brandSection.setAttribute('data-brand-name', brandName); // Add data attribute for brand name filtering
 
             // Add a temporary loading state for the brand section
             brandSection.innerHTML = `
@@ -154,7 +172,7 @@
                 </div>
                 <div id="shop-more-container-${brandId}" class="shop-more-deals-container">
                     <button id="shop-more-button-${brandId}" class="shop-more-button">
-                         VIEW <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
+                         SHOP <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M7 10l5 5 5-5z"/>
                         </svg>
@@ -171,7 +189,7 @@
                 let featuredBrandData = null;
                 let tempProducts = [];
                 for (const row of rows) {
-                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor but no ProductName)
+                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor, Category but no ProductName)
                     if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                         featuredBrandData = row;
                     } else if (row.ProductName && row.ImageURL) {
@@ -190,12 +208,16 @@
                 // Shuffle products before storing them
                 shuffleArray(tempProducts);
 
-                // Store data for this brand
+                // Store data for this brand, including its category
                 brandDataMap[brandId] = {
                     allProducts: tempProducts,
                     currentProductIndex: 0,
-                    brandName: brandName // Store brand name for search functionality
+                    brandName: brandName,
+                    category: featuredBrandData ? featuredBrandData.Category : 'Uncategorized' // Assuming Category is in featuredBrandData
                 };
+                // Set data-category attribute on the brand section for filtering
+                brandSection.setAttribute('data-category', brandDataMap[brandId].category.toLowerCase());
+
 
                 // Update the Current Brand Info Card for this section
                 const categoryBrandCard = document.getElementById(`category-brand-card-${brandId}`); // Get the card element
@@ -257,7 +279,34 @@
             }
         }
 
-        // Function to load the master sheet and populate all brand sections
+        // Function to create a category item for the floating bar
+        function createFloatingCategoryItem(categoryName) {
+            const categoryItem = document.createElement('div');
+            categoryItem.className = 'category-item';
+            categoryItem.setAttribute('data-filter-type', 'category');
+            categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
+            
+            // Removed the <img> tag as requested
+            categoryItem.innerHTML = `
+                <span class="category-name">${categoryName}</span>
+            `;
+            categoryItem.addEventListener('click', () => {
+                filterContent('category', categoryName.toLowerCase());
+                highlightCategory(categoryItem);
+                brandSearchInput.value = ''; // Clear search input when a category is selected
+            });
+            return categoryItem;
+        }
+
+        // Function to highlight the active category item
+        function highlightCategory(activeItem) {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            activeItem.classList.add('active');
+        }
+
+        // Function to load the master sheet and populate all brand sections and floating categories
         async function loadMasterSheet() {
             const loadingBrandsMessage = document.getElementById('loading-brands-message');
             if (loadingBrandsMessage) loadingBrandsMessage.textContent = 'Loading all brands and their deals...';
@@ -265,7 +314,8 @@
             try {
                 const res = await fetch(masterSheetUrl);
                 const brands = await res.json();
-                
+                allBrandsData = brands; // Store all brands data globally
+
                 // Clear the initial loading message
                 const allBrandsContainer = document.getElementById('all-brands-container');
                 allBrandsContainer.innerHTML = '';
@@ -275,13 +325,34 @@
                     return;
                 }
 
+                const categoriesList = document.getElementById('categories-list');
+                // Ensure "All Categories" is always the first item and active by default
+                const allCategoriesItem = categoriesList.querySelector('[data-filter-value="all"]');
+                if (allCategoriesItem) {
+                    allCategoriesItem.addEventListener('click', () => {
+                        filterContent('category', 'all');
+                        highlightCategory(allCategoriesItem);
+                        brandSearchInput.value = ''; // Clear search input
+                    });
+                }
+
+                // Populate floating categories from the hardcoded list
+                allCategories.forEach(category => {
+                    const categoryItem = createFloatingCategoryItem(category);
+                    categoriesList.appendChild(categoryItem);
+                });
+
+
                 // Render each brand section
                 for (const brand of brands) {
                     const brandName = brand.undefined; // Assuming 'undefined' column holds the brand name
                     const sheetUrl = brand.sheeturls;
+
                     if (brandName && sheetUrl) {
                         // Create a unique ID for each brand's section
                         const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                        
+                        // Render the main brand section
                         await renderBrandSection(brandName, sheetUrl, brandId);
                     }
                 }
@@ -333,44 +404,50 @@
             countdownIntervals[elementId] = setInterval(update, 1000); // Store interval ID
         }
 
-        // Search functionality
+        // Search and Filter functionality
         const brandSearchInput = document.getElementById('brandSearchInput');
         let searchTimeout;
 
-        function filterBrands() {
-            const searchTerm = brandSearchInput.value.toLowerCase().trim();
+        function filterContent(filterType, filterValue) {
+            const normalizedFilterValue = filterValue.toLowerCase().trim();
             const allBrandSections = document.querySelectorAll('[id^="brand-section-"]');
-            let foundBrands = false;
+            let foundContent = false;
 
             allBrandSections.forEach(section => {
-                const brandId = section.id.replace('brand-section-', '');
-                const brandData = brandDataMap[brandId];
+                const brandName = section.getAttribute('data-brand-name').toLowerCase();
+                const category = section.getAttribute('data-category').toLowerCase();
                 
-                if (brandData && brandData.brandName) {
-                    const brandName = brandData.brandName.toLowerCase();
-                    if (brandName.includes(searchTerm)) {
-                        section.style.display = 'block'; // Show the section
-                        foundBrands = true;
-                    } else {
-                        section.style.display = 'none'; // Hide the section
+                let shouldShow = false;
+
+                if (filterType === 'category') {
+                    if (normalizedFilterValue === 'all' || category.includes(normalizedFilterValue)) {
+                        shouldShow = true;
                     }
+                } else if (filterType === 'brand') {
+                    if (brandName.includes(normalizedFilterValue)) {
+                        shouldShow = true;
+                    }
+                }
+
+                if (shouldShow) {
+                    section.style.display = 'block';
+                    foundContent = true;
                 } else {
-                    // If brandData is not available or brandName is missing, hide it
                     section.style.display = 'none';
                 }
             });
 
             const allBrandsContainer = document.getElementById('all-brands-container');
-            const noResultsMessage = document.getElementById('no-results-message');
+            let noResultsMessage = document.getElementById('no-results-message');
 
-            if (!foundBrands && searchTerm !== '') {
+            if (!foundContent && normalizedFilterValue !== '' && normalizedFilterValue !== 'all') {
                 if (!noResultsMessage) {
-                    const msg = document.createElement('p');
-                    msg.id = 'no-results-message';
-                    msg.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
-                    msg.textContent = `No brands found matching "${searchTerm}".`;
-                    allBrandsContainer.appendChild(msg);
+                    noResultsMessage = document.createElement('p');
+                    noResultsMessage.id = 'no-results-message';
+                    noResultsMessage.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
+                    allBrandsContainer.appendChild(noResultsMessage);
                 }
+                noResultsMessage.textContent = `No content found matching "${normalizedFilterValue}".`;
             } else if (noResultsMessage) {
                 noResultsMessage.remove();
             }
@@ -378,7 +455,13 @@
 
         brandSearchInput.addEventListener('keyup', () => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(filterBrands, 300); // Debounce for 300ms
+            searchTimeout = setTimeout(() => {
+                filterContent('brand', brandSearchInput.value);
+                // Remove active highlight from category items when typing in search
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            }, 300); // Debounce for 300ms
         });
 
         document.addEventListener('DOMContentLoaded', () => {
