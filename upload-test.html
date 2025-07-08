@@ -412,9 +412,7 @@
         .floating-categories-container {
             background-color: #f8fafc; /* Light gray background for the floating bar */
             padding: 0.75rem 0; /* Vertical padding only */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent items from wrapping */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Removed overflow-x, white-space, and scrollbar hiding from here */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 70px; /* Adjust based on your header's height */
@@ -426,7 +424,20 @@
             max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
             margin: 0 auto; /* Centers the content within the full-width container */
             padding: 0 1rem; /* Added horizontal padding for content inside */
+            overflow-x: auto; /* Now this element handles horizontal scrolling */
+            white-space: nowrap; /* Prevent items from wrapping here */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Scrollbar hiding rules applied directly below */
         }
+        /* Scrollbar hiding for the categories-list-wrapper */
+        .categories-list-wrapper::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .categories-list-wrapper {
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+            scrollbar-width: none;  /* For Firefox */
+        }
+
         .categories-list {
             display: flex;
             align-items: center;
@@ -460,15 +471,6 @@
             overflow: visible; /* Ensure content is visible */
             text-overflow: clip; /* Prevent ellipsis */
             max-width: none; /* Remove max-width constraint */
-        }
-
-        /* Hide scrollbar for floating categories */
-        .floating-categories-container::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-        }
-        .floating-categories-container {
-            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* For Firefox */
         }
     </style>
 </head>
@@ -507,7 +509,7 @@
 
     <!-- Floating Categories Section -->
     <div id="floating-categories-container" class="floating-categories-container">
-        <div class="categories-list-wrapper"> <!-- This wrapper centers the category items -->
+        <div class="categories-list-wrapper"> <!-- This wrapper now handles horizontal scrolling -->
             <div id="categories-list" class="categories-list">
                 <!-- "All Brands" category item -->
                 <div class="category-item active" data-filter-type="category" data-filter-value="all">
