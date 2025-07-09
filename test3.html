@@ -9,7 +9,6 @@
     <!-- Font Awesome for social icons and location icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-
     <style>
         /* Custom CSS for header */
         .header-bg {
@@ -461,6 +460,68 @@
             text-overflow: clip; /* Prevent ellipsis */
             max-width: none; /* Remove max-width constraint */
         }
+
+        /* New styles for combined search/dropdown */
+        .combined-search-container {
+            display: flex;
+            border: 1px solid #d1d5db; /* Gray-300 */
+            border-radius: 0.5rem; /* Rounded-lg */
+            overflow: hidden; /* Ensures inner elements respect the container's border-radius */
+            flex-grow: 1;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Shadow-sm */
+        }
+        .combined-search-container:focus-within {
+            border-color: transparent; /* Hide individual border on focus */
+            box-shadow: 0 0 0 2px #2C3E50; /* Focus ring */
+            outline: none;
+        }
+
+        .combined-search-container input[type="text"] {
+            border: none; /* Remove individual border */
+            border-radius: 0; /* Remove individual border-radius */
+            padding-left: 2.5rem; /* Space for icon */
+            flex-grow: 1;
+            background-color: white;
+            outline: none; /* Remove focus outline */
+        }
+
+        .combined-search-container select {
+            border: none; /* Remove individual border */
+            border-left: 1px solid #e5e7eb; /* Add a separator line */
+            border-radius: 0; /* Remove individual border-radius */
+            padding-right: 2.5rem; /* Space for custom arrow */
+            background-color: white;
+            appearance: none; /* Hide default dropdown arrow */
+            outline: none; /* Remove focus outline */
+            flex-shrink: 0; /* Prevent shrinking */
+            width: auto; /* Allow width to be determined by content/padding */
+            min-width: 120px; /* Minimum width for the dropdown */
+            cursor: pointer;
+        }
+
+        .combined-search-container .search-icon-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding-left: 0.75rem; /* pl-3 */
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            z-index: 1; /* Ensure icon is above input */
+        }
+
+        .combined-search-container .dropdown-arrow-wrapper {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            padding-right: 0.5rem; /* px-2 */
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            z-index: 1; /* Ensure arrow is above select */
+        }
     </style>
 </head>
 <body>
@@ -472,21 +533,17 @@
                 <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
             </div>
 
-            <!-- Search and Location Bar Container -->
-            <div class="flex flex-grow mx-4 max-w-2xl gap-2">
-                <!-- Search Bar -->
-                <div class="relative flex-grow">
-                    <input type="text" id="brandSearchInput" placeholder="Search brands..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <!-- Combined Search and Location Bar Container -->
+            <div class="flex flex-grow mx-4 max-w-2xl">
+                <div class="relative flex-grow combined-search-container">
+                    <div class="search-icon-wrapper">
                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                </div>
+                    <input type="text" id="brandSearchInput" placeholder="Search brands..." class="py-2">
 
-                <!-- Location Dropdown -->
-                <div class="relative flex-grow">
-                    <select id="locationSelect" class="w-full pl-3 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent appearance-none bg-white">
+                    <select id="locationSelect" class="py-2">
                         <option value="">All Parishes</option>
                         <option value="Clarendon">Clarendon</option>
                         <option value="Hanover">Hanover</option>
@@ -503,8 +560,7 @@
                         <option value="Trelawny">Trelawny</option>
                         <option value="Westmoreland">Westmoreland</option>
                     </select>
-                    <!-- Custom arrow for select element (optional, as browser provides one) -->
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <div class="dropdown-arrow-wrapper">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
@@ -512,15 +568,12 @@
                 </div>
             </div>
 
-
             <!-- Desktop Navigation - Hidden on mobile -->
             <nav class="hidden md:block">
                 <ul class="flex space-x-6 text-gray-700 font-medium">
                     <li><a href="https://www.allpree.com/for-retailers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Add Deals For Free</a></li>
                     <li><a href="https://www.allpree.com/for-shoppers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Get Deal Plus <i class="fab fa-plus fa-lg"></i></a></li>
                     <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
-
-
                 </ul>
             </nav>
         </div>
@@ -646,11 +699,11 @@
 
         // Hardcoded list of categories provided by the user
         const allCategories = [
-            "Supermarkets", "Department Stores", "Pharmacy", "Hardware",  "Auto", "Baby, Kids & Toys", 
+            "Supermarkets", "Department Stores", "Pharmacy", "Hardware", "Auto", "Baby, Kids & Toys",
             "Beauty", "Book Store", "Cafes", "Desserts", "Electronics & Office Supplies", "Entertainment",
             "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
             "Furniture & Appliances", "Gas", "Art & Painting", "Home Goods", "Hospitality",
-            "Jewellery", "Medical",  "Restaurant & Beverage", "Retail",
+            "Jewellery", "Medical", "Restaurant & Beverage", "Retail",
             "Shipping & Logistics", "Spas", "Travel & Hospitality",
             "Weddings and Events", "Women Apparel"
         ];
@@ -706,7 +759,7 @@
             if (productsToAdd.length > 0) {
                 const container = document.getElementById(`deals-container-${brandId}`);
                 productsToAdd.forEach(row => {
-                    const card = createDealCard(row); // No brand info passed here
+                    const card = createDealCard(row);
                     if (card) {
                         container.appendChild(card);
                     }
@@ -1079,7 +1132,7 @@
          */
         function applyFilters() {
             const searchTerm = brandSearchInput.value.toLowerCase().trim();
-            const selectedParish = document.getElementById('locationSelect').value.toLowerCase().trim();
+            const selectedParish = locationSelect.value.toLowerCase().trim();
             const selectedCategory = document.querySelector('.category-item.active')?.getAttribute('data-filter-value') || 'all';
 
             console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}"`);
@@ -1097,7 +1150,7 @@
                 if (searchTerm !== '') {
                     // Check if brand name or any product name matches the search term
                     matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
-                                    brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
+                                     brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
                     if (!matchesSearch) {
                         console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Does not match search term "${searchTerm}"`);
                     }
@@ -1137,11 +1190,8 @@
                     );
                     foundContent = true;
                 } else {
-                     // This else block is already covered by specific console.logs above for each filter mismatch
-                     // but ensures a general log if it was filtered for an unlogged reason (unlikely now)
-                     if (!matchesSearch || !matchesCategory || !matchesParish) {
-                         // console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out.`);
-                     }
+                    if (!matchesSearch || !matchesCategory || !matchesParish) {
+                    }
                 }
             }
 
@@ -1179,7 +1229,7 @@
             categoryItem.addEventListener('click', () => {
                 highlightCategory(categoryItem);
                 brandSearchInput.value = ''; // Clear search input when a category is selected
-                document.getElementById('locationSelect').value = ''; // Clear location selection
+                locationSelect.value = ''; // Clear location selection
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -1215,7 +1265,7 @@
             allCategoriesItem.addEventListener('click', () => {
                 highlightCategory(allCategoriesItem);
                 brandSearchInput.value = ''; // Clear search input
-                document.getElementById('locationSelect').value = ''; // Clear location selection
+                locationSelect.value = ''; // Clear location selection
                 applyFilters(); // Apply filters
             });
 
@@ -1238,7 +1288,7 @@
                 });
                 // Set "All Categories" as active
                 document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
-                document.getElementById('locationSelect').value = ''; // Clear location selection
+                locationSelect.value = ''; // Clear location selection
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
