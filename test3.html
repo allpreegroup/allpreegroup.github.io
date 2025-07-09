@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allpree Deals - All Brands</title>
+    <title>Jamaica First In-Store Deal Site & Cashback</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for social icons and location icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
     <style>
         /* Custom CSS for header */
-        
         .header-bg {
             background-color: #ffffff; /* White background for the header */
             border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
@@ -33,6 +36,26 @@
         .footer-section a:hover {
             color: #93c5fd; /* Lighter blue on hover */
             text-decoration: underline;
+        }
+        .footer-section h3 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section ul li a {
+            color: #d1d5db; /* Lighter gray for footer links */
+            font-weight: 400;
+        }
+        .footer-section ul li a:hover {
+            color: #ffffff;
         }
 
         /* Base styles */
@@ -64,34 +87,13 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         .container-wrapper {
-            
             border-radius: 1.5rem; /* Rounded corners for the main container */
-            
             padding: 0; /* Remove padding here, it's inside sections */
             margin: 2rem auto; /* Center horizontally and add vertical margin */
             max-width: 1200px; /* Max width for content */
             width: 95%; /* Responsive width */
             overflow: hidden; /* Ensure rounded corners clip content */
             flex-grow: 1; /* Allow main content to grow and push footer down */
-        }
-
-        /* Global Site Brand Name (used in header - though now logo is used) */
-        .site-brand-name {
-            color: white; /* This style might not be needed if logo replaces text */
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 800; /* Extra bold */
-            text-align: center;
-        }
-
-        /* Individual Brand Section Header */
-        .brand-section-header {
-            background-color: #2C3E50; /* Dark blue from screenshot */
-            color: white;
-            padding: 0.5rem 2rem 1.5rem 2rem;
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
-            text-align: left;
-            /* No border-radius here, as it's part of the brand section's flow */
         }
 
         /* Deal Grid and Cards */
@@ -151,9 +153,9 @@
             color: #6b7280;
             font-weight: 500;
             margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap; /* Re-added for truncation */
+            overflow: hidden; /* Re-added for truncation */
+            text-overflow: ellipsis; /* Re-added for truncation */
         }
 
         .deal-title {
@@ -161,12 +163,12 @@
             font-size: 1rem;
             color: #1a202c;
             margin-bottom: 0.25rem;
-            height: 1.2rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            height: 1.2rem; /* Fixed height to allow for truncation */
+            overflow: hidden; /* Re-added for truncation */
+            text-overflow: ellipsis; /* Re-added for truncation */
+            display: -webkit-box; /* Re-added for truncation */
+            -webkit-line-clamp: 2; /* Re-added for truncation */
+            -webkit-box-orient: vertical; /* Re-added for truncation */
         }
         .price-section {
             display: flex;
@@ -192,13 +194,13 @@
         .add-to-cart-button {
             background-color: #2C3E50;
             color: white;
-            width: 36px;
-            height: 36px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: .95rem;
             font-weight: 600;
             transition: background-color 0.2s;
             flex-shrink: 0;
@@ -363,7 +365,7 @@
         .popup-badge {
             position: absolute;
             top: 0.75rem;
-            right: 0.75rem;
+            left: 0.75rem;
             background-color: #ef4444;
             color: white;
             padding: 0.5rem 1rem;
@@ -383,6 +385,68 @@
         .shop-button:hover {
             background-color: #303f9f;
         }
+
+        /* Floating Categories Styles */
+        .floating-categories-container {
+            background-color: #f8fafc; /* Light gray background for the floating bar */
+            padding: 0.75rem 0; /* Vertical padding only */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 70px; /* Adjust based on your header's height */
+            z-index: 40; /* Below header, above main content */
+            border-bottom: 1px solid #e5e7eb;
+            width: 100%; /* Ensures the background spans the full width of the page */
+        }
+        .categories-list-wrapper { /* This new wrapper centers the content and handles scrolling */
+            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
+            margin: 0 auto; /* Centers the content within the full-width container */
+            padding: 0 1rem; /* Added horizontal padding for content inside */
+            overflow-x: auto; /* Now this element handles horizontal scrolling */
+            white-space: nowrap; /* Prevent items from wrapping here */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        /* Scrollbar hiding for the categories-list-wrapper */
+        .categories-list-wrapper::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .categories-list-wrapper {
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+            scrollbar-width: none;  /* For Firefox */
+        }
+
+        .categories-list {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Space between category items */
+        }
+        .category-item {
+            display: inline-flex; /* Keep items inline for horizontal scroll */
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            flex-shrink: 0; /* Prevent items from shrinking */
+        }
+        .category-item:hover {
+            background-color: #e2e8f0; /* Light hover effect */
+            transform: translateY(-2px);
+        }
+        .category-item.active {
+            background-color: #dbeafe; /* Tailwind blue-100 for active state */
+            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
+        }
+        .category-name {
+            font-size: 0.75rem; /* Smaller text for category names */
+            font-weight: 500;
+            color: #4a5568;
+            text-align: center;
+            white-space: normal; /* Allow text to wrap */
+            overflow: visible; /* Ensure content is visible */
+            text-overflow: clip; /* Prevent ellipsis */
+            max-width: none; /* Remove max-width constraint */
+        }
     </style>
 </head>
 <body>
@@ -393,37 +457,73 @@
                 <!-- Allpree Logo -->
                 <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
             </div>
-            
-            <!-- Search Bar -->
-            <div class="relative flex-grow mx-4 max-w-md">
-                <input type="text" id="brandSearchInput" placeholder="Search brands..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+
+            <!-- Search and Location Bar Container -->
+            <div class="flex flex-grow mx-4 max-w-2xl gap-2">
+                <!-- Search Bar -->
+                <div class="relative flex-grow">
+                    <input type="text" id="brandSearchInput" placeholder="Search brands..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Location Dropdown -->
+                <div class="relative flex-grow">
+                    <select id="locationSelect" class="w-full pl-3 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent appearance-none bg-white">
+                        <option value="">All Parishes</option>
+                        <option value="Clarendon">Clarendon</option>
+                        <option value="Hanover">Hanover</option>
+                        <option value="Kingston">Kingston</option>
+                        <option value="Manchester">Manchester</option>
+                        <option value="Portland">Portland</option>
+                        <option value="Saint Andrew">Saint Andrew</option>
+                        <option value="Saint Ann">Saint Ann</option>
+                        <option value="Saint Catherine">Saint Catherine</option>
+                        <option value="Saint Elizabeth">Saint Elizabeth</option>
+                        <option value="Saint James">Saint James</option>
+                        <option value="Saint Mary">Saint Mary</option>
+                        <option value="Saint Thomas">Saint Thomas</option>
+                        <option value="Trelawny">Trelawny</option>
+                        <option value="Westmoreland">Westmoreland</option>
+                    </select>
+                    <!-- Custom arrow for select element (optional, as browser provides one) -->
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
-                <button class="text-gray-600 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+
             <!-- Desktop Navigation - Hidden on mobile -->
             <nav class="hidden md:block">
                 <ul class="flex space-x-6 text-gray-700 font-medium">
-                    <li><a href="https://www.allpree.com/for-retailers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Shoppers & Retailers Learn More</a></li>
-                    
-                    <li><a href="https://www.allpree.com/install" class="btn-primary py-2 px-6 text-base shadow-md">Install App</a></li>
-            
-                    
+                    <li><a href="https://www.allpree.com/for-retailers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Add Deals For Free</a></li>
+                    <li><a href="https://www.allpree.com/for-shoppers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Get Deal Plus <i class="fab fa-plus fa-lg"></i></a></li>
+                    <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
+
+
                 </ul>
             </nav>
         </div>
     </header>
+
+    <!-- Floating Categories Section -->
+    <div id="floating-categories-container" class="floating-categories-container">
+        <div class="categories-list-wrapper"> <!-- This wrapper now handles horizontal scrolling -->
+            <div id="categories-list" class="categories-list">
+                <!-- "All Brands" category item -->
+                <div class="category-item active" data-filter-type="category" data-filter-value="all">
+                    <span class="category-name">All Categories</span>
+                </div>
+                <!-- Dynamic category items will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
 
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
@@ -436,9 +536,72 @@
 
     <!-- Footer -->
     <footer class="footer-section mt-auto">
-        <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
-        <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-        <p>By using our services, you agree to our <a href="/legal" class="text-blue-600 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
+        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
+            <!-- About Allpree Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">About Allpree</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Shop Allpree.com and find the best local deals for everything you need. We work every day to bring you the best products at the best prices, from groceries to fashion and decor. Whether you're looking for memorable gifts or everyday treasures, find them here for less.
+                </p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-tiktok fa-lg"></i>
+                    </a>
+                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- My Account Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">MY ACCOUNT</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Orders</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Account Settings</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Manage My Allpree Gift Card</a></li>
+                </ul>
+            </div>
+
+            <!-- Let Us Help Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">LET US HELP</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Customer Care</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Shipping Information</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Return Policy</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Accessibility</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Frequently Asked Questions</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Information Column -->
+            <div class="col-span-1 md:col-span-1">
+                <h3 class="text-white mb-4">COMPANY INFORMATION</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Investor Relations</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline">Sell Your Products</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
+        </div>
     </footer>
 
     <!-- Popup Modal -->
@@ -454,7 +617,7 @@
             </div>
             <p id="popupDesc" class="popup-desc"></p>
             <span id="popupBadge" class="popup-badge"></span>
-            <button class="shop-button mt-4">Shop Now</button>
+
         </div>
     </div>
 
@@ -463,8 +626,20 @@
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '' } }
+        // parish property added to store the parish for each brand
+        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
+
+        // Hardcoded list of categories provided by the user
+        const allCategories = [
+            "Art & Painting", "Auto", "Baby, Kids & Toys", "Beauty", "Book Store", "Cafes",
+            "Department Stores", "Desserts", "Electronics & Office Supplies", "Entertainment",
+            "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
+            "Furniture & Appliances", "Gas", "Hardware", "Home Goods", "Hospitality",
+            "Jewellery", "Medical", "Pharmacy", "Restaurant & Beverage", "Retail",
+            "Shipping & Logistics", "Spas", "Supermarkets", "Travel & Hospitality",
+            "Weddings and Events", "Women Apparel"
+        ];
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -479,6 +654,10 @@
             return array;
         }
 
+        /**
+         * Opens the deal popup with the given product details.
+         * @param {Object} deal - Object containing deal details (image, name, original, discount, description, brandName).
+         */
         function openPopup({ image, name, original, discount, description, brandName }) {
             const originalPrice = parseFloat(String(original).replace(/,/g, '')) || 0;
             const discountPrice = parseFloat(String(discount).replace(/,/g, '')) || 0;
@@ -487,18 +666,24 @@
             document.getElementById('popupImg').src = image;
             document.getElementById('popupTitle').textContent = name;
             document.getElementById('popupBrand').textContent = brandName ? `${brandName}` : '';
-            document.getElementById('popupPrice').textContent = `Original Price: R${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: R${discount}`;
+            document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
+            document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
             document.getElementById('popupDesc').textContent = description || '';
             document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
             document.getElementById('popup').style.display = 'flex';
         }
 
+        /**
+         * Closes the deal popup.
+         */
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
         }
 
-        // Function to load more deals for a specific brand
+        /**
+         * Loads more deals for a specific brand section.
+         * @param {string} brandId - The unique ID of the brand.
+         */
         function loadMoreDealsForBrand(brandId) {
             const brandData = brandDataMap[brandId];
             if (!brandData) return;
@@ -517,6 +702,11 @@
             }
         }
 
+        /**
+         * Creates an HTML deal card element from product row data.
+         * @param {Object} row - The product data row from the sheet.
+         * @returns {HTMLElement|null} The created deal card element or null if data is incomplete.
+         */
         function createDealCard(row) {
             if (!row.ProductName || !row.ImageURL) {
                 return null;
@@ -535,10 +725,12 @@
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
                    <div class="deal-title">${shortName}</div>
+
                     <div class="price-section">
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
                             <div class="original-price">JMD $${original.toLocaleString()}</div>
+                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹ '}</div>
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
@@ -557,9 +749,14 @@
             return dealCard;
         }
 
-        // Renders initial set of products for a specific brand
+        /**
+         * Renders the initial set of products for a specific brand's section.
+         * @param {string} brandId - The unique ID of the brand.
+         * @param {Array} productsToRender - Array of product objects to render.
+         */
         function renderInitialProducts(brandId, productsToRender) {
             const container = document.getElementById(`deals-container-${brandId}`);
+            // Keep the category brand card if it exists, otherwise it will be re-added by renderBrandSection
             const existingCategoryBrandCard = container.querySelector(`#category-brand-card-${brandId}`);
             container.innerHTML = ''; // Clear existing content
             if (existingCategoryBrandCard) {
@@ -575,182 +772,224 @@
             updateShopMoreButton(brandId);
         }
 
-        // Updates "Shop More" button for a specific brand
+        /**
+         * Updates the "Shop More Deals" button for a specific brand section.
+         * @param {string} brandId - The unique ID of the brand.
+         */
         function updateShopMoreButton(brandId) {
             const brandData = brandDataMap[brandId];
             if (!brandData) return;
 
             const remainingCount = brandData.allProducts.length - brandData.currentProductIndex;
-            const shopMoreButtonSpan = document.getElementById(`remaining-deals-count-${brandId}`);
-            const shopMoreContainer = document.getElementById(`shop-more-container-${brandId}`);
+            const shopMoreButtonSpan = document.getElementById(`shop-more-count-${brandId}`);
+            const shopMoreButtonContainer = document.getElementById(`shop-more-container-${brandId}`);
 
-            if (remainingCount > 0) {
-                shopMoreButtonSpan.textContent = remainingCount;
-                shopMoreContainer.style.display = 'flex';
-            } else {
-                shopMoreContainer.style.display = 'none';
+            if (shopMoreButtonSpan && shopMoreButtonContainer) {
+                if (remainingCount > 0) {
+                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonContainer.classList.remove('hidden');
+                } else {
+                    shopMoreButtonContainer.classList.add('hidden');
+                }
             }
         }
 
-        // Function to render a complete section for a single brand
-        async function renderBrandSection(brandName, sheetUrl, brandId) {
+        /**
+         * Updates the countdown timer for a specific brand.
+         * @param {string} brandId - The unique ID of the brand.
+         * @param {number} endDate - The timestamp (milliseconds) when the deal ends.
+         */
+        function updateCountdown(brandId, endDate) {
+            const countdownElement = document.getElementById(`countdown-${brandId}`);
+            if (!countdownElement) return;
+
+            // Clear any existing interval for this brand to prevent duplicates
+            if (countdownIntervals[brandId]) {
+                clearInterval(countdownIntervals[brandId]);
+            }
+
+            const intervalId = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = endDate - now;
+
+                if (distance < 0) {
+                    countdownElement.textContent = "Deal Ended";
+                    clearInterval(intervalId);
+                    delete countdownIntervals[brandId];
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.textContent = `Ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+
+            countdownIntervals[brandId] = intervalId; // Store the interval ID
+        }
+
+        /**
+         * Renders a complete section for a single brand on the page.
+         * @param {string} brandName - The name of the brand.
+         * @param {string} brandId - The unique ID for the brand.
+         * @param {string} brandLogo - URL to the brand's logo.
+         * @param {string} brandColor - Primary background color for the brand card.
+         * @param {string} brandImage - Background image URL for the brand card.
+         * @param {string} category - The category of the brand.
+         * @param {string} parish - The parish where the brand is located.
+         * @param {string} expiryDate - The expiry date of the deal for countdown.
+         */
+        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, expiryDate) {
             const allBrandsContainer = document.getElementById('all-brands-container');
-
-            // Create the main section container for this brand
-            const brandSection = document.createElement('div');
+            const brandSection = document.createElement('section');
             brandSection.id = `brand-section-${brandId}`;
-            brandSection.className = 'bg-white rounded-xl shadow-lg mb-8 overflow-hidden'; // Styling for each brand section
+            brandSection.className = 'bg-white rounded-2xl shadow-lg mb-8 overflow-hidden';
+            brandSection.setAttribute('data-brand-name', brandName);
+            brandSection.setAttribute('data-category', category.toLowerCase());
+            brandSection.setAttribute('data-parish', parish.toLowerCase()); // Add data-parish attribute
 
-            // Add a temporary loading state for the brand section
+            const brandProducts = brandDataMap[brandId].allProducts;
+            const initialProducts = brandProducts.slice(0, productsPerPage);
+            brandDataMap[brandId].currentProductIndex = initialProducts.length;
+
+            let backgroundStyle = '';
+            if (brandImage) {
+                backgroundStyle = `background-image: url('${brandImage}'); background-size: cover; background-position: center;`;
+            } else if (brandColor) {
+                backgroundStyle = `background-color: ${brandColor};`;
+            }
+
             brandSection.innerHTML = `
-               <div id="deals-container-${brandId}" class="deal-grid">
-                    <!-- The special category brand card (now current brand info) -->
-                    <div id="category-brand-card-${brandId}" class="category-icon-card">
-                        <img id="category-brand-logo-${brandId}" src="https://placehold.co/80x80/ffffff/2C3E50?text=Loading" alt="Brand Logo" class="category-brand-logo">
-                        <div id="category-brand-name-text-${brandId}" class="card-text">Loading ${brandName}...</div>
-                        <div id="category-brand-countdown-${brandId}" class="countdown-text"></div>
-                    </div>
-                    <p class="col-span-full text-center text-gray-500 py-4" id="loading-deals-message-${brandId}">Fetching deals...</p>
+                <div id="category-brand-card-${brandId}" class="category-icon-card p-8 text-white flex flex-col items-center justify-center rounded-t-2xl" style="${backgroundStyle}">
+                    <img src="${brandLogo}" alt="${brandName} Logo" class="category-brand-logo">
+                    <p class="card-text text-2xl font-bold mb-2">${brandName}</p>
+                    <p class="text-lg font-medium opacity-90">${category}</p>
+                    <p class="text-md font-medium opacity-90">${parish}</p>
+                    <p id="countdown-${brandId}" class="countdown-text mt-2"></p>
                 </div>
-                <div id="shop-more-container-${brandId}" class="shop-more-deals-container">
-                    <button id="shop-more-button-${brandId}" class="shop-more-button">
-                         SHOP <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z"/>
-                        </svg>
-                    </button> 
-                </div> 
+                <div id="deals-container-${brandId}" class="deal-grid">
+                    <!-- Deals will be inserted here -->
+                </div>
+                <div id="shop-more-container-${brandId}" class="shop-more-deals-container ${brandProducts.length <= productsPerPage ? 'hidden' : ''}">
+                    <button class="shop-more-button" onclick="loadMoreDealsForBrand('${brandId}')">
+                        <span id="shop-more-count-${brandId}">Shop ${brandProducts.length - initialProducts.length} More Deals</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
+                    </button>
+                </div>
             `;
             allBrandsContainer.appendChild(brandSection);
 
-            // Fetch deals for this specific brand
-            try {
-                const res = await fetch(sheetUrl);
-                const rows = await res.json();
-                
-                let featuredBrandData = null;
-                let tempProducts = [];
-                for (const row of rows) {
-                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor but no ProductName)
-                    if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
-                        featuredBrandData = row;
-                    } else if (row.ProductName && row.ImageURL) {
-                        // This is a product row
-                        tempProducts.push(row);
-                    }
+            renderInitialProducts(brandId, initialProducts);
+
+            if (expiryDate) {
+                const endDate = new Date(expiryDate).getTime();
+                if (!isNaN(endDate)) {
+                    updateCountdown(brandId, endDate);
                 }
-
-                // If no products, remove the entire brand section
-                if (tempProducts.length === 0) {
-                    console.log(`Brand "${brandName}" has no products. Removing its section.`);
-                    brandSection.remove();
-                    return; // Exit the function, no need to render anything for this brand
-                }
-
-                // Shuffle products before storing them
-                shuffleArray(tempProducts);
-
-                // Store data for this brand
-                brandDataMap[brandId] = {
-                    allProducts: tempProducts,
-                    currentProductIndex: 0,
-                    brandName: brandName // Store brand name for search functionality
-                };
-
-                // Update the Current Brand Info Card for this section
-                const categoryBrandCard = document.getElementById(`category-brand-card-${brandId}`); // Get the card element
-                const categoryBrandLogo = document.getElementById(`category-brand-logo-${brandId}`);
-                const categoryBrandNameText = document.getElementById(`category-brand-name-text-${brandId}`);
-                const categoryBrandCountdown = document.getElementById(`category-brand-countdown-${brandId}`);
-                const loadingMessage = document.getElementById(`loading-deals-message-${brandId}`);
-                if (loadingMessage) loadingMessage.remove();
-
-                if (featuredBrandData) {
-                    categoryBrandLogo.src = featuredBrandData.BrandLogo || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
-                    categoryBrandLogo.alt = `${featuredBrandData.BrandName || ''} Brand Logo`;
-                    categoryBrandNameText.textContent = featuredBrandData.BrandName || brandName;
-                    if (featuredBrandData.ExpiryDate) {
-                        startBrandCountdown(featuredBrandData.ExpiryDate, `category-brand-countdown-${brandId}`);
-                    } else {
-                        categoryBrandCountdown.textContent = '';
-                    }
-
-                    // Apply primary and secondary colors to the card background
-                    const primaryColor = featuredBrandData.PrimaryColor;
-                    const secondaryColor = featuredBrandData.SecondaryColor;
-
-                    if (primaryColor && secondaryColor) {
-                        categoryBrandCard.style.backgroundImage = `linear-gradient(to bottom, ${primaryColor}, ${secondaryColor})`;
-                        categoryBrandCard.style.backgroundColor = ''; // Clear fallback background color
-                    } else if (primaryColor) {
-                        categoryBrandCard.style.backgroundColor = primaryColor;
-                        categoryBrandCard.style.backgroundImage = '';
-                    } else {
-                        // Fallback to default if colors are not provided
-                        categoryBrandCard.style.backgroundColor = '#2C3E50';
-                        categoryBrandCard.style.backgroundImage = '';
-                    }
-
-                } else {
-                    // Fallback if no dedicated brand row in the specific sheet
-                    categoryBrandLogo.src = 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
-                    categoryBrandLogo.alt = `${brandName} Logo`;
-                    categoryBrandNameText.textContent = brandName;
-                    categoryBrandCountdown.textContent = ''; // No countdown if no specific expiry date found
-                    categoryBrandCard.style.backgroundColor = '#2C3E50'; // Ensure default if no featured data
-                    categoryBrandCard.style.backgroundImage = '';
-                }
-
-                // Render initial products for this brand
-                renderInitialProducts(brandId, brandDataMap[brandId].allProducts.slice(0, productsPerPage));
-                brandDataMap[brandId].currentProductIndex += productsPerPage;
-
-                // Attach event listener to this brand's "Shop More Deals" button
-                document.getElementById(`shop-more-button-${brandId}`).addEventListener('click', () => {
-                    loadMoreDealsForBrand(brandId);
-                });
-
-            } catch (err) {
-                console.error(`Failed to load deals for ${brandName}:`, err);
-                // If there's an error fetching or parsing, also remove the section
-                brandSection.remove();
             }
         }
 
-        // Function to load the master sheet and populate all brand sections
-        async function loadMasterSheet() {
-            const loadingBrandsMessage = document.getElementById('loading-brands-message');
-            if (loadingBrandsMessage) loadingBrandsMessage.textContent = 'Loading all brands and their deals...';
+        /**
+         * Fetches all brand data from the master sheet and individual brand sheets,
+         * populates the brandDataMap, and then applies filters to render content.
+         */
+        async function fetchAndProcessData() {
+            const loadingMessage = document.getElementById('loading-brands-message');
+            if (loadingMessage) loadingMessage.textContent = 'Loading all brands and their deals...';
 
             try {
-                const res = await fetch(masterSheetUrl);
-                const brands = await res.json();
-                
-                // Clear the initial loading message
-                const allBrandsContainer = document.getElementById('all-brands-container');
-                allBrandsContainer.innerHTML = '';
+                const masterRes = await fetch(masterSheetUrl);
+                const masterBrands = await masterRes.json();
 
-                if (brands.length === 0) {
+                // Clear previous brandDataMap and countdown intervals
+                Object.keys(brandDataMap).forEach(key => delete brandDataMap[key]);
+                Object.keys(countdownIntervals).forEach(key => clearInterval(countdownIntervals[key]));
+
+                const allBrandsContainer = document.getElementById('all-brands-container');
+                allBrandsContainer.innerHTML = ''; // Clear existing content
+
+                if (masterBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
                     return;
                 }
 
-                // Render each brand section
-                for (const brand of brands) {
-                    const brandName = brand.undefined; // Assuming 'undefined' column holds the brand name
-                    const sheetUrl = brand.sheeturls;
-                    if (brandName && sheetUrl) {
-                        // Create a unique ID for each brand's section
-                        const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                        await renderBrandSection(brandName, sheetUrl, brandId);
+                const brandPromises = masterBrands.map(async (brandEntry) => {
+                    const brandName = brandEntry.undefined; // Assuming 'undefined' column holds the brand name
+                    const sheetUrl = brandEntry.sheeturls;
+
+                    if (!brandName || !sheetUrl) {
+                        console.warn('Skipping brand entry due to missing name or sheet URL:', brandEntry);
+                        return null;
                     }
-                }
-                
-                // If after trying to load all brands, no sections are visible
-                if (allBrandsContainer.children.length === 0) {
-                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found.</p>';
+
+                    const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+
+                    try {
+                        const res = await fetch(sheetUrl);
+                        const rows = await res.json();
+
+                        let featuredBrandData = null;
+                        let tempProducts = [];
+                        let brandParish = '';
+                        let brandCategory = 'Uncategorized';
+                        let brandLogo = 'https://placehold.co/150x120/2C3E50/ffffff?text=Logo';
+                        let brandColor = '#2C3E50';
+                        let brandImage = '';
+                        let expiryDate = null;
+
+                        for (const row of rows) {
+                            // Check for a dedicated brand row
+                            if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
+                                featuredBrandData = row;
+                                brandParish = row.Parish || '';
+                                brandCategory = row.Category || 'Uncategorized';
+                                brandLogo = row.BrandLogo;
+                                brandColor = row.PrimaryColor || '#2C3E50';
+                                brandImage = row.BrandImage || '';
+                                expiryDate = row.ExpiryDate;
+                            } else if (row.ProductName && row.ImageURL) {
+                                // This is a product row
+                                tempProducts.push(row);
+                            }
+                        }
+
+                        if (tempProducts.length === 0) {
+                            console.log(`Brand "${brandName}" has no products. Will not be rendered.`);
+                            return null;
+                        }
+
+                        shuffleArray(tempProducts);
+
+                        brandDataMap[brandId] = {
+                            allProducts: tempProducts,
+                            currentProductIndex: 0,
+                            brandName: brandName,
+                            category: brandCategory,
+                            parish: brandParish,
+                            brandLogo: brandLogo,
+                            brandColor: brandColor,
+                            brandImage: brandImage,
+                            expiryDate: expiryDate
+                        };
+                        return brandId; // Return the brandId if successfully processed
+                    } catch (err) {
+                        console.error(`Failed to load deals for ${brandName} from ${sheetUrl}:`, err);
+                        return null;
+                    }
+                });
+
+                const loadedBrandIds = await Promise.all(brandPromises);
+                const successfullyLoadedBrands = loadedBrandIds.filter(id => id !== null);
+
+                if (successfullyLoadedBrands.length === 0) {
+                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found or all failed to load.</p>';
+                    return;
                 }
 
+                // Now that brandDataMap is fully populated, apply filters and render
+                applyFilters();
 
             } catch (err) {
                 console.error('Failed to load master sheet:', err);
@@ -758,93 +997,174 @@
             }
         }
 
-        function startBrandCountdown(expireDate, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-
-            // Clear any existing interval for this element to prevent multiple timers
-            if (countdownIntervals[elementId]) {
-                clearInterval(countdownIntervals[elementId]);
-            }
-
-            function update() {
-                const timeLeft = new Date(expireDate) - new Date();
-                if (timeLeft <= 0) {
-                    el.textContent = 'Deal ended';
-                    clearInterval(countdownIntervals[elementId]);
-                    delete countdownIntervals[elementId];
-                } else {
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
-                    const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-                    const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-                    
-                    let timeString = '';
-                    if (days > 0) {
-                        timeString += `${days}d `;
-                    }
-                    timeString += `${hrs}:${mins}:${secs}`;
-
-                    el.textContent = `Ends in: ${timeString}`;
-                }
-            }
-
-            update(); // Initial call to display immediately
-            countdownIntervals[elementId] = setInterval(update, 1000); // Store interval ID
-        }
-
-        // Search functionality
-        const brandSearchInput = document.getElementById('brandSearchInput');
-        let searchTimeout;
-
-        function filterBrands() {
+        /**
+         * Applies all active filters (search term, category, parish) and updates the displayed brand sections.
+         */
+        function applyFilters() {
             const searchTerm = brandSearchInput.value.toLowerCase().trim();
-            const allBrandSections = document.querySelectorAll('[id^="brand-section-"]');
-            let foundBrands = false;
-
-            allBrandSections.forEach(section => {
-                const brandId = section.id.replace('brand-section-', '');
-                const brandData = brandDataMap[brandId];
-                
-                if (brandData && brandData.brandName) {
-                    const brandName = brandData.brandName.toLowerCase();
-                    if (brandName.includes(searchTerm)) {
-                        section.style.display = 'block'; // Show the section
-                        foundBrands = true;
-                    } else {
-                        section.style.display = 'none'; // Hide the section
-                    }
-                } else {
-                    // If brandData is not available or brandName is missing, hide it
-                    section.style.display = 'none';
-                }
-            });
+            const selectedParish = document.getElementById('locationSelect').value.toLowerCase().trim();
+            const selectedCategory = document.querySelector('.category-item.active')?.getAttribute('data-filter-value') || 'all';
 
             const allBrandsContainer = document.getElementById('all-brands-container');
-            const noResultsMessage = document.getElementById('no-results-message');
+            allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
 
-            if (!foundBrands && searchTerm !== '') {
-                if (!noResultsMessage) {
-                    const msg = document.createElement('p');
-                    msg.id = 'no-results-message';
-                    msg.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
-                    msg.textContent = `No brands found matching "${searchTerm}".`;
-                    allBrandsContainer.appendChild(msg);
+            let foundContent = false;
+
+            // Iterate through the pre-processed brandDataMap
+            for (const brandId in brandDataMap) {
+                const brand = brandDataMap[brandId];
+
+                let matchesSearch = true;
+                if (searchTerm !== '') {
+                    // Check if brand name or any product name matches the search term
+                    matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
+                                    brand.allProducts.some(p => p.ProductName.toLowerCase().includes(searchTerm));
                 }
+
+                let matchesCategory = true;
+                if (selectedCategory !== 'all') {
+                    matchesCategory = brand.category.toLowerCase() === selectedCategory;
+                }
+
+                let matchesParish = true;
+                if (selectedParish !== '' && selectedParish !== 'all parishes') {
+                    matchesParish = brand.parish.toLowerCase() === selectedParish;
+                }
+
+                const shouldShow = matchesSearch && matchesCategory && matchesParish;
+
+                if (shouldShow) {
+                    // Re-render the brand section with its details
+                    renderBrandSection(
+                        brand.brandName,
+                        brandId,
+                        brand.brandLogo,
+                        brand.brandColor,
+                        brand.brandImage,
+                        brand.category,
+                        brand.parish,
+                        brand.expiryDate
+                    );
+                    foundContent = true;
+                }
+            }
+
+            let noResultsMessage = document.getElementById('no-results-message');
+
+            if (!foundContent) {
+                if (!noResultsMessage) {
+                    noResultsMessage = document.createElement('p');
+                    noResultsMessage.id = 'no-results-message';
+                    noResultsMessage.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
+                    allBrandsContainer.appendChild(noResultsMessage);
+                }
+                noResultsMessage.textContent = `No brands or deals found matching your filters.`;
             } else if (noResultsMessage) {
                 noResultsMessage.remove();
             }
         }
 
-        brandSearchInput.addEventListener('keyup', () => {
+        /**
+         * Creates a category item for the floating bar.
+         * @param {string} categoryName - The name of the category.
+         * @returns {HTMLElement} The created category item element.
+         */
+        function createFloatingCategoryItem(categoryName) {
+            const categoryItem = document.createElement('div');
+            categoryItem.className = 'category-item';
+            categoryItem.setAttribute('data-filter-type', 'category');
+            categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
+
+            categoryItem.innerHTML = `
+                <span class="category-name">${categoryName}</span>
+            `;
+            categoryItem.addEventListener('click', () => {
+                highlightCategory(categoryItem);
+                brandSearchInput.value = ''; // Clear search input when a category is selected
+                document.getElementById('locationSelect').value = ''; // Clear location selection
+                applyFilters(); // Apply filters
+            });
+            return categoryItem;
+        }
+
+        /**
+         * Highlights the active category item in the floating bar.
+         * @param {HTMLElement} activeItem - The category item to highlight.
+         */
+        function highlightCategory(activeItem) {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            activeItem.classList.add('active');
+        }
+
+        /**
+         * Populates the categories in the floating bar.
+         */
+        function populateCategories() {
+            const categoriesList = document.getElementById('categories-list');
+            // Clear existing categories before re-populating to prevent duplicates
+            categoriesList.innerHTML = '';
+
+            // Add "All Categories" as the first item
+            const allCategoriesItem = document.createElement('div');
+            allCategoriesItem.className = 'category-item active';
+            allCategoriesItem.setAttribute('data-filter-type', 'category');
+            allCategoriesItem.setAttribute('data-filter-value', 'all');
+            allCategoriesItem.innerHTML = `<span class="category-name">All Categories</span>`;
+            categoriesList.appendChild(allCategoriesItem);
+
+            allCategoriesItem.addEventListener('click', () => {
+                highlightCategory(allCategoriesItem);
+                brandSearchInput.value = ''; // Clear search input
+                document.getElementById('locationSelect').value = ''; // Clear location selection
+                applyFilters(); // Apply filters
+            });
+
+            // Populate floating categories from the hardcoded list
+            allCategories.forEach(category => {
+                const categoryItem = createFloatingCategoryItem(category);
+                categoriesList.appendChild(categoryItem);
+            });
+        }
+
+        // Event listener for Brand Search Input (with debounce)
+        const brandSearchInput = document.getElementById('brandSearchInput');
+        let searchTimeout;
+        brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(filterBrands, 300); // Debounce for 300ms
+            searchTimeout = setTimeout(() => {
+                // Remove active highlight from category items when typing in search
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                // Set "All Categories" as active
+                document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
+                document.getElementById('locationSelect').value = ''; // Clear location selection
+                applyFilters(); // Apply filters
+            }, 300); // Debounce for 300ms
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMasterSheet();
+        // Event listener for Location Dropdown
+        const locationSelect = document.getElementById('locationSelect');
+        locationSelect.addEventListener('change', () => {
+            // Remove active highlight from category items when selecting a location
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Set "All Categories" as active
+            document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
+            brandSearchInput.value = ''; // Clear search input
+            applyFilters(); // Apply filters
         });
-        
+
+        // Initial fetch and render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCategories(); // Populate categories first
+            fetchAndProcessData(); // Then fetch and process all brand data
+        });
+
+        // Close popup when clicking outside the content
         document.getElementById('popup').addEventListener('click', function (e) {
             if (e.target === this) {
                 closePopup();
