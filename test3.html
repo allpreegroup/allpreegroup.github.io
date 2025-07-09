@@ -1254,8 +1254,8 @@
             `;
             categoryItem.addEventListener('click', () => {
                 highlightCategory(categoryItem);
-                brandSearchInput.value = ''; // Clear search input when a category is selected
-                locationSelect.value = ''; // Clear location selection
+                // Removed: brandSearchInput.value = '';
+                // Removed: locationSelect.value = '';
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -1290,8 +1290,8 @@
 
             allCategoriesItem.addEventListener('click', () => {
                 highlightCategory(allCategoriesItem);
-                brandSearchInput.value = ''; // Clear search input
-                locationSelect.value = ''; // Clear location selection
+                // Removed: brandSearchInput.value = '';
+                // Removed: locationSelect.value = '';
                 applyFilters(); // Apply filters
             });
 
@@ -1308,13 +1308,9 @@
         brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                // Remove active highlight from category items when typing in search
-                document.querySelectorAll('.category-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                // Set "All Categories" as active
-                document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
-                locationSelect.value = ''; // Clear location selection
+                // Removed: document.querySelectorAll('.category-item').forEach(item => { item.classList.remove('active'); });
+                // Removed: document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
+                // Removed: locationSelect.value = '';
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
@@ -1322,13 +1318,9 @@
         // Event listener for Location Dropdown
         const locationSelect = document.getElementById('locationSelect');
         locationSelect.addEventListener('change', () => {
-            // Remove active highlight from category items when selecting a location
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            // Set "All Categories" as active
-            document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
-            brandSearchInput.value = ''; // Clear search input
+            // Removed: document.querySelectorAll('.category-item').forEach(item => { item.classList.remove('active'); });
+            // Removed: document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
+            // Removed: brandSearchInput.value = '';
             applyFilters(); // Apply filters
         });
 
