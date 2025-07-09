@@ -172,7 +172,7 @@ const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIa
                 </div>
                 <div id="shop-more-container-${brandId}" class="shop-more-deals-container">
                     <button id="shop-more-button-${brandId}" class="shop-more-button">
-                         SHOP <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
+                         VIEW <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M7 10l5 5 5-5z"/>
                         </svg>
