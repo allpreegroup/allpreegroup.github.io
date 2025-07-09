@@ -251,8 +251,13 @@
         .brand-info-card-grid-item .countdown-text-grid {
             font-size: 0.75rem;
             font-weight: 500;
-            color: white; /* Changed to white for better visibility */
+            color: white; /* Default color for the timer text */
             margin-top: 0.5rem;
+        }
+        /* New style for timer error messages */
+        .brand-info-card-grid-item .countdown-text-grid.error {
+            color: #ffb3b3; /* Light red for error messages */
+            font-weight: 600;
         }
 
         /* Shop More Deals Button (per brand section) */
@@ -824,18 +829,25 @@
                 <p id="countdown-${brandId}" class="countdown-text-grid"></p>
             `;
 
+            const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
+
             if (expiryDate) {
                 const endDate = new Date(expiryDate).getTime();
+                console.log(`[Timer Debug] Brand: ${brandName}, Raw ExpiryDate: "${expiryDate}", Parsed endDate (ms): ${endDate}, isNaN: ${isNaN(endDate)}`);
+
                 if (!isNaN(endDate)) {
-                    updateCountdown(brandId, endDate);
+                    updateCountdown(brandId, endDate, countdownElement); // Pass the element directly
                 } else {
-                    console.warn(`Invalid expiryDate for brand ${brandName}: ${expiryDate}`);
-                    const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
-                    if (countdownElement) countdownElement.textContent = "Invalid Date";
+                    if (countdownElement) {
+                        countdownElement.textContent = "Invalid Expiry Date";
+                        countdownElement.classList.add('error'); // Add error class
+                    }
                 }
             } else {
-                const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
-                if (countdownElement) countdownElement.textContent = "No Expiry Date";
+                if (countdownElement) {
+                    countdownElement.textContent = "No Expiry Date Provided";
+                    countdownElement.classList.add('error'); // Add error class
+                }
             }
             return brandInfoCard;
         }
@@ -869,12 +881,10 @@
          * Updates the countdown timer for a specific brand.
          * @param {string} brandId - The unique ID of the brand.
          * @param {number} endDate - The timestamp (milliseconds) when the deal ends.
+         * @param {HTMLElement} countdownElement - The actual element to update.
          */
-        function updateCountdown(brandId, endDate) {
-            const countdownElement = document.getElementById(`countdown-${brandId}`);
+        function updateCountdown(brandId, endDate, countdownElement) {
             if (!countdownElement) return;
-
-            console.log(`updateCountdown called for ${brandId}. End Date: ${new Date(endDate).toLocaleString()}`);
 
             // Clear any existing interval for this brand to prevent duplicates
             if (countdownIntervals[brandId]) {
@@ -884,7 +894,6 @@
             const intervalId = setInterval(() => {
                 const now = new Date().getTime();
                 const distance = endDate - now;
-                console.log(`Brand: ${brandId}, Distance: ${distance}ms`); // Log distance for debugging
 
                 if (distance < 0) {
                     countdownElement.textContent = "Deal Ended";
@@ -953,10 +962,12 @@
         async function fetchAndProcessData() {
             const loadingMessage = document.getElementById('loading-brands-message');
             if (loadingMessage) loadingMessage.textContent = 'Loading all brands and their deals...';
+            console.log("[Data Fetch] Starting fetch and process data...");
 
             try {
                 const masterRes = await fetch(masterSheetUrl);
                 const masterBrands = await masterRes.json();
+                console.log("[Data Fetch] Master sheet loaded:", masterBrands);
 
                 // Clear previous brandDataMap and countdown intervals
                 Object.keys(brandDataMap).forEach(key => delete brandDataMap[key]);
@@ -967,23 +978,28 @@
 
                 if (masterBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
+                    console.log("[Data Fetch] No brands found in master sheet.");
                     return;
                 }
 
                 const brandPromises = masterBrands.map(async (brandEntry) => {
-                    const brandName = brandEntry.undefined; // Assuming 'undefined' column holds the brand name
+                    // Try to get brand name from 'BrandName' or fallback to 'undefined'
+                    const brandName = brandEntry.BrandName || brandEntry.undefined;
                     const sheetUrl = brandEntry.sheeturls;
 
                     if (!brandName || !sheetUrl) {
-                        console.warn('Skipping brand entry due to missing name or sheet URL:', brandEntry);
+                        console.warn(`[Data Fetch] Skipping brand entry due to missing name or sheet URL:`, brandEntry);
                         return null;
                     }
 
                     const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    console.log(`[Data Fetch] Processing brand: "${brandName}" (ID: ${brandId}), URL: ${sheetUrl}`);
 
                     try {
                         const res = await fetch(sheetUrl);
                         const rows = await res.json();
+                        console.log(`[Data Fetch] Sheet data for "${brandName}" loaded:`, rows);
+
 
                         let featuredBrandData = null;
                         let tempProducts = [];
@@ -995,7 +1011,8 @@
                         let expiryDate = null;
 
                         for (const row of rows) {
-                            // Check for a dedicated brand row
+                            // Check for a dedicated brand row (typically the first row if structured this way)
+                            // A brand row should have BrandName, BrandLogo, ExpiryDate, and NOT ProductName
                             if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                                 featuredBrandData = row;
                                 brandParish = row.Parish || ''; // Extract Parish, default to empty string
@@ -1004,6 +1021,7 @@
                                 brandColor = row.PrimaryColor || '#2C3E50';
                                 brandImage = row.BrandImage || '';
                                 expiryDate = row.ExpiryDate;
+                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", ExpiryDate="${expiryDate}"`);
                             } else if (row.ProductName && row.ImageURL) {
                                 // This is a product row
                                 tempProducts.push(row);
@@ -1011,7 +1029,7 @@
                         }
 
                         if (tempProducts.length === 0) {
-                            console.log(`Brand "${brandName}" has no products. Will not be rendered.`);
+                            console.log(`[Data Fetch] Brand "${brandName}" (ID: ${brandId}) has no products. Will not be rendered.`);
                             return null;
                         }
 
@@ -1029,10 +1047,10 @@
                             expiryDate: expiryDate,
                             brandId: brandId // Store brandId for easy access
                         };
-                        console.log(`Processed Brand: ${brandName}, Parish: ${brandParish}`); // Log extracted parish
+                        console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Products: ${tempProducts.length}`);
                         return brandId; // Return the brandId if successfully processed
                     } catch (err) {
-                        console.error(`Failed to load deals for ${brandName} from ${sheetUrl}:`, err);
+                        console.error(`[Data Fetch] Failed to load deals for "${brandName}" from ${sheetUrl}:`, err);
                         return null;
                     }
                 });
@@ -1042,14 +1060,16 @@
 
                 if (successfullyLoadedBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found or all failed to load.</p>';
+                    console.log("[Data Fetch] No brands with products found after processing all sheets.");
                     return;
                 }
 
                 // Now that brandDataMap is fully populated, apply filters and render
+                console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
                 applyFilters();
 
             } catch (err) {
-                console.error('Failed to load master sheet:', err);
+                console.error('[Data Fetch] Failed to load master sheet:', err);
                 document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
             }
         }
@@ -1061,6 +1081,8 @@
             const searchTerm = brandSearchInput.value.toLowerCase().trim();
             const selectedParish = document.getElementById('locationSelect').value.toLowerCase().trim();
             const selectedCategory = document.querySelector('.category-item.active')?.getAttribute('data-filter-value') || 'all';
+
+            console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}"`);
 
             const allBrandsContainer = document.getElementById('all-brands-container');
             allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
@@ -1075,23 +1097,33 @@
                 if (searchTerm !== '') {
                     // Check if brand name or any product name matches the search term
                     matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
-                                    brand.allProducts.some(p => p.ProductName.toLowerCase().includes(searchTerm));
+                                    brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
+                    if (!matchesSearch) {
+                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Does not match search term "${searchTerm}"`);
+                    }
                 }
 
                 let matchesCategory = true;
                 if (selectedCategory !== 'all') {
-                    matchesCategory = brand.category.toLowerCase() === selectedCategory;
+                    matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
+                    if (!matchesCategory) {
+                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Category "${brand.category}" does not match selected "${selectedCategory}"`);
+                    }
                 }
 
                 let matchesParish = true;
                 // Only filter by parish if a specific parish is selected (not empty string or "all parishes")
                 if (selectedParish !== '' && selectedParish !== 'all parishes') {
                     matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
+                    if (!matchesParish) {
+                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Parish "${brand.parish}" does not match selected "${selectedParish}"`);
+                    }
                 }
 
                 const shouldShow = matchesSearch && matchesCategory && matchesParish;
 
                 if (shouldShow) {
+                    console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) matches filters. Rendering.`);
                     // Re-render the brand section with its details
                     renderBrandSection(
                         brand.brandName,
@@ -1104,6 +1136,12 @@
                         brand.expiryDate
                     );
                     foundContent = true;
+                } else {
+                     // This else block is already covered by specific console.logs above for each filter mismatch
+                     // but ensures a general log if it was filtered for an unlogged reason (unlikely now)
+                     if (!matchesSearch || !matchesCategory || !matchesParish) {
+                         // console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out.`);
+                     }
                 }
             }
 
@@ -1117,8 +1155,10 @@
                     allBrandsContainer.appendChild(noResultsMessage);
                 }
                 noResultsMessage.textContent = `No brands or deals found matching your filters.`;
+                console.log("[Filter] No content found after applying filters.");
             } else if (noResultsMessage) {
                 noResultsMessage.remove();
+                console.log("[Filter] Content found, removing 'no results' message.");
             }
         }
 
