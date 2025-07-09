@@ -461,7 +461,7 @@
             max-width: none; /* Remove max-width constraint */
         }
 
-        /* New styles for combined search/dropdown */
+        /* Styles for combined search/dropdown container */
         .combined-search-container {
             display: flex;
             border: 1px solid #d1d5db; /* Gray-300 */
@@ -469,6 +469,7 @@
             overflow: hidden; /* Ensures inner elements respect the container's border-radius */
             flex-grow: 1;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Shadow-sm */
+            height: 42px; /* Fixed height for consistent alignment */
         }
         .combined-search-container:focus-within {
             border-color: transparent; /* Hide individual border on focus */
@@ -476,6 +477,7 @@
             outline: none;
         }
 
+        /* Styles for the search input field */
         .combined-search-container input[type="text"] {
             border: none; /* Remove individual border */
             border-radius: 0; /* Remove individual border-radius */
@@ -483,22 +485,45 @@
             flex-grow: 1;
             background-color: white;
             outline: none; /* Remove focus outline */
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            font-size: 0.875rem; /* text-sm */
+            color: #333;
+        }
+        .combined-search-container input[type="text"]::placeholder {
+            color: #9ca3af; /* Placeholder color */
         }
 
+        /* Styles for the location dropdown */
         .combined-search-container select {
             border: none; /* Remove individual border */
             border-left: 1px solid #e5e7eb; /* Add a separator line */
             border-radius: 0; /* Remove individual border-radius */
             padding-right: 2.5rem; /* Space for custom arrow */
-            background-color: white;
+            background-color: #f9fafb; /* Light background color for the dropdown */
             appearance: none; /* Hide default dropdown arrow */
             outline: none; /* Remove focus outline */
             flex-shrink: 0; /* Prevent shrinking */
             width: auto; /* Allow width to be determined by content/padding */
             min-width: 120px; /* Minimum width for the dropdown */
             cursor: pointer;
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            font-size: 0.875rem; /* text-sm */
+            color: #333;
+            transition: background-color 0.2s ease-in-out; /* Added transition for hover */
+            text-align: center; /* Center the selected text in the dropdown */
+            text-align-last: center; /* For Firefox to center selected text */
+        }
+        .combined-search-container select:hover {
+            background-color: #f5f5f5; /* Slightly darker light hover background */
+        }
+        .combined-search-container select option {
+            color: #333; /* Ensure option text color is readable */
+            text-align: center; /* Attempt to center options in the dropdown list */
         }
 
+        /* Styles for the search icon wrapper */
         .combined-search-container .search-icon-wrapper {
             position: absolute;
             left: 0;
@@ -511,6 +536,7 @@
             z-index: 1; /* Ensure icon is above input */
         }
 
+        /* Styles for the dropdown arrow wrapper */
         .combined-search-container .dropdown-arrow-wrapper {
             position: absolute;
             right: 0;
