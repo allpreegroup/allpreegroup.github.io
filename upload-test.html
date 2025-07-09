@@ -3,45 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jamaica First In-Store Deal Site & Cashback</title>
+    <title>How Allpree Works: Shop Smarter, Save More</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-     <!-- Font Awesome for social icons -->
+    <!-- Font Awesome for social icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
 
     <style>
-        /* Custom CSS for header */
-        
-        .header-bg {
-            background-color: #ffffff; /* White background for the header */
-            border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Lighter, almost white background */
+            color: #334155; /* Darker text for better contrast */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .max-w-7xl-custom {
-            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
+            max-width: 1280px;
+        }
+        .header-bg {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo */
+            color: white;
+            padding: 14px 32px;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* Darker indigo */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
+        }
+        .section-heading {
+            font-size: 2.75rem; /* Larger text */
+            font-weight: 800; /* Extra bold */
+            color: #1e293b; /* Darker almost black */
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .sub-heading {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #334155;
+            margin-bottom: 1rem;
+        }
+        .content-paragraph {
+            font-size: 1.125rem; /* text-lg */
+            line-height: 1.7;
+            color: #64748b; /* Slate gray */
+            margin-bottom: 1.5rem;
+        }
+        .feature-card-icon {
+            font-size: 4rem; /* Larger icons */
+            color: #4f46e5; /* Indigo color */
+            margin-bottom: 1.5rem;
+            animation: bounceIn 0.8s ease-out; /* Simple entry animation */
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
         }
 
-        /* Custom CSS for footer */
-        .footer-section {
-            background-color: #2C3E50; /* Dark blue background */
+        /* New styles for content blocks inspired by Shopfully */
+        .content-block {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            padding: 2.5rem; /* More padding */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 1px solid #e2e8f0;
+        }
+        .content-block:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        .visual-placeholder {
+            min-height: 250px; /* Ensure visibility */
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
             color: white;
-            padding: 2rem;
-            text-align: center;
-            font-size: 0.9rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .visual-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            opacity: 0.2;
+        }
+        .visual-placeholder.indigo::before {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wLDM1Mi41QzAsNDQyLDc1LDQ4My41LDE1MCw1MjVDMjI1LDU2Ni41LDMwMCw2MDgsMzc1LDYxMkM0NTAsNjE2LDUyNSw1ODQsNjAwLDU2MEM2NzUsNTM2LDc1MCw1MjQsODI1LDUzNEM5MDAsNTQ0LDk3NSw1NTEsMTA1MCw1NDJDMTExMi41LDUzMywxMTY4LjUsNTE5LjUsMTIwMCw1MDZWMEMwLDBWMzUyLjVaIiB0cmFuc2Zvcm09InJvdGF0ZSgxMCkiLz48L3N2Zz4=');
+        }
+        .visual-placeholder.purple::before {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wLDM1Mi41QzAsNDQyLDc1LDQ4My41LDE1MCw1MjVDMjI1LDU2Ni41LDMwMCw2MDgsMzc1LDYxMkM0NTAsNjE2LDUyNSw1ODQsNjAwLDU2MEM2NzUsNTM2LDc1MCw1MjQsODI1LDUzNEM5MDAsNTQ0LDk3NSw1NTEsMTA1MCw1NDJDMTExMi41LDUzMywxMTY4LjUsNTE5LjUsMTIwMCw1MDZWMEMwLDBWMzUyLjVaIiB0cmFuc2Zvcm09InJvdGF0ZSgxMCkiLz48L3N2Zz4='); /* Reusing a similar pattern for purple */
+        }
+
+        .footer-section {
+            background-color: #1e293b; /* Darker blue-gray background */
+            color: white;
+            padding: 3rem 0;
+            font-size: 0.95rem;
         }
         .footer-section a {
-            color: #60a5fa; /* A light blue for links */
+            color: #93c5fd; /* Light blue for links */
             text-decoration: none;
             transition: color 0.2s;
         }
         .footer-section a:hover {
-            color: #93c5fd; /* Lighter blue on hover */
+            color: #dbeafe; /* Lighter blue on hover */
             text-decoration: underline;
         }
         .footer-section h3 {
             font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
             color: #ffffff;
         }
         .footer-section ul {
@@ -49,428 +146,14 @@
             padding: 0;
         }
         .footer-section ul li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
         }
         .footer-section ul li a {
-            color: #d1d5db; /* Lighter gray for footer links */
+            color: #cbd5e1; /* Lighter gray for footer links */
             font-weight: 400;
         }
         .footer-section ul li a:hover {
             color: #ffffff;
-        }
-
-        /* Base styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff; /* Light background */
-            color: #333;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column; /* Arrange header, main, footer vertically */
-            justify-content: space-between; /* Push footer to bottom */
-            min-height: 100vh; /* Ensure it takes full viewport height */
-        }
-        .btn-primary {
-            background-color: #007bff; /* Primary blue for CTA */
-            color: white;
-            padding: 12px 28px; /* Slightly larger padding for main CTA */
-            border-radius: 9999px; /* Fully rounded */
-            font-weight: 600;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Consistent shadow */
-            display: inline-flex; /* For better alignment with icon if added */
-            align-items: center;
-            justify-content: center;
-            gap: 8px; /* Space for potential icon */
-        }
-        .btn-primary:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        .container-wrapper {
-            
-            border-radius: 1.5rem; /* Rounded corners for the main container */
-            
-            padding: 0; /* Remove padding here, it's inside sections */
-            margin: 2rem auto; /* Center horizontally and add vertical margin */
-            max-width: 1200px; /* Max width for content */
-            width: 95%; /* Responsive width */
-            overflow: hidden; /* Ensure rounded corners clip content */
-            flex-grow: 1; /* Allow main content to grow and push footer down */
-        }
-
-        /* Global Site Brand Name (used in header - though now logo is used) */
-        .site-brand-name {
-            color: white; /* This style might not be needed if logo replaces text */
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 800; /* Extra bold */
-            text-align: center;
-        }
-
-        /* Individual Brand Section Header */
-        .brand-section-header {
-            background-color: #2C3E50; /* Dark blue from screenshot */
-            color: white;
-            padding: 0.5rem 2rem 1.5rem 2rem;
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
-            text-align: left;
-            /* No border-radius here, as it's part of the brand section's flow */
-        }
-
-        /* Deal Grid and Cards */
-        .deal-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
-        }
-        .deal-card {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: left;
-            padding-bottom: 1rem;
-        }
-        .deal-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-        .deal-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-top-left-radius: 0.75rem;
-            border-top-right-radius: 0.75rem;
-        }
-        .discount-badge {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background-color: red;
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.75rem;
-            z-index: 10;
-        }
-        .deal-content {
-            padding: 0.75rem;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-grow: 1;
-        }
-        .product-brand-text {
-            font-size: 0.875rem;
-            color: #6b7280;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            white-space: nowrap; /* Re-added for truncation */
-            overflow: hidden; /* Re-added for truncation */
-            text-overflow: ellipsis; /* Re-added for truncation */
-        }
-
-        .deal-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #1a202c;
-            margin-bottom: 0.25rem;
-            height: 1.2rem; /* Fixed height to allow for truncation */
-            overflow: hidden; /* Re-added for truncation */
-            text-overflow: ellipsis; /* Re-added for truncation */
-            display: -webkit-box; /* Re-added for truncation */
-            -webkit-line-clamp: 2; /* Re-added for truncation */
-            -webkit-box-orient: vertical; /* Re-added for truncation */
-        }
-        .price-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-        .price-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .original-price {
-            text-decoration: line-through;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .discount-price {
-            font-weight: 700;
-            color: red;
-            font-size: 1.0rem;
-        }
-        .add-to-cart-button {
-            background-color: #2C3E50;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: .95rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
-        }
-        .add-to-cart-button:hover {
-            background-color: #34495E;
-        }
-
-        /* Current Brand Info Card (per brand section) */
-        .category-icon-card {
-            /* Default background, will be overridden by JS if colors are available */
-            background-color: #2C3E50;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            min-height: 250px;
-            text-align: center;
-            /* Added transition for smoother color changes if any */
-            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
-        }
-        .category-icon-card .category-brand-logo {
-            width: 150px;
-            height: 120px;
-            object-fit: contain;
-            margin-bottom: 1rem;
-            border-radius: 50%;
-            background-color: rgba(255,255,255,0.2);
-            padding: 5px;
-        }
-        .category-icon-card .card-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .category-icon-card .countdown-text {
-            font-size: 0.7rem;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            color: #e0e0e0;
-        }
-
-        /* Shop More Deals Button (per brand section) */
-        .shop-more-deals-container {
-            display: flex;
-            justify-content: center;
-            padding: 1.5rem 2rem;
-            background-color: #ffffff;
-            border-radius: 0 0 1.5rem 1.5rem; /* Rounded bottom corners only for the last section */
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.03);
-        }
-        .shop-more-button {
-            background-color: #2C3E50;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .shop-more-button:hover {
-            background-color: #34495E;
-        }
-        .shop-more-button svg {
-            width: 16px;
-            height: 16px;
-            fill: white;
-        }
-
-        /* Popup Styles */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        .popup-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            max-width: 600px;
-            width: 90%;
-            position: relative;
-            animation: fadeInScale 0.3s ease-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .popup-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 2rem;
-            color: #6b7280;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .popup-close:hover {
-            color: #ef4444;
-        }
-        .popup-img {
-            width: 100%;
-            max-height: 300px;
-            object-fit: contain;
-            border-radius: 1rem;
-            margin-bottom: 1.5rem;
-            background-color: #f8fafc;
-            padding: 1rem;
-        }
-        .popup-title {
-            font-size: 1rem;
-            font-weight: 800;
-            color: #1a202c;
-            margin-bottom: 0.75rem;
-        }
-        .popup-brand {
-            font-size: 1.125rem;
-            color: #4a5568;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        .popup-price-info-popup {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .popup-price {
-            text-decoration: line-through;
-            color: #6b7280;
-            font-size: 1rem;
-        }
-        .popup-discount {
-            font-weight: 700;
-            color: red;
-            font-size: 1.125rem;
-        }
-        .popup-desc {
-            color: #4a5568;
-            font-size: 0.5rem;
-            line-height: .6rem;
-            margin-bottom: 1.5rem;
-        }
-        .popup-badge {
-            position: absolute;
-            top: 0.75rem;
-            left: 0.75rem;
-            background-color: #ef4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
-        .shop-button {
-            background-color: #3f51b5;
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .shop-button:hover {
-            background-color: #303f9f;
-        }
-
-        /* Floating Categories Styles */
-        .floating-categories-container {
-            background-color: #f8fafc; /* Light gray background for the floating bar */
-            padding: 0.75rem 0; /* Vertical padding only */
-            /* Removed overflow-x, white-space, and scrollbar hiding from here */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 70px; /* Adjust based on your header's height */
-            z-index: 40; /* Below header, above main content */
-            border-bottom: 1px solid #e5e7eb;
-            width: 100%; /* Ensures the background spans the full width of the page */
-        }
-        .categories-list-wrapper { /* This new wrapper centers the content */
-            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
-            margin: 0 auto; /* Centers the content within the full-width container */
-            padding: 0 1rem; /* Added horizontal padding for content inside */
-            overflow-x: auto; /* Now this element handles horizontal scrolling */
-            white-space: nowrap; /* Prevent items from wrapping here */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            /* Scrollbar hiding rules applied directly below */
-        }
-        /* Scrollbar hiding for the categories-list-wrapper */
-        .categories-list-wrapper::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-        }
-        .categories-list-wrapper {
-            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* For Firefox */
-        }
-
-        .categories-list {
-            display: flex;
-            align-items: center;
-            gap: 1rem; /* Space between category items */
-        }
-        .category-item {
-            display: inline-flex; /* Keep items inline for horizontal scroll */
-            flex-direction: column;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            flex-shrink: 0; /* Prevent items from shrinking */
-        }
-        .category-item:hover {
-            background-color: #e2e8f0; /* Light hover effect */
-            transform: translateY(-2px);
-        }
-        .category-item.active {
-            background-color: #dbeafe; /* Tailwind blue-100 for active state */
-            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
-        }
-        /* Removed .category-logo styles as the image is no longer present */
-        .category-name {
-            font-size: 0.75rem; /* Smaller text for category names */
-            font-weight: 500;
-            color: #4a5568;
-            text-align: center;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible; /* Ensure content is visible */
-            text-overflow: clip; /* Prevent ellipsis */
-            max-width: none; /* Remove max-width constraint */
         }
     </style>
 </head>
@@ -480,53 +163,130 @@
         <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <!-- Allpree Logo -->
-                <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-14 w-auto">
+                <img src="https://www.allpree.com/img/allpree.com.logo.png" alt="Allpree Logo" class="h-16 w-auto">
             </div>
             
-            <!-- Search Bar -->
-            <div class="relative flex-grow mx-4 max-w-md">
-                <input type="text" id="brandSearchInput" placeholder="Search brands..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:border-transparent">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
-            </div>
-
-            
-            <!-- Desktop Navigation - Hidden on mobile -->
+            <!-- Desktop Navigation -->
             <nav class="hidden md:block">
-                <ul class="flex space-x-6 text-gray-700 font-medium">
-                    <li><a href="https://www.allpree.com/for-retailers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Add Deals For Free</a></li>
-                     <li><a href="https://www.allpree.com/for-shoppers" class="inline-block py-2 px-6 rounded-full hover:text-[#2C3E50] transition-colors duration-200">Get Deal Plus <i class="fab fa-plus fa-lg"></i></a></li>
-                    <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
-            
-                    
+                <ul class="flex space-x-8 text-gray-700 font-medium">
+                    <li><a href="https://www.allpree.com/for-retailers" class="inline-block py-2 px-4 rounded-full text-gray-600 hover:text-indigo-600 transition-colors duration-200">Add Deals For Free</a></li>
+                    <li><a href="https://www.allpree.com/for-shoppers" class="inline-block py-2 px-4 rounded-full text-gray-600 hover:text-indigo-600 transition-colors duration-200">Get Deal Plus <i class="fas fa-plus text-xs ml-1"></i></a></li>
+                    <li><a href="https://www.allpree.com/getapp" class="btn-primary text-base py-3 px-8 shadow-lg">Get The App</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- Floating Categories Section -->
-    <div id="floating-categories-container" class="floating-categories-container">
-        <div class="categories-list-wrapper"> <!-- This wrapper now handles horizontal scrolling -->
-            <div id="categories-list" class="categories-list">
-                <!-- "All Brands" category item -->
-                <div class="category-item active" data-filter-type="category" data-filter-value="all">
-                    <span class="category-name">All Categories</span>
-                </div>
-                <!-- Dynamic category items will be inserted here by JavaScript -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-24 px-6 text-center rounded-b-[4rem] shadow-2xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wLDM1Mi41QzAsNDQyLDc1LDQ4My41LDE1MCw1MjVDMjI1LDU2Ni41LDMwMCw2MDgsMzc1LDYxMkM0NTAsNjE2LDUyNSw1ODQsNjAwLDU2MEM2NzUsNTM2LDc1MCw1MjQsODI1LDUzNEM5MDAsNTQ0LDk3NSw1NTEsMTA1MCw1NDJDMTExMi41LDUzMywxMTY4LjUsNTE5LjUsMTIwMCw1MDZWMEMwLDBWMzUyLjVaIiB0cmFuc2Zvcm09InJvdGF0ZSgxMCkiLz48L3N2Zz4='); background-size: cover;"></div>
+            <div class="max-w-4xl mx-auto relative z-10">
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-8 drop-shadow-lg">
+                    Browse from the couch. Shop in store.
+                </h1>
+                <p class="text-xl md:text-2xl font-light mb-10 opacity-90">
+                    Plan your local purchases, saving money and time.
+                </p>
+                <a href="https://www.allpree.com/getapp" class="btn-primary bg-white text-indigo-600 hover:bg-gray-100 hover:text-indigo-700 shadow-xl">
+                    Get The App Today! <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                </a>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <main class="flex-grow flex flex-col items-center">
-        <div class="container-wrapper">
-            <div id="all-brands-container">
-                <!-- Each brand's section will be dynamically added here -->
-                <p class="col-span-full text-center text-gray-500 py-4" id="loading-brands-message">Loading Brands...</p>
+        <!-- Marketplace Description Section -->
+        <section class="py-20 px-6 bg-white rounded-xl shadow-lg mt-[-3rem] relative z-20 max-w-7xl-custom mx-auto">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="section-heading mb-6">Our Marketplace</h2>
+                <p class="content-paragraph">
+                    Through our marketplaces, we help millions of people around the world discover the best deals and shop at their favorite local stores more quickly and efficiently.
+                </p>
             </div>
-        </div>
+        </section>
+
+        <!-- Discover Our Apps Section - Revitalized with Alternating Layout -->
+        <section class="py-20 px-6 bg-gray-50">
+            <div class="max-w-7xl-custom mx-auto">
+                <h2 class="section-heading mb-16">Discover Our Apps</h2>
+                <div class="md:grid md:grid-cols-2 gap-12 items-center mb-16">
+                    <!-- Text Content Block -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-mobile-alt feature-card-icon text-indigo-600"></i>
+                        <h3 class="sub-heading">Your Ultimate Shopping Guide</h3>
+                        <p class="content-paragraph">
+                            Our apps and websites seamlessly guide you through every step of the purchasing process. From planning at home—discovering promotions, choosing a product, and searching for it online—to buying in-store at the best available price.
+                        </p>
+                        <a href="#" class="btn-primary mt-4">DISCOVER OUR APPS</a>
+                    </div>
+                    <!-- Visual Placeholder -->
+                    <div class="visual-placeholder bg-indigo-200 text-indigo-700 relative overflow-hidden">
+                        <i class="fas fa-mobile-alt z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">App Mockup Here</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-300 to-indigo-400 opacity-70"></div>
+                    </div>
+                </div>
+
+                <div class="md:grid md:grid-cols-2 gap-12 items-center md:flex-row-reverse">
+                    <!-- Text Content Block (right side on desktop) -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-lightbulb feature-card-icon text-purple-600"></i>
+                        <h3 class="sub-heading">Make Smarter Purchasing Decisions</h3>
+                        <p class="content-paragraph">
+                            Virtually explore all your nearby stores without leaving home. Compare promotions from different stores and brands effortlessly, ensuring you always get the best deal.
+                        </p>
+                    </div>
+                    <!-- Visual Placeholder (left side on desktop) -->
+                    <div class="visual-placeholder bg-purple-200 text-purple-700 relative overflow-hidden">
+                        <i class="fas fa-chart-pie z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Data Visualization Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 opacity-70"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Participate & Buy Section - Revitalized with Alternating Layout -->
+        <section class="py-20 px-6 bg-white rounded-xl shadow-lg my-12 max-w-7xl-custom mx-auto">
+            <div class="max-w-7xl-custom mx-auto">
+                <h2 class="section-heading mb-16">How You Shop with Allpree</h2>
+                <div class="md:grid md:grid-cols-2 gap-12 items-center mb-16">
+                    <!-- Visual Placeholder (left side on desktop) -->
+                    <div class="visual-placeholder bg-green-200 text-green-700 relative overflow-hidden">
+                        <i class="fas fa-map-marked-alt z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Local Store Map Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-300 to-green-400 opacity-70"></div>
+                    </div>
+                    <!-- Text Content Block (right side on desktop) -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-search-dollar feature-card-icon text-green-600"></i>
+                        <h3 class="sub-heading">Participate: Find the Best Option Before You Buy</h3>
+                        <p class="content-paragraph">
+                            Access the latest products, offers, and catalogs from leading stores and brands right from your phone. Get all the information you need before visiting your nearest store, ensuring you make informed decisions.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="md:grid md:grid-cols-2 gap-12 items-center md:flex-row-reverse">
+                    <!-- Visual Placeholder (right side on desktop) -->
+                    <div class="visual-placeholder bg-red-200 text-red-700 relative overflow-hidden">
+                        <i class="fas fa-cash-register z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Checkout Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-300 to-red-400 opacity-70"></div>
+                    </div>
+                    <!-- Text Content Block (left side on desktop) -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-shopping-cart feature-card-icon text-red-600"></i>
+                        <h3 class="sub-heading">Buy: In Store or Online, You Decide</h3>
+                        <p class="content-paragraph">
+                            Choose how to complete your purchase: by visiting the store in person for a hands-on experience, or purchasing conveniently through the store's website. The choice is always yours.
+                        </p>
+                        <a href="https://www.allpree.com/getapp" class="btn-primary mt-4">
+                            Download Our Apps <i class="fas fa-download ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -535,23 +295,23 @@
             <!-- About Allpree Column -->
             <div class="col-span-1 md:col-span-1">
                 <h3 class="text-white mb-4">About Allpree</h3>
-                <p class="text-gray-300 text-sm leading-relaxed">
+                <p class="text-gray-400 text-sm leading-relaxed">
                     Shop Allpree.com and find the best local deals for everything you need. We work every day to bring you the best products at the best prices, from groceries to fashion and decor. Whether you're looking for memorable gifts or everyday treasures, find them here for less.
                 </p>
                 <div class="flex space-x-4 mt-6">
-                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-200">
                         <i class="fab fa-facebook-f fa-lg"></i>
                     </a>
-                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-200">
                         <i class="fab fa-instagram fa-lg"></i>
                     </a>
-                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-200">
                         <i class="fab fa-youtube fa-lg"></i>
                     </a>
-                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-200">
                         <i class="fab fa-tiktok fa-lg"></i>
                     </a>
-                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-200">
                         <i class="fab fa-twitter fa-lg"></i>
                     </a>
                 </div>
@@ -561,9 +321,9 @@
             <div class="col-span-1 md:col-span-1">
                 <h3 class="text-white mb-4">MY ACCOUNT</h3>
                 <ul>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Orders</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Account Settings</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Manage My Allpree Gift Card</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Orders</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Account Settings</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Manage My Allpree Gift Card</a></li>
                 </ul>
             </div>
 
@@ -571,12 +331,12 @@
             <div class="col-span-1 md:col-span-1">
                 <h3 class="text-white mb-4">LET US HELP</h3>
                 <ul>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Customer Care</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Shipping Information</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Return Policy</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Accessibility</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Frequently Asked Questions</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Help Center</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Contact Customer Care</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Shipping Information</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Return Policy</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Accessibility</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Frequently Asked Questions</a></li>
                 </ul>
             </div>
 
@@ -584,514 +344,19 @@
             <div class="col-span-1 md:col-span-1">
                 <h3 class="text-white mb-4">COMPANY INFORMATION</h3>
                 <ul>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Investor Relations</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">About Us</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Contact Us</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Careers</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Investor Relations</a></li>
                     <li><a href="#" class="text-blue-400 hover:underline">Sell Your Products</a></li>
                 </ul>
             </div>
         </div>
-        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
+        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-500 text-xs">
             <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
             <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
             <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
         </div>
     </footer>
-
-    <!-- Popup Modal -->
-    <div id="popup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img id="popupImg" src="" alt="Deal Image" class="popup-img" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
-            <h2 id="popupTitle" class="popup-title"></h2>
-            <p id="popupBrand" class="popup-brand"></p>
-            <div class="popup-price-info-popup">
-                <p id="popupPrice" class="popup-price"></p>
-                <p id="popupDiscount" class="popup-discount"></p>
-            </div>
-            <p id="popupDesc" class="popup-desc"></p>
-            <span id="popupBadge" class="popup-badge"></span>
-            
-        </div>
-    </div>
-
-    <script>
-        const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
-        const productsPerPage = 4; // Number of products to show initially per brand section
-
-        // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '' } }
-        const countdownIntervals = {}; // To store interval IDs for each brand's countdown
-        let allBrandsData = []; // To store all brands from the master sheet for filtering
-
-        // Hardcoded list of categories provided by the user
-        const allCategories = [
-            "Art & Painting", "Auto", "Baby, Kids & Toys", "Beauty", "Book Store", "Cafes",
-            "Department Stores", "Desserts", "Electronics & Office Supplies", "Entertainment",
-            "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
-            "Furniture & Appliances", "Gas", "Hardware", "Home Goods", "Hospitality",
-            "Jewellery", "Medical", "Pharmacy", "Restaurant & Beverage", "Retail",
-            "Shipping & Logistics", "Spas", "Supermarkets", "Travel & Hospitality",
-            "Weddings and Events", "Women Apparel"
-        ];
-
-        /**
-         * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
-         * @param {Array} array The array to shuffle.
-         * @returns {Array} The shuffled array (same reference).
-         */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-            }
-            return array;
-        }
-
-        function openPopup({ image, name, original, discount, description, brandName }) {
-            const originalPrice = parseFloat(String(original).replace(/,/g, '')) || 0;
-            const discountPrice = parseFloat(String(discount).replace(/,/g, '')) || 0;
-            const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
-
-            document.getElementById('popupImg').src = image;
-            document.getElementById('popupTitle').textContent = name;
-            document.getElementById('popupBrand').textContent = brandName ? `${brandName}` : '';
-            document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
-            document.getElementById('popupDesc').textContent = description || '';
-            document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-            document.getElementById('popup').style.display = 'flex';
-        }
-
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
-
-        // Function to load more deals for a specific brand
-        function loadMoreDealsForBrand(brandId) {
-            const brandData = brandDataMap[brandId];
-            if (!brandData) return;
-
-            const productsToAdd = brandData.allProducts.slice(brandData.currentProductIndex, brandData.currentProductIndex + productsPerPage);
-            if (productsToAdd.length > 0) {
-                const container = document.getElementById(`deals-container-${brandId}`);
-                productsToAdd.forEach(row => {
-                    const card = createDealCard(row);
-                    if (card) {
-                        container.appendChild(card);
-                    }
-                });
-                brandData.currentProductIndex += productsToAdd.length;
-                updateShopMoreButton(brandId);
-            }
-        }
-
-        function createDealCard(row) {
-            if (!row.ProductName || !row.ImageURL) {
-                return null;
-            }
-
-            const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
-            const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
-            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
-
-            // Re-added truncation for product name
-            const shortName = row.ProductName.length > 18 ? row.ProductName.slice(0, 17) + '...' : row.ProductName;
-
-            const dealCard = document.createElement('div');
-            dealCard.className = 'deal-card';
-            dealCard.innerHTML = `
-                <span class="discount-badge">SAVE ${percentOff}%</span>
-                <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
-                <div class="deal-content">
-                   <div class="deal-title">${shortName}</div>
-                   
-                    <div class="price-section">
-                        <div class="price-info">
-                            <div class="discount-price">JMD $${discount.toLocaleString()}</div>
-                            <div class="original-price">JMD $${original.toLocaleString()}</div>
-                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹ '}</div>
-                        </div>
-                        <button class="add-to-cart-button">+</button>
-                    </div>
-                </div>
-            `;
-            dealCard.addEventListener('click', () => {
-                openPopup({
-                    image: row.ImageURL,
-                    name: row.ProductName,
-                    original: original.toLocaleString(),
-                    discount: discount.toLocaleString(),
-                    description: row.Description,
-                    brandName: row.BrandName
-                });
-            });
-            return dealCard;
-        }
-
-        // Renders initial set of products for a specific brand
-        function renderInitialProducts(brandId, productsToRender) {
-            const container = document.getElementById(`deals-container-${brandId}`);
-            // Keep the category brand card if it exists, otherwise it will be re-added by renderBrandSection
-            const existingCategoryBrandCard = container.querySelector(`#category-brand-card-${brandId}`);
-            container.innerHTML = ''; // Clear existing content
-            if (existingCategoryBrandCard) {
-                container.appendChild(existingCategoryBrandCard); // Re-add the static card
-            }
-
-            productsToRender.forEach(row => {
-                const card = createDealCard(row);
-                if (card) {
-                    container.appendChild(card);
-                }
-            });
-            updateShopMoreButton(brandId);
-        }
-
-        // Updates "Shop More" button for a specific brand
-        function updateShopMoreButton(brandId) {
-            const brandData = brandDataMap[brandId];
-            if (!brandData) return;
-
-            const remainingCount = brandData.allProducts.length - brandData.currentProductIndex;
-            const shopMoreButtonSpan = document.getElementById(`remaining-deals-count-${brandId}`);
-            const shopMoreContainer = document.getElementById(`shop-more-container-${brandId}`);
-
-            if (shopMoreButtonSpan && shopMoreContainer) {
-                if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = remainingCount;
-                    shopMoreContainer.style.display = 'flex';
-                } else {
-                    shopMoreContainer.style.display = 'none';
-                }
-            }
-        }
-
-        // Function to render a complete section for a single brand
-        async function renderBrandSection(brandName, sheetUrl, brandId) {
-            const allBrandsContainer = document.getElementById('all-brands-container');
-
-            // Create the main section container for this brand
-            const brandSection = document.createElement('div');
-            brandSection.id = `brand-section-${brandId}`;
-            brandSection.className = 'bg-white rounded-xl shadow-lg mb-8 overflow-hidden'; // Styling for each brand section
-            brandSection.setAttribute('data-brand-name', brandName); // Add data attribute for brand name filtering
-
-            // Add a temporary loading state for the brand section
-            brandSection.innerHTML = `
-               <div id="deals-container-${brandId}" class="deal-grid">
-                    <!-- The special category brand card (now current brand info) -->
-                    <div id="category-brand-card-${brandId}" class="category-icon-card">
-                        <img id="category-brand-logo-${brandId}" src="https://placehold.co/80x80/ffffff/2C3E50?text=Loading" alt="Brand Logo" class="category-brand-logo">
-                        <div id="category-brand-name-text-${brandId}" class="card-text">Loading ${brandName}...</div>
-                        <div id="category-brand-countdown-${brandId}" class="countdown-text"></div>
-                    </div>
-                    <p class="col-span-full text-center text-gray-500 py-4" id="loading-deals-message-${brandId}">Fetching deals...</p>
-                </div>
-                <div id="shop-more-container-${brandId}" class="shop-more-deals-container">
-                    <button id="shop-more-button-${brandId}" class="shop-more-button">
-                         SHOP <span id="remaining-deals-count-${brandId}">0</span> MORE DEALS
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z"/>
-                        </svg>
-                    </button> 
-                </div> 
-            `;
-            allBrandsContainer.appendChild(brandSection);
-
-            // Fetch deals for this specific brand
-            try {
-                const res = await fetch(sheetUrl);
-                const rows = await res.json();
-                
-                let featuredBrandData = null;
-                let tempProducts = [];
-                for (const row of rows) {
-                    // Check for a dedicated brand row (has BrandName, BrandLogo, ExpiryDate, PrimaryColor, SecondaryColor, Category but no ProductName)
-                    if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
-                        featuredBrandData = row;
-                    } else if (row.ProductName && row.ImageURL) {
-                        // This is a product row
-                        tempProducts.push(row);
-                    }
-                }
-
-                // If no products, remove the entire brand section
-                if (tempProducts.length === 0) {
-                    console.log(`Brand "${brandName}" has no products. Removing its section.`);
-                    brandSection.remove();
-                    return; // Exit the function, no need to render anything for this brand
-                }
-
-                // Shuffle products before storing them
-                shuffleArray(tempProducts);
-
-                // Store data for this brand, including its category
-                brandDataMap[brandId] = {
-                    allProducts: tempProducts,
-                    currentProductIndex: 0,
-                    brandName: brandName,
-                    category: featuredBrandData ? featuredBrandData.Category : 'Uncategorized' // Assuming Category is in featuredBrandData
-                };
-                // Set data-category attribute on the brand section for filtering
-                brandSection.setAttribute('data-category', brandDataMap[brandId].category.toLowerCase());
-
-
-                // Update the Current Brand Info Card for this section
-                const categoryBrandCard = document.getElementById(`category-brand-card-${brandId}`); // Get the card element
-                const categoryBrandLogo = document.getElementById(`category-brand-logo-${brandId}`);
-                const categoryBrandNameText = document.getElementById(`category-brand-name-text-${brandId}`);
-                const categoryBrandCountdown = document.getElementById(`category-brand-countdown-${brandId}`);
-                const loadingMessage = document.getElementById(`loading-deals-message-${brandId}`);
-                if (loadingMessage) loadingMessage.remove();
-
-                if (featuredBrandData) {
-                    categoryBrandLogo.src = featuredBrandData.BrandLogo || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
-                    categoryBrandLogo.alt = `${featuredBrandData.BrandName || ''} Brand Logo`;
-                    categoryBrandNameText.textContent = featuredBrandData.BrandName || brandName;
-                    if (featuredBrandData.ExpiryDate) {
-                        startBrandCountdown(featuredBrandData.ExpiryDate, `category-brand-countdown-${brandId}`);
-                    } else {
-                        categoryBrandCountdown.textContent = '';
-                    }
-
-                    // Apply primary and secondary colors to the card background
-                    const primaryColor = featuredBrandData.PrimaryColor;
-                    const secondaryColor = featuredBrandData.SecondaryColor;
-
-                    if (primaryColor && secondaryColor) {
-                        categoryBrandCard.style.backgroundImage = `linear-gradient(to bottom, ${primaryColor}, ${secondaryColor})`;
-                        categoryBrandCard.style.backgroundColor = ''; // Clear fallback background color
-                    } else if (primaryColor) {
-                        categoryBrandCard.style.backgroundColor = primaryColor;
-                        categoryBrandCard.style.backgroundImage = '';
-                    } else {
-                        // Fallback to default if colors are not provided
-                        categoryBrandCard.style.backgroundColor = '#2C3E50';
-                        categoryBrandCard.style.backgroundImage = '';
-                    }
-
-                } else {
-                    // Fallback if no dedicated brand row in the specific sheet
-                    categoryBrandLogo.src = 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
-                    categoryBrandLogo.alt = `${brandName} Logo`;
-                    categoryBrandNameText.textContent = brandName;
-                    categoryBrandCountdown.textContent = ''; // No countdown if no specific expiry date found
-                    categoryBrandCard.style.backgroundColor = '#2C3E50'; // Ensure default if no featured data
-                    categoryBrandCard.style.backgroundImage = '';
-                }
-
-                // Render initial products for this brand
-                renderInitialProducts(brandId, brandDataMap[brandId].allProducts.slice(0, productsPerPage));
-                brandDataMap[brandId].currentProductIndex += productsPerPage;
-
-                // Attach event listener to this brand's "Shop More Deals" button
-                document.getElementById(`shop-more-button-${brandId}`).addEventListener('click', () => {
-                    loadMoreDealsForBrand(brandId);
-                });
-
-            } catch (err) {
-                console.error(`Failed to load deals for ${brandName}:`, err);
-                // If there's an error fetching or parsing, also remove the section
-                brandSection.remove();
-            }
-        }
-
-        // Function to create a category item for the floating bar
-        function createFloatingCategoryItem(categoryName) {
-            const categoryItem = document.createElement('div');
-            categoryItem.className = 'category-item';
-            categoryItem.setAttribute('data-filter-type', 'category');
-            categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
-            
-            // Removed the <img> tag as requested
-            categoryItem.innerHTML = `
-                <span class="category-name">${categoryName}</span>
-            `;
-            categoryItem.addEventListener('click', () => {
-                filterContent('category', categoryName.toLowerCase());
-                highlightCategory(categoryItem);
-                brandSearchInput.value = ''; // Clear search input when a category is selected
-            });
-            return categoryItem;
-        }
-
-        // Function to highlight the active category item
-        function highlightCategory(activeItem) {
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            activeItem.classList.add('active');
-        }
-
-        // Function to load the master sheet and populate all brand sections and floating categories
-        async function loadMasterSheet() {
-            const loadingBrandsMessage = document.getElementById('loading-brands-message');
-            if (loadingBrandsMessage) loadingBrandsMessage.textContent = 'Loading all brands and their deals...';
-
-            try {
-                const res = await fetch(masterSheetUrl);
-                const brands = await res.json();
-                allBrandsData = brands; // Store all brands data globally
-
-                // Clear the initial loading message
-                const allBrandsContainer = document.getElementById('all-brands-container');
-                allBrandsContainer.innerHTML = '';
-
-                if (brands.length === 0) {
-                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
-                    return;
-                }
-
-                const categoriesList = document.getElementById('categories-list');
-                // Ensure "All Categories" is always the first item and active by default
-                const allCategoriesItem = categoriesList.querySelector('[data-filter-value="all"]');
-                if (allCategoriesItem) {
-                    allCategoriesItem.addEventListener('click', () => {
-                        filterContent('category', 'all');
-                        highlightCategory(allCategoriesItem);
-                        brandSearchInput.value = ''; // Clear search input
-                    });
-                }
-
-                // Populate floating categories from the hardcoded list
-                allCategories.forEach(category => {
-                    const categoryItem = createFloatingCategoryItem(category);
-                    categoriesList.appendChild(categoryItem);
-                });
-
-
-                // Render each brand section
-                for (const brand of brands) {
-                    const brandName = brand.undefined; // Assuming 'undefined' column holds the brand name
-                    const sheetUrl = brand.sheeturls;
-
-                    if (brandName && sheetUrl) {
-                        // Create a unique ID for each brand's section
-                        const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                        
-                        // Render the main brand section
-                        await renderBrandSection(brandName, sheetUrl, brandId);
-                    }
-                }
-                
-                // If after trying to load all brands, no sections are visible
-                if (allBrandsContainer.children.length === 0) {
-                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found.</p>';
-                }
-
-
-            } catch (err) {
-                console.error('Failed to load master sheet:', err);
-                document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
-            }
-        }
-
-        function startBrandCountdown(expireDate, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-
-            // Clear any existing interval for this element to prevent multiple timers
-            if (countdownIntervals[elementId]) {
-                clearInterval(countdownIntervals[elementId]);
-            }
-
-            function update() {
-                const timeLeft = new Date(expireDate) - new Date();
-                if (timeLeft <= 0) {
-                    el.textContent = 'Deal ended';
-                    clearInterval(countdownIntervals[elementId]);
-                    delete countdownIntervals[elementId];
-                } else {
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hrs = String(Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / 3600000)).padStart(2, '0');
-                    const mins = String(Math.floor((timeLeft % 3600000) / 60000)).padStart(2, '0');
-                    const secs = String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0');
-                    
-                    let timeString = '';
-                    if (days > 0) {
-                        timeString += `${days}d `;
-                    }
-                    timeString += `${hrs}:${mins}:${secs}`;
-
-                    el.textContent = `Ends in: ${timeString}`;
-                }
-            }
-
-            update(); // Initial call to display immediately
-            countdownIntervals[elementId] = setInterval(update, 1000); // Store interval ID
-        }
-
-        // Search and Filter functionality
-        const brandSearchInput = document.getElementById('brandSearchInput');
-        let searchTimeout;
-
-        function filterContent(filterType, filterValue) {
-            const normalizedFilterValue = filterValue.toLowerCase().trim();
-            const allBrandSections = document.querySelectorAll('[id^="brand-section-"]');
-            let foundContent = false;
-
-            allBrandSections.forEach(section => {
-                const brandName = section.getAttribute('data-brand-name').toLowerCase();
-                const category = section.getAttribute('data-category').toLowerCase();
-                
-                let shouldShow = false;
-
-                if (filterType === 'category') {
-                    if (normalizedFilterValue === 'all' || category.includes(normalizedFilterValue)) {
-                        shouldShow = true;
-                    }
-                } else if (filterType === 'brand') {
-                    if (brandName.includes(normalizedFilterValue)) {
-                        shouldShow = true;
-                    }
-                }
-
-                if (shouldShow) {
-                    section.style.display = 'block';
-                    foundContent = true;
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-
-            const allBrandsContainer = document.getElementById('all-brands-container');
-            let noResultsMessage = document.getElementById('no-results-message');
-
-            if (!foundContent && normalizedFilterValue !== '' && normalizedFilterValue !== 'all') {
-                if (!noResultsMessage) {
-                    noResultsMessage = document.createElement('p');
-                    noResultsMessage.id = 'no-results-message';
-                    noResultsMessage.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
-                    allBrandsContainer.appendChild(noResultsMessage);
-                }
-                noResultsMessage.textContent = `No content found matching "${normalizedFilterValue}".`;
-            } else if (noResultsMessage) {
-                noResultsMessage.remove();
-            }
-        }
-
-        brandSearchInput.addEventListener('keyup', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                filterContent('brand', brandSearchInput.value);
-                // Remove active highlight from category items when typing in search
-                document.querySelectorAll('.category-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-            }, 300); // Debounce for 300ms
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMasterSheet();
-        });
-        
-        document.getElementById('popup').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closePopup();
-            }
-        });
-    </script>
 </body>
 </html>
