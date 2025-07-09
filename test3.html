@@ -209,41 +209,50 @@
             background-color: #34495E;
         }
 
-        /* Current Brand Info Card (per brand section) */
-        .category-icon-card {
-            /* Default background, will be overridden by JS if colors are available */
-            background-color: #2C3E50;
+        /* Current Brand Info Card (now part of the grid) */
+        .brand-info-card-grid-item {
+            background-color: #2C3E50; /* Default background */
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            min-height: 250px;
+            padding: 1rem; /* Reduced padding to fit better in grid */
+            border-radius: 0.75rem; /* Match other deal cards */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Match other deal cards */
+            min-height: 250px; /* Maintain height for visual consistency */
             text-align: center;
-            /* Added transition for smoother color changes if any */
             transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
+            /* Ensure it takes full width in its grid cell */
+            width: 100%;
+            height: 100%;
         }
-        .category-icon-card .category-brand-logo {
-            width: 150px;
-            height: 120px;
+        .brand-info-card-grid-item .brand-logo-grid {
+            width: 120px; /* Slightly smaller logo for grid item */
+            height: 100px;
             object-fit: contain;
-            margin-bottom: 1rem;
             border-radius: 50%;
             background-color: rgba(255,255,255,0.2);
             padding: 5px;
+            flex-shrink: 0;
+            margin-bottom: 0.5rem; /* Space below logo */
         }
-        .category-icon-card .card-text {
-            font-size: 0.8rem;
-            font-weight: 600;
+        .brand-info-card-grid-item .brand-name-grid {
+            font-size: 1.5rem; /* Slightly smaller font for grid item */
+            font-weight: 700;
+            margin-bottom: 0.25rem;
         }
-        .category-icon-card .countdown-text {
-            font-size: 0.7rem;
+        .brand-info-card-grid-item .category-parish-text {
+            font-size: 0.85rem;
             font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        .brand-info-card-grid-item .countdown-text-grid {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white; /* Changed to white for better visibility */
             margin-top: 0.5rem;
-            color: #e0e0e0;
         }
 
         /* Shop More Deals Button (per brand section) */
@@ -591,8 +600,8 @@
                 <ul>
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Investor Relations</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline">Careers</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline">Investor Relations</a></li>
                     <li><a href="#" class="text-blue-400 hover:underline">Sell Your Products</a></li>
                 </ul>
             </div>
@@ -692,7 +701,7 @@
             if (productsToAdd.length > 0) {
                 const container = document.getElementById(`deals-container-${brandId}`);
                 productsToAdd.forEach(row => {
-                    const card = createDealCard(row);
+                    const card = createDealCard(row); // No brand info passed here
                     if (card) {
                         container.appendChild(card);
                     }
@@ -724,8 +733,7 @@
                 <span class="discount-badge">SAVE ${percentOff}%</span>
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
-                   <div class="deal-title">${shortName}</div>
-
+                    <div class="deal-title">${shortName}</div>
                     <div class="price-section">
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
@@ -743,7 +751,7 @@
                     original: original.toLocaleString(),
                     discount: discount.toLocaleString(),
                     description: row.Description,
-                    brandName: row.BrandName
+                    brandName: row.BrandName // Use brand name from the product row for popup
                 });
             });
             return dealCard;
@@ -756,11 +764,22 @@
          */
         function renderInitialProducts(brandId, productsToRender) {
             const container = document.getElementById(`deals-container-${brandId}`);
-            // Keep the category brand card if it exists, otherwise it will be re-added by renderBrandSection
-            const existingCategoryBrandCard = container.querySelector(`#category-brand-card-${brandId}`);
             container.innerHTML = ''; // Clear existing content
-            if (existingCategoryBrandCard) {
-                container.appendChild(existingCategoryBrandCard); // Re-add the static card
+
+            // Create and prepend the brand info card first
+            const brandData = brandDataMap[brandId];
+            const brandInfoCard = createBrandInfoCard(
+                brandData.brandName,
+                brandData.brandId,
+                brandData.brandLogo,
+                brandData.brandColor,
+                brandData.brandImage,
+                brandData.category,
+                brandData.parish,
+                brandData.expiryDate
+            );
+            if (brandInfoCard) {
+                container.appendChild(brandInfoCard); // Append first, then products
             }
 
             productsToRender.forEach(row => {
@@ -773,6 +792,56 @@
         }
 
         /**
+         * Creates the dedicated brand information card to be placed in the grid.
+         * @param {string} brandName - The name of the brand.
+         * @param {string} brandId - The unique ID for the brand.
+         * @param {string} brandLogo - URL to the brand's logo.
+         * @param {string} brandColor - Primary background color for the brand card.
+         * @param {string} brandImage - Background image URL for the brand card.
+         * @param {string} category - The category of the brand.
+         * @param {string} parish - The parish where the brand is located.
+         * @param {string} expiryDate - The expiry date of the deal for countdown.
+         * @returns {HTMLElement} The created brand info card element.
+         */
+        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, expiryDate) {
+            const brandInfoCard = document.createElement('div');
+            brandInfoCard.className = 'brand-info-card-grid-item'; // New class for styling as a grid item
+            brandInfoCard.id = `brand-info-card-${brandId}`;
+
+            let backgroundStyle = '';
+            if (brandImage) {
+                backgroundStyle = `background-image: url('${brandImage}'); background-size: cover; background-position: center;`;
+            } else if (brandColor) {
+                backgroundStyle = `background-color: ${brandColor};`;
+            }
+            brandInfoCard.style = backgroundStyle;
+
+            brandInfoCard.innerHTML = `
+                <img src="${brandLogo}" alt="${brandName} Logo" class="brand-logo-grid">
+                <p class="brand-name-grid">${brandName}</p>
+                <p class="category-parish-text">${category}</p>
+                <p class="category-parish-text">${parish || 'N/A'}</p>
+                <p id="countdown-${brandId}" class="countdown-text-grid"></p>
+            `;
+
+            if (expiryDate) {
+                const endDate = new Date(expiryDate).getTime();
+                if (!isNaN(endDate)) {
+                    updateCountdown(brandId, endDate);
+                } else {
+                    console.warn(`Invalid expiryDate for brand ${brandName}: ${expiryDate}`);
+                    const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
+                    if (countdownElement) countdownElement.textContent = "Invalid Date";
+                }
+            } else {
+                const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
+                if (countdownElement) countdownElement.textContent = "No Expiry Date";
+            }
+            return brandInfoCard;
+        }
+
+
+        /**
          * Updates the "Shop More Deals" button for a specific brand section.
          * @param {string} brandId - The unique ID of the brand.
          */
@@ -780,11 +849,13 @@
             const brandData = brandDataMap[brandId];
             if (!brandData) return;
 
-            const remainingCount = brandData.allProducts.length - brandData.currentProductIndex;
+            // Subtract 1 from allProducts.length because the first "product" is now the brand info card
+            const remainingCount = (brandData.allProducts.length - brandData.currentProductIndex);
             const shopMoreButtonSpan = document.getElementById(`shop-more-count-${brandId}`);
             const shopMoreButtonContainer = document.getElementById(`shop-more-container-${brandId}`);
 
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
+                // The button should only show if there are actual products remaining
                 if (remainingCount > 0) {
                     shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
@@ -803,6 +874,8 @@
             const countdownElement = document.getElementById(`countdown-${brandId}`);
             if (!countdownElement) return;
 
+            console.log(`updateCountdown called for ${brandId}. End Date: ${new Date(endDate).toLocaleString()}`);
+
             // Clear any existing interval for this brand to prevent duplicates
             if (countdownIntervals[brandId]) {
                 clearInterval(countdownIntervals[brandId]);
@@ -811,6 +884,7 @@
             const intervalId = setInterval(() => {
                 const now = new Date().getTime();
                 const distance = endDate - now;
+                console.log(`Brand: ${brandId}, Distance: ${distance}ms`); // Log distance for debugging
 
                 if (distance < 0) {
                     countdownElement.textContent = "Deal Ended";
@@ -848,47 +922,28 @@
             brandSection.className = 'bg-white rounded-2xl shadow-lg mb-8 overflow-hidden';
             brandSection.setAttribute('data-brand-name', brandName);
             brandSection.setAttribute('data-category', category.toLowerCase());
-            brandSection.setAttribute('data-parish', parish.toLowerCase()); // Add data-parish attribute
+            brandSection.setAttribute('data-parish', (parish || '').toLowerCase()); // Ensure parish is always a string for data attribute
 
             const brandProducts = brandDataMap[brandId].allProducts;
-            const initialProducts = brandProducts.slice(0, productsPerPage);
-            brandDataMap[brandId].currentProductIndex = initialProducts.length;
+            // Initial products will be productsPerPage, but the first slot is for the brand info card
+            const initialProductsToDisplay = brandProducts.slice(0, productsPerPage);
+            brandDataMap[brandId].currentProductIndex = initialProductsToDisplay.length;
 
-            let backgroundStyle = '';
-            if (brandImage) {
-                backgroundStyle = `background-image: url('${brandImage}'); background-size: cover; background-position: center;`;
-            } else if (brandColor) {
-                backgroundStyle = `background-color: ${brandColor};`;
-            }
 
             brandSection.innerHTML = `
-                <div id="category-brand-card-${brandId}" class="category-icon-card p-8 text-white flex flex-col items-center justify-center rounded-t-2xl" style="${backgroundStyle}">
-                    <img src="${brandLogo}" alt="${brandName} Logo" class="category-brand-logo">
-                    <p class="card-text text-2xl font-bold mb-2">${brandName}</p>
-                    <p class="text-lg font-medium opacity-90">${category}</p>
-                    <p class="text-md font-medium opacity-90">${parish}</p>
-                    <p id="countdown-${brandId}" class="countdown-text mt-2"></p>
-                </div>
                 <div id="deals-container-${brandId}" class="deal-grid">
-                    <!-- Deals will be inserted here -->
+                    <!-- Brand Info Card and Deals will be inserted here -->
                 </div>
                 <div id="shop-more-container-${brandId}" class="shop-more-deals-container ${brandProducts.length <= productsPerPage ? 'hidden' : ''}">
                     <button class="shop-more-button" onclick="loadMoreDealsForBrand('${brandId}')">
-                        <span id="shop-more-count-${brandId}">Shop ${brandProducts.length - initialProducts.length} More Deals</span>
+                        <span id="shop-more-count-${brandId}">Shop ${brandProducts.length - initialProductsToDisplay.length} More Deals</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
                     </button>
                 </div>
             `;
             allBrandsContainer.appendChild(brandSection);
 
-            renderInitialProducts(brandId, initialProducts);
-
-            if (expiryDate) {
-                const endDate = new Date(expiryDate).getTime();
-                if (!isNaN(endDate)) {
-                    updateCountdown(brandId, endDate);
-                }
-            }
+            renderInitialProducts(brandId, initialProductsToDisplay); // Pass the products to display
         }
 
         /**
@@ -943,7 +998,7 @@
                             // Check for a dedicated brand row
                             if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                                 featuredBrandData = row;
-                                brandParish = row.Parish || '';
+                                brandParish = row.Parish || ''; // Extract Parish, default to empty string
                                 brandCategory = row.Category || 'Uncategorized';
                                 brandLogo = row.BrandLogo;
                                 brandColor = row.PrimaryColor || '#2C3E50';
@@ -967,12 +1022,14 @@
                             currentProductIndex: 0,
                             brandName: brandName,
                             category: brandCategory,
-                            parish: brandParish,
+                            parish: brandParish, // Store the extracted parish
                             brandLogo: brandLogo,
                             brandColor: brandColor,
                             brandImage: brandImage,
-                            expiryDate: expiryDate
+                            expiryDate: expiryDate,
+                            brandId: brandId // Store brandId for easy access
                         };
+                        console.log(`Processed Brand: ${brandName}, Parish: ${brandParish}`); // Log extracted parish
                         return brandId; // Return the brandId if successfully processed
                     } catch (err) {
                         console.error(`Failed to load deals for ${brandName} from ${sheetUrl}:`, err);
@@ -1027,8 +1084,9 @@
                 }
 
                 let matchesParish = true;
+                // Only filter by parish if a specific parish is selected (not empty string or "all parishes")
                 if (selectedParish !== '' && selectedParish !== 'all parishes') {
-                    matchesParish = brand.parish.toLowerCase() === selectedParish;
+                    matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
                 }
 
                 const shouldShow = matchesSearch && matchesCategory && matchesParish;
@@ -1042,7 +1100,7 @@
                         brand.brandColor,
                         brand.brandImage,
                         brand.category,
-                        brand.parish,
+                        brand.parish, // Pass the parish data
                         brand.expiryDate
                     );
                     foundContent = true;
