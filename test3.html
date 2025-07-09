@@ -494,8 +494,33 @@
             color: #9ca3af; /* Placeholder color */
         }
 
-        /* Styles for the location dropdown */
-        .combined-search-container select {
+        /* Styles for the parish dropdown */
+        .combined-search-container select.parish-select {
+            border: none; /* Remove individual border */
+            border-left: 1px solid #e5e7eb; /* Add a separator line */
+            border-radius: 0; /* Remove individual border-radius */
+            padding-right: 0.75rem; /* Adjust padding as no custom arrow here */
+            background-color: #f9fafb; /* Light background color for the dropdown */
+            appearance: none; /* Hide default dropdown arrow */
+            outline: none; /* Remove focus outline */
+            flex-shrink: 0; /* Prevent shrinking */
+            width: auto; /* Allow width to be determined by content/padding */
+            min-width: 120px; /* Minimum width for the dropdown */
+            cursor: pointer;
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            font-size: 0.875rem; /* text-sm */
+            color: #333;
+            transition: background-color 0.2s ease-in-out; /* Added transition for hover */
+            text-align: center; /* Center the selected text in the dropdown */
+            text-align-last: center; /* For Firefox to center selected text */
+        }
+        .combined-search-container select.parish-select:hover {
+            background-color: #f5f5f5; /* Slightly darker light hover background */
+        }
+
+        /* Styles for the town dropdown */
+        .combined-search-container select.town-select {
             border: none; /* Remove individual border */
             border-left: 1px solid #e5e7eb; /* Add a separator line */
             border-radius: 0; /* Remove individual border-radius */
@@ -515,9 +540,10 @@
             text-align: center; /* Center the selected text in the dropdown */
             text-align-last: center; /* For Firefox to center selected text */
         }
-        .combined-search-container select:hover {
+        .combined-search-container select.town-select:hover {
             background-color: #f5f5f5; /* Slightly darker light hover background */
         }
+
         .combined-search-container select option {
             color: #333; /* Ensure option text color is readable */
             text-align: center; /* Attempt to center options in the dropdown list */
@@ -536,7 +562,7 @@
             z-index: 1; /* Ensure icon is above input */
         }
 
-        /* Styles for the dropdown arrow wrapper */
+        /* Styles for the dropdown arrow wrapper (only for the last select) */
         .combined-search-container .dropdown-arrow-wrapper {
             position: absolute;
             right: 0;
@@ -569,22 +595,12 @@
                     </div>
                     <input type="text" id="brandSearchInput" placeholder="Search brands..." class="py-2">
 
-                    <select id="locationSelect" class="py-2">
-                        <option value="">All Parishes</option>
-                        <option value="Clarendon">Clarendon</option>
-                        <option value="Hanover">Hanover</option>
-                        <option value="Kingston">Kingston</option>
-                        <option value="Manchester">Manchester</option>
-                        <option value="Portland">Portland</option>
-                        <option value="Saint Andrew">Saint Andrew</option>
-                        <option value="Saint Ann">Saint Ann</option>
-                        <option value="Saint Catherine">Saint Catherine</option>
-                        <option value="Saint Elizabeth">Saint Elizabeth</option>
-                        <option value="Saint James">Saint James</option>
-                        <option value="Saint Mary">Saint Mary</option>
-                        <option value="Saint Thomas">Saint Thomas</option>
-                        <option value="Trelawny">Trelawny</option>
-                        <option value="Westmoreland">Westmoreland</option>
+                    <select id="parishSelect" class="py-2 parish-select">
+                        <!-- Options populated by JS -->
+                    </select>
+
+                    <select id="townSelect" class="py-2 town-select">
+                        <!-- Options populated by JS -->
                     </select>
                     <div class="dropdown-arrow-wrapper">
                         <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -720,7 +736,7 @@
 
         // Store product data and current index per brand
         // parish property added to store the parish for each brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '' } }
+        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
 
         // Hardcoded list of categories provided by the user
@@ -733,6 +749,25 @@
             "Shipping & Logistics", "Spas", "Travel & Hospitality",
             "Weddings and Events", "Women Apparel"
         ];
+
+        // Data structure for Jamaican Parishes and their Towns
+        const jamaicanLocations = {
+            "All Parishes": ["All Towns"],
+            "Clarendon": ["All Towns", "MAY PEN", "CHAPELTON", "SPALDINGS"],
+            "Hanover": ["All Towns", "LUCEA", "GREEN ISLAND", "HOPEWELL"],
+            "Kingston": ["All Towns", "KINGSTON", "HALF WAY TREE", "CROSS ROADS"],
+            "Manchester": ["All Towns", "MANDEVILLE", "PORUS", "CHRISTIANA"],
+            "Portland": ["All Towns", "PORT ANTONIO", "BUFF BAY", "HOLLYWELL"],
+            "Saint Andrew": ["All Towns", "HALF WAY TREE", "STONY HILL", "GORDON TOWN"],
+            "Saint Ann": ["All Towns", "OCHO RIOS", "ST. ANN'S BAY", "RUNAWAY BAY"],
+            "Saint Catherine": ["All Towns", "SPANISH TOWN", "PORTMORE", "OLD HARBOUR"],
+            "Saint Elizabeth": ["All Towns", "BLACK RIVER", "SANTA CRUZ", "JUNCTION"],
+            "Saint James": ["All Towns", "MONTEGO BAY", "ADELPHI", "CAMBRIDGE"],
+            "Saint Mary": ["All Towns", "ANNOTTO BAY", "HIGHGATE", "ORACABESSA"],
+            "Saint Thomas": ["All Towns", "MORANT BAY", "YALLAHS", "GOLDEN GROVE"],
+            "Trelawny": ["All Towns", "FALMOUTH", "DUANVALE", "WAKEFIELD"],
+            "Westmoreland": ["All Towns", "SAVANNA LA MAR", "NEGRIL", "GRANGE HILL"]
+        };
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -860,6 +895,7 @@
                 brandData.brandImage,
                 brandData.category,
                 brandData.parish,
+                brandData.town, // Pass town data
                 brandData.expiryDate
             );
             if (brandInfoCard) {
@@ -884,10 +920,11 @@
          * @param {string} brandImage - Background image URL for the brand card.
          * @param {string} category - The category of the brand.
          * @param {string} parish - The parish where the brand is located.
+         * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
          * @returns {HTMLElement} The created brand info card element.
          */
-        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, expiryDate) {
+        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate) {
             const brandInfoCard = document.createElement('div');
             brandInfoCard.className = 'brand-info-card-grid-item'; // New class for styling as a grid item
             brandInfoCard.id = `brand-info-card-${brandId}`;
@@ -904,7 +941,7 @@
                 <img src="${brandLogo}" alt="${brandName} Logo" class="brand-logo-grid">
                 <p class="brand-name-grid">${brandName}</p>
                 <p class="category-parish-text">${category}</p>
-                <p class="category-parish-text">${parish || 'N/A'}</p>
+                <p class="category-parish-text">${parish || 'N/A'}${town ? ': ' + town : ''}</p>
                 <p id="countdown-${brandId}" class="countdown-text-grid"></p>
             `;
 
@@ -1001,9 +1038,10 @@
          * @param {string} brandImage - Background image URL for the brand card.
          * @param {string} category - The category of the brand.
          * @param {string} parish - The parish where the brand is located.
+         * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
          */
-        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, expiryDate) {
+        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate) {
             const allBrandsContainer = document.getElementById('all-brands-container');
             const brandSection = document.createElement('section');
             brandSection.id = `brand-section-${brandId}`;
@@ -1011,6 +1049,7 @@
             brandSection.setAttribute('data-brand-name', brandName);
             brandSection.setAttribute('data-category', category.toLowerCase());
             brandSection.setAttribute('data-parish', (parish || '').toLowerCase()); // Ensure parish is always a string for data attribute
+            brandSection.setAttribute('data-town', (town || '').toLowerCase()); // Ensure town is always a string for data attribute
 
             const brandProducts = brandDataMap[brandId].allProducts;
             // Initial products will be productsPerPage, but the first slot is for the brand info card
@@ -1083,6 +1122,7 @@
                         let featuredBrandData = null;
                         let tempProducts = [];
                         let brandParish = '';
+                        let brandTown = ''; // Initialize brandTown
                         let brandCategory = 'Uncategorized';
                         let brandLogo = 'https://placehold.co/150x120/2C3E50/ffffff?text=Logo';
                         let brandColor = '#2C3E50';
@@ -1095,12 +1135,13 @@
                             if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                                 featuredBrandData = row;
                                 brandParish = row.Parish || ''; // Extract Parish, default to empty string
+                                brandTown = row.Town || ''; // Extract Town, default to empty string
                                 brandCategory = row.Category || 'Uncategorized';
                                 brandLogo = row.BrandLogo;
                                 brandColor = row.PrimaryColor || '#2C3E50';
                                 brandImage = row.BrandImage || '';
                                 expiryDate = row.ExpiryDate;
-                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", ExpiryDate="${expiryDate}"`);
+                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}"`);
                             } else if (row.ProductName && row.ImageURL) {
                                 // This is a product row
                                 tempProducts.push(row);
@@ -1120,13 +1161,14 @@
                             brandName: brandName,
                             category: brandCategory,
                             parish: brandParish, // Store the extracted parish
+                            town: brandTown, // Store the extracted town
                             brandLogo: brandLogo,
                             brandColor: brandColor,
                             brandImage: brandImage,
                             expiryDate: expiryDate,
                             brandId: brandId // Store brandId for easy access
                         };
-                        console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Products: ${tempProducts.length}`);
+                        console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
                         return brandId; // Return the brandId if successfully processed
                     } catch (err) {
                         console.error(`[Data Fetch] Failed to load deals for "${brandName}" from ${sheetUrl}:`, err);
@@ -1154,14 +1196,15 @@
         }
 
         /**
-         * Applies all active filters (search term, category, parish) and updates the displayed brand sections.
+         * Applies all active filters (search term, category, parish, town) and updates the displayed brand sections.
          */
         function applyFilters() {
             const searchTerm = brandSearchInput.value.toLowerCase().trim();
-            const selectedParish = locationSelect.value.toLowerCase().trim();
+            const selectedParish = parishSelect.value.toLowerCase().trim();
+            const selectedTown = townSelect.value.toLowerCase().trim();
             const selectedCategory = document.querySelector('.category-item.active')?.getAttribute('data-filter-value') || 'all';
 
-            console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}"`);
+            console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
 
             const allBrandsContainer = document.getElementById('all-brands-container');
             allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
@@ -1199,7 +1242,16 @@
                     }
                 }
 
-                const shouldShow = matchesSearch && matchesCategory && matchesParish;
+                let matchesTown = true;
+                // Only filter by town if a specific town is selected (not empty string or "all towns")
+                if (selectedTown !== '' && selectedTown !== 'all towns') {
+                    matchesTown = (brand.town || '').toLowerCase() === selectedTown;
+                    if (!matchesTown) {
+                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Town "${brand.town}" does not match selected "${selectedTown}"`);
+                    }
+                }
+
+                const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
 
                 if (shouldShow) {
                     console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) matches filters. Rendering.`);
@@ -1212,11 +1264,12 @@
                         brand.brandImage,
                         brand.category,
                         brand.parish, // Pass the parish data
+                        brand.town, // Pass the town data
                         brand.expiryDate
                     );
                     foundContent = true;
                 } else {
-                    if (!matchesSearch || !matchesCategory || !matchesParish) {
+                    if (!matchesSearch || !matchesCategory || !matchesParish || !matchesTown) {
                     }
                 }
             }
@@ -1254,8 +1307,7 @@
             `;
             categoryItem.addEventListener('click', () => {
                 highlightCategory(categoryItem);
-                // Removed: brandSearchInput.value = '';
-                // Removed: locationSelect.value = '';
+                // No longer clearing other filters when category is clicked
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -1290,8 +1342,7 @@
 
             allCategoriesItem.addEventListener('click', () => {
                 highlightCategory(allCategoriesItem);
-                // Removed: brandSearchInput.value = '';
-                // Removed: locationSelect.value = '';
+                // No longer clearing other filters when category is clicked
                 applyFilters(); // Apply filters
             });
 
@@ -1302,31 +1353,71 @@
             });
         }
 
+        /**
+         * Populates the parish dropdown with options from jamaicanLocations.
+         */
+        function populateParishes() {
+            const parishSelect = document.getElementById('parishSelect');
+            parishSelect.innerHTML = ''; // Clear existing options
+
+            for (const parish in jamaicanLocations) {
+                const option = document.createElement('option');
+                option.value = parish;
+                option.textContent = parish;
+                parishSelect.appendChild(option);
+            }
+            // Set default to "All Parishes" if available
+            parishSelect.value = "All Parishes";
+            populateTowns(parishSelect.value); // Populate towns for the initial parish
+        }
+
+        /**
+         * Populates the town dropdown based on the selected parish.
+         * @param {string} selectedParish - The currently selected parish.
+         */
+        function populateTowns(selectedParish) {
+            const townSelect = document.getElementById('townSelect');
+            townSelect.innerHTML = ''; // Clear existing options
+
+            const towns = jamaicanLocations[selectedParish] || ["All Towns"];
+            towns.forEach(town => {
+                const option = document.createElement('option');
+                option.value = town;
+                option.textContent = town;
+                townSelect.appendChild(option);
+            });
+            townSelect.value = "All Towns"; // Default to "All Towns" for the selected parish
+        }
+
+
         // Event listener for Brand Search Input (with debounce)
         const brandSearchInput = document.getElementById('brandSearchInput');
         let searchTimeout;
         brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                // Removed: document.querySelectorAll('.category-item').forEach(item => { item.classList.remove('active'); });
-                // Removed: document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
-                // Removed: locationSelect.value = '';
+                // No longer clearing other filters when search input is used
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
 
-        // Event listener for Location Dropdown
-        const locationSelect = document.getElementById('locationSelect');
-        locationSelect.addEventListener('change', () => {
-            // Removed: document.querySelectorAll('.category-item').forEach(item => { item.classList.remove('active'); });
-            // Removed: document.querySelector('.category-item[data-filter-value="all"]').classList.add('active');
-            // Removed: brandSearchInput.value = '';
+        // Event listener for Parish Dropdown
+        const parishSelect = document.getElementById('parishSelect');
+        parishSelect.addEventListener('change', () => {
+            populateTowns(parishSelect.value); // Update towns based on selected parish
+            applyFilters(); // Apply filters
+        });
+
+        // Event listener for Town Dropdown
+        const townSelect = document.getElementById('townSelect');
+        townSelect.addEventListener('change', () => {
             applyFilters(); // Apply filters
         });
 
         // Initial fetch and render on page load
         document.addEventListener('DOMContentLoaded', () => {
             populateCategories(); // Populate categories first
+            populateParishes(); // Populate parishes and then towns
             fetchAndProcessData(); // Then fetch and process all brand data
         });
 
