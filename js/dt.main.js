@@ -8,12 +8,12 @@ const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIa
 
         // Hardcoded list of categories provided by the user
         const allCategories = [
-            "Art & Painting", "Auto", "Baby, Kids & Toys", "Beauty", "Book Store", "Cafes",
-            "Department Stores", "Desserts", "Electronics & Office Supplies", "Entertainment",
+            "Supermarkets", "Department Stores", "Pharmacy", "Hardware",  "Auto", "Baby, Kids & Toys", 
+            "Beauty", "Book Store", "Cafes", "Desserts", "Electronics & Office Supplies", "Entertainment",
             "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
-            "Furniture & Appliances", "Gas", "Hardware", "Home Goods", "Hospitality",
-            "Jewellery", "Medical", "Pharmacy", "Restaurant & Beverage", "Retail",
-            "Shipping & Logistics", "Spas", "Supermarkets", "Travel & Hospitality",
+            "Furniture & Appliances", "Gas", "Art & Painting", "Home Goods", "Hospitality",
+            "Jewellery", "Medical",  "Restaurant & Beverage", "Retail",
+            "Shipping & Logistics", "Spas", "Travel & Hospitality",
             "Weddings and Events", "Women Apparel"
         ];
 
