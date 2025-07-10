@@ -115,6 +115,7 @@
             align-items: center;
             text-align: left;
             padding-bottom: 1rem;
+            max-width: 200px; /* Added to constrain its width */
         }
         .deal-card:hover {
             transform: translateY(-5px);
@@ -220,10 +221,15 @@
             border-radius: 0.75rem; /* Match other deal cards */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Match other deal cards */
             text-align: center;
-            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Added transitions for consistency */
             /* Ensure it takes full width in its grid cell */
             width: 100%;
             height: 100%;
+            max-width: 200px; /* Adjusted to constrain its width */
+        }
+        .brand-info-card-grid-item:hover { /* Added hover effect for consistency */
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
         .brand-info-card-grid-item .brand-logo-grid {
             width: 120px; /* Slightly smaller logo for grid item */
@@ -430,7 +436,7 @@
         }
         .categories-list-wrapper {
             -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* For Firefox */
+            scrollbar-width: none;  /* Firefox */
         }
 
         .categories-list {
@@ -698,7 +704,7 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             margin: 2rem auto; /* Center horizontally */
             max-width: 1200px; /* Changed from 800px to 1200px */
-            width: 95%;
+            width: 100%;
             text-align: center;
             display: flex; /* Use flex for centering content */
             flex-direction: column;
@@ -719,22 +725,30 @@
         }
 
         /* Removed .todays-special-brand-card as it's no longer used for the special brand info card */
-        /* .todays-special-brand-card {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 1.25rem;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            width: 90%;
-            max-width: 200px;
-        }
+         
+         /* .todays-special-brand-card:grid { /* This was a syntax error and is removed */
+            /* display: grid; */
+            /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
+            /* gap: 1.5rem; */
+            /* padding: 2rem; */
+        /* } */
+         
+         /* .todays-special-brand-card { /* This was not being applied to the actual special brand info card */
+            /* background-color: #ffffff; */
+            /* border-radius: 0.75rem; */
+            /* overflow: hidden; */
+            /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
+            /* cursor: pointer; */
+            /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+            /* position: relative; */
+            /* display: flex; */
+            /* flex-direction: column; */
+            /* align-items: center; */
+            /* text-align: left; */
+            /* padding-bottom: 1rem; */
+        /* } */
 
-        .todays-special-brand-card:hover {
+        /* .todays-special-brand-card:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
             background-color: white;
@@ -746,8 +760,8 @@
         }
 
         .todays-special-brand-card img {
-            width: 150px;
-            height: 120px;
+            width: 100%;
+            height: 150px;
             object-fit: contain;
             border-radius: 50%;
             margin-bottom: 1rem;
