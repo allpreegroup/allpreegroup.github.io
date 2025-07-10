@@ -726,43 +726,27 @@
 
         /* Specific grid layout for the special brand section */
         #todays-special-brand-content.special-deal-grid-layout {
-            grid-template-columns: 200px repeat(4, 200px); /* 1 brand card (220px) + 4 product cards (180px each) */
+            /* Updated to use fluid units and auto-fill */
+            grid-template-columns: repeat(auto-fill, minmax(min-content, 1fr));
             justify-content: center; /* Center the grid within its container */
             align-items: stretch; /* Ensure items stretch to fill cell height */
         }
 
         /* Responsive adjustments for special-deal-grid-layout */
-        @media (max-width: 1200px) { /* Adjust for screens where 5 fixed columns might not fit comfortably */
+        /* Removed fixed max-width from cards within media queries */
+        @media (max-width: 1200px) {
             #todays-special-brand-content.special-deal-grid-layout {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Fallback to auto-fill */
-            }
-            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
-                max-width: 200px; /* Re-introduce max-width for responsiveness */
-            }
-            #todays-special-brand-content.special-deal-grid-layout .deal-card {
-                max-width: 200px; /* Re-introduce max-width for responsiveness */
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             }
         }
-        @media (max-width: 1000px) { /* Further adjustment for smaller tablets/laptops */
+        @media (max-width: 1000px) {
             #todays-special-brand-content.special-deal-grid-layout {
                 grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             }
-            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
-                max-width: 200px;
-            }
-            #todays-special-brand-content.special-deal-grid-layout .deal-card {
-                max-width: 200px;
-            }
         }
-        @media (max-width: 768px) { /* Mobile-first approach for very small screens */
+        @media (max-width: 768px) {
             #todays-special-brand-content.special-deal-grid-layout {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
-            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
-                max-width: 200px;
-            }
-            #todays-special-brand-content.special-deal-grid-layout .deal-card {
-                max-width: 200px;
             }
         }
     </style>
@@ -824,8 +808,8 @@
     </div >
 
     <!-- Featured Brands Section -->
-    <div id="featured-brands-section" class="py-8 bg-white  shadow-lg mb-8 overflow-hidden hidden">
-        
+    <div id="featured-brands-section" class="py-8 bg-white  shadow-lg mb-8 overflow-hidden hidden max-w-7xl-custom mx-auto px-6">
+        <!-- Removed H2: <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">Featured Brands</h2> -->
         <div id="featured-brands-container" class="flex flex-wrap justify-center gap-4">
             <!-- Featured brand cards will be inserted here by JavaScript -->
         </div>
@@ -833,7 +817,7 @@
 
     <!-- Today's Special Brand Section (Moved to be below Featured Brands) -->
     <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden">
-        
+        <!-- Removed H2: <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2> -->
         <div id="todays-special-brand-content" class="deal-grid special-deal-grid-layout">
             <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
         </div>
