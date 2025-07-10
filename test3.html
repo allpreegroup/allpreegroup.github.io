@@ -819,6 +819,13 @@
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal-card';
+
+            // Conditional rendering for cashback text
+            let cashbackTextHtml = '';
+            if (row.Cashback && String(row.Cashback).toLowerCase() === 'yes') {
+                cashbackTextHtml = `<div class="product-brand-text">30 - 49% CashBack ¹²¹</div>`;
+            }
+
             dealCard.innerHTML = `
                 <span class="discount-badge">SAVE ${percentOff}%</span>
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
@@ -828,7 +835,7 @@
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
                             <div class="original-price">JMD $${original.toLocaleString()}</div>
-                            <div class="product-brand-text">${'30 - 49% CashBack ¹²¹ '}</div>
+                            ${cashbackTextHtml}
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
@@ -1136,6 +1143,8 @@
 
                                 console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}"`);
                             } else if (row.ProductName && row.ImageURL) {
+                                // Add Cashback property to the product row
+                                row.Cashback = row.Cashback || ''; // Ensure Cashback property exists, default to empty string
                                 tempProducts.push(row);
                             }
                         }
