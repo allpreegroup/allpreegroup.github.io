@@ -1,4 +1,6 @@
         const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
+        const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
+        const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
@@ -12,6 +14,8 @@
         let dynamicCategories = new Set(); // Using a Set to store unique categories
 
         let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
+        let selectedFeaturedBrandId = null; // New: To store the currently selected featured brand
+        let currentSpecialBrandData = null; // To store the data for the currently active special brand
 
         /**
          * Shows the loading overlay.
@@ -91,6 +95,26 @@
         }
 
         /**
+         * Loads more deals for the special brand section.
+         */
+        function loadMoreDealsForSpecialBrand() {
+            if (!currentSpecialBrandData) return;
+
+            const productsToAdd = currentSpecialBrandData.allProducts.slice(currentSpecialBrandData.currentProductIndex, currentSpecialBrandData.currentProductIndex + productsPerPage);
+            if (productsToAdd.length > 0) {
+                const container = document.getElementById('todays-special-brand-content');
+                productsToAdd.forEach(row => {
+                    const card = createDealCard(row);
+                    if (card) {
+                        container.appendChild(card);
+                    }
+                });
+                currentSpecialBrandData.currentProductIndex += productsToAdd.length;
+                updateShopMoreButtonForSpecialBrand();
+            }
+        }
+
+        /**
          * Creates an HTML deal card element from product row data.
          * @param {Object} row - The product data row from the sheet.
          * @returns {HTMLElement|null} The created deal card element or null if data is incomplete.
@@ -113,6 +137,7 @@
                 <span class="discount-badge">SAVE ${percentOff}%</span>
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
+                    <div class="product-brand-text">${row.BrandName || ''}</div>
                     <div class="deal-title">${shortName}</div>
                     <div class="price-section">
                         <div class="price-info">
@@ -140,13 +165,14 @@
          * Renders the initial set of products for a specific brand's section.
          * @param {string} brandId - The unique ID of the brand.
          * @param {Array} productsToRender - Array of product objects to render.
+         * @param {HTMLElement} container - The HTML element to append products to.
+         * @param {boolean} isSpecialBrandSection - True if rendering for the special brand section.
          */
-        function renderInitialProducts(brandId, productsToRender) {
-            const container = document.getElementById(`deals-container-${brandId}`);
+        function renderInitialProducts(brandId, productsToRender, container, isSpecialBrandSection = false) {
             container.innerHTML = ''; // Clear existing content
 
             // Create and prepend the brand info card first
-            const brandData = brandDataMap[brandId];
+            const brandData = isSpecialBrandSection ? currentSpecialBrandData : brandDataMap[brandId];
             const brandInfoCard = createBrandInfoCard(
                 brandData.brandName,
                 brandData.brandId,
@@ -170,7 +196,12 @@
                     container.appendChild(card);
                 }
             });
-            updateShopMoreButton(brandId);
+
+            if (isSpecialBrandSection) {
+                updateShopMoreButtonForSpecialBrand();
+            } else {
+                updateShopMoreButton(brandId);
+            }
         }
 
         /**
@@ -267,6 +298,26 @@
         }
 
         /**
+         * Updates the "Shop More Deals" button for the special brand section.
+         */
+        function updateShopMoreButtonForSpecialBrand() {
+            if (!currentSpecialBrandData) return;
+
+            const remainingCount = (currentSpecialBrandData.allProducts.length - currentSpecialBrandData.currentProductIndex);
+            const shopMoreButtonSpan = document.getElementById(`shop-more-count-special`);
+            const shopMoreButtonContainer = document.getElementById(`shop-more-container-special`);
+
+            if (shopMoreButtonSpan && shopMoreButtonContainer) {
+                if (remainingCount > 0) {
+                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonContainer.classList.remove('hidden');
+                } else {
+                    shopMoreButtonContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        /**
          * Updates the countdown timer for a specific brand.
          * @param {string} brandId - The unique ID of the brand.
          * @param {number} endDate - The timestamp (milliseconds) when the deal ends.
@@ -338,14 +389,14 @@
                 </div>
                 <div id="shop-more-container-${brandId}" class="shop-more-deals-container ${brandProducts.length <= productsPerPage ? 'hidden' : ''}">
                     <button class="shop-more-button" onclick="loadMoreDealsForBrand('${brandId}')">
-                        <span id="shop-more-count-${brandId}">Shop ${brandProducts.length - initialProductsToDisplay.length} More Deals</span>
+                        <span id="shop-more-count-${brandId}">View ${brandProducts.length - initialProductsToDisplay.length} More Deals</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
                     </button>
                 </div>
             `;
             allBrandsContainer.appendChild(brandSection);
 
-            renderInitialProducts(brandId, initialProductsToDisplay); // Pass the products to display
+            renderInitialProducts(brandId, initialProductsToDisplay, document.getElementById(`deals-container-${brandId}`)); // Pass the container
         }
 
         /**
@@ -362,6 +413,7 @@
             dynamicJamaicanLocations = { "All Parishes": ["All Towns"] };
             dynamicCategories = new Set();
             firstBrandLoaded = false; // Reset flag for new data fetch
+            selectedFeaturedBrandId = null; // Reset featured brand selection
 
             try {
                 const masterRes = await fetch(masterSheetUrl);
@@ -377,7 +429,7 @@
 
                 if (masterBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
-                    console.log("[Data Fetch] No brands found in master sheet.");
+                    console.log("[Data Fetch] No brands found in master sheet. Hiding loading message.");
                     hideLoadingOverlay(); // Hide on no brands
                     return;
                 }
@@ -509,7 +561,15 @@
                 // After all data is processed and dynamicJamaicanLocations and dynamicCategories are built
                 populateCategories(); // Populate categories using the dynamic data
                 populateParishes(); // Populate parishes and then towns using the dynamic data
+
+                // Fetch and render ranked slots
+                await fetchAndRenderFeaturedBrands();
+                // Fetch and render today's special brand (now using SpecialBrandUrl)
+                await fetchAndRenderTodaysSpecialBrand();
+
+
                 console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
+                // Now, explicitly call applyFilters to show all brands by default (since no featured brand is initially selected)
                 applyFilters();
 
             } catch (err) {
@@ -526,82 +586,303 @@
         }
 
         /**
-         * Applies all active filters (search term, category, parish, town) and updates the displayed brand sections.
+         * Fetches and renders the featured brands from the ranked slots sheet.
+         */
+        async function fetchAndRenderFeaturedBrands() {
+            try {
+                const res = await fetch(rankedSlotsUrl);
+                const rankedBrands = await res.json();
+                console.log("[Featured Brands] Ranked slots sheet loaded:", rankedBrands);
+
+                const featuredBrandsContainer = document.getElementById('featured-brands-container');
+                featuredBrandsContainer.innerHTML = ''; // Clear previous featured brands
+
+                const now = new Date();
+                const featuredBrandIds = [];
+
+                // Filter for valid and non-expired ranked brands, limit to 5
+                for (const row of rankedBrands) {
+                    const brandName = row['Brand'];
+                    const expiryDateStr = row['Expires At']; // Assuming this is the column name for expiry
+
+                    if (brandName && expiryDateStr) {
+                        const expiry = new Date(expiryDateStr);
+                        if (expiry && now < expiry) {
+                            const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                            if (brandDataMap[brandId]) { // Ensure the brand exists in our main data map
+                                featuredBrandIds.push(brandId);
+                                if (featuredBrandIds.length >= 5) break; // Limit to 5 featured brands
+                            } else {
+                                console.warn(`[Featured Brands] Ranked brand "${brandName}" (ID: ${brandId}) not found in master brand data. Skipping.`);
+                            }
+                        } else {
+                            console.log(`[Featured Brands] Ranked brand "${brandName}" (Expires: ${expiryDateStr}) is expired or invalid. Skipping.`);
+                        }
+                    }
+                }
+
+                if (featuredBrandIds.length > 0) {
+                    document.getElementById('featured-brands-section').classList.remove('hidden');
+                    featuredBrandIds.forEach(brandId => {
+                        const brand = brandDataMap[brandId];
+                        if (brand) {
+                            const card = createFeaturedBrandCard(brand.brandName, brand.brandLogo, brand.brandId);
+                            featuredBrandsContainer.appendChild(card);
+                        }
+                    });
+
+                    // Removed: Automatically select the first featured brand on load
+                    // selectFeaturedBrand(featuredBrandIds[0]);
+                } else {
+                    document.getElementById('featured-brands-section').classList.add('hidden');
+                    console.log("[Featured Brands] No valid featured brands found or all expired. Hiding section.");
+                }
+
+            } catch (err) {
+                console.error('[Featured Brands] Failed to load ranked slots sheet:', err);
+                document.getElementById('featured-brands-section').classList.add('hidden'); // Hide section on error
+            }
+        }
+
+        /**
+         * Creates an HTML card for a featured brand.
+         * @param {string} brandName - The name of the brand.
+         * @param {string} brandLogo - URL to the brand's logo.
+         * @param {string} brandId - The unique ID for the brand.
+         * @returns {HTMLElement} The created featured brand card element.
+         */
+        function createFeaturedBrandCard(brandName, brandLogo, brandId) {
+            const card = document.createElement('div');
+            card.className = 'featured-brand-card';
+            card.id = `featured-card-${brandId}`; // Unique ID for each featured card
+            card.setAttribute('data-brand-id', brandId);
+
+            card.innerHTML = `
+                <img src="${brandLogo}" alt="${brandName} Logo" onerror="this.onerror=null;this.src='https://placehold.co/80x80/cccccc/333333?text=Logo';">
+                <p class="brand-name">${brandName}</p>
+            `;
+
+            card.addEventListener('click', () => selectFeaturedBrand(brandId));
+            return card;
+        }
+
+        /**
+         * Fetches data from the special brand sheet to determine and render "Today's Special Brand".
+         */
+        async function fetchAndRenderTodaysSpecialBrand() {
+            const specialBrandSection = document.getElementById('top-special-brand-section');
+            specialBrandSection.style.display = 'none'; // Explicitly hide at the start
+            console.log("[Today's Special Brand] Initial state: Hiding section.");
+
+            try {
+                const res = await fetch(SpecialBrandUrl); // Using the corrected SpecialBrandUrl
+                const data = await res.json();
+                console.log("[Today's Special Brand] Special brand sheet data:", data);
+
+                const todaysSpecialBrandContent = document.getElementById('todays-special-brand-content');
+                todaysSpecialBrandContent.innerHTML = ''; // Clear previous content
+
+                if (data.length === 0) {
+                    console.log("[Today's Special Brand] No data in special brand sheet to determine special brand. Section remains hidden.");
+                    return; // Section is already hidden, just return
+                }
+
+                const last = data[data.length - 1]; // Get the last row
+                const now = new Date();
+                const expiry = new Date(last['Expires At']);
+                const featuredBrandName = last['Featured Brand'];
+
+                console.log('[Today\'s Special Brand] Now:', now.toISOString());
+                console.log('[Today\'s Special Brand] Expiry from sheet:', last['Expires At']);
+                console.log('[Today\'s Special Brand] Parsed Expiry:', expiry.toISOString());
+                console.log('[Today\'s Special Brand] Featured Brand Name:', featuredBrandName);
+
+                const storedBrand = localStorage.getItem('selectedFavoriteBrand');
+                const originalBrand = localStorage.getItem('originalBrand');
+
+                let specialBrandIdToRender = null;
+
+                if (now < expiry && featuredBrandName) {
+                    const featuredBrandId = featuredBrandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    if (brandDataMap[featuredBrandId]) {
+                        // Logic from user's prompt for localStorage
+                        if (!originalBrand && storedBrand && storedBrand !== featuredBrandName) {
+                            localStorage.setItem('originalBrand', storedBrand);
+                        }
+                        localStorage.setItem('selectedFavoriteBrand', featuredBrandName);
+                        localStorage.setItem('tempExpiryTime', expiry.getTime());
+                        console.log('[Today\'s Special Brand] tempExpiryTime set to:', expiry.getTime());
+                        specialBrandIdToRender = featuredBrandId;
+                    } else {
+                        console.warn(`[Today's Special Brand] Featured Brand "${featuredBrandName}" (ID: ${featuredBrandId}) not found in main brand data map. Skipping.`);
+                        // Fallback if featured brand is not in main data
+                        if (originalBrand) {
+                            localStorage.setItem('selectedFavoriteBrand', originalBrand);
+                            localStorage.removeItem('originalBrand');
+                        }
+                        localStorage.removeItem('tempExpiryTime');
+                        console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
+                    }
+                } else {
+                    if (originalBrand) {
+                        localStorage.setItem('selectedFavoriteBrand', originalBrand);
+                        localStorage.removeItem('originalBrand');
+                    }
+                    localStorage.removeItem('tempExpiryTime');
+                    console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
+                }
+
+                if (specialBrandIdToRender && brandDataMap[specialBrandIdToRender]) {
+                    currentSpecialBrandData = { ...brandDataMap[specialBrandIdToRender] }; // Copy data for independent tracking
+                    currentSpecialBrandData.currentProductIndex = 0; // Reset index for this section
+
+                    const initialProductsToDisplay = currentSpecialBrandData.allProducts.slice(0, productsPerPage);
+
+                    renderInitialProducts(
+                        currentSpecialBrandData.brandId,
+                        initialProductsToDisplay,
+                        todaysSpecialBrandContent,
+                        true // Indicate this is for the special brand section
+                    );
+                    currentSpecialBrandData.currentProductIndex = initialProductsToDisplay.length; // Update index after initial render
+
+                    specialBrandSection.style.display = 'flex'; // Show the section
+                    console.log("[Today's Special Brand] Special brand found and rendered. Showing section.");
+                    updateShopMoreButtonForSpecialBrand(); // Update the specific shop more button
+                } else {
+                    console.log("[Today's Special Brand] No valid special brand to display. Section remains hidden.");
+                    specialBrandSection.style.display = 'none'; // Ensure it stays hidden
+                }
+
+            } catch (err) {
+                console.error('[Today\'s Special Brand] Failed to load special brand sheet:', err);
+                specialBrandSection.style.display = 'none'; // Ensure hidden on error
+            }
+        }
+
+        /**
+         * Selects a featured brand, highlights its card, and filters the main content.
+         * @param {string} brandId - The ID of the featured brand to select.
+         */
+        function selectFeaturedBrand(brandId) {
+            selectedFeaturedBrandId = brandId;
+
+            // Remove active class from all featured cards
+            document.querySelectorAll('.featured-brand-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            // Also remove active class from the "Today's Special Brand" card if it exists
+            const todaysSpecialCard = document.querySelector('.todays-special-brand-card');
+            if (todaysSpecialCard) {
+                todaysSpecialCard.classList.remove('active');
+            }
+
+
+            // Add active class to the selected card (either featured or today's special)
+            const activeCard = document.getElementById(`featured-card-${brandId}`); // Only featured cards respond to this now
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+
+            // Clear other filter inputs when a featured brand is selected
+            brandSearchInput.value = '';
+            parishSelect.value = 'All Parishes';
+            townSelect.value = 'All Towns';
+            sessionStorage.setItem('selectedCategory', 'all');
+            highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
+
+
+            applyFilters(); // Apply filters based on the selected featured brand
+        }
+
+
+        /**
+         * Applies all active filters (search term, category, parish, town, or featured brand) and updates the displayed brand sections.
          */
         function applyFilters() {
-            const searchTerm = brandSearchInput.value.toLowerCase().trim();
-            const selectedParish = parishSelect.value.toLowerCase().trim();
-            const selectedTown = townSelect.value.toLowerCase().trim();
-            const selectedCategory = sessionStorage.getItem('selectedCategory') || 'all'; // Get from session storage
-
-            console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
-
             const allBrandsContainer = document.getElementById('all-brands-container');
             allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
 
             let foundContent = false;
 
-            // Iterate through the pre-processed brandDataMap
-            for (const brandId in brandDataMap) {
-                const brand = brandDataMap[brandId];
-                console.log(`[Filter Check] Checking brand: "${brand.brandName}" (ID: ${brandId})`);
-                console.log(`  - Brand Category: "${brand.category.toLowerCase()}", Selected Category: "${selectedCategory}"`);
-                console.log(`  - Brand Parish: "${brand.parish.toLowerCase()}", Selected Parish: "${selectedParish}"`);
-                console.log(`  - Brand Town: "${brand.town.toLowerCase()}", Selected Town: "${selectedTown}"`);
-                console.log(`  - Brand Name: "${brand.brandName.toLowerCase()}", Search Term: "${searchTerm}"`);
-
-
-                let matchesSearch = true;
-                if (searchTerm !== '') {
-                    // Check if brand name or any product name matches the search term
-                    matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
-                                     brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
-                    console.log(`  - Matches Search: ${matchesSearch}`);
-                }
-
-                let matchesCategory = true;
-                if (selectedCategory !== 'all') {
-                    matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
-                    console.log(`  - Matches Category: ${matchesCategory}`);
-                }
-
-                let matchesParish = true;
-                // Only filter by parish if a specific parish is selected (not empty string or "all parishes")
-                if (selectedParish !== '' && selectedParish !== 'all parishes') {
-                    matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
-                    console.log(`  - Matches Parish: ${matchesParish}`);
-                }
-
-                let matchesTown = true;
-                // Only filter by town if a specific town is selected (not empty string or "all towns")
-                if (selectedTown !== '' && selectedTown !== 'all towns') {
-                    matchesTown = (brand.town || '').toLowerCase() === selectedTown;
-                    console.log(`  - Matches Town: ${matchesTown}`);
-                }
-
-                const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
-                console.log(`  - Final Should Show: ${shouldShow}`);
-
-
-                if (shouldShow) {
-                    console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) matches filters. Rendering.`);
-                    // Re-render the brand section with its details
+            if (selectedFeaturedBrandId) {
+                // If a featured brand is selected, only show that brand
+                const brand = brandDataMap[selectedFeaturedBrandId];
+                if (brand) {
                     renderBrandSection(
                         brand.brandName,
-                        brandId,
+                        brand.brandId,
                         brand.brandLogo,
                         brand.brandColor,
                         brand.brandImage,
                         brand.category,
-                        brand.parish, // Pass the parish data
-                        brand.town, // Pass the town data
+                        brand.parish,
+                        brand.town,
                         brand.expiryDate,
-                        brand.brandSecondaryColor, // Pass secondary color
-                        brand.cashbackStatus // Pass cashback status
+                        brand.brandSecondaryColor,
+                        brand.cashbackStatus
                     );
                     foundContent = true;
                 } else {
-                    console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out.`);
+                    console.warn(`[Filter] Selected featured brand (ID: ${selectedFeaturedBrandId}) not found in brandDataMap.`);
+                }
+            } else {
+                // If no featured brand is selected, apply normal filters
+                const searchTerm = brandSearchInput.value.toLowerCase().trim();
+                const selectedParish = parishSelect.value.toLowerCase().trim();
+                const selectedTown = townSelect.value.toLowerCase().trim();
+                const selectedCategory = sessionStorage.getItem('selectedCategory') || 'all';
+
+                console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
+
+                for (const brandId in brandDataMap) {
+                    const brand = brandDataMap[brandId];
+
+                    // Skip rendering the special brand in the regular section
+                    if (currentSpecialBrandData && brandId === currentSpecialBrandData.brandId) {
+                        console.log(`[Filter] Skipping special brand "${brand.brandName}" (ID: ${brandId}) in regular listing.`);
+                        continue;
+                    }
+
+                    let matchesSearch = true;
+                    if (searchTerm !== '') {
+                        matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
+                                         brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
+                    }
+
+                    let matchesCategory = true;
+                    if (selectedCategory !== 'all') {
+                        matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
+                    }
+
+                    let matchesParish = true;
+                    if (selectedParish !== '' && selectedParish !== 'all parishes') {
+                        matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
+                    }
+
+                    let matchesTown = true;
+                    if (selectedTown !== '' && selectedTown !== 'all towns') {
+                        matchesTown = (brand.town || '').toLowerCase() === selectedTown;
+                    }
+
+                    const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
+
+                    if (shouldShow) {
+                        renderBrandSection(
+                            brand.brandName,
+                            brandId,
+                            brand.brandLogo,
+                            brand.brandColor,
+                            brand.brandImage,
+                            brand.category,
+                            brand.parish,
+                            brand.town,
+                            brand.expiryDate,
+                            brand.brandSecondaryColor,
+                            brand.cashbackStatus
+                        );
+                        foundContent = true;
+                    }
                 }
             }
 
@@ -639,6 +920,7 @@
             categoryItem.addEventListener('click', () => {
                 sessionStorage.setItem('selectedCategory', categoryName.toLowerCase()); // Save selected category
                 highlightCategory(categoryItem);
+                selectedFeaturedBrandId = null; // Clear featured brand selection
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -677,6 +959,7 @@
             allCategoriesItem.addEventListener('click', () => {
                 sessionStorage.setItem('selectedCategory', 'all'); // Save selected category
                 highlightCategory(allCategoriesItem);
+                selectedFeaturedBrandId = null; // Clear featured brand selection
                 applyFilters(); // Apply filters
             });
 
@@ -771,6 +1054,13 @@
         brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
+                selectedFeaturedBrandId = null; // Clear featured brand selection
+                // Reset category/parish/town selections if search is used
+                sessionStorage.setItem('selectedCategory', 'all');
+                highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
+                parishSelect.value = 'All Parishes';
+                townSelect.value = 'All Towns';
+
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
@@ -781,6 +1071,7 @@
             sessionStorage.setItem('selectedParish', parishSelect.value); // Save selected parish
             sessionStorage.removeItem('selectedTown'); // Clear town when parish changes
             populateTowns(parishSelect.value); // Update towns based on selected parish
+            selectedFeaturedBrandId = null; // Clear featured brand selection
             applyFilters(); // Apply filters
         });
 
@@ -788,6 +1079,7 @@
         const townSelect = document.getElementById('townSelect');
         townSelect.addEventListener('change', () => {
             sessionStorage.setItem('selectedTown', townSelect.value); // Save selected town
+            selectedFeaturedBrandId = null; // Clear featured brand selection
             applyFilters(); // Apply filters
         });
 
