@@ -1377,7 +1377,9 @@
                 await fetchAndRenderFeaturedBrands();
 
                 console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
-                // applyFilters() will be called by selectFeaturedBrand()
+                // Now, explicitly call applyFilters to show all brands by default (since no featured brand is initially selected)
+                applyFilters();
+
             } catch (err) {
                 console.error('[Data Fetch] Failed to load master sheet:', err);
                 document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
@@ -1437,20 +1439,16 @@
                         }
                     });
 
-                    // Automatically select the first featured brand
-                    selectFeaturedBrand(featuredBrandIds[0]);
+                    // Removed: Automatically select the first featured brand on load
+                    // selectFeaturedBrand(featuredBrandIds[0]);
                 } else {
                     document.getElementById('featured-brands-section').classList.add('hidden');
                     console.log("[Featured Brands] No valid featured brands found or all expired.");
-                    // If no featured brands, apply general filters
-                    applyFilters();
                 }
 
             } catch (err) {
                 console.error('[Featured Brands] Failed to load ranked slots sheet:', err);
                 document.getElementById('featured-brands-section').classList.add('hidden'); // Hide section on error
-                // If featured brands fail to load, apply general filters
-                applyFilters();
             }
         }
 
