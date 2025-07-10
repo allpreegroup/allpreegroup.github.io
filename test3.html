@@ -258,6 +258,13 @@
             color: #ffb3b3; /* Light red for error messages */
             font-weight: 600;
         }
+        /* New class for cashback text on brand card */
+        .cashback-brand-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white; /* Set text color to white */
+            margin-top: 0.5rem;
+        }
 
         /* Shop More Deals Button (per brand section) */
         .shop-more-deals-container {
@@ -820,11 +827,7 @@
             const dealCard = document.createElement('div');
             dealCard.className = 'deal-card';
 
-            // Conditional rendering for cashback text
-            let cashbackTextHtml = '';
-            if (row.Cashback && String(row.Cashback).toLowerCase() === 'yes') {
-                cashbackTextHtml = `<div class="product-brand-text">30 - 49% CashBack ¹²¹</div>`;
-            }
+            // Removed conditional cashback text from here. It will now be on the brand card.
 
             dealCard.innerHTML = `
                 <span class="discount-badge">SAVE ${percentOff}%</span>
@@ -835,7 +838,6 @@
                         <div class="price-info">
                             <div class="discount-price">JMD $${discount.toLocaleString()}</div>
                             <div class="original-price">JMD $${original.toLocaleString()}</div>
-                            ${cashbackTextHtml}
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
@@ -875,7 +877,8 @@
                 brandData.parish,
                 brandData.town, // Pass town data
                 brandData.expiryDate,
-                brandData.brandSecondaryColor // Pass secondary color
+                brandData.brandSecondaryColor, // Pass secondary color
+                brandData.cashbackStatus // Pass cashback status
             );
             if (brandInfoCard) {
                 container.appendChild(brandInfoCard); // Append first, then products
@@ -902,9 +905,10 @@
          * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
          * @param {string} secondaryColor - The secondary background color for the brand card (optional).
+         * @param {string} cashbackStatus - The cashback status ('yes' or 'no' or empty).
          * @returns {HTMLElement} The created brand info card element.
          */
-        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor) {
+        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor, cashbackStatus) {
             const brandInfoCard = document.createElement('div');
             brandInfoCard.className = 'brand-info-card-grid-item'; // New class for styling as a grid item
             brandInfoCard.id = `brand-info-card-${brandId}`;
@@ -919,11 +923,18 @@
             }
             brandInfoCard.style = backgroundStyle;
 
+            // Conditional rendering for cashback text on the brand info card
+            let cashbackTextHtml = '';
+            if (cashbackStatus && String(cashbackStatus).toLowerCase() === 'yes') {
+                cashbackTextHtml = `<p class="cashback-brand-text">30 - 49% CashBack ¹²¹</p>`;
+            }
+
             brandInfoCard.innerHTML = `
                 <img src="${brandLogo}" alt="${brandName} Logo" class="brand-logo-grid">
                 <p class="brand-name-grid">${brandName}</p>
                 <p class="category-parish-text">${category}</p>
                 <p class="category-parish-text">${parish || 'N/A'}${town ? ': ' + town : ''}</p>
+                ${cashbackTextHtml} <!-- Insert cashback text here -->
                 <p id="countdown-${brandId}" class="countdown-text-grid"></p>
             `;
 
@@ -1023,8 +1034,9 @@
          * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
          * @param {string} secondaryColor - The secondary background color for the brand card (optional).
+         * @param {string} cashbackStatus - The cashback status ('yes' or 'no' or empty).
          */
-        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor) {
+        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor, cashbackStatus) {
             const allBrandsContainer = document.getElementById('all-brands-container');
             const brandSection = document.createElement('section');
             brandSection.id = `brand-section-${brandId}`;
@@ -1114,18 +1126,20 @@
                         let brandSecondaryColor = '';
                         let brandImage = '';
                         let expiryDate = null;
+                        let cashbackStatus = ''; // Initialize cashback status for the brand
 
                         for (const row of rows) {
                             if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                                 featuredBrandData = row;
                                 brandParish = (row.Parish || '').trim();
                                 brandTown = (row.Town || '').trim();
-                                brandCategory = (row.Category || 'Uncategorized').trim(); // Trim category too
+                                brandCategory = (row.Category || 'Uncategorized').trim();
                                 brandLogo = row.BrandLogo;
                                 brandColor = row.PrimaryColor || '#2C3E50';
                                 brandSecondaryColor = row.SecondaryColor || '';
                                 brandImage = row.BrandImage || '';
                                 expiryDate = row.ExpiryDate;
+                                cashbackStatus = (row.Cashback || '').trim(); // Extract cashback status from brand row
 
                                 // Dynamically populate jamaicanLocations
                                 if (brandParish) {
@@ -1141,10 +1155,8 @@
                                     dynamicCategories.add(brandCategory);
                                 }
 
-                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}"`);
+                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}", Cashback="${cashbackStatus}"`);
                             } else if (row.ProductName && row.ImageURL) {
-                                // Add Cashback property to the product row
-                                row.Cashback = row.Cashback || ''; // Ensure Cashback property exists, default to empty string
                                 tempProducts.push(row);
                             }
                         }
@@ -1168,6 +1180,7 @@
                             brandSecondaryColor: brandSecondaryColor,
                             brandImage: brandImage,
                             expiryDate: expiryDate,
+                            cashbackStatus: cashbackStatus, // Store cashback status in brandDataMap
                             brandId: brandId
                         };
                         console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
@@ -1258,7 +1271,8 @@
                         brand.parish, // Pass the parish data
                         brand.town, // Pass the town data
                         brand.expiryDate,
-                        brand.brandSecondaryColor // Pass secondary color
+                        brand.brandSecondaryColor, // Pass secondary color
+                        brand.cashbackStatus // Pass cashback status
                     );
                     foundContent = true;
                 } else {
