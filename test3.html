@@ -98,7 +98,7 @@
         /* Deal Grid and Cards */
         .deal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for general product cards */
             gap: 1.5rem;
             padding: 2rem;
         }
@@ -115,7 +115,7 @@
             align-items: center;
             text-align: left;
             padding-bottom: 1rem;
-            max-width: 200px; /* Added to constrain its width */
+            /* max-width removed - let grid control width */
         }
         .deal-card:hover {
             transform: translateY(-5px);
@@ -218,14 +218,14 @@
             justify-content: center;
             align-items: center;
             padding: 1rem; /* Reduced padding to fit better in grid */
-            border-radius: 0.75rem; /* Match other deal cards */
+            border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Match other deal cards */
             text-align: center;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Added transitions for consistency */
             /* Ensure it takes full width in its grid cell */
             width: 100%;
             height: 100%;
-            max-width: 200px; /* Adjusted to constrain its width */
+            /* max-width removed - let grid control width */
         }
         .brand-info-card-grid-item:hover { /* Added hover effect for consistency */
             transform: translateY(-5px);
@@ -604,7 +604,7 @@
 
         /* Explicit hidden class for the overlay */
         #loading-overlay.hidden {
-            display: none !important;
+            display: none !important; /* Added !important */
         }
 
         .spinner {
@@ -702,7 +702,7 @@
             padding: 2.5rem 1rem; /* More padding */
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            margin: 2rem auto; /* Center horizontally */
+            margin: 2rem auto; /* Center horizontally and add vertical margin */
             max-width: 1200px; /* Changed from 800px to 1200px */
             width: 100%;
             text-align: center;
@@ -724,64 +724,47 @@
             width: 100%; /* Ensure the grid container takes full width of its parent */
         }
 
-        /* Removed .todays-special-brand-card as it's no longer used for the special brand info card */
-         
-         /* .todays-special-brand-card:grid { /* This was a syntax error and is removed */
-            /* display: grid; */
-            /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
-            /* gap: 1.5rem; */
-            /* padding: 2rem; */
-        /* } */
-         
-         /* .todays-special-brand-card { /* This was not being applied to the actual special brand info card */
-            /* background-color: #ffffff; */
-            /* border-radius: 0.75rem; */
-            /* overflow: hidden; */
-            /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
-            /* cursor: pointer; */
-            /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
-            /* position: relative; */
-            /* display: flex; */
-            /* flex-direction: column; */
-            /* align-items: center; */
-            /* text-align: left; */
-            /* padding-bottom: 1rem; */
-        /* } */
-
-        /* .todays-special-brand-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            background-color: white;
+        /* Specific grid layout for the special brand section */
+        #todays-special-brand-content.special-deal-grid-layout {
+            grid-template-columns: 220px repeat(4, 180px); /* 1 brand card (220px) + 4 product cards (180px each) */
+            justify-content: center; /* Center the grid within its container */
+            align-items: stretch; /* Ensure items stretch to fill cell height */
         }
 
-        .todays-special-brand-card.active {
-            border: 4px solid #f97316;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        /* Responsive adjustments for special-deal-grid-layout */
+        @media (max-width: 1200px) { /* Adjust for screens where 5 fixed columns might not fit comfortably */
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Fallback to auto-fill */
+            }
+            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
+                max-width: 220px; /* Re-introduce max-width for responsiveness */
+            }
+            #todays-special-brand-content.special-deal-grid-layout .deal-card {
+                max-width: 180px; /* Re-introduce max-width for responsiveness */
+            }
         }
-
-        .todays-special-brand-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: contain;
-            border-radius: 50%;
-            margin-bottom: 1rem;
-            background-color: #f0f4ff;
-            padding: 10px;
-            border: 2px solid #e0e7ff;
+        @media (max-width: 1000px) { /* Further adjustment for smaller tablets/laptops */
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
+                max-width: 200px;
+            }
+            #todays-special-brand-content.special-deal-grid-layout .deal-card {
+                max-width: 160px;
+            }
         }
-
-        .todays-special-brand-card .brand-name {
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: #1a202c;
-            margin-bottom: 0.5rem;
+        @media (max-width: 768px) { /* Mobile-first approach for very small screens */
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            #todays-special-brand-content.special-deal-grid-layout .brand-info-card-grid-item {
+                max-width: 180px;
+            }
+            #todays-special-brand-content.special-deal-grid-layout .deal-card {
+                max-width: 140px;
+            }
         }
-
-        .todays-special-brand-card .brand-category-location {
-            font-size: 1rem;
-            color: #4a5568;
-            margin-bottom: 1rem;
-        } */
     </style>
 </head>
 <body>
@@ -851,19 +834,17 @@
     </div>
 
     <!-- Today's Special Brand Section (Moved to be below Featured Brands) -->
-    <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
-        
-            <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
-            <div id="todays-special-brand-content" class="deal-grid">
-                <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
-            </div>
-            <div id="shop-more-container-special" class="shop-more-deals-container hidden">
-                <button class="shop-more-button" onclick="loadMoreDealsForSpecialBrand()">
-                    <span id="shop-more-count-special">Shop More Deals</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
-                </button>
-            </div>
-       
+    <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden">
+        <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
+        <div id="todays-special-brand-content" class="deal-grid special-deal-grid-layout">
+            <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
+        </div>
+        <div id="shop-more-container-special" class="shop-more-deals-container hidden">
+            <button class="shop-more-button" onclick="loadMoreDealsForSpecialBrand()">
+                <span id="shop-more-count-special">Shop More Deals</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
+            </button>
+        </div>
     </div>
 
     <main class="flex-grow flex flex-col items-center">
@@ -946,7 +927,7 @@
     <div id="popup" class="popup-overlay hidden">
         <div class="popup-content">
             <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img id="popupImg" src="" alt="Deal Image" class="popup-img" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
+            <img id="popupImg" src="" alt="Deal Image" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
             <h2 id="popupTitle" class="popup-title"></h2>
             <p id="popupBrand" class="popup-brand"></p>
             <div class="popup-price-info-popup">
@@ -1396,7 +1377,7 @@
 
                 if (masterBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
-                    console.log("[Data Fetch] No brands found in master sheet.");
+                    console.log("[Data Fetch] No brands found in master sheet. Hiding loading message.");
                     hideLoadingOverlay(); // Hide on no brands
                     return;
                 }
@@ -1602,7 +1583,7 @@
                     // selectFeaturedBrand(featuredBrandIds[0]);
                 } else {
                     document.getElementById('featured-brands-section').classList.add('hidden');
-                    console.log("[Featured Brands] No valid featured brands found or all expired.");
+                    console.log("[Featured Brands] No valid featured brands found or all expired. Hiding section.");
                 }
 
             } catch (err) {
@@ -1637,6 +1618,10 @@
          * Fetches data from the special brand sheet to determine and render "Today's Special Brand".
          */
         async function fetchAndRenderTodaysSpecialBrand() {
+            const specialBrandSection = document.getElementById('top-special-brand-section');
+            specialBrandSection.style.display = 'none'; // Explicitly hide at the start
+            console.log("[Today's Special Brand] Initial state: Hiding section.");
+
             try {
                 const res = await fetch(SpecialBrandUrl); // Using the corrected SpecialBrandUrl
                 const data = await res.json();
@@ -1646,9 +1631,8 @@
                 todaysSpecialBrandContent.innerHTML = ''; // Clear previous content
 
                 if (data.length === 0) {
-                    document.getElementById('top-special-brand-section').classList.add('hidden');
-                    console.log("[Today's Special Brand] No data in special brand sheet to determine special brand.");
-                    return;
+                    console.log("[Today's Special Brand] No data in special brand sheet to determine special brand. Section remains hidden.");
+                    return; // Section is already hidden, just return
                 }
 
                 const last = data[data.length - 1]; // Get the last row
@@ -1710,16 +1694,17 @@
                     );
                     currentSpecialBrandData.currentProductIndex = initialProductsToDisplay.length; // Update index after initial render
 
-                    document.getElementById('top-special-brand-section').classList.remove('hidden');
+                    specialBrandSection.style.display = 'flex'; // Show the section
+                    console.log("[Today's Special Brand] Special brand found and rendered. Showing section.");
                     updateShopMoreButtonForSpecialBrand(); // Update the specific shop more button
                 } else {
-                    document.getElementById('top-special-brand-section').classList.add('hidden');
-                    console.log("[Today's Special Brand] No valid special brand to display.");
+                    console.log("[Today's Special Brand] No valid special brand to display. Section remains hidden.");
+                    specialBrandSection.style.display = 'none'; // Ensure it stays hidden
                 }
 
             } catch (err) {
                 console.error('[Today\'s Special Brand] Failed to load special brand sheet:', err);
-                document.getElementById('top-special-brand-section').classList.add('hidden'); // Hide section on error
+                specialBrandSection.style.display = 'none'; // Ensure hidden on error
             }
         }
 
