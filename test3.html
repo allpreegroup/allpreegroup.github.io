@@ -689,6 +689,81 @@
                 flex: 1 1 90%; /* Single column on very small screens */
             }
         }
+
+        /* Today's Special Brand Section Styles */
+        #single-featured-brand-section {
+            background: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
+            color: white;
+            padding: 2.5rem 1rem; /* More padding */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin: 2rem auto; /* Center horizontally */
+            max-width: 800px; /* Wider for prominence */
+            width: 95%;
+            text-align: center;
+            display: flex; /* Use flex for centering content */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem; /* Space between title and card */
+        }
+
+        #single-featured-brand-section h2 {
+            font-size: 2.5rem; /* Larger title */
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0; /* Adjusted margin */
+        }
+
+        .todays-special-brand-card {
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            border-radius: 1.25rem; /* More rounded */
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            width: 90%; /* Take up most of the section width */
+            max-width: 350px; /* Max width for the card itself */
+        }
+
+        .todays-special-brand-card:hover {
+            transform: translateY(-8px) scale(1.02); /* More pronounced hover effect */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            background-color: white;
+        }
+
+        .todays-special-brand-card.active {
+            border: 4px solid #f97316; /* Orange border for active state */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .todays-special-brand-card img {
+            width: 150px; /* Larger logo */
+            height: 120px;
+            object-fit: contain;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            background-color: #f0f4ff; /* Light background for logo area */
+            padding: 10px;
+            border: 2px solid #e0e7ff; /* Light blue border around logo */
+        }
+
+        .todays-special-brand-card .brand-name {
+            font-weight: 800; /* Bolder name */
+            font-size: 1.5rem; /* Larger name */
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .todays-special-brand-card .brand-category-location {
+            font-size: 1rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -757,6 +832,15 @@
         </div>
     </div>
 
+    <!-- Today's Special Brand Section -->
+    <div id="single-featured-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
+        <div class="max-w-7xl-custom mx-auto px-6">
+            <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
+            <div id="todays-special-brand-container" class="flex justify-center">
+                <!-- Single featured brand card will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
 
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
@@ -1375,6 +1459,9 @@
 
                 // Fetch and render ranked slots
                 await fetchAndRenderFeaturedBrands();
+                // Fetch and render today's special brand
+                await fetchAndRenderTodaysSpecialBrand();
+
 
                 console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
                 // Now, explicitly call applyFilters to show all brands by default (since no featured brand is initially selected)
@@ -1475,6 +1562,126 @@
         }
 
         /**
+         * Fetches data from the master sheet to determine and render "Today's Special Brand".
+         */
+        async function fetchAndRenderTodaysSpecialBrand() {
+            try {
+                const res = await fetch(masterSheetUrl);
+                const data = await res.json();
+                console.log("[Today's Special Brand] Master sheet data for special brand:", data);
+
+                const todaysSpecialBrandContainer = document.getElementById('todays-special-brand-container');
+                todaysSpecialBrandContainer.innerHTML = ''; // Clear previous content
+
+                if (data.length === 0) {
+                    document.getElementById('single-featured-brand-section').classList.add('hidden');
+                    console.log("[Today's Special Brand] No data in master sheet to determine special brand.");
+                    return;
+                }
+
+                const last = data[data.length - 1]; // Get the last row
+                const now = new Date();
+                const expiry = new Date(last['Expires At']);
+                const featuredBrandName = last['Featured Brand'];
+
+                console.log('[Today\'s Special Brand] Now:', now.toISOString());
+                console.log('[Today\'s Special Brand] Expiry from sheet:', last['Expires At']);
+                console.log('[Today\'s Special Brand] Parsed Expiry:', expiry.toISOString());
+                console.log('[Today\'s Special Brand] Featured Brand Name:', featuredBrandName);
+
+                const storedBrand = localStorage.getItem('selectedFavoriteBrand');
+                const originalBrand = localStorage.getItem('originalBrand');
+
+                let currentSpecialBrandId = null;
+
+                if (now < expiry && featuredBrandName) {
+                    const featuredBrandId = featuredBrandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    if (brandDataMap[featuredBrandId]) {
+                        // Logic from user's prompt for localStorage
+                        if (!originalBrand && storedBrand && storedBrand !== featuredBrandName) {
+                            localStorage.setItem('originalBrand', storedBrand);
+                        }
+                        localStorage.setItem('selectedFavoriteBrand', featuredBrandName);
+                        localStorage.setItem('tempExpiryTime', expiry.getTime());
+                        console.log('[Today\'s Special Brand] tempExpiryTime set to:', expiry.getTime());
+                        currentSpecialBrandId = featuredBrandId;
+                    } else {
+                        console.warn(`[Today's Special Brand] Featured Brand "${featuredBrandName}" (ID: ${featuredBrandId}) not found in main brand data map. Skipping.`);
+                        // Fallback if featured brand is not in main data
+                        if (originalBrand) {
+                            localStorage.setItem('selectedFavoriteBrand', originalBrand);
+                            localStorage.removeItem('originalBrand');
+                        }
+                        localStorage.removeItem('tempExpiryTime');
+                        console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
+                    }
+                } else {
+                    if (originalBrand) {
+                        localStorage.setItem('selectedFavoriteBrand', originalBrand);
+                        localStorage.removeItem('originalBrand');
+                    }
+                    localStorage.removeItem('tempExpiryTime');
+                    console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
+                }
+
+                if (currentSpecialBrandId && brandDataMap[currentSpecialBrandId]) {
+                    const brand = brandDataMap[currentSpecialBrandId];
+                    const card = createTodaysSpecialBrandCard(
+                        brand.brandName,
+                        brand.brandLogo,
+                        brand.brandId,
+                        brand.category,
+                        brand.parish,
+                        brand.town
+                    );
+                    todaysSpecialBrandContainer.appendChild(card);
+                    document.getElementById('single-featured-brand-section').classList.remove('hidden');
+                } else {
+                    document.getElementById('single-featured-brand-section').classList.add('hidden');
+                    console.log("[Today's Special Brand] No valid special brand to display.");
+                }
+
+            } catch (err) {
+                console.error('[Today\'s Special Brand] Failed to load master sheet for special brand:', err);
+                document.getElementById('single-featured-brand-section').classList.add('hidden'); // Hide section on error
+            }
+        }
+
+        /**
+         * Creates an HTML card for "Today's Special Brand".
+         * @param {string} brandName - The name of the brand.
+         * @param {string} brandLogo - URL to the brand's logo.
+         * @param {string} brandId - The unique ID for the brand.
+         * @param {string} category - The category of the brand.
+         * @param {string} parish - The parish where the brand is located.
+         * @param {string} town - The town where the brand is located.
+         * @returns {HTMLElement} The created special brand card element.
+         */
+        function createTodaysSpecialBrandCard(brandName, brandLogo, brandId, category, parish, town) {
+            const card = document.createElement('div');
+            card.className = 'todays-special-brand-card';
+            card.id = `todays-special-card-${brandId}`; // Unique ID for this card
+            card.setAttribute('data-brand-id', brandId);
+
+            card.innerHTML = `
+                <img src="${brandLogo}" alt="${brandName} Logo" onerror="this.onerror=null;this.src='https://placehold.co/150x120/cccccc/333333?text=Logo';">
+                <p class="brand-name">${brandName}</p>
+                <p class="brand-category-location">${category} - ${parish || 'N/A'}${town ? ', ' + town : ''}</p>
+            `;
+
+            card.addEventListener('click', () => {
+                // When this special brand is clicked, select it and clear other filters
+                selectFeaturedBrand(brandId);
+                // Also remove active state from other featured brands if any
+                document.querySelectorAll('.featured-brand-card').forEach(fc => fc.classList.remove('active'));
+                // Add active state to this special card
+                card.classList.add('active');
+            });
+            return card;
+        }
+
+
+        /**
          * Selects a featured brand, highlights its card, and filters the main content.
          * @param {string} brandId - The ID of the featured brand to select.
          */
@@ -1485,9 +1692,15 @@
             document.querySelectorAll('.featured-brand-card').forEach(card => {
                 card.classList.remove('active');
             });
+            // Also remove active class from the "Today's Special Brand" card if it exists
+            const todaysSpecialCard = document.querySelector('.todays-special-brand-card');
+            if (todaysSpecialCard) {
+                todaysSpecialCard.classList.remove('active');
+            }
 
-            // Add active class to the selected card
-            const activeCard = document.getElementById(`featured-card-${brandId}`);
+
+            // Add active class to the selected card (either featured or today's special)
+            const activeCard = document.getElementById(`featured-card-${brandId}`) || document.getElementById(`todays-special-card-${brandId}`);
             if (activeCard) {
                 activeCard.classList.add('active');
             }
