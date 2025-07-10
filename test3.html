@@ -602,7 +602,11 @@
                     <select id="townSelect" class="py-2 town-select">
                         <!-- Options populated by JS -->
                     </select>
-                    
+                    <div class="dropdown-arrow-wrapper">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -626,7 +630,7 @@
                 <!-- Dynamic category items will be inserted here by JavaScript -->
             </div>
         </div>
-    </div>
+    </div >
 
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
@@ -727,39 +731,14 @@
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
-        // parish property added to store the parish for each brand
         const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
         const countdownIntervals = {}; // To store interval IDs for each brand's countdown
 
-        // Hardcoded list of categories provided by the user
-        const allCategories = [
-            "Supermarkets", "Department Stores", "Pharmacy", "Hardware", "Auto", "Baby, Kids & Toys",
-            "Beauty", "Book Store", "Cafes", "Desserts", "Electronics & Office Supplies", "Entertainment",
-            "Experience", "Fashion", "Fast Food", "Fitness & Sports", "Flowers & Gifts",
-            "Furniture & Appliances", "Gas", "Art & Painting", "Home Goods", "Hospitality",
-            "Jewellery", "Medical", "Restaurant & Beverage", "Retail",
-            "Shipping & Logistics", "Spas", "Travel & Hospitality",
-            "Weddings and Events", "Women Apparel"
-        ];
-
-        // Data structure for Jamaican Parishes and their Towns
-        const jamaicanLocations = {
-            "All Parishes": ["All Towns"],
-            "Clarendon": ["All Towns", "MAY PEN", "CHAPELTON", "SPALDINGS"],
-            "Hanover": ["All Towns", "LUCEA", "GREEN ISLAND", "HOPEWELL"],
-            "Kingston": ["All Towns", "KINGSTON", "HALF WAY TREE", "CROSS ROADS"],
-            "Manchester": ["All Towns", "MANDEVILLE", "PORUS", "CHRISTIANA"],
-            "Portland": ["All Towns", "PORT ANTONIO", "BUFF BAY", "HOLLYWELL"],
-            "Saint Andrew": ["All Towns", "HALF WAY TREE", "STONY HILL", "GORDON TOWN"],
-            "Saint Ann": ["All Towns", "OCHO RIOS", "ST. ANN'S BAY", "RUNAWAY BAY"],
-            "Saint Catherine": ["All Towns", "SPANISH TOWN", "PORTMORE", "OLD HARBOUR"],
-            "Saint Elizabeth": ["All Towns", "BLACK RIVER", "SANTA CRUZ", "JUNCTION"],
-            "Saint James": ["All Towns", "MONTEGO BAY", "ADELPHI", "CAMBRIDGE"],
-            "Saint Mary": ["All Towns", "ANNOTTO BAY", "HIGHGATE", "ORACABESSA"],
-            "Saint Thomas": ["All Towns", "MORANT BAY", "YALLAHS", "GOLDEN GROVE"],
-            "Trelawny": ["All Towns", "FALMOUTH", "DUANVALE", "WAKEFIELD"],
-            "Westmoreland": ["All Towns", "SAVANNA LA MAR", "NEGRIL", "GRANGE HILL"]
+        // These will now be dynamically populated
+        let dynamicJamaicanLocations = {
+            "All Parishes": ["All Towns"]
         };
+        let dynamicCategories = new Set(); // Using a Set to store unique categories
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -1079,6 +1058,10 @@
             if (loadingMessage) loadingMessage.textContent = 'Loading all brands and their deals...';
             console.log("[Data Fetch] Starting fetch and process data...");
 
+            // Reset dynamicJamaicanLocations and dynamicCategories before fetching new data
+            dynamicJamaicanLocations = { "All Parishes": ["All Towns"] };
+            dynamicCategories = new Set();
+
             try {
                 const masterRes = await fetch(masterSheetUrl);
                 const masterBrands = await masterRes.json();
@@ -1098,7 +1081,6 @@
                 }
 
                 const brandPromises = masterBrands.map(async (brandEntry) => {
-                    // Try to get brand name from 'BrandName' or fallback to 'undefined'
                     const brandName = brandEntry.BrandName || brandEntry.undefined;
                     const sheetUrl = brandEntry.sheeturls;
 
@@ -1115,34 +1097,45 @@
                         const rows = await res.json();
                         console.log(`[Data Fetch] Sheet data for "${brandName}" loaded:`, rows);
 
-
                         let featuredBrandData = null;
                         let tempProducts = [];
                         let brandParish = '';
-                        let brandTown = ''; // Initialize brandTown
+                        let brandTown = '';
                         let brandCategory = 'Uncategorized';
                         let brandLogo = 'https://placehold.co/150x120/2C3E50/ffffff?text=Logo';
-                        let brandColor = '#2C3E50'; // Primary color
-                        let brandSecondaryColor = ''; // Secondary color, initialized
+                        let brandColor = '#2C3E50';
+                        let brandSecondaryColor = '';
                         let brandImage = '';
                         let expiryDate = null;
 
                         for (const row of rows) {
-                            // Check for a dedicated brand row (typically the first row if structured this way)
-                            // A brand row should have BrandName, BrandLogo, ExpiryDate, and NOT ProductName
                             if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName === "")) {
                                 featuredBrandData = row;
-                                brandParish = row.Parish || ''; // Extract Parish, default to empty string
-                                brandTown = row.Town || ''; // Extract Town, default to empty string
-                                brandCategory = row.Category || 'Uncategorized';
+                                brandParish = (row.Parish || '').trim();
+                                brandTown = (row.Town || '').trim();
+                                brandCategory = (row.Category || 'Uncategorized').trim(); // Trim category too
                                 brandLogo = row.BrandLogo;
                                 brandColor = row.PrimaryColor || '#2C3E50';
-                                brandSecondaryColor = row.SecondaryColor || ''; // Extract secondary color
+                                brandSecondaryColor = row.SecondaryColor || '';
                                 brandImage = row.BrandImage || '';
                                 expiryDate = row.ExpiryDate;
+
+                                // Dynamically populate jamaicanLocations
+                                if (brandParish) {
+                                    if (!dynamicJamaicanLocations[brandParish]) {
+                                        dynamicJamaicanLocations[brandParish] = ["All Towns"];
+                                    }
+                                    if (brandTown && !dynamicJamaicanLocations[brandParish].includes(brandTown)) {
+                                        dynamicJamaicanLocations[brandParish].push(brandTown);
+                                    }
+                                }
+                                // Dynamically populate categories
+                                if (brandCategory && brandCategory !== 'Uncategorized') {
+                                    dynamicCategories.add(brandCategory);
+                                }
+
                                 console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}"`);
                             } else if (row.ProductName && row.ImageURL) {
-                                // This is a product row
                                 tempProducts.push(row);
                             }
                         }
@@ -1159,17 +1152,17 @@
                             currentProductIndex: 0,
                             brandName: brandName,
                             category: brandCategory,
-                            parish: brandParish, // Store the extracted parish
-                            town: brandTown, // Store the extracted town
+                            parish: brandParish,
+                            town: brandTown,
                             brandLogo: brandLogo,
                             brandColor: brandColor,
-                            brandSecondaryColor: brandSecondaryColor, // Store secondary color
+                            brandSecondaryColor: brandSecondaryColor,
                             brandImage: brandImage,
                             expiryDate: expiryDate,
-                            brandId: brandId // Store brandId for easy access
+                            brandId: brandId
                         };
                         console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
-                        return brandId; // Return the brandId if successfully processed
+                        return brandId;
                     } catch (err) {
                         console.error(`[Data Fetch] Failed to load deals for "${brandName}" from ${sheetUrl}:`, err);
                         return null;
@@ -1185,7 +1178,9 @@
                     return;
                 }
 
-                // Now that brandDataMap is fully populated, apply filters and render
+                // After all data is processed and dynamicJamaicanLocations and dynamicCategories are built
+                populateCategories(); // Populate categories using the dynamic data
+                populateParishes(); // Populate parishes and then towns using the dynamic data
                 console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
                 applyFilters();
 
@@ -1220,35 +1215,23 @@
                     // Check if brand name or any product name matches the search term
                     matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
                                      brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
-                    if (!matchesSearch) {
-                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Does not match search term "${searchTerm}"`);
-                    }
                 }
 
                 let matchesCategory = true;
                 if (selectedCategory !== 'all') {
                     matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
-                    if (!matchesCategory) {
-                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Category "${brand.category}" does not match selected "${selectedCategory}"`);
-                    }
                 }
 
                 let matchesParish = true;
                 // Only filter by parish if a specific parish is selected (not empty string or "all parishes")
                 if (selectedParish !== '' && selectedParish !== 'all parishes') {
                     matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
-                    if (!matchesParish) {
-                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Parish "${brand.parish}" does not match selected "${selectedParish}"`);
-                    }
                 }
 
                 let matchesTown = true;
                 // Only filter by town if a specific town is selected (not empty string or "all towns")
                 if (selectedTown !== '' && selectedTown !== 'all towns') {
                     matchesTown = (brand.town || '').toLowerCase() === selectedTown;
-                    if (!matchesTown) {
-                        console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out: Town "${brand.town}" does not match selected "${selectedTown}"`);
-                    }
                 }
 
                 const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
@@ -1270,8 +1253,7 @@
                     );
                     foundContent = true;
                 } else {
-                    if (!matchesSearch || !matchesCategory || !matchesParish || !matchesTown) {
-                    }
+                    // console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out.`);
                 }
             }
 
@@ -1308,7 +1290,6 @@
             `;
             categoryItem.addEventListener('click', () => {
                 highlightCategory(categoryItem);
-                // No longer clearing other filters when category is clicked
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -1343,32 +1324,47 @@
 
             allCategoriesItem.addEventListener('click', () => {
                 highlightCategory(allCategoriesItem);
-                // No longer clearing other filters when category is clicked
                 applyFilters(); // Apply filters
             });
 
-            // Populate floating categories from the hardcoded list
-            allCategories.forEach(category => {
+            // Populate floating categories from the dynamically collected list
+            const sortedCategories = Array.from(dynamicCategories).sort(); // Convert Set to Array and sort
+            sortedCategories.forEach(category => {
                 const categoryItem = createFloatingCategoryItem(category);
                 categoriesList.appendChild(categoryItem);
             });
         }
 
         /**
-         * Populates the parish dropdown with options from jamaicanLocations.
+         * Populates the parish dropdown with options from dynamicJamaicanLocations.
          */
         function populateParishes() {
             const parishSelect = document.getElementById('parishSelect');
             parishSelect.innerHTML = ''; // Clear existing options
 
-            for (const parish in jamaicanLocations) {
+            // Always add "All Parishes" first
+            const allParishesOption = document.createElement('option');
+            allParishesOption.value = "All Parishes";
+            allParishesOption.textContent = "All Parishes";
+            parishSelect.appendChild(allParishesOption);
+
+            // Add parishes from dynamic data, ensuring unique and sorted order (optional)
+            const sortedParishes = Object.keys(dynamicJamaicanLocations)
+                                        .filter(p => p !== "All Parishes")
+                                        .sort();
+            sortedParishes.forEach(parish => {
                 const option = document.createElement('option');
                 option.value = parish;
                 option.textContent = parish;
                 parishSelect.appendChild(option);
+            });
+
+            // Restore previous selection or set default
+            if (sessionStorage.getItem('selectedParish')) {
+                parishSelect.value = sessionStorage.getItem('selectedParish');
+            } else {
+                parishSelect.value = "All Parishes";
             }
-            // Set default to "All Parishes" if available
-            parishSelect.value = "All Parishes";
             populateTowns(parishSelect.value); // Populate towns for the initial parish
         }
 
@@ -1380,14 +1376,29 @@
             const townSelect = document.getElementById('townSelect');
             townSelect.innerHTML = ''; // Clear existing options
 
-            const towns = jamaicanLocations[selectedParish] || ["All Towns"];
-            towns.forEach(town => {
+            const towns = dynamicJamaicanLocations[selectedParish] || ["All Towns"];
+
+            // Always add "All Towns" first for the selected parish
+            const allTownsOption = document.createElement('option');
+            allTownsOption.value = "All Towns";
+            allTownsOption.textContent = "All Towns";
+            townSelect.appendChild(allTownsOption);
+
+            // Add other towns, ensuring unique and sorted order (optional)
+            const sortedTowns = towns.filter(t => t !== "All Towns").sort();
+            sortedTowns.forEach(town => {
                 const option = document.createElement('option');
                 option.value = town;
                 option.textContent = town;
                 townSelect.appendChild(option);
             });
-            townSelect.value = "All Towns"; // Default to "All Towns" for the selected parish
+
+            // Restore previous selection or set default
+            if (sessionStorage.getItem('selectedTown') && dynamicJamaicanLocations[selectedParish]?.includes(sessionStorage.getItem('selectedTown'))) {
+                townSelect.value = sessionStorage.getItem('selectedTown');
+            } else {
+                townSelect.value = "All Towns";
+            }
         }
 
 
@@ -1397,7 +1408,6 @@
         brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                // No longer clearing other filters when search input is used
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
@@ -1405,6 +1415,8 @@
         // Event listener for Parish Dropdown
         const parishSelect = document.getElementById('parishSelect');
         parishSelect.addEventListener('change', () => {
+            sessionStorage.setItem('selectedParish', parishSelect.value); // Save selected parish
+            sessionStorage.removeItem('selectedTown'); // Clear town when parish changes
             populateTowns(parishSelect.value); // Update towns based on selected parish
             applyFilters(); // Apply filters
         });
@@ -1412,14 +1424,13 @@
         // Event listener for Town Dropdown
         const townSelect = document.getElementById('townSelect');
         townSelect.addEventListener('change', () => {
+            sessionStorage.setItem('selectedTown', townSelect.value); // Save selected town
             applyFilters(); // Apply filters
         });
 
         // Initial fetch and render on page load
         document.addEventListener('DOMContentLoaded', () => {
-            populateCategories(); // Populate categories first
-            populateParishes(); // Populate parishes and then towns
-            fetchAndProcessData(); // Then fetch and process all brand data
+            fetchAndProcessData(); // Fetch and process all brand data, which will then populate locations and categories and apply filters
         });
 
         // Close popup when clicking outside the content
