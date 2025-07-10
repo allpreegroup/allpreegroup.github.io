@@ -602,7 +602,11 @@
                     <select id="townSelect" class="py-2 town-select">
                         <!-- Options populated by JS -->
                     </select>
-                    
+                    <div class="dropdown-arrow-wrapper">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -890,7 +894,8 @@
                 brandData.category,
                 brandData.parish,
                 brandData.town, // Pass town data
-                brandData.expiryDate
+                brandData.expiryDate,
+                brandData.brandSecondaryColor // Pass secondary color
             );
             if (brandInfoCard) {
                 container.appendChild(brandInfoCard); // Append first, then products
@@ -916,9 +921,10 @@
          * @param {string} parish - The parish where the brand is located.
          * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
+         * @param {string} secondaryColor - The secondary background color for the brand card (optional).
          * @returns {HTMLElement} The created brand info card element.
          */
-        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate) {
+        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor) {
             const brandInfoCard = document.createElement('div');
             brandInfoCard.className = 'brand-info-card-grid-item'; // New class for styling as a grid item
             brandInfoCard.id = `brand-info-card-${brandId}`;
@@ -926,7 +932,9 @@
             let backgroundStyle = '';
             if (brandImage) {
                 backgroundStyle = `background-image: url('${brandImage}'); background-size: cover; background-position: center;`;
-            } else if (brandColor) {
+            } else if (brandColor && secondaryColor) { // If both primary and secondary colors are present
+                backgroundStyle = `background: linear-gradient(to right, ${brandColor}, ${secondaryColor});`;
+            } else if (brandColor) { // Fallback to solid primary color
                 backgroundStyle = `background-color: ${brandColor};`;
             }
             brandInfoCard.style = backgroundStyle;
@@ -1034,8 +1042,9 @@
          * @param {string} parish - The parish where the brand is located.
          * @param {string} town - The town where the brand is located.
          * @param {string} expiryDate - The expiry date of the deal for countdown.
+         * @param {string} secondaryColor - The secondary background color for the brand card (optional).
          */
-        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate) {
+        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor) {
             const allBrandsContainer = document.getElementById('all-brands-container');
             const brandSection = document.createElement('section');
             brandSection.id = `brand-section-${brandId}`;
@@ -1119,7 +1128,8 @@
                         let brandTown = ''; // Initialize brandTown
                         let brandCategory = 'Uncategorized';
                         let brandLogo = 'https://placehold.co/150x120/2C3E50/ffffff?text=Logo';
-                        let brandColor = '#2C3E50';
+                        let brandColor = '#2C3E50'; // Primary color
+                        let brandSecondaryColor = ''; // Secondary color, initialized
                         let brandImage = '';
                         let expiryDate = null;
 
@@ -1133,6 +1143,7 @@
                                 brandCategory = row.Category || 'Uncategorized';
                                 brandLogo = row.BrandLogo;
                                 brandColor = row.PrimaryColor || '#2C3E50';
+                                brandSecondaryColor = row.SecondaryColor || ''; // Extract secondary color
                                 brandImage = row.BrandImage || '';
                                 expiryDate = row.ExpiryDate;
                                 console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}"`);
@@ -1158,6 +1169,7 @@
                             town: brandTown, // Store the extracted town
                             brandLogo: brandLogo,
                             brandColor: brandColor,
+                            brandSecondaryColor: brandSecondaryColor, // Store secondary color
                             brandImage: brandImage,
                             expiryDate: expiryDate,
                             brandId: brandId // Store brandId for easy access
@@ -1259,7 +1271,8 @@
                         brand.category,
                         brand.parish, // Pass the parish data
                         brand.town, // Pass the town data
-                        brand.expiryDate
+                        brand.expiryDate,
+                        brand.brandSecondaryColor // Pass secondary color
                     );
                     foundContent = true;
                 } else {
