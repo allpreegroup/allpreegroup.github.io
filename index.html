@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jamaica First In-Store Deal Site & Cashback</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/js/dt.main.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-     <!-- Font Awesome for social icons -->
+    <!-- Font Awesome for social icons and location icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <style>
         /* Custom CSS for header */
         .header-bg {
@@ -99,7 +98,7 @@
         /* Deal Grid and Cards */
         .deal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for general product cards */
             gap: 1.5rem;
             padding: 2rem;
         }
@@ -116,6 +115,7 @@
             align-items: center;
             text-align: left;
             padding-bottom: 1rem;
+            /* max-width removed - let grid control width */
         }
         .deal-card:hover {
             transform: translateY(-5px);
@@ -218,14 +218,18 @@
             justify-content: center;
             align-items: center;
             padding: 1rem; /* Reduced padding to fit better in grid */
-            border-radius: 0.75rem; /* Match other deal cards */
+            border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Match other deal cards */
-            min-height: 250px; /* Maintain height for visual consistency */
             text-align: center;
-            transition: background-color 0.3s ease-in-out, background-image 0.3s ease-in-out;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Added transitions for consistency */
             /* Ensure it takes full width in its grid cell */
             width: 100%;
             height: 100%;
+            /* max-width removed - let grid control width */
+        }
+        .brand-info-card-grid-item:hover { /* Added hover effect for consistency */
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
         .brand-info-card-grid-item .brand-logo-grid {
             width: 120px; /* Slightly smaller logo for grid item */
@@ -432,7 +436,7 @@
         }
         .categories-list-wrapper {
             -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* For Firefox */
+            scrollbar-width: none;  /* Firefox */
         }
 
         .categories-list {
@@ -600,7 +604,7 @@
 
         /* Explicit hidden class for the overlay */
         #loading-overlay.hidden {
-            display: none !important;
+            display: none !important; /* Added !important */
         }
 
         .spinner {
@@ -615,6 +619,164 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Featured Brands Section Styles */
+        #featured-brands-section {
+            background-color: transparent; /* Changed to transparent */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            /* Removed flex-direction: column and align-items: center */
+            text-align: center;
+            box-shadow: none; /* Removed shadow for transparent background */
+            /* Removed flex properties here, they are on the container now */
+        }
+
+        #featured-brands-container {
+            display: flex; /* Changed to flex */
+            flex-wrap: nowrap; /* Prevent wrapping */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            justify-content: flex-start; /* Align items to the start */
+            gap: 1rem; /* Space between cards */
+            padding: 1rem 0; /* Add some vertical padding for scrollbar */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Hide scrollbar */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+
+        #featured-brands-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .featured-brand-card {
+            background-color: #f8fafc; /* Light background */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0; /* Prevent shrinking */
+            min-width: 150px; /* Minimum width for each card */
+            max-width: 200px; /* Maximum width for each card */
+        }
+
+        .featured-brand-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #e2e8f0; /* Slightly darker hover */
+        }
+
+        .featured-brand-card.active {
+            border: 2px solid #3f51b5; /* Highlight active card */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #e0e7ff; /* Light blue background for active */
+        }
+
+        .featured-brand-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 50%;
+            margin-bottom: 0.5rem;
+            background-color: white;
+            padding: 5px;
+        }
+
+        .featured-brand-card .brand-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%; /* Ensure text truncates within the card */
+        }
+
+        /* Responsive adjustments for featured brands */
+        /* These media queries are less critical now that it's a horizontal scroll,
+           but can still fine-tune min-width if needed */
+        @media (max-width: 1024px) {
+            .featured-brand-card {
+                min-width: 140px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .featured-brand-card {
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .featured-brand-card {
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .featured-brand-card {
+                min-width: 90px;
+            }
+        }
+
+        /* Today's Special Brand Section Styles */
+        #top-special-brand-section { /* Renamed from single-featured-brand-section */
+            background: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
+            color: white;
+            padding: 1rem 1rem; /* More padding */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin: 1rem auto; /* Center horizontally and add vertical margin */
+            max-width: 1200px; /* Changed from 800px to 1200px */
+            width: 100%;
+            text-align: center;
+            display: flex; /* Use flex for centering content */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem; /* Space between title and card */
+        }
+
+        #top-special-brand-section h2 {
+            font-size: 2.5rem; /* Larger title */
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0; /* Adjusted margin */
+        }
+
+        #todays-special-brand-content {
+            width: 100%; /* Ensure the grid container takes full width of its parent */
+        }
+
+        /* Specific grid layout for the special brand section */
+        #todays-special-brand-content.special-deal-grid-layout {
+            /* Updated to use fluid units and auto-fill */
+            grid-template-columns: repeat(auto-fill, minmax(min-content, 1fr));
+            justify-content: center; /* Center the grid within its container */
+            align-items: stretch; /* Ensure items stretch to fill cell height */
+        }
+
+        /* Responsive adjustments for special-deal-grid-layout */
+        /* Removed fixed max-width from cards within media queries */
+        @media (max-width: 1200px) {
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+        @media (max-width: 1000px) {
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            #todays-special-brand-content.special-deal-grid-layout {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
         }
     </style>
 </head>
@@ -673,6 +835,28 @@
             </div>
         </div>
     </div >
+
+    <!-- Featured Brands Section -->
+    <div id="featured-brands-section" class="py-8 bg-white  shadow-lg mb-8 overflow-hidden hidden max-w-7xl-custom mx-auto px-6">
+        <!-- Removed H2: <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">Featured Brands</h2> -->
+        <div id="featured-brands-container" class="flex flex-wrap justify-center gap-4">
+            <!-- Featured brand cards will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Today's Special Brand Section (Moved to be below Featured Brands) -->
+    <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden">
+        <!-- Removed H2: <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2> -->
+        <div id="todays-special-brand-content" class="deal-grid special-deal-grid-layout">
+            <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
+        </div>
+        <div id="shop-more-container-special" class="">
+            <button class="shop-more-button" onclick="loadMoreDealsForSpecialBrand()">
+                <span id="shop-more-count-special">View More Deals</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
+            </button>
+        </div>
+    </div>
 
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
@@ -739,8 +923,7 @@
                 <h3 class="text-white mb-4">COMPANY</h3>
                 <ul>
                     <li><a href="https://www.allpree.com/for-retailers" class="text-gray-300 hover:text-white transition-colors duration-200">For Giftme Retailers</a></li>
-                    <li><a href="https://www.allpree.com/for-shoppers" class="text-gray-300 hover:text-white transition-colors duration-200">For Shoppers</a></li>
-                    <li><a href="https://www.allpree.com/getapp" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
+                    <li><a href="https://www.allpree.com/for-shoppers" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
                 </ul>
             </div>
         </div>
@@ -755,7 +938,7 @@
     <div id="popup" class="popup-overlay hidden">
         <div class="popup-content">
             <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img id="popupImg" src="" alt="Deal Image" class="popup-img" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
+            <img id="popupImg" src="" alt="Deal Image" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
             <h2 id="popupTitle" class="popup-title"></h2>
             <p id="popupBrand" class="popup-brand"></p>
             <div class="popup-price-info-popup">
