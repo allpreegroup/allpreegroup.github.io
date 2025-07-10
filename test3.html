@@ -691,7 +691,7 @@
         }
 
         /* Today's Special Brand Section Styles */
-        #single-featured-brand-section {
+        #top-special-brand-section { /* Renamed from single-featured-brand-section */
             background: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
             color: white;
             padding: 2.5rem 1rem; /* More padding */
@@ -708,7 +708,7 @@
             gap: 1.5rem; /* Space between title and card */
         }
 
-        #single-featured-brand-section h2 {
+        #top-special-brand-section h2 {
             font-size: 2.5rem; /* Larger title */
             font-weight: 900;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
@@ -822,22 +822,22 @@
         </div>
     </div >
 
+    <!-- Today's Special Brand Section (Moved to be above Featured Brands) -->
+    <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
+        <div class="max-w-7xl-custom mx-auto px-6">
+            <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
+            <div id="todays-special-brand-container" class="flex justify-center">
+                <!-- Single featured brand card will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- Featured Brands Section -->
     <div id="featured-brands-section" class="py-8 bg-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
         <div class="max-w-7xl-custom mx-auto px-6">
             <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">Featured Brands</h2>
             <div id="featured-brands-container" class="flex flex-wrap justify-center gap-4 px-4">
                 <!-- Featured brand cards will be inserted here by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Today's Special Brand Section -->
-    <div id="single-featured-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
-        <div class="max-w-7xl-custom mx-auto px-6">
-            <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
-            <div id="todays-special-brand-container" class="flex justify-center">
-                <!-- Single featured brand card will be inserted here by JavaScript -->
             </div>
         </div>
     </div>
@@ -943,7 +943,8 @@
 
     <script>
         const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
-        const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2'; // New URL for ranked slots
+        const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
+        const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
@@ -1459,7 +1460,7 @@
 
                 // Fetch and render ranked slots
                 await fetchAndRenderFeaturedBrands();
-                // Fetch and render today's special brand
+                // Fetch and render today's special brand (now using SpecialBrandUrl)
                 await fetchAndRenderTodaysSpecialBrand();
 
 
@@ -1562,20 +1563,20 @@
         }
 
         /**
-         * Fetches data from the master sheet to determine and render "Today's Special Brand".
+         * Fetches data from the special brand sheet to determine and render "Today's Special Brand".
          */
         async function fetchAndRenderTodaysSpecialBrand() {
             try {
-                const res = await fetch(masterSheetUrl);
+                const res = await fetch(SpecialBrandUrl); // Using the corrected SpecialBrandUrl
                 const data = await res.json();
-                console.log("[Today's Special Brand] Master sheet data for special brand:", data);
+                console.log("[Today's Special Brand] Special brand sheet data:", data);
 
                 const todaysSpecialBrandContainer = document.getElementById('todays-special-brand-container');
                 todaysSpecialBrandContainer.innerHTML = ''; // Clear previous content
 
                 if (data.length === 0) {
-                    document.getElementById('single-featured-brand-section').classList.add('hidden');
-                    console.log("[Today's Special Brand] No data in master sheet to determine special brand.");
+                    document.getElementById('top-special-brand-section').classList.add('hidden');
+                    console.log("[Today's Special Brand] No data in special brand sheet to determine special brand.");
                     return;
                 }
 
@@ -1635,15 +1636,15 @@
                         brand.town
                     );
                     todaysSpecialBrandContainer.appendChild(card);
-                    document.getElementById('single-featured-brand-section').classList.remove('hidden');
+                    document.getElementById('top-special-brand-section').classList.remove('hidden');
                 } else {
-                    document.getElementById('single-featured-brand-section').classList.add('hidden');
+                    document.getElementById('top-special-brand-section').classList.add('hidden');
                     console.log("[Today's Special Brand] No valid special brand to display.");
                 }
 
             } catch (err) {
-                console.error('[Today\'s Special Brand] Failed to load master sheet for special brand:', err);
-                document.getElementById('single-featured-brand-section').classList.add('hidden'); // Hide section on error
+                console.error('[Today\'s Special Brand] Failed to load special brand sheet:', err);
+                document.getElementById('top-special-brand-section').classList.add('hidden'); // Hide section on error
             }
         }
 
