@@ -826,8 +826,14 @@
     <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
         <div class="max-w-7xl-custom mx-auto px-6">
             <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2>
-            <div id="todays-special-brand-container" class="flex justify-center">
-                <!-- Single featured brand card will be inserted here by JavaScript -->
+            <div id="todays-special-brand-content" class="deal-grid">
+                <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
+            </div>
+            <div id="shop-more-container-special" class="shop-more-deals-container hidden">
+                <button class="shop-more-button" onclick="loadMoreDealsForSpecialBrand()">
+                    <span id="shop-more-count-special">Shop More Deals</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
+                </button>
             </div>
         </div>
     </div>
@@ -959,6 +965,7 @@
 
         let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
         let selectedFeaturedBrandId = null; // New: To store the currently selected featured brand
+        let currentSpecialBrandData = null; // To store the data for the currently active special brand
 
         /**
          * Shows the loading overlay.
@@ -1038,6 +1045,26 @@
         }
 
         /**
+         * Loads more deals for the special brand section.
+         */
+        function loadMoreDealsForSpecialBrand() {
+            if (!currentSpecialBrandData) return;
+
+            const productsToAdd = currentSpecialBrandData.allProducts.slice(currentSpecialBrandData.currentProductIndex, currentSpecialBrandData.currentProductIndex + productsPerPage);
+            if (productsToAdd.length > 0) {
+                const container = document.getElementById('todays-special-brand-content');
+                productsToAdd.forEach(row => {
+                    const card = createDealCard(row);
+                    if (card) {
+                        container.appendChild(card);
+                    }
+                });
+                currentSpecialBrandData.currentProductIndex += productsToAdd.length;
+                updateShopMoreButtonForSpecialBrand();
+            }
+        }
+
+        /**
          * Creates an HTML deal card element from product row data.
          * @param {Object} row - The product data row from the sheet.
          * @returns {HTMLElement|null} The created deal card element or null if data is incomplete.
@@ -1060,6 +1087,7 @@
                 <span class="discount-badge">SAVE ${percentOff}%</span>
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
+                    <div class="product-brand-text">${row.BrandName || ''}</div>
                     <div class="deal-title">${shortName}</div>
                     <div class="price-section">
                         <div class="price-info">
@@ -1087,13 +1115,14 @@
          * Renders the initial set of products for a specific brand's section.
          * @param {string} brandId - The unique ID of the brand.
          * @param {Array} productsToRender - Array of product objects to render.
+         * @param {HTMLElement} container - The HTML element to append products to.
+         * @param {boolean} isSpecialBrandSection - True if rendering for the special brand section.
          */
-        function renderInitialProducts(brandId, productsToRender) {
-            const container = document.getElementById(`deals-container-${brandId}`);
+        function renderInitialProducts(brandId, productsToRender, container, isSpecialBrandSection = false) {
             container.innerHTML = ''; // Clear existing content
 
             // Create and prepend the brand info card first
-            const brandData = brandDataMap[brandId];
+            const brandData = isSpecialBrandSection ? currentSpecialBrandData : brandDataMap[brandId];
             const brandInfoCard = createBrandInfoCard(
                 brandData.brandName,
                 brandData.brandId,
@@ -1117,7 +1146,12 @@
                     container.appendChild(card);
                 }
             });
-            updateShopMoreButton(brandId);
+
+            if (isSpecialBrandSection) {
+                updateShopMoreButtonForSpecialBrand();
+            } else {
+                updateShopMoreButton(brandId);
+            }
         }
 
         /**
@@ -1214,6 +1248,26 @@
         }
 
         /**
+         * Updates the "Shop More Deals" button for the special brand section.
+         */
+        function updateShopMoreButtonForSpecialBrand() {
+            if (!currentSpecialBrandData) return;
+
+            const remainingCount = (currentSpecialBrandData.allProducts.length - currentSpecialBrandData.currentProductIndex);
+            const shopMoreButtonSpan = document.getElementById(`shop-more-count-special`);
+            const shopMoreButtonContainer = document.getElementById(`shop-more-container-special`);
+
+            if (shopMoreButtonSpan && shopMoreButtonContainer) {
+                if (remainingCount > 0) {
+                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonContainer.classList.remove('hidden');
+                } else {
+                    shopMoreButtonContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        /**
          * Updates the countdown timer for a specific brand.
          * @param {string} brandId - The unique ID of the brand.
          * @param {number} endDate - The timestamp (milliseconds) when the deal ends.
@@ -1292,7 +1346,7 @@
             `;
             allBrandsContainer.appendChild(brandSection);
 
-            renderInitialProducts(brandId, initialProductsToDisplay); // Pass the products to display
+            renderInitialProducts(brandId, initialProductsToDisplay, document.getElementById(`deals-container-${brandId}`)); // Pass the container
         }
 
         /**
@@ -1571,8 +1625,8 @@
                 const data = await res.json();
                 console.log("[Today's Special Brand] Special brand sheet data:", data);
 
-                const todaysSpecialBrandContainer = document.getElementById('todays-special-brand-container');
-                todaysSpecialBrandContainer.innerHTML = ''; // Clear previous content
+                const todaysSpecialBrandContent = document.getElementById('todays-special-brand-content');
+                todaysSpecialBrandContent.innerHTML = ''; // Clear previous content
 
                 if (data.length === 0) {
                     document.getElementById('top-special-brand-section').classList.add('hidden');
@@ -1593,7 +1647,7 @@
                 const storedBrand = localStorage.getItem('selectedFavoriteBrand');
                 const originalBrand = localStorage.getItem('originalBrand');
 
-                let currentSpecialBrandId = null;
+                let specialBrandIdToRender = null;
 
                 if (now < expiry && featuredBrandName) {
                     const featuredBrandId = featuredBrandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
@@ -1605,7 +1659,7 @@
                         localStorage.setItem('selectedFavoriteBrand', featuredBrandName);
                         localStorage.setItem('tempExpiryTime', expiry.getTime());
                         console.log('[Today\'s Special Brand] tempExpiryTime set to:', expiry.getTime());
-                        currentSpecialBrandId = featuredBrandId;
+                        specialBrandIdToRender = featuredBrandId;
                     } else {
                         console.warn(`[Today's Special Brand] Featured Brand "${featuredBrandName}" (ID: ${featuredBrandId}) not found in main brand data map. Skipping.`);
                         // Fallback if featured brand is not in main data
@@ -1625,18 +1679,22 @@
                     console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
                 }
 
-                if (currentSpecialBrandId && brandDataMap[currentSpecialBrandId]) {
-                    const brand = brandDataMap[currentSpecialBrandId];
-                    const card = createTodaysSpecialBrandCard(
-                        brand.brandName,
-                        brand.brandLogo,
-                        brand.brandId,
-                        brand.category,
-                        brand.parish,
-                        brand.town
+                if (specialBrandIdToRender && brandDataMap[specialBrandIdToRender]) {
+                    currentSpecialBrandData = { ...brandDataMap[specialBrandIdToRender] }; // Copy data for independent tracking
+                    currentSpecialBrandData.currentProductIndex = 0; // Reset index for this section
+
+                    const initialProductsToDisplay = currentSpecialBrandData.allProducts.slice(0, productsPerPage);
+
+                    renderInitialProducts(
+                        currentSpecialBrandData.brandId,
+                        initialProductsToDisplay,
+                        todaysSpecialBrandContent,
+                        true // Indicate this is for the special brand section
                     );
-                    todaysSpecialBrandContainer.appendChild(card);
+                    currentSpecialBrandData.currentProductIndex = initialProductsToDisplay.length; // Update index after initial render
+
                     document.getElementById('top-special-brand-section').classList.remove('hidden');
+                    updateShopMoreButtonForSpecialBrand(); // Update the specific shop more button
                 } else {
                     document.getElementById('top-special-brand-section').classList.add('hidden');
                     console.log("[Today's Special Brand] No valid special brand to display.");
@@ -1647,40 +1705,6 @@
                 document.getElementById('top-special-brand-section').classList.add('hidden'); // Hide section on error
             }
         }
-
-        /**
-         * Creates an HTML card for "Today's Special Brand".
-         * @param {string} brandName - The name of the brand.
-         * @param {string} brandLogo - URL to the brand's logo.
-         * @param {string} brandId - The unique ID for the brand.
-         * @param {string} category - The category of the brand.
-         * @param {string} parish - The parish where the brand is located.
-         * @param {string} town - The town where the brand is located.
-         * @returns {HTMLElement} The created special brand card element.
-         */
-        function createTodaysSpecialBrandCard(brandName, brandLogo, brandId, category, parish, town) {
-            const card = document.createElement('div');
-            card.className = 'todays-special-brand-card';
-            card.id = `todays-special-card-${brandId}`; // Unique ID for this card
-            card.setAttribute('data-brand-id', brandId);
-
-            card.innerHTML = `
-                <img src="${brandLogo}" alt="${brandName} Logo" onerror="this.onerror=null;this.src='https://placehold.co/150x120/cccccc/333333?text=Logo';">
-                <p class="brand-name">${brandName}</p>
-                <p class="brand-category-location">${category} - ${parish || 'N/A'}${town ? ', ' + town : ''}</p>
-            `;
-
-            card.addEventListener('click', () => {
-                // When this special brand is clicked, select it and clear other filters
-                selectFeaturedBrand(brandId);
-                // Also remove active state from other featured brands if any
-                document.querySelectorAll('.featured-brand-card').forEach(fc => fc.classList.remove('active'));
-                // Add active state to this special card
-                card.classList.add('active');
-            });
-            return card;
-        }
-
 
         /**
          * Selects a featured brand, highlights its card, and filters the main content.
@@ -1701,7 +1725,7 @@
 
 
             // Add active class to the selected card (either featured or today's special)
-            const activeCard = document.getElementById(`featured-card-${brandId}`) || document.getElementById(`todays-special-card-${brandId}`);
+            const activeCard = document.getElementById(`featured-card-${brandId}`); // Only featured cards respond to this now
             if (activeCard) {
                 activeCard.classList.add('active');
             }
