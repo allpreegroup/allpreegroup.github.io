@@ -581,6 +581,35 @@
             pointer-events: none;
             z-index: 1; /* Ensure arrow is above select */
         }
+
+        /* Loading Overlay Styles */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* High z-index to cover everything */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -705,7 +734,7 @@
                 <ul>
                     <li><a href="https://www.allpree.com/for-retailers" class="text-gray-300 hover:text-white transition-colors duration-200">For Giftme Retailers</a></li>
                     <li><a href="https://www.allpree.com/for-shoppers" class="text-gray-300 hover:text-white transition-colors duration-200">For Shoppers</a></li>
-                    <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
+                    <li><a href="https://www.allpree.com/getapp" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
                 </ul>
             </div>
         </div>
@@ -733,6 +762,11 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
     <script>
         const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
         const productsPerPage = 4; // Number of products to show initially per brand section
@@ -746,6 +780,22 @@
             "All Parishes": ["All Towns"]
         };
         let dynamicCategories = new Set(); // Using a Set to store unique categories
+
+        let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
+
+        /**
+         * Shows the loading overlay.
+         */
+        function showLoadingOverlay() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        /**
+         * Hides the loading overlay.
+         */
+        function hideLoadingOverlay() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
 
         /**
          * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -826,8 +876,6 @@
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal-card';
-
-            // Removed conditional cashback text from here. It will now be on the brand card.
 
             dealCard.innerHTML = `
                 <span class="discount-badge">SAVE ${percentOff}%</span>
@@ -1073,6 +1121,7 @@
          * populates the brandDataMap, and then applies filters to render content.
          */
         async function fetchAndProcessData() {
+            showLoadingOverlay(); // Show loading overlay at the start
             const loadingMessage = document.getElementById('loading-brands-message');
             if (loadingMessage) loadingMessage.textContent = 'Loading all brands and their deals...';
             console.log("[Data Fetch] Starting fetch and process data...");
@@ -1080,6 +1129,7 @@
             // Reset dynamicJamaicanLocations and dynamicCategories before fetching new data
             dynamicJamaicanLocations = { "All Parishes": ["All Towns"] };
             dynamicCategories = new Set();
+            firstBrandLoaded = false; // Reset flag for new data fetch
 
             try {
                 const masterRes = await fetch(masterSheetUrl);
@@ -1096,6 +1146,7 @@
                 if (masterBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
                     console.log("[Data Fetch] No brands found in master sheet.");
+                    hideLoadingOverlay(); // Hide on no brands
                     return;
                 }
 
@@ -1192,6 +1243,13 @@
                             brandId: brandId
                         };
                         console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
+
+                        // Hide loading overlay as soon as the first brand is successfully loaded and processed
+                        if (!firstBrandLoaded) {
+                            hideLoadingOverlay();
+                            firstBrandLoaded = true;
+                        }
+
                         return brandId;
                     } catch (err) {
                         console.error(`[Data Fetch] Failed to load deals for "${brandName}" from ${sheetUrl}:`, err);
@@ -1207,6 +1265,10 @@
                 if (successfullyLoadedBrands.length === 0) {
                     allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found or all failed to load.</p>';
                     console.log("[Data Fetch] No brands with products found after processing all sheets.");
+                    // If no brands loaded at all, ensure overlay is hidden
+                    if (!firstBrandLoaded) {
+                        hideLoadingOverlay();
+                    }
                     return;
                 }
 
@@ -1219,6 +1281,12 @@
             } catch (err) {
                 console.error('[Data Fetch] Failed to load master sheet:', err);
                 document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
+            } finally {
+                // This finally block will now only hide the overlay if no brands were loaded at all
+                // or if an error occurred before any brand could trigger the hide.
+                if (!firstBrandLoaded) {
+                    hideLoadingOverlay();
+                }
             }
         }
 
