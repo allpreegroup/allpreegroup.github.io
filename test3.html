@@ -9,7 +9,7 @@
     <!-- Font Awesome for social icons and location icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-   <style>
+    <style>
         /* Custom CSS for header */
         .header-bg {
             background-color: #ffffff; /* White background for the header */
@@ -615,6 +615,80 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Featured Brands Section Styles */
+        .featured-brand-card {
+            background-color: #f8fafc; /* Light background */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex: 1 1 18%; /* Allows 5 items side-by-side, with some flexibility */
+            min-width: 150px; /* Minimum width for each card */
+            max-width: 200px; /* Maximum width for each card */
+        }
+
+        .featured-brand-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #e2e8f0; /* Slightly darker hover */
+        }
+
+        .featured-brand-card.active {
+            border: 2px solid #3f51b5; /* Highlight active card */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #e0e7ff; /* Light blue background for active */
+        }
+
+        .featured-brand-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 50%;
+            margin-bottom: 0.5rem;
+            background-color: white;
+            padding: 5px;
+        }
+
+        .featured-brand-card .brand-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%; /* Ensure text truncates within the card */
+        }
+
+        /* Responsive adjustments for featured brands */
+        @media (max-width: 1024px) { /* Adjust for smaller desktops/tablets */
+            .featured-brand-card {
+                flex: 1 1 22%; /* Adjust to fit 4 per row */
+            }
+        }
+
+        @media (max-width: 768px) { /* Adjust for tablets */
+            .featured-brand-card {
+                flex: 1 1 30%; /* Adjust to fit 3 per row */
+            }
+        }
+
+        @media (max-width: 640px) { /* Adjust for mobile */
+            .featured-brand-card {
+                flex: 1 1 45%; /* Adjust to fit 2 per row */
+            }
+        }
+
+        @media (max-width: 480px) { /* Adjust for small mobile */
+            .featured-brand-card {
+                flex: 1 1 90%; /* Single column on very small screens */
+            }
+        }
     </style>
 </head>
 <body>
@@ -672,6 +746,17 @@
             </div>
         </div>
     </div >
+
+    <!-- Featured Brands Section -->
+    <div id="featured-brands-section" class="py-8 bg-white rounded-2xl shadow-lg mb-8 overflow-hidden hidden">
+        <div class="max-w-7xl-custom mx-auto px-6">
+            <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">Featured Brands</h2>
+            <div id="featured-brands-container" class="flex flex-wrap justify-center gap-4 px-4">
+                <!-- Featured brand cards will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
 
     <main class="flex-grow flex flex-col items-center">
         <div class="container-wrapper">
@@ -774,6 +859,7 @@
 
     <script>
         const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
+        const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2'; // New URL for ranked slots
         const productsPerPage = 4; // Number of products to show initially per brand section
 
         // Store product data and current index per brand
@@ -787,6 +873,7 @@
         let dynamicCategories = new Set(); // Using a Set to store unique categories
 
         let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
+        let selectedFeaturedBrandId = null; // New: To store the currently selected featured brand
 
         /**
          * Shows the loading overlay.
@@ -1137,6 +1224,7 @@
             dynamicJamaicanLocations = { "All Parishes": ["All Towns"] };
             dynamicCategories = new Set();
             firstBrandLoaded = false; // Reset flag for new data fetch
+            selectedFeaturedBrandId = null; // Reset featured brand selection
 
             try {
                 const masterRes = await fetch(masterSheetUrl);
@@ -1284,9 +1372,12 @@
                 // After all data is processed and dynamicJamaicanLocations and dynamicCategories are built
                 populateCategories(); // Populate categories using the dynamic data
                 populateParishes(); // Populate parishes and then towns using the dynamic data
-                console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
-                applyFilters();
 
+                // Fetch and render ranked slots
+                await fetchAndRenderFeaturedBrands();
+
+                console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
+                // applyFilters() will be called by selectFeaturedBrand()
             } catch (err) {
                 console.error('[Data Fetch] Failed to load master sheet:', err);
                 document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
@@ -1301,82 +1392,201 @@
         }
 
         /**
-         * Applies all active filters (search term, category, parish, town) and updates the displayed brand sections.
+         * Fetches and renders the featured brands from the ranked slots sheet.
+         */
+        async function fetchAndRenderFeaturedBrands() {
+            try {
+                const res = await fetch(rankedSlotsUrl);
+                const rankedBrands = await res.json();
+                console.log("[Featured Brands] Ranked slots sheet loaded:", rankedBrands);
+
+                const featuredBrandsContainer = document.getElementById('featured-brands-container');
+                featuredBrandsContainer.innerHTML = ''; // Clear previous featured brands
+
+                const now = new Date();
+                const featuredBrandIds = [];
+
+                // Filter for valid and non-expired ranked brands, limit to 5
+                for (const row of rankedBrands) {
+                    const brandName = row['Brand'];
+                    const expiryDateStr = row['Expires At']; // Assuming this is the column name for expiry
+
+                    if (brandName && expiryDateStr) {
+                        const expiry = new Date(expiryDateStr);
+                        if (expiry && now < expiry) {
+                            const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                            if (brandDataMap[brandId]) { // Ensure the brand exists in our main data map
+                                featuredBrandIds.push(brandId);
+                                if (featuredBrandIds.length >= 5) break; // Limit to 5 featured brands
+                            } else {
+                                console.warn(`[Featured Brands] Ranked brand "${brandName}" (ID: ${brandId}) not found in master brand data. Skipping.`);
+                            }
+                        } else {
+                            console.log(`[Featured Brands] Ranked brand "${brandName}" (Expires: ${expiryDateStr}) is expired or invalid. Skipping.`);
+                        }
+                    }
+                }
+
+                if (featuredBrandIds.length > 0) {
+                    document.getElementById('featured-brands-section').classList.remove('hidden');
+                    featuredBrandIds.forEach(brandId => {
+                        const brand = brandDataMap[brandId];
+                        if (brand) {
+                            const card = createFeaturedBrandCard(brand.brandName, brand.brandLogo, brand.brandId);
+                            featuredBrandsContainer.appendChild(card);
+                        }
+                    });
+
+                    // Automatically select the first featured brand
+                    selectFeaturedBrand(featuredBrandIds[0]);
+                } else {
+                    document.getElementById('featured-brands-section').classList.add('hidden');
+                    console.log("[Featured Brands] No valid featured brands found or all expired.");
+                    // If no featured brands, apply general filters
+                    applyFilters();
+                }
+
+            } catch (err) {
+                console.error('[Featured Brands] Failed to load ranked slots sheet:', err);
+                document.getElementById('featured-brands-section').classList.add('hidden'); // Hide section on error
+                // If featured brands fail to load, apply general filters
+                applyFilters();
+            }
+        }
+
+        /**
+         * Creates an HTML card for a featured brand.
+         * @param {string} brandName - The name of the brand.
+         * @param {string} brandLogo - URL to the brand's logo.
+         * @param {string} brandId - The unique ID for the brand.
+         * @returns {HTMLElement} The created featured brand card element.
+         */
+        function createFeaturedBrandCard(brandName, brandLogo, brandId) {
+            const card = document.createElement('div');
+            card.className = 'featured-brand-card';
+            card.id = `featured-card-${brandId}`; // Unique ID for each featured card
+            card.setAttribute('data-brand-id', brandId);
+
+            card.innerHTML = `
+                <img src="${brandLogo}" alt="${brandName} Logo" onerror="this.onerror=null;this.src='https://placehold.co/80x80/cccccc/333333?text=Logo';">
+                <p class="brand-name">${brandName}</p>
+            `;
+
+            card.addEventListener('click', () => selectFeaturedBrand(brandId));
+            return card;
+        }
+
+        /**
+         * Selects a featured brand, highlights its card, and filters the main content.
+         * @param {string} brandId - The ID of the featured brand to select.
+         */
+        function selectFeaturedBrand(brandId) {
+            selectedFeaturedBrandId = brandId;
+
+            // Remove active class from all featured cards
+            document.querySelectorAll('.featured-brand-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Add active class to the selected card
+            const activeCard = document.getElementById(`featured-card-${brandId}`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+
+            // Clear other filter inputs when a featured brand is selected
+            brandSearchInput.value = '';
+            parishSelect.value = 'All Parishes';
+            townSelect.value = 'All Towns';
+            sessionStorage.setItem('selectedCategory', 'all');
+            highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
+
+
+            applyFilters(); // Apply filters based on the selected featured brand
+        }
+
+
+        /**
+         * Applies all active filters (search term, category, parish, town, or featured brand) and updates the displayed brand sections.
          */
         function applyFilters() {
-            const searchTerm = brandSearchInput.value.toLowerCase().trim();
-            const selectedParish = parishSelect.value.toLowerCase().trim();
-            const selectedTown = townSelect.value.toLowerCase().trim();
-            const selectedCategory = sessionStorage.getItem('selectedCategory') || 'all'; // Get from session storage
-
-            console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
-
             const allBrandsContainer = document.getElementById('all-brands-container');
             allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
 
             let foundContent = false;
 
-            // Iterate through the pre-processed brandDataMap
-            for (const brandId in brandDataMap) {
-                const brand = brandDataMap[brandId];
-                console.log(`[Filter Check] Checking brand: "${brand.brandName}" (ID: ${brandId})`);
-                console.log(`  - Brand Category: "${brand.category.toLowerCase()}", Selected Category: "${selectedCategory}"`);
-                console.log(`  - Brand Parish: "${brand.parish.toLowerCase()}", Selected Parish: "${selectedParish}"`);
-                console.log(`  - Brand Town: "${brand.town.toLowerCase()}", Selected Town: "${selectedTown}"`);
-                console.log(`  - Brand Name: "${brand.brandName.toLowerCase()}", Search Term: "${searchTerm}"`);
-
-
-                let matchesSearch = true;
-                if (searchTerm !== '') {
-                    // Check if brand name or any product name matches the search term
-                    matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
-                                     brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
-                    console.log(`  - Matches Search: ${matchesSearch}`);
-                }
-
-                let matchesCategory = true;
-                if (selectedCategory !== 'all') {
-                    matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
-                    console.log(`  - Matches Category: ${matchesCategory}`);
-                }
-
-                let matchesParish = true;
-                // Only filter by parish if a specific parish is selected (not empty string or "all parishes")
-                if (selectedParish !== '' && selectedParish !== 'all parishes') {
-                    matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
-                    console.log(`  - Matches Parish: ${matchesParish}`);
-                }
-
-                let matchesTown = true;
-                // Only filter by town if a specific town is selected (not empty string or "all towns")
-                if (selectedTown !== '' && selectedTown !== 'all towns') {
-                    matchesTown = (brand.town || '').toLowerCase() === selectedTown;
-                    console.log(`  - Matches Town: ${matchesTown}`);
-                }
-
-                const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
-                console.log(`  - Final Should Show: ${shouldShow}`);
-
-
-                if (shouldShow) {
-                    console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) matches filters. Rendering.`);
-                    // Re-render the brand section with its details
+            if (selectedFeaturedBrandId) {
+                // If a featured brand is selected, only show that brand
+                const brand = brandDataMap[selectedFeaturedBrandId];
+                if (brand) {
                     renderBrandSection(
                         brand.brandName,
-                        brandId,
+                        brand.brandId,
                         brand.brandLogo,
                         brand.brandColor,
                         brand.brandImage,
                         brand.category,
-                        brand.parish, // Pass the parish data
-                        brand.town, // Pass the town data
+                        brand.parish,
+                        brand.town,
                         brand.expiryDate,
-                        brand.brandSecondaryColor, // Pass secondary color
-                        brand.cashbackStatus // Pass cashback status
+                        brand.brandSecondaryColor,
+                        brand.cashbackStatus
                     );
                     foundContent = true;
                 } else {
-                    console.log(`[Filter] Brand "${brand.brandName}" (ID: ${brandId}) filtered out.`);
+                    console.warn(`[Filter] Selected featured brand (ID: ${selectedFeaturedBrandId}) not found in brandDataMap.`);
+                }
+            } else {
+                // If no featured brand is selected, apply normal filters
+                const searchTerm = brandSearchInput.value.toLowerCase().trim();
+                const selectedParish = parishSelect.value.toLowerCase().trim();
+                const selectedTown = townSelect.value.toLowerCase().trim();
+                const selectedCategory = sessionStorage.getItem('selectedCategory') || 'all';
+
+                console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
+
+                for (const brandId in brandDataMap) {
+                    const brand = brandDataMap[brandId];
+
+                    let matchesSearch = true;
+                    if (searchTerm !== '') {
+                        matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
+                                         brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
+                    }
+
+                    let matchesCategory = true;
+                    if (selectedCategory !== 'all') {
+                        matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
+                    }
+
+                    let matchesParish = true;
+                    if (selectedParish !== '' && selectedParish !== 'all parishes') {
+                        matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
+                    }
+
+                    let matchesTown = true;
+                    if (selectedTown !== '' && selectedTown !== 'all towns') {
+                        matchesTown = (brand.town || '').toLowerCase() === selectedTown;
+                    }
+
+                    const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
+
+                    if (shouldShow) {
+                        renderBrandSection(
+                            brand.brandName,
+                            brandId,
+                            brand.brandLogo,
+                            brand.brandColor,
+                            brand.brandImage,
+                            brand.category,
+                            brand.parish,
+                            brand.town,
+                            brand.expiryDate,
+                            brand.brandSecondaryColor,
+                            brand.cashbackStatus
+                        );
+                        foundContent = true;
+                    }
                 }
             }
 
@@ -1414,6 +1624,7 @@
             categoryItem.addEventListener('click', () => {
                 sessionStorage.setItem('selectedCategory', categoryName.toLowerCase()); // Save selected category
                 highlightCategory(categoryItem);
+                selectedFeaturedBrandId = null; // Clear featured brand selection
                 applyFilters(); // Apply filters
             });
             return categoryItem;
@@ -1452,6 +1663,7 @@
             allCategoriesItem.addEventListener('click', () => {
                 sessionStorage.setItem('selectedCategory', 'all'); // Save selected category
                 highlightCategory(allCategoriesItem);
+                selectedFeaturedBrandId = null; // Clear featured brand selection
                 applyFilters(); // Apply filters
             });
 
@@ -1546,6 +1758,13 @@
         brandSearchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
+                selectedFeaturedBrandId = null; // Clear featured brand selection
+                // Reset category/parish/town selections if search is used
+                sessionStorage.setItem('selectedCategory', 'all');
+                highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
+                parishSelect.value = 'All Parishes';
+                townSelect.value = 'All Towns';
+
                 applyFilters(); // Apply filters
             }, 300); // Debounce for 300ms
         });
@@ -1556,6 +1775,7 @@
             sessionStorage.setItem('selectedParish', parishSelect.value); // Save selected parish
             sessionStorage.removeItem('selectedTown'); // Clear town when parish changes
             populateTowns(parishSelect.value); // Update towns based on selected parish
+            selectedFeaturedBrandId = null; // Clear featured brand selection
             applyFilters(); // Apply filters
         });
 
@@ -1563,6 +1783,7 @@
         const townSelect = document.getElementById('townSelect');
         townSelect.addEventListener('change', () => {
             sessionStorage.setItem('selectedTown', townSelect.value); // Save selected town
+            selectedFeaturedBrandId = null; // Clear featured brand selection
             applyFilters(); // Apply filters
         });
 
