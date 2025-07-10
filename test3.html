@@ -788,6 +788,7 @@
          */
         function showLoadingOverlay() {
             document.getElementById('loading-overlay').classList.remove('hidden');
+            console.log("[Loading Overlay] Showing loading overlay.");
         }
 
         /**
@@ -795,6 +796,7 @@
          */
         function hideLoadingOverlay() {
             document.getElementById('loading-overlay').classList.add('hidden');
+            console.log("[Loading Overlay] Hiding loading overlay.");
         }
 
         /**
@@ -1247,6 +1249,7 @@
                         // Hide loading overlay as soon as the first brand is successfully loaded and processed
                         if (!firstBrandLoaded) {
                             hideLoadingOverlay();
+                            console.log("[Loading Overlay] Hidden after first brand loaded.");
                             firstBrandLoaded = true;
                         }
 
@@ -1268,6 +1271,7 @@
                     // If no brands loaded at all, ensure overlay is hidden
                     if (!firstBrandLoaded) {
                         hideLoadingOverlay();
+                        console.log("[Loading Overlay] Hidden because no brands were successfully loaded.");
                     }
                     return;
                 }
@@ -1286,6 +1290,7 @@
                 // or if an error occurred before any brand could trigger the hide.
                 if (!firstBrandLoaded) {
                     hideLoadingOverlay();
+                    console.log("[Loading Overlay] Hidden by finally block (all promises settled, first brand not loaded).");
                 }
             }
         }
