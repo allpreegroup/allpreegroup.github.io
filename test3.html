@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jamaica First In-Store Deal Site & Cashback</title>
+    <!-- Updated viewport meta tag for fixed width scaling -->
+    <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
+    <title>Allpree.com — View Local In-Store Deal Catalogs Across Jamaica</title>
+    <meta itemprop="description" name="description" content="Allpree is an online platform that digitizes local in-store catalog deals, so you can browse everything from the comfort of your couch" />
     <script src="https://cdn.tailwindcss.com"></script>
+<!-- <script src="/js/dt.main.js" defer></script> -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Font Awesome for social icons and location icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -62,11 +65,12 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff; /* Light background */
             color: #333;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Keep hidden to prevent scrollbars from min-width on body */
             display: flex;
             flex-direction: column; /* Arrange header, main, footer vertically */
             justify-content: space-between; /* Push footer to bottom */
             min-height: 100vh; /* Ensure it takes full viewport height */
+            /* Removed min-width: 1200px; from body as viewport handles scaling now */
         }
         .btn-primary {
             background-color: #007bff; /* Primary blue for CTA */
@@ -346,7 +350,7 @@
         }
         .popup-img {
             width: 100%;
-            max-height: 300px;
+            max-height: 300px; /* Adjusted max-height */
             object-fit: contain;
             border-radius: 1rem;
             margin-bottom: 1.5rem;
@@ -755,10 +759,19 @@
 
         /* Specific grid layout for the special brand section */
         #todays-special-brand-content.special-deal-grid-layout {
-            /* Updated to use fluid units and auto-fill */
-            grid-template-columns: repeat(auto-fill, minmax(min-content, 1fr));
-            justify-content: center; /* Center the grid within its container */
-            align-items: stretch; /* Ensure items stretch to fill cell height */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusted minmax for better control */
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* New: Limit max-width and max-height of cards within the special brand section */
+        #todays-special-brand-content .deal-card,
+        #todays-special-brand-content .brand-info-card-grid-item {
+            max-width: 280px; /* Still limit max width */
+            max-height: 350px; /* Add max-height to prevent excessive vertical stretching */
+            overflow: hidden; /* Hide overflow if content exceeds max-height */
+            justify-self: center; /* Center individual cards within their grid cells */
+            align-self: start; /* Align items to the start of their grid cell vertically */
         }
 
         /* Responsive adjustments for special-deal-grid-layout */
@@ -778,9 +791,28 @@
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
         }
+
+        /* Beta Sign Styles */
+        .beta-sign {
+            position: fixed;
+            top: 10px;
+            right: 10px; /* Changed from left to right */
+            background-color: #ef4444; /* Red background */
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 100; /* Ensure it's above other content */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
+    <!-- Beta Sign -->
+    <div class="beta-sign">BETA</div>
+
     <!-- Header -->
     <header class="header-bg py-4 sticky top-0 z-50">
         <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
@@ -794,7 +826,7 @@
                 <div class="relative flex-grow combined-search-container">
                     <div class="search-icon-wrapper">
                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
                     <input type="text" id="brandSearchInput" placeholder="Search brands..." class="py-2">
@@ -869,9 +901,9 @@
 
      <!-- Footer -->
     <footer class="footer-section mt-auto">
-        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
+        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-4 gap-8 text-left">
             <!-- About Allpree Column -->
-            <div class="col-span-1 md:col-span-1">
+            <div class="col-span-1">
                 <h3 class="text-white mb-4">About Allpree</h3>
                 <p class="text-gray-300 text-sm leading-relaxed">
                     Allpree shows you the best local deals. From groceries to fashion and many more. We help you save every day. We search high and low to bring you unbeatable local prices on the products you love, so you can spend less and enjoy more 
@@ -896,7 +928,7 @@
             </div>
 
             <!-- My Account Column -->
-            <div class="col-span-1 md:col-span-1">
+            <div class="col-span-1">
                 <h3 class="text-white mb-4">CASHBACK CLUB</h3>
                 <ul>
                     <li><a href="https://www.allpree.com/for-giftcard" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Gift Card</a></li>
@@ -909,7 +941,7 @@
             </div>
 
             <!-- Let Us Help Column -->
-            <div class="col-span-1 md:col-span-1">
+            <div class="col-span-1">
                 <h3 class="text-white mb-4">LET US HELP</h3>
                 <ul>
                     <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
@@ -919,11 +951,11 @@
             </div>
 
             <!-- Company Information Column -->
-            <div class="col-span-1 md:col-span-1">
+            <div class="col-span-1">
                 <h3 class="text-white mb-4">COMPANY</h3>
                 <ul>
                     <li><a href="https://www.allpree.com/for-retailers" class="text-gray-300 hover:text-white transition-colors duration-200">For Giftme Retailers</a></li>
-                    <li><a href="https://www.allpree.com/for-shoppers" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
+                    <li><a href="https://www.allpree.com/getapp" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
                 </ul>
             </div>
         </div>
@@ -938,7 +970,7 @@
     <div id="popup" class="popup-overlay hidden">
         <div class="popup-content">
             <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img id="popupImg" src="" alt="Deal Image" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
+            <img  class="popup-img" id="popupImg" src="" alt="Deal Image" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
             <h2 id="popupTitle" class="popup-title"></h2>
             <p id="popupBrand" class="popup-brand"></p>
             <div class="popup-price-info-popup">
