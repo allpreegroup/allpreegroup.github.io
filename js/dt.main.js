@@ -289,7 +289,7 @@
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 // The button should only show if there are actual products remaining
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
@@ -309,7 +309,7 @@
 
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
