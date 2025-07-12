@@ -12,7 +12,7 @@
     <!-- Font Awesome for social icons and location icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <style>
+     <style>
         /* Custom CSS for header */
         .header-bg {
             background-color: #ffffff; /* White background for the header */
@@ -287,7 +287,7 @@
         .shop-more-button {
             background-color: #2C3E50;
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 0.75rem;
             border-radius: 0.75rem;
             font-weight: 600;
             display: flex;
@@ -728,13 +728,13 @@
             }
         }
 
-         /* Today's Special Brand Section Styles */
+        /* Today's Special Brand Section Styles */
         #top-special-brand-section { /* Renamed from single-featured-brand-section */
             background: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
             color: white;
             padding: 1rem 1rem; /* More padding */
             border-radius: 1.5rem;
-            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Reverted box-shadow */
             margin: 1rem auto; /* Center horizontally and add vertical margin */
             max-width: 1200px; /* Changed from 800px to 1200px */
             width: 95%;
@@ -761,17 +761,17 @@
         #todays-special-brand-content.special-deal-grid-layout {
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for better control */
             justify-content: center;
-            align-items: stretch;
+            align-items: stretch; /* Ensure items stretch to fill the cell height */
         }
 
-        /* New: Limit max-width and max-height of cards within the special brand section */
+        /* New: Limit max-width and fixed height of cards within the special brand section */
         #todays-special-brand-content .deal-card,
         #todays-special-brand-content .brand-info-card-grid-item {
             max-width: 200px; /* Still limit max width */
-            max-height: 250px; /* Add max-height to prevent excessive vertical stretching */
-            overflow: hidden; /* Hide overflow if content exceeds max-height */
+            height: 280px; /* Changed from max-height to fixed height to enforce uniform height */
+            overflow: hidden; /* Hide overflow if content exceeds fixed height */
             justify-self: center; /* Center individual cards within their grid cells */
-            align-self: start; /* Align items to the start of their grid cell vertically */
+            /* align-self: stretch; is inherited from grid container */
         }
 
         /* Responsive adjustments for special-deal-grid-layout */
@@ -796,7 +796,7 @@
         .beta-sign {
             position: fixed;
             top: 10px;
-            left: 10px;
+            left: 10px; /* Changed from left to right */
             background-color: #ef4444; /* Red background */
             color: white;
             padding: 5px 10px;
