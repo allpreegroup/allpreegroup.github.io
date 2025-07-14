@@ -2,7 +2,7 @@
         const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
         const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
         const productsPerPage = 4; // Number of products to show initially per brand section for individual brand sections
-        const brandsPerPage = 4; // Number of brands to show initially for the main list
+        const brandsPerPage = 2; // Number of brands to show initially for the main list
 
         // Store product data and current index per brand
         const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
