@@ -2,7 +2,7 @@
         const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
         const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
         const productsPerPage = 4; // Number of products to show initially per brand section for individual brand sections
-        const brandsPerPage = 2; // Number of brands to show initially for the main list
+        const brandsPerPage = 1; // Number of brands to show initially for the main list
 
         // Store product data and current index per brand
         const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
@@ -19,6 +19,9 @@
         let currentSpecialBrandData = null; // To store the data for the currently active special brand
         let filteredBrandIds = []; // Stores the IDs of brands that match current filters
         let currentMainBrandIndex = 0; // Tracks the current number of brands displayed in the main list
+        let autoLoadCount = 0; // Tracks how many times auto-load has occurred for the main list
+        const maxAutoLoads = 3; // Maximum number of automatic loads
+        let intersectionObserver; // IntersectionObserver instance
 
         /**
          * Shows the loading overlay.
@@ -292,7 +295,7 @@
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 // The button should only show if there are actual products remaining
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
@@ -312,7 +315,7 @@
 
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
@@ -862,12 +865,19 @@
                 }
             }
 
-            // Update the global filteredBrandIds array and reset main index
+            // Update the global filteredBrandIds array and reset main index and auto-load count
             filteredBrandIds = tempFilteredBrandIds;
             currentMainBrandIndex = 0;
+            autoLoadCount = 0;
 
             // Render the initial batch of filtered brands
             renderNextBatchOfBrands();
+
+            // Setup Intersection Observer for auto-loading
+            setupIntersectionObserver();
+
+            // Ensure the manual load button is hidden initially
+            document.getElementById('shop-more-container-main').classList.add('hidden');
 
             let noResultsMessage = document.getElementById('no-results-message');
 
@@ -913,7 +923,7 @@
             });
 
             currentMainBrandIndex += brandsToRender.length;
-            updateLoadMoreMainButton();
+            updateLoadMoreMainButton(); // Update button visibility and observer state
         }
 
         /**
@@ -935,11 +945,79 @@
             const remainingCount = filteredBrandIds.length - currentMainBrandIndex;
 
             if (remainingCount > 0) {
-                shopMoreButtonSpan.textContent = `View ${remainingCount} More Brands`;
-                shopMoreButtonContainer.classList.remove('hidden');
+                if (autoLoadCount < maxAutoLoads) {
+                    // Still in auto-load phase, hide button
+                    shopMoreButtonContainer.classList.add('hidden');
+                    // Ensure observer is active if there are still brands to load automatically
+                    if (intersectionObserver && document.getElementById('load-more-sentinel')) {
+                        intersectionObserver.unobserve(document.getElementById('load-more-sentinel')); // Disconnect to re-observe if needed
+                        intersectionObserver.observe(document.getElementById('load-more-sentinel'));
+                    }
+                } else {
+                    // Auto-loads exhausted, show button
+                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Brands`;
+                    shopMoreButtonContainer.classList.remove('hidden');
+                    if (intersectionObserver) {
+                        intersectionObserver.disconnect(); // Disconnect observer when manual button appears
+                    }
+                }
             } else {
+                // No more brands to load, hide button and disconnect observer
                 shopMoreButtonContainer.classList.add('hidden');
+                if (intersectionObserver) {
+                    intersectionObserver.disconnect();
+                }
             }
+        }
+
+        /**
+         * Sets up the Intersection Observer for automatic loading of main brands.
+         */
+        function setupIntersectionObserver() {
+            if (intersectionObserver) {
+                intersectionObserver.disconnect(); // Disconnect existing observer
+            }
+
+            const loadMoreSentinel = document.getElementById('load-more-sentinel');
+            if (!loadMoreSentinel) {
+                console.warn("Load more sentinel element not found.");
+                return;
+            }
+
+            intersectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const remainingCount = filteredBrandIds.length - currentMainBrandIndex;
+                        if (autoLoadCount < maxAutoLoads && remainingCount > 0) {
+                            autoLoadCount++;
+                            console.log(`[Auto-Load] Auto-loading batch ${autoLoadCount}/${maxAutoLoads}`);
+                            renderNextBatchOfBrands();
+                        } else if (remainingCount === 0) {
+                            // No more brands, disconnect observer
+                            if (intersectionObserver) {
+                                intersectionObserver.disconnect();
+                            }
+                            console.log("[Auto-Load] All brands loaded, observer disconnected.");
+                        } else {
+                            // Auto-loads exhausted, show manual button if more brands exist
+                            if (remainingCount > 0) {
+                                updateLoadMoreMainButton(); // This will show the manual button
+                            }
+                            if (intersectionObserver) {
+                                intersectionObserver.disconnect();
+                            }
+                            console.log("[Auto-Load] Max auto-loads reached, observer disconnected.");
+                        }
+                    }
+                });
+            }, {
+                root: null, // viewport
+                rootMargin: '0px',
+                threshold: 0.1 // Trigger when 10% of the sentinel is visible
+            });
+
+            intersectionObserver.observe(loadMoreSentinel);
+            console.log("[IntersectionObserver] Observer setup and observing sentinel.");
         }
 
 
