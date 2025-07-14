@@ -1,7 +1,8 @@
         const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
         const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
         const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
-        const productsPerPage = 4; // Number of products to show initially per brand section
+        const productsPerPage = 4; // Number of products to show initially per brand section for individual brand sections
+        const brandsPerPage = 4; // Number of brands to show initially for the main list
 
         // Store product data and current index per brand
         const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
@@ -16,6 +17,8 @@
         let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
         let selectedFeaturedBrandId = null; // New: To store the currently selected featured brand
         let currentSpecialBrandData = null; // To store the data for the currently active special brand
+        let filteredBrandIds = []; // Stores the IDs of brands that match current filters
+        let currentMainBrandIndex = 0; // Tracks the current number of brands displayed in the main list
 
         /**
          * Shows the loading overlay.
@@ -289,7 +292,7 @@
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 // The button should only show if there are actual products remaining
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
@@ -309,7 +312,7 @@
 
             if (shopMoreButtonSpan && shopMoreButtonContainer) {
                 if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `View ${remainingCount} More Deals`;
+                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
                     shopMoreButtonContainer.classList.remove('hidden');
                 } else {
                     shopMoreButtonContainer.classList.add('hidden');
@@ -803,26 +806,12 @@
             const allBrandsContainer = document.getElementById('all-brands-container');
             allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
 
-            let foundContent = false;
+            let tempFilteredBrandIds = []; // Use a temporary array for filtering
 
             if (selectedFeaturedBrandId) {
                 // If a featured brand is selected, only show that brand
-                const brand = brandDataMap[selectedFeaturedBrandId];
-                if (brand) {
-                    renderBrandSection(
-                        brand.brandName,
-                        brand.brandId,
-                        brand.brandLogo,
-                        brand.brandColor,
-                        brand.brandImage,
-                        brand.category,
-                        brand.parish,
-                        brand.town,
-                        brand.expiryDate,
-                        brand.brandSecondaryColor,
-                        brand.cashbackStatus
-                    );
-                    foundContent = true;
+                if (brandDataMap[selectedFeaturedBrandId]) {
+                    tempFilteredBrandIds.push(selectedFeaturedBrandId);
                 } else {
                     console.warn(`[Filter] Selected featured brand (ID: ${selectedFeaturedBrandId}) not found in brandDataMap.`);
                 }
@@ -868,27 +857,21 @@
                     const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
 
                     if (shouldShow) {
-                        renderBrandSection(
-                            brand.brandName,
-                            brandId,
-                            brand.brandLogo,
-                            brand.brandColor,
-                            brand.brandImage,
-                            brand.category,
-                            brand.parish,
-                            brand.town,
-                            brand.expiryDate,
-                            brand.brandSecondaryColor,
-                            brand.cashbackStatus
-                        );
-                        foundContent = true;
+                        tempFilteredBrandIds.push(brandId);
                     }
                 }
             }
 
+            // Update the global filteredBrandIds array and reset main index
+            filteredBrandIds = tempFilteredBrandIds;
+            currentMainBrandIndex = 0;
+
+            // Render the initial batch of filtered brands
+            renderNextBatchOfBrands();
+
             let noResultsMessage = document.getElementById('no-results-message');
 
-            if (!foundContent) {
+            if (filteredBrandIds.length === 0) {
                 if (!noResultsMessage) {
                     noResultsMessage = document.createElement('p');
                     noResultsMessage.id = 'no-results-message';
@@ -902,6 +885,63 @@
                 console.log("[Filter] Content found, removing 'no results' message.");
             }
         }
+
+        /**
+         * Renders the next batch of brands for the main list based on current filters.
+         */
+        function renderNextBatchOfBrands() {
+            const brandsToRender = filteredBrandIds.slice(currentMainBrandIndex, currentMainBrandIndex + brandsPerPage);
+            const allBrandsContainer = document.getElementById('all-brands-container');
+
+            brandsToRender.forEach(brandId => {
+                const brand = brandDataMap[brandId];
+                if (brand) {
+                    renderBrandSection(
+                        brand.brandName,
+                        brand.brandId,
+                        brand.brandLogo,
+                        brand.brandColor,
+                        brand.brandImage,
+                        brand.category,
+                        brand.parish,
+                        brand.town,
+                        brand.expiryDate,
+                        brand.brandSecondaryColor,
+                        brand.cashbackStatus
+                    );
+                }
+            });
+
+            currentMainBrandIndex += brandsToRender.length;
+            updateLoadMoreMainButton();
+        }
+
+        /**
+         * Loads more brands for the main list when the button is clicked.
+         */
+        function loadMoreBrands() {
+            renderNextBatchOfBrands();
+        }
+
+        /**
+         * Updates the visibility and text of the main "Load More" button.
+         */
+        function updateLoadMoreMainButton() {
+            const shopMoreButtonSpan = document.getElementById(`shop-more-count-main`);
+            const shopMoreButtonContainer = document.getElementById(`shop-more-container-main`);
+
+            if (!shopMoreButtonSpan || !shopMoreButtonContainer) return;
+
+            const remainingCount = filteredBrandIds.length - currentMainBrandIndex;
+
+            if (remainingCount > 0) {
+                shopMoreButtonSpan.textContent = `View ${remainingCount} More Brands`;
+                shopMoreButtonContainer.classList.remove('hidden');
+            } else {
+                shopMoreButtonContainer.classList.add('hidden');
+            }
+        }
+
 
         /**
          * Creates a category item for the floating bar.
