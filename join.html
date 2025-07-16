@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Base styles */
+       /* Base styles */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff; /* Light background */
@@ -27,7 +27,8 @@
             border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
         }
 
-        /* Custom CSS for footer */
+
+                /* Custom CSS for footer */
         .footer-section {
             background-color: #2C3E50; /* Dark blue background */
             color: white;
@@ -70,7 +71,7 @@
             max-width: 80rem; /* Equivalent to Tailwind's max-w-7xl (1280px) */
         }
 
-        /* Button primary style */
+        /* Button primary style (used for general buttons) */
         .btn-primary {
             background-color: #007bff; /* Blue background */
             color: white;
@@ -84,50 +85,213 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Main content wrapper */
-        .container-wrapper {
-            border-radius: 1.5rem; /* Rounded corners for the main container */
-            padding: 0; /* Remove padding here, it's inside sections */
-            margin: 2rem auto; /* Center horizontally and add vertical margin */
-            max-width: 1200px; /* Max width for content */
-            width: 95%; /* Responsive width */
-            overflow: hidden; /* Ensure rounded corners clip content */
+        /* New styles for the signup container and panels */
+        .signup-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column; /* Stack vertically on small screens */
+            max-width: 1200px; /* Adjust max-width as needed */
+            width: 95%;
+            overflow: hidden;
+            margin: auto;
+            margin-top: 1rem; /* Add some space above the container */
+            margin-bottom: 1rem;
             flex-grow: 1; /* Allow main content to grow and push footer down */
         }
-
-        /* Specific styles for signup form */
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
+        .left-panel {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+            background-color: #f8fafc; /* Lighter background for left panel */
         }
-        .form-input, .form-select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
+        .left-panel h1 {
+            font-size: 2rem; /* Increased font size for a much bigger headline on desktop */
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: #1a202c;
+        }
+        .right-panel {
+            padding: 3rem;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .left-panel p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
             margin-bottom: 1rem;
-            box-sizing: border-box;
         }
-        .hidden {
-            display: none;
+        /* SCOPED LIST STYLES FOR LEFT PANEL ONLY */
+        .left-panel ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: .5rem;
+            margin-top: .5rem;
         }
+        .left-panel ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #4a5568;
+        }
+        .left-panel ul li::before {
+            content: '•'; /* Bullet point */
+            position: absolute;
+            left: 0;
+            color: #007bff; /* Blue bullet */
+            font-weight: bold;
+            font-size: 1.2rem;
+            top: -2px;
+        }
+        /* END SCOPED LIST STYLES */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 0.25rem;
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.25rem;
+            border: 1px solid #e2e8f0;
+            accent-color: #007bff; /* For checked state */
+        }
+        .checkbox-group label {
+            font-size: 0.875rem;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        .checkbox-group label a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .checkbox-group label a:hover {
+            text-decoration: underline;
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Invite Section Specific Styles */
+        .invite-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 3rem; /* Adjusted padding for top/bottom */
+            text-align: center;
+            background-color: #f8fafc;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+             margin-top: 1rem; /* Add some space above the container */
+            margin-bottom: 1rem;
+        }
+        .invite-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1a202c;
+        }
+        .invite-section input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .invite-section button {
+            background-color: #2C3E50;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .invite-section button:hover {
+            background-color: #34495E;
+        }
+        #inviteError {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none; /* Hidden by default */
+        }
+
+        /* Loading Modal Styles */
         .loading-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
         }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
             border-radius: 50%;
-            border-top: 4px solid #fff;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
@@ -136,13 +300,149 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Welcome Message Styles */
+        .welcome-message {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+            flex-grow: 1; /* Allow it to take available space */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .welcome-message h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+        .welcome-message h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+        .welcome-message p {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .welcome-message strong {
+            color: #007bff;
+        }
+        .welcome-message .menu-button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+            margin-top: 1.5rem;
+        }
+        .welcome-message .menu-button:hover {
+            background-color: #0056b3;
+        }
+        .welcome-message .gradient-text {
+            background: linear-gradient(90deg, #ff6ec4, #7873f5, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-top: 30px;
+            animation: pop 0.6s ease-in-out;
+        }
         @keyframes pop {
-            0% { transform: scale(0.5); opacity: 0; }
+            0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
+
+        /* Custom Modal for Alerts */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+        .custom-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: fadeInScale 0.3s ease-out;
+        }
+        .custom-modal-content h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+        .custom-modal-content p {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .custom-modal-content button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .custom-modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .signup-container {
+                flex-direction: row; /* Side-by-side on larger screens */
+            }
+            .left-panel, .right-panel {
+                flex: 1; /* Equal width columns */
+            }
+            .right-panel {
+                padding: 3rem 4rem; /* More horizontal padding for form */
+            }
+            .left-panel h1 {
+                font-size: 2.5rem; /* Ensure consistent size on larger screens, slightly larger */
+            }
+        }
+        @media (max-width: 767px) {
+            .left-panel, .right-panel {
+                padding: 2rem; /* Reduce padding on small screens */
+            }
+            .left-panel h1 {
+                font-size: 2rem; /* Adjusted for smaller screens to be much bigger */
+            }
+            .invite-section {
+                padding: 2rem;
+            }
+            .welcome-message {
+                padding: 1.5rem;
+            }
+        }
+        /* Removed .open-app-button-container and .open-app-button styles as the element is removed */
     </style>
 </head>
-<body class="antialiased text-gray-800" onload="init_signup()">
+<body onload="init_signup()">
     <!-- Header -->
     <header class="header-bg py-4 sticky top-0 z-50">
         <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
@@ -160,106 +460,164 @@
         </div>
     </header>
 
-    <div class="container-wrapper bg-white shadow-xl">
-        <main class="p-6 sm:p-8 lg:p-10">
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-700 mb-8 text-center">Join Allpree Today!</h1>
+    <!-- Removed "Open App in New Window" button and its container -->
 
-            <!-- Welcome Message Section (Hidden by default) -->
-            <div id="welcomeMessage" class="hidden bg-green-50 p-6 rounded-lg shadow-md text-center">
-                <h2 id="welcomeText" class="text-2xl font-bold text-green-700 mb-4"></h2>
-                <!-- Content injected by handleSuccessfulSignup -->
-            </div>
+    <!-- Invite Code Section (Initially visible) -->
+    <div class="invite-section">
+        <h2>Enter Your Invite Code</h2>
+        <input type="text" id="inviteCodeInput" placeholder="INVITE CODE">
+        <button id="validateBtn">Validate Code</button>
+        <p id="inviteError" class="text-red-500 mt-2 hidden">Invalid or expired invite code. Please try again.</p>
+    </div>
 
-            <!-- Invite Code Section -->
-            <section class="invite-section mb-10">
-                <div class="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                    <h2 class="text-2xl font-bold text-blue-700 mb-4">Enter Your Invite Code</h2>
-                    <input type="text" id="inviteCodeInput" class="form-input text-center" placeholder="Enter Code Here" autocomplete="off">
-                    <button id="validateBtn" class="btn-primary py-2 px-6 text-base shadow-md">Validate Code</button>
-                    <p id="inviteError" class="text-red-500 mt-2 hidden">Invalid invite code. Please try again.</p>
+    <!-- Sign-up Form Section (Initially hidden) -->
+    <div id="signupFormSection" class="signup-container hidden">
+        <!-- Left Panel: Marketing Content -->
+        <div class="left-panel">
+            <h1>Unlock Exclusive Cashback & Digital Gift Cards Today!</h1>
+            <p>Join our program and start earning on every purchase. Here's what you'll get:</p>
+            <ul >
+                <li>Instant access to cashback rewards at hundreds of merchants.</li>
+                <li>Personalized digital gift cards for your favorite stores.</li>
+                <li>A dedicated support team to guide you through your earning journey.</li>
+                <li>Exclusive deals and promotions tailored just for you.</li>
+            </ul>
+            <p>It's free to sign up. No hidden fees or credit card required.</p>
+        </div>
+
+        <!-- Right Panel: Sign-up Form -->
+        <div class="right-panel">
+            <form id="signupForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse" method="POST" target="hidden_iframe">
+                <!-- Hidden fields for Google Form -->
+                <input type="hidden" id="field_ID" name="entry.1092645840" value="">
+                <input type="hidden" id="field_Code" name="entry.2034350499" value="">
+                <!-- Removed entry.297851038 as the corresponding select is removed -->
+                <input type="hidden" name="entry.663913627" value="Digital Free">
+                <input type="hidden" name="entry.218867361" value="Basic Free">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="firstName">First name*</label>
+                        <input type="text" id="firstName" name="entry.1502543154" placeholder="First name" required class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last name*</label>
+                        <input type="text" id="lastName" name="entry.166208811" placeholder="Last name" required class="rounded-lg">
+                    </div>
                 </div>
-            </section>
-
-            <!-- Signup Form Section (Hidden by default) -->
-            <section id="signupFormSection" class="hidden">
-                <form id="signupForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="hidden" id="field_ID" name="entry.1092645840">
-                    <input type="hidden" id="field_Code" name="entry.2034350499">
-                    <input type="hidden" name="entry.297851038" value="">
-                    <input type="hidden" name="entry.663913627" value="Digital Free">
-                    <input type="hidden" name="entry.218867361" value="Basic Free">
-
-                    <div>
-                        <label for="firstName" class="form-label">First Name</label>
-                        <input type="text" id="firstName" name="entry.1502543154" class="form-input" required>
-                    </div>
-                    <div>
-                        <label for="lastName" class="form-label">Last Name</label>
-                        <input type="text" id="lastName" name="entry.166208811" class="form-input" required>
-                    </div>
-                    <div>
-                        <label for="emailAddress" class="form-label">Email Address</label>
-                        <input type="email" id="emailAddress" name="emailAddress" class="form-input" required>
-                    </div>
-                    <div>
-                        <label for="whatsappNumber" class="form-label">WhatsApp Number (+1876)</label>
-                        <input type="tel" id="whatsappNumber" name="entry.1897494140" class="form-input" placeholder="+1876" required>
-                    </div>
-                    <div>
-                        <label for="gender" class="form-label">Gender</label>
-                        <select id="gender" name="entry.208508536" class="form-select" required>
-                            <option value="">Select Gender</option>
+                <div class="form-group">
+                    <label for="businessEmail">Business email*</label>
+                    <input type="email" id="businessEmail" name="emailAddress" placeholder="Business email" required class="rounded-lg">
+                </div>
+                <div class="form-group">
+                    <label for="whatsappNumber">WhatsApp Number*</label>
+                    <input type="tel" id="whatsappNumber" name="entry.1897494140" placeholder="+1876xxxxxxx" required class="rounded-lg">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="genderSelect">Gender*</label>
+                        <select id="genderSelect" name="entry.208508536" required class="rounded-lg">
+                            <option value="">Select</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                     </div>
-                    <div>
-                        <label for="birthYearSelect" class="form-label">Birth Year</label>
-                        <select id="birthYearSelect" name="entry.577240945" class="form-select" required>
-                            <option value="">Select Year</option>
+                    <div class="form-group">
+                        <label for="birthYearSelect">Birth Year*</label>
+                        <select id="birthYearSelect" name="entry.577240945" required class="rounded-lg">
+                            <option value="">Select</option>
+                            <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div>
-                        <label for="countrySelect" class="form-label">Country</label>
-                        <select id="countrySelect" name="entry.1890405601" class="form-select" required>
-                            <option value="">Select Country</option>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="countrySelect">Country*</label>
+                        <select id="countrySelect" name="entry.1890405601" required class="rounded-lg">
+                            <option value="">Select</option>
+                            <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div>
-                        <label for="parishSelect" class="form-label">Parish</label>
-                        <select id="parishSelect" name="entry.341957417" class="form-select" required>
-                            <option value="">Select Parish</option>
+                    <div class="form-group">
+                        <label for="parishSelect">Parish*</label>
+                        <select id="parishSelect" name="entry.341957417" required class="rounded-lg">
+                            <option value="">Select</option>
+                            <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div class="md:col-span-2 text-center mt-4">
-                        <button type="button" id="submitSignupBtn" class="btn-primary py-3 px-8 text-lg shadow-lg">Sign Up Now!</button>
-                    </div>
-                </form>
-            </section>
+                </div>
 
-            <!-- Contact Saving Section -->
-            <section class="mt-10 text-center">
-                <h2 class="text-2xl font-bold text-blue-600 mb-4">Save Our Contact</h2>
-                <div id="action" class="mb-4">
-                    <!-- Dynamic content for saving contact -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="consentCheckbox" name="consentCheckbox">
+                    <label for="consentCheckbox">
+                        I agree to receive other communications from iPaper.
+                        You may unsubscribe from these communications at any time. For more information, please check out our <a href="#" class="font-medium">terms and policies</a>.
+                    </label>
                 </div>
-                <div id="qr" class="flex justify-center">
-                    <!-- QR code will be loaded here -->
-                </div>
-            </section>
-        </main>
+
+                <button type="button" id="submitSignupBtn" class="btn-submit">Start trial</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Loading Modal (Hidden by default) -->
+    <!-- Welcome Message Section (Initially hidden) -->
+    <div id="welcomeMessage" class="welcome-message hidden">
+        <h2 id="welcomeText" class="gradient-text"></h2>
+        <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h2>
+        <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
+
+        <p><strong><span id="welcomeFirstName"></span></strong>, I know you are a savvy shopper<br><br>
+        Tired of going shopping and walking away with just your receipts and <strong>no real discounts</strong> from big or small retailers?<br><br>
+        What if you could stop worrying about discounts and start <strong>earning cash back</strong> instead? 💸 With our system, you can get back <strong>up to 49%</strong> of what you spend, sent straight to your <strong>bank account</strong>. All it takes is <strong>121 days</strong> to settle. No stress, no strings.<br><br>
+        Sounds too good to miss, right?<br>
+        </p>
+
+        <p>
+        It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, giving you exclusive access to over <strong>300+ merchants</strong> across Jamaica.<br><br>
+        But here’s the real magic: <strong>You don’t need to wait for any special deals.</strong> Deal Plus⁺ works on <strong>every purchase</strong>, from <strong>any merchant</strong>, automatically turning your everyday spending into real money back.<br><br>
+        So far, our members have saved <strong id='savedAmount'>loading...</strong>, that’s real cash returned from a total spend of <strong id='spentAmount'>loading...</strong>! <strong><span id="welcomeFirstName2"></span></strong>, imagine what you could be saving just by shopping like you already do.<br><br>
+        And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
+        </p>
+        <h4><center>Plus Unlock Lifetime Income</center></h4>
+        <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
+
+        <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
+
+        <center>
+            <button id="seeHowItWorks" class="menu-button btn-primary py-3 px-8 text-lg shadow-lg">
+                👉 See How It Works
+            </button>
+        </center>
+        <section class="mt-10 text-center">
+            <h2 class="text-2xl font-bold text-blue-600 mb-4">Save Our Contact</h2>
+            <div id="action" class="mb-4">
+                <!-- Dynamic content for saving contact -->
+            </div>
+            <div id="qr" class="flex justify-center">
+                <!-- QR code will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Loading Modal (Initially hidden) -->
     <div id="loading-modal" class="loading-modal hidden">
-        <div class="spinner"></div>
+        <div class="loading-spinner"></div>
     </div>
 
-    <!-- Hidden iframe for Google Forms submission -->
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(window.submitted) handleSuccessfulSignup();"></iframe>
+    <!-- Custom Alert Modal (Initially hidden) -->
+    <div id="custom-alert-modal" class="custom-modal-overlay hidden">
+        <div class="custom-modal-content">
+            <h4 id="custom-alert-title"></h4>
+            <p id="custom-alert-message"></p>
+            <button onclick="closeCustomAlert()">OK</button>
+        </div>
+    </div>
 
-    <!-- Footer -->
+    <!-- Hidden iframe for Google Form submission -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+ <!-- Footer -->
     <footer class="footer-section mt-auto">
         <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
             <!-- About Allpree Column -->
@@ -332,308 +690,24 @@
         // Set the current year dynamically
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
-        function init_signup() {
-            const inviteBtn = document.getElementById('validateBtn');
-            const inviteInput = document.getElementById('inviteCodeInput');
-            const errorText = document.getElementById('inviteError');
-            const formSection = document.getElementById('signupFormSection');
-            const welcomeDiv = document.getElementById("welcomeMessage");
-            const welcomeText = document.getElementById("welcomeText");
-            const loader = document.getElementById("loading-modal");
-            const hiddenIframe = document.getElementById("hidden_iframe");
-
-            let iframeInitialized = false;
-            window.submitted = false;
-
-            const savedUser = localStorage.getItem("signedUpUser");
-            if (savedUser) {
-                document.querySelector('.invite-section').classList.add('hidden');
-                formSection.classList.add('hidden');
-                welcomeText.textContent = `Welcome back, ${savedUser}!`;
-                welcomeDiv.classList.remove('hidden');
-                return;
-            }
-
-            inviteBtn.onclick = async () => {
-                const code = inviteInput.value.trim().toUpperCase();
-                if (!code) return;
-
-                loader.style.display = "flex";
-
-                try {
-                    const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
-                    const data = await res.json();
-                    
-                    const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
-
-                    if (match) {
-                        document.getElementById('field_ID').value = `ID ${code}`;
-                        document.getElementById('field_Code').value = code;
-                        formSection.classList.remove('hidden');
-                        document.querySelector('.invite-section').classList.add('hidden');
-                        errorText.style.display = "none";
-                    } else {
-                        errorText.style.display = "block";
-                    }
-                } catch (e) {
-                    console.error("Error checking code:", e);
-                    errorText.style.display = "block";
-                } finally {
-                    loader.style.display = "none";
-                }
-            };
-
-            const birthYearSelect = document.getElementById("birthYearSelect");
-            const currentYear = new Date().getFullYear();
-            for (let y = currentYear - 50; y <= currentYear - 10; y++) {
-                const option = document.createElement("option");
-                option.value = y;
-                option.textContent = y;
-                birthYearSelect.appendChild(option);
-            }
-
-            const countries = ["Jamaica"];
-            const countrySelect = document.getElementById("countrySelect");
-            countries.forEach(c => {
-                const option = document.createElement("option");
-                option.value = c;
-                option.textContent = c;
-                countrySelect.appendChild(option);
-            });
-
-            const parishes = [
-                "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
-                "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
-            ];
-            const parishSelect = document.getElementById("parishSelect");
-            parishes.forEach(p => {
-                const option = document.createElement("option");
-                option.value = p;
-                option.textContent = p;
-                parishSelect.appendChild(option);
-            });
-
-            const phoneInput = document.getElementById("whatsappNumber");
-            phoneInput.addEventListener("input", () => {
-                const expectedPrefix = "+1876";
-                const actualPrefix = phoneInput.value.slice(0, expectedPrefix.length);
-                const rest = phoneInput.value.slice(expectedPrefix.length);
-
-                let fixedPrefix = "";
-                for (let i = 0; i < expectedPrefix.length; i++) {
-                    fixedPrefix += actualPrefix[i] !== expectedPrefix[i] ? expectedPrefix[i] : actualPrefix[i];
-                }
-
-                if (fixedPrefix !== actualPrefix) {
-                    phoneInput.value = fixedPrefix + rest;
-                }
-            });
-
-            document.getElementById("submitSignupBtn").addEventListener("click", submitSignupForm);
-
-
-            hiddenIframe.onload = () => {
-                if (!iframeInitialized) {
-                    iframeInitialized = true;
-                    return;
-                }
-                if (window.submitted) {
-                    handleSuccessfulSignup();
-                }
-            };
-
-            document.addEventListener('click', function (event) {
-                if (event.target.closest('#seeHowItWorks')) {
-                    const realButton = document.querySelector('.menu-button[data-view="salesletter"]:not(#seeHowItWorks)');
-                    if (realButton) {
-                        realButton.click();
-                    } else {
-                        console.error('Target action button not found.');
-                    }
-                }
-            });
+        // Custom Alert Functions (replacing alert())
+        function showCustomAlert(title, message) {
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-message').textContent = message;
+            document.getElementById('custom-alert-modal').classList.remove('hidden');
         }
 
-        async function submitSignupForm() {
-            document.getElementById("loading-modal").style.display = "flex";
-
-            const requiredFields = [
-                { name: 'entry.1502543154', label: 'First Name' },
-                { name: 'entry.166208811', label: 'Last Name' },
-                { name: 'emailAddress', label: 'Email' },
-                { id: 'whatsappNumber', label: 'WhatsApp Number' },
-                { name: 'entry.208508536', label: 'Gender' },
-                { id: 'birthYearSelect', label: 'Birth Year' },
-                { id: 'countrySelect', label: 'Country' },
-                { id: 'parishSelect', label: 'Parish' }
-            ];
-
-            let missingFields = [];
-            const allFields = document.querySelectorAll('input, select');
-            allFields.forEach(field => {
-                field.style.border = '';
-                field.style.backgroundColor = '';
-            });
-
-            requiredFields.forEach(field => {
-                let value;
-                let element;
-                if (field.id) {
-                    element = document.getElementById(field.id);
-                    value = element?.value.trim();
-                } else if (field.name) {
-                    element = document.querySelector(`[name="${field.name}"]`);
-                    value = element?.value.trim();
-                }
-                if (!value) {
-                    missingFields.push(field.label);
-                    if (element) {
-                        element.style.border = '2px solid red';
-                        element.style.backgroundColor = '#f8d7da';
-                    }
-                }
-            });
-
-            if (missingFields.length > 0) {
-                // Using a custom modal/message box instead of alert()
-                const message = `Please complete the following fields:\n\n- ${missingFields.join('\n- ')}`;
-                // For demonstration, a simple alert is used, but in a real app, this would be a custom modal.
-                // alert(message);
-                console.warn(message); // Log to console as a fallback
-                document.getElementById("loading-modal").style.display = "none";
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('entry.1092645840', document.getElementById('field_ID').value);
-            formData.append('entry.2034350499', document.getElementById('field_Code').value);
-            formData.append('entry.297851038', '');
-            formData.append('entry.663913627', 'Digital Free');
-            formData.append('entry.218867361', 'Basic Free');
-            formData.append('entry.1502543154', document.querySelector('[name="entry.1502543154"]').value);
-            formData.append('entry.166208811', document.querySelector('[name="entry.166208811"]').value);
-            formData.append('emailAddress', document.querySelector('[name="emailAddress"]').value);
-            formData.append('entry.1897494140', document.getElementById('whatsappNumber').value);
-            formData.append('entry.208508536', document.querySelector('[name="entry.208508536"]').value);
-            formData.append('entry.577240945', document.getElementById('birthYearSelect').value);
-            formData.append('entry.1890405601', document.getElementById('countrySelect').value);
-            formData.append('entry.341957417', document.getElementById('parishSelect').value);
-
-            try {
-                const response = await fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
-
-                window.submitted = true;
-                // The iframe onload will handle the successful signup
-            } catch (error) {
-                console.error("Fetch form submission failed:", error);
-                // Using a custom modal/message box instead of alert()
-                // alert("There was a problem submitting the form. Please try again.");
-                console.error("There was a problem submitting the form. Please try again."); // Log to console as a fallback
-                document.getElementById("loading-modal").style.display = "none";
-            }
+        function closeCustomAlert() {
+            document.getElementById('custom-alert-modal').classList.add('hidden');
         }
 
-        function handleSuccessfulSignup() {
-            if (!window.submitted) return;
-            window.submitted = false;
-
-            const submitBtn = document.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.disabled = false;
-
-            document.getElementById("loading-modal").style.display = "none";
-            const firstName = document.querySelector('[name="entry.1502543154"]').value || "there";
-            localStorage.setItem("signedUpUser", firstName);
-
-            document.querySelector('.invite-section').classList.add('hidden');
-            document.getElementById('signupFormSection').classList.add('hidden');
-            const welcomeDiv = document.getElementById("welcomeMessage");
-            welcomeDiv.classList.remove('hidden');
-
-            welcomeDiv.innerHTML = `
-                <div style="text-align:left; padding: 20px;">
-                    <h3 style="
-                        font-size: 1.2rem;
-                        font-weight: bold;
-                        background: linear-gradient(90deg, #ff6ec4, #7873f5, #4ade80);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        text-align: center;
-                        margin-top: 30px;
-                        animation: pop 0.6s ease-in-out;
-                    ">${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
-                    <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h2>
-                    <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
-
-                    <p><strong>${firstName}</strong>, I know you are a savvy shopper<br><br>
-                    
-                    Tired of going shopping and walking away with just your receipts and <strong>no real discounts</strong> from big or small retailers?<br><br>
-
-                    What if you could stop worrying about discounts and start <strong>earning cash back</strong> instead? 💸 With our system, you can get back <strong>up to 49%</strong> of what you spend, sent straight to your <strong>bank account</strong>. All it takes is <strong>121 days</strong> to settle. No stress, no strings.<br><br>
-
-                    Sounds too good to miss, right?<br>
-                    </p>
-
-                    <p>
-                    It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, giving you exclusive access to over <strong>300+ merchants</strong> across Jamaica.<br><br>
-
-                    But here’s the real magic: <strong>You don’t need to wait for any special deals.</strong> Deal Plus⁺ works on <strong>every purchase</strong>, from <strong>any merchant</strong>, automatically turning your everyday spending into real money back.<br><br>
-
-                    So far, our members have saved <strong id='savedAmount'>loading...</strong>, that’s real cash returned from a total spend of <strong id='spentAmount'>loading...</strong>! <strong>${firstName}</strong>, imagine what you could be saving just by shopping like you already do.<br><br>
-
-                    And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
-                    </p>
-                    <h4><center>Plus Unlock Lifetime Income</center></h4>
-                    <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
-
-                    <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
-
-                    <center>
-                    <button id="seeHowItWorks" class="btn-primary py-3 px-8 text-lg shadow-lg">
-                    👉 See How It Works
-                    </button>
-                    </center>
-
-                </div>
-            `;
-            fetchStatsAndUpdateUI(); // Run stats fetch separately AFTER success
-        }
-
-        async function fetchStatsAndUpdateUI() {
-            try {
-                const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
-                const data = await response.json();
-
-                let totalSaved = 0;
-                let totalSpent = 0;
-
-                data.forEach(row => {
-                    const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
-                    const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
-                    totalSaved += isNaN(saved) ? 0 : saved;
-                    totalSpent += isNaN(spent) ? 0 : spent;
-                });
-
-                const savedEl = document.getElementById("savedAmount");
-                const spentEl = document.getElementById("spentAmount");
-
-                if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
-                if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
-
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-            }
-        }
-
-        const contactDetails = {
-            fullName: "Allpree.com",
-            organization: "Allpree.com",
-            email: "allpreedotcom@gmail.com",
-            website: "https://www.allpree.com",
-            address: "Shop #4 Dunbar Mall;Sav-La-Mar;Westmoreland;00000;Jamaica",
+        // Global variables for contact details and vCard
+        let contactDetails = {
+            fullName: "Allpree.com", // Updated to Allpree.com
+            organization: "Allpree.com", // Updated to Allpree.com
+            email: "allpreedotcom@gmail.com", // Updated to allpreedotcom@gmail.com
+            website: "https://www.allpree.com", // Added website
+            address: "Shop #4 Dunbar Mall;Sav-La-Mar;Westmoreland;00000;Jamaica", // Added full address
             numbers: [
                 { type: "whatsapp main", number: "+18762042132" },
                 { type: "whatsapp bot", number: "+18762042107" },
@@ -669,7 +743,7 @@ ADR:;;${contactDetails.address}`;
             return vcard;
         }
 
-        const vCard = buildVCardString();
+        const vCard = buildVCardString(); // Initialize vCard here
 
         function generateVCF() {
             const blob = new Blob([vCard], { type: "text/vcard" });
@@ -681,12 +755,311 @@ ADR:;;${contactDetails.address}`;
             URL.revokeObjectURL(url);
         }
 
-        const isAndroid = /android/i.test(navigator.userAgent);
-        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        const actionDiv = document.getElementById("action");
-        const qrDiv = document.getElementById("qr");
+        // Function to fetch stats and update UI
+        async function fetchStatsAndUpdateUI() {
+            try {
+                const response = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata"); // Changed to appdata
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
 
-        if (actionDiv && qrDiv) { // Ensure elements exist before trying to manipulate
+                let totalSaved = 0;
+                let totalSpent = 0;
+
+                data.forEach(row => {
+                    const saved = parseFloat((row["Saved"] || "0").replace(/[^0-9.-]+/g, ""));
+                    const spent = parseFloat((row["Spent"] || "0").replace(/[^0-9.-]+/g, ""));
+                    totalSaved += isNaN(saved) ? 0 : saved;
+                    totalSpent += isNaN(spent) ? 0 : spent;
+                });
+
+                const savedEl = document.getElementById("savedAmount");
+                const spentEl = document.getElementById("spentAmount");
+
+                if (savedEl) savedEl.textContent = totalSaved.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+                if (spentEl) spentEl.textContent = totalSpent.toLocaleString("en-JM", { style: "currency", currency: "JMD" });
+
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+                document.getElementById('savedAmount').textContent = 'Error';
+                document.getElementById('spentAmount').textContent = 'Error';
+            }
+        }
+
+        // Function to open the new popup HTML (removed from HTML, but keeping function for completeness if needed elsewhere)
+        function openAppInNewWindow() {
+            const popupUrl = 'https://www.allpree.com/app'; // This URL will be replaced by the actual Canvas URL for the new immersive
+            const newWindow = window.open(popupUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            if (!newWindow) {
+                showCustomAlert("Popup Blocked", "Please allow pop-ups for this site to open the app in a new window.");
+            }
+        }
+
+        // Main signup initialization function
+        function init_signup() {
+            const inviteBtn = document.getElementById('validateBtn');
+            const inviteInput = document.getElementById('inviteCodeInput');
+            const errorText = document.getElementById('inviteError');
+            const formSection = document.getElementById('signupFormSection');
+            const welcomeDiv = document.getElementById("welcomeMessage");
+            const welcomeText = document.getElementById("welcomeText");
+            const loader = document.getElementById("loading-modal");
+            const hiddenIframe = document.getElementById("hidden_iframe");
+            const signupForm = document.getElementById("signupForm"); // Get the form element
+
+            let iframeInitialized = false;
+            window.submitted = false; // Global flag for form submission status
+
+            // Removed event listener for 'openInNewWindowBtn' as the button is removed
+
+            // Check if user is already signed up
+            const savedUser = localStorage.getItem("signedUpUser");
+            if (savedUser) {
+                document.querySelector('.invite-section').classList.add('hidden');
+                formSection.classList.add('hidden');
+                welcomeText.textContent = `${savedUser} 🎉 Congratulations On Signing Up!`;
+                document.getElementById("welcomeFirstName").textContent = savedUser;
+                document.getElementById("welcomeFirstName2").textContent = savedUser;
+                welcomeDiv.classList.remove('hidden');
+                fetchStatsAndUpdateUI(); // Fetch stats if already signed up
+                return;
+            }
+
+            // Invite code validation logic
+            inviteBtn.onclick = async () => {
+                const code = inviteInput.value.trim().toUpperCase();
+                if (!code) {
+                    showCustomAlert("Input Required", "Please enter an invite code.");
+                    return;
+                }
+
+                loader.style.display = "flex"; // Show loader
+
+                try {
+                    const res = await fetch("https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata");
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    const data = await res.json();
+
+                    const match = data.find(row => row["ID CODE"]?.toUpperCase() === code);
+
+                    if (match) {
+                        document.getElementById('field_ID').value = `ID ${code}`;
+                        document.getElementById('field_Code').value = code;
+                        formSection.classList.remove('hidden');
+                        document.querySelector('.invite-section').classList.add('hidden');
+                        errorText.style.display = "none";
+                    } else {
+                        errorText.style.display = "block";
+                    }
+                } catch (e) {
+                    console.error("Error checking code:", e);
+                    errorText.style.display = "block";
+                    showCustomAlert("Error", "Failed to validate code. Please try again later.");
+                } finally {
+                    loader.style.display = "none"; // Hide loader
+                }
+            };
+
+            // Populate Birth Year dropdown
+            const birthYearSelect = document.getElementById("birthYearSelect");
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 50; y <= currentYear - 10; y++) {
+                const option = document.createElement("option");
+                option.value = y;
+                option.textContent = y;
+                birthYearSelect.appendChild(option);
+            }
+
+            // Populate Country dropdown (only Jamaica for now)
+            const countries = ["Jamaica"];
+            const countrySelect = document.getElementById("countrySelect");
+            countries.forEach(c => {
+                const option = document.createElement("option");
+                option.value = c;
+                option.textContent = c;
+                countrySelect.appendChild(option);
+            });
+
+            // Populate Parish dropdown
+            const parishes = [
+                "Kingston", "St. Andrew", "St. Thomas", "Portland", "St. Mary", "St. Ann", "Trelawny",
+                "St. James", "Hanover", "Westmoreland", "St. Elizabeth", "Manchester", "Clarendon", "St. Catherine"
+            ];
+            const parishSelect = document.getElementById("parishSelect");
+            parishes.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p;
+                option.textContent = p;
+                parishSelect.appendChild(option);
+            });
+
+            // WhatsApp number input formatting
+            const phoneInput = document.getElementById("whatsappNumber");
+            phoneInput.addEventListener("input", () => {
+                const expectedPrefix = "+1876";
+                let value = phoneInput.value.trim();
+
+                // If input starts with +, ensure it's +1876
+                if (value.startsWith('+')) {
+                    if (!value.startsWith(expectedPrefix)) {
+                        value = expectedPrefix + value.substring(expectedPrefix.length);
+                    }
+                } else if (value.length > 0 && !value.startsWith('+')) {
+                    // If input doesn't start with +, prepend +1876
+                    value = expectedPrefix + value;
+                }
+                phoneInput.value = value;
+            });
+
+            // Attach submit handler to the button
+            document.getElementById("submitSignupBtn").addEventListener("click", () => {
+                // Manually trigger form submission
+                submitSignupForm();
+            });
+
+            // Iframe onload handler for Google Form submission
+            hiddenIframe.onload = () => {
+                if (!iframeInitialized) {
+                    iframeInitialized = true;
+                    return;
+                }
+                // This block will execute after the Google Form has processed the submission
+                if (window.submitted) {
+                    handleSuccessfulSignup();
+                }
+            };
+
+            // See How It Works button handler
+            document.addEventListener('click', function (event) {
+                if (event.target.closest('#seeHowItWorks')) {
+                    // For this standalone page, we'll just log a message.
+                    // In a multi-page app, this would trigger navigation.
+                    showCustomAlert("Feature Coming Soon", "This button would typically navigate you to a sales letter or demo video. For this demonstration, it's a placeholder.");
+                }
+            });
+            // Initialize contact saving section on page load if not already signed up
+            if (!savedUser) {
+                initContactSaving();
+            }
+        }
+
+        async function submitSignupForm() {
+            document.getElementById("loading-modal").style.display = "flex";
+
+            const requiredFields = [
+                { name: 'entry.1502543154', label: 'First Name' },
+                { name: 'entry.166208811', label: 'Last Name' },
+                { name: 'emailAddress', label: 'Email' },
+                { id: 'whatsappNumber', label: 'WhatsApp Number' },
+                { name: 'entry.208508536', label: 'Gender' },
+                { id: 'birthYearSelect', label: 'Birth Year' },
+                { id: 'countrySelect', label: 'Country' },
+                { id: 'parishSelect', label: 'Parish' }
+            ];
+
+            let missingFields = [];
+            const allFields = document.querySelectorAll('input, select');
+            allFields.forEach(field => {
+                field.style.border = '';
+                field.style.backgroundColor = '';
+            });
+
+            requiredFields.forEach(field => {
+                let value;
+                let element;
+                if (field.id) {
+                    element = document.getElementById(field.id);
+                    value = element?.value.trim();
+                } else if (field.name) {
+                    element = document.querySelector(`[name="${field.name}"]`);
+                    value = element?.value.trim();
+                }
+                if (!value || value === "Select" || value === "") { // Added check for "Select" and empty string for dropdowns
+                    missingFields.push(field.label);
+                    if (element) {
+                        element.style.border = '2px solid red';
+                        element.style.backgroundColor = '#f8d7da';
+                    }
+                }
+            });
+
+            if (missingFields.length > 0) {
+                const message = `Please complete the following fields:\n\n- ${missingFields.join('\n- ')}`;
+                showCustomAlert("Missing Information", message);
+                document.getElementById("loading-modal").style.display = "none";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('entry.1092645840', document.getElementById('field_ID').value);
+            formData.append('entry.2034350499', document.getElementById('field_Code').value);
+            formData.append('entry.297851038', ''); // This field was removed from HTML, keep as empty if not needed
+            formData.append('entry.663913627', 'Digital Free');
+            formData.append('entry.218867361', 'Basic Free');
+            formData.append('entry.1502543154', document.getElementById('firstName').value); // Changed to use ID
+            formData.append('entry.166208811', document.getElementById('lastName').value); // Changed to use ID
+            formData.append('emailAddress', document.getElementById('businessEmail').value); // Changed to use ID
+            formData.append('entry.1897494140', document.getElementById('whatsappNumber').value);
+            formData.append('entry.208508536', document.getElementById('genderSelect').value); // Changed to use ID
+            formData.append('entry.577240945', document.getElementById('birthYearSelect').value);
+            formData.append('entry.1890405601', document.getElementById('countrySelect').value);
+            formData.append('entry.341957417', document.getElementById('parishSelect').value);
+
+            try {
+                // Submit form via hidden iframe
+                signupForm.submit();
+                window.submitted = true;
+                // handleSuccessfulSignup will be called by the iframe's onload event
+            } catch (error) {
+                console.error("Form submission failed:", error);
+                showCustomAlert("Error", "There was a problem submitting the form. Please try again.");
+                document.getElementById("loading-modal").style.display = "none";
+            }
+        }
+
+        function handleSuccessfulSignup() {
+            if (!window.submitted) return;
+            window.submitted = false; // Reset flag after handling
+
+            const submitBtn = document.getElementById('submitSignupBtn');
+            if (submitBtn) submitBtn.disabled = false;
+
+            document.getElementById("loading-modal").style.display = "none";
+            const firstName = document.getElementById('firstName').value || "there"; // Get first name from input
+            localStorage.setItem("signedUpUser", firstName);
+
+            document.querySelector('.invite-section').classList.add('hidden');
+            document.getElementById('signupFormSection').classList.add('hidden');
+            const welcomeDiv = document.getElementById("welcomeMessage");
+            welcomeDiv.classList.remove('hidden');
+
+            // Populate welcome message content
+            document.getElementById("welcomeText").textContent = `${firstName} 🎉 Congratulations On Signing Up! 🎉`;
+            document.getElementById("welcomeFirstName").textContent = firstName;
+            document.getElementById("welcomeFirstName2").textContent = firstName;
+
+            // Initialize contact saving section after welcome message is visible
+            initContactSaving();
+            fetchStatsAndUpdateUI(); // Run stats fetch separately AFTER success
+        }
+
+        // Initialize contact saving section
+        function initContactSaving() {
+            const isAndroid = /android/i.test(navigator.userAgent);
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const actionDiv = document.getElementById("action");
+            const qrDiv = document.getElementById("qr");
+
+            if (!actionDiv || !qrDiv) {
+                console.error("Contact saving elements not found.");
+                return;
+            }
+
+            const vCardContent = buildVCardString(); // Use the global vCard content
+
             if (isAndroid) {
                 const contactIntentURL =
                     "intent://createContact#Intent;" +
@@ -700,7 +1073,7 @@ ADR:;;${contactDetails.address}`;
                     `S.postal=${encodeURIComponent(contactDetails.address)};` +
                     "end;";
 
-                const encodedVCardData = encodeURIComponent(vCard);
+                const encodedVCardData = encodeURIComponent(vCardContent);
                 const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
 
                 function tryIntentFallback() {
@@ -710,7 +1083,7 @@ ADR:;;${contactDetails.address}`;
                     document.body.appendChild(iframe);
 
                     actionDiv.innerHTML = `
-                        <p>Scan the QR or use the button to download and import</p><br>
+                        <p class="text-gray-600">Scan the QR or use the button to download and import</p><br>
                         <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
                         <br><br> <button onclick="generateVCF()" class="btn-primary py-2 px-4 text-base shadow-md">D/L & Imp</button>
                     `;
