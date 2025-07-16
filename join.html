@@ -687,7 +687,7 @@ Unsubscribe anytime. See our <a href="#" class="font-medium">terms and policies<
         </div>
     </footer>
 
-    <script>
+   <script>
         // Set the current year dynamically
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -809,9 +809,6 @@ ADR:;;${contactDetails.address}`;
             const hiddenIframe = document.getElementById("hidden_iframe");
             const signupForm = document.getElementById("signupForm"); // Get the form element
 
-            let iframeInitialized = false;
-            window.submitted = false; // Global flag for form submission status
-
             // Removed event listener for 'openInNewWindowBtn' as the button is removed
 
             // Check if user is already signed up
@@ -923,11 +920,7 @@ ADR:;;${contactDetails.address}`;
 
             // Iframe onload handler for Google Form submission
             hiddenIframe.onload = () => {
-                if (!iframeInitialized) {
-                    iframeInitialized = true;
-                    return;
-                }
-                // This block will execute after the Google Form has processed the submission
+                console.log("Iframe onload fired. window.submitted:", window.submitted);
                 if (window.submitted) {
                     handleSuccessfulSignup();
                 }
@@ -948,6 +941,7 @@ ADR:;;${contactDetails.address}`;
         }
 
         async function submitSignupForm() {
+            console.log("submitSignupForm called.");
             document.getElementById("loading-modal").style.display = "flex";
 
             const requiredFields = [
@@ -1009,21 +1003,26 @@ ADR:;;${contactDetails.address}`;
             formData.append('entry.1890405601', document.getElementById('countrySelect').value);
             formData.append('entry.341957417', document.getElementById('parishSelect').value);
 
+            // Set the flag to true just before submitting the form
+            window.submitted = true;
             try {
-                // Submit form via hidden iframe
-                signupForm.submit();
-                window.submitted = true;
-                // handleSuccessfulSignup will be called by the iframe's onload event
+                signupForm.submit(); // This will trigger the iframe's onload
+                console.log("Form submitted to iframe. Waiting for onload...");
             } catch (error) {
                 console.error("Form submission failed:", error);
                 showCustomAlert("Error", "There was a problem submitting the form. Please try again.");
                 document.getElementById("loading-modal").style.display = "none";
+                window.submitted = false; // Reset flag if submission fails
             }
         }
 
         function handleSuccessfulSignup() {
-            if (!window.submitted) return;
-            window.submitted = false; // Reset flag after handling
+            console.log("handleSuccessfulSignup entered. Current window.submitted:", window.submitted);
+            if (!window.submitted) { // This check is crucial to ensure it's a valid submission
+                console.log("handleSuccessfulSignup: Not a valid submission, returning.");
+                return;
+            }
+            window.submitted = false; // Reset flag immediately after processing
 
             const submitBtn = document.getElementById('submitSignupBtn');
             if (submitBtn) submitBtn.disabled = false;
