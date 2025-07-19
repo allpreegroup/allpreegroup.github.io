@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allpree: Register Now</title>
+    <title>Allpree: Cashback Sign Up</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for social media icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
        /* Base styles */
         body {
@@ -309,19 +311,11 @@
             padding: 2rem;
             max-width: 800px;
             margin: auto;
-            margin-top: 1rem; /* Add some space above the container */
-            margin-bottom: 1rem;
             text-align: center;
             flex-grow: 1; /* Allow it to take available space */
             display: flex;
             flex-direction: column;
             justify-content: center;
-        }
-        .welcome-message h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #1a202c;
         }
         .welcome-message h2 {
             font-size: 1.8rem;
@@ -529,7 +523,6 @@ No credit card. No hidden fees. Just smarter spending..</p>
                             <option value="">Select</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
-                            <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -565,6 +558,11 @@ Unsubscribe anytime. See our <a href="#" class="font-medium">terms and policies<
                     </label>
                 </div>
 
+                <!-- reCAPTCHA checkbox -->
+                <div class="form-group flex justify-center mt-4" id="recaptcha-container">
+                    <!-- reCAPTCHA will be rendered here -->
+                </div>
+
                 <button type="button" id="submitSignupBtn" class="btn-submit">Start trial</button>
             </form>
         </div>
@@ -573,7 +571,7 @@ Unsubscribe anytime. See our <a href="#" class="font-medium">terms and policies<
     <!-- Welcome Message Section (Initially hidden) -->
     <div id="welcomeMessage" class="welcome-message hidden">
         <h2 id="welcomeText" class="gradient-text"></h2>
-        <center> <h1><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h1>
+        <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h2>
         <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
 
         <p><strong><span id="welcomeFirstName"></span></strong>, I know you are a savvy shopper<br><br>
@@ -626,7 +624,7 @@ Unsubscribe anytime. See our <a href="#" class="font-medium">terms and policies<
     <!-- Hidden iframe for Google Form submission -->
     <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
- <!-- Footer -->
+    <!-- Footer -->
     <footer class="footer-section mt-auto">
         <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
             <!-- About Allpree Column -->
@@ -696,7 +694,7 @@ Unsubscribe anytime. See our <a href="#" class="font-medium">terms and policies<
         </div>
     </footer>
 
-   <script>
+    <script>
         // Set the current year dynamically
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -858,6 +856,12 @@ ADR:;;${contactDetails.address}`;
                         formSection.classList.remove('hidden');
                         document.querySelector('.invite-section').classList.add('hidden');
                         errorText.style.display = "none";
+                        // Render reCAPTCHA once the form is visible
+                        if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+                            grecaptcha.render('recaptcha-container', {
+                                'sitekey': 'YOUR_RECAPTCHA_SITE_KEY'
+                            });
+                        }
                     } else {
                         errorText.style.display = "block";
                     }
@@ -954,34 +958,36 @@ ADR:;;${contactDetails.address}`;
             document.getElementById("loading-modal").style.display = "flex";
 
             const requiredFields = [
-                { name: 'entry.1502543154', label: 'First Name' },
-                { name: 'entry.166208811', label: 'Last Name' },
-                { name: 'emailAddress', label: 'Email' },
-                { id: 'whatsappNumber', label: 'WhatsApp Number' },
-                { name: 'entry.208508536', label: 'Gender' },
-                { id: 'birthYearSelect', label: 'Birth Year' },
-                { id: 'countrySelect', label: 'Country' },
-                { id: 'parishSelect', label: 'Parish' }
+                { name: 'entry.1502543154', label: 'First Name', elementId: 'firstName' },
+                { name: 'entry.166208811', label: 'Last Name', elementId: 'lastName' },
+                { name: 'emailAddress', label: 'Email', elementId: 'businessEmail' },
+                { id: 'whatsappNumber', label: 'WhatsApp Number', elementId: 'whatsappNumber' },
+                { name: 'entry.208508536', label: 'Gender', elementId: 'genderSelect' },
+                { id: 'birthYearSelect', label: 'Birth Year', elementId: 'birthYearSelect' },
+                { id: 'countrySelect', label: 'Country', elementId: 'countrySelect' },
+                { id: 'parishSelect', label: 'Parish', elementId: 'parishSelect' }
             ];
 
             let missingFields = [];
-            const allFields = document.querySelectorAll('input, select');
-            allFields.forEach(field => {
-                field.style.border = '';
-                field.style.backgroundColor = '';
+            const allFormElements = document.querySelectorAll('#signupForm input, #signupForm select');
+            allFormElements.forEach(field => {
+                field.style.border = ''; // Reset border
+                field.style.backgroundColor = ''; // Reset background
             });
 
+            // General required field validation
             requiredFields.forEach(field => {
                 let value;
                 let element;
-                if (field.id) {
-                    element = document.getElementById(field.id);
+                if (field.elementId) {
+                    element = document.getElementById(field.elementId);
                     value = element?.value.trim();
                 } else if (field.name) {
                     element = document.querySelector(`[name="${field.name}"]`);
                     value = element?.value.trim();
                 }
-                if (!value || value === "Select" || value === "") { // Added check for "Select" and empty string for dropdowns
+
+                if (!value || value === "Select" || value === "") {
                     missingFields.push(field.label);
                     if (element) {
                         element.style.border = '2px solid red';
@@ -996,6 +1002,69 @@ ADR:;;${contactDetails.address}`;
                 document.getElementById("loading-modal").style.display = "none";
                 return;
             }
+
+            // Specific Email Validation
+            const emailInput = document.getElementById('businessEmail');
+            const emailValue = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailValue)) {
+                showCustomAlert("Invalid Email", "Please enter a valid email address.");
+                emailInput.style.border = '2px solid red';
+                emailInput.style.backgroundColor = '#f8d7da';
+                document.getElementById("loading-modal").style.display = "none";
+                return;
+            }
+
+            // Specific WhatsApp Number Validation (Jamaica: +1876 followed by 7 digits)
+            const whatsappInput = document.getElementById('whatsappNumber');
+            const whatsappValue = whatsappInput.value.trim();
+            const whatsappRegex = /^\+1876\d{7}$/;
+            if (!whatsappRegex.test(whatsappValue)) {
+                showCustomAlert("Invalid WhatsApp Number", "Please enter a valid Jamaican WhatsApp number (e.g., +1876xxxxxxx).");
+                whatsappInput.style.border = '2px solid red';
+                whatsappInput.style.backgroundColor = '#f8d7da';
+                document.getElementById("loading-modal").style.display = "none";
+                return;
+            }
+
+
+            // reCAPTCHA verification
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                showCustomAlert("Verification Required", "Please complete the reCAPTCHA to prove you are not a robot.");
+                document.getElementById("loading-modal").style.display = "none";
+                return;
+            }
+            console.log("reCAPTCHA response:", recaptchaResponse);
+
+            // --- IMPORTANT: Server-side verification is required for reCAPTCHA ---
+            // In a real application, you would send this recaptchaResponse to your
+            // server for verification using your reCAPTCHA secret key.
+            // Example of how you would send it (this is client-side only for demo):
+            /*
+            try {
+                const verificationResponse = await fetch('/verify-recaptcha', { // Your server endpoint
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: recaptchaResponse })
+                });
+                const verificationResult = await verificationResponse.json();
+                if (!verificationResult.success) {
+                    showCustomAlert("Verification Failed", "reCAPTCHA verification failed. Please try again.");
+                    grecaptcha.reset(); // Reset reCAPTCHA
+                    document.getElementById("loading-modal").style.display = "none";
+                    return;
+                }
+            } catch (error) {
+                console.error("reCAPTCHA server verification error:", error);
+                showCustomAlert("Error", "Could not verify reCAPTCHA. Please try again.");
+                grecaptcha.reset(); // Reset reCAPTCHA
+                document.getElementById("loading-modal").style.display = "none";
+                return;
+            }
+            */
+            // --- END IMPORTANT NOTE ---
+
 
             const formData = new FormData();
             formData.append('entry.1092645840', document.getElementById('field_ID').value);
