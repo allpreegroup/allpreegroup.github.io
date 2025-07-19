@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allpree Gift Card</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for social media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4ff; /* Light background */
+            color: #333;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Custom CSS for header */
+        .header-bg {
+            background-color: #ffffff; /* White background for the header */
+            border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
+        }
+
+        /* Custom CSS for footer */
+        .footer-section {
+            background-color: #2C3E50; /* Dark blue background */
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .footer-section a {
+            color: #60a5fa; /* A light blue for links */
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: #93c5fd; /* Lighter blue on hover */
+            text-decoration: underline;
+        }
+        .footer-section h3 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section ul li a {
+            color: #d1d5db; /* Lighter gray for footer links */
+            font-weight: 400;
+        }
+        .footer-section ul li a:hover {
+            color: #ffffff;
+        }
+
+        /* Re-usable max-width for content containers */
+        .max-w-7xl-custom {
+            max-width: 80rem; /* Equivalent to Tailwind's max-w-7xl (1280px) */
+        }
+
+        /* Button primary style (used for general buttons) */
+        .btn-primary {
+            background-color: #007bff; /* Blue background */
+            color: white;
+            border-radius: 0.5rem; /* Rounded corners */
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Main content area styling */
+        .main-content {
+            flex-grow: 1; /* Allows content to expand and push footer down */
+            /* Removed fixed max-width and margin: auto; here to allow sections to control their own width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Removed justify-content: center; text-align: center; as sections will handle their own alignment */
+        }
+
+        /* Styles for the new Hero Section */
+        .text-gradient-purple-blue {
+            background: linear-gradient(to right, #8b5cf6, #3b82f6); /* Tailwind purple-500 to blue-500 */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Styles for the added sections (Discover Our Apps, Participate & Buy) */
+        .section-heading {
+            font-size: 3rem; /* Large heading */
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .content-block {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .feature-card-icon {
+            font-size: 3rem; /* Large icon size */
+            margin-bottom: 1rem;
+            display: block; /* Ensure it takes its own line */
+        }
+
+        .sub-heading {
+            font-size: 1.875rem; /* H3 size */
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        .content-paragraph {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+        }
+
+        .visual-placeholder {
+            height: 300px; /* Fixed height for visual blocks */
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem; /* Large icon in placeholder */
+            color: rgba(255, 255, 255, 0.8); /* Slightly transparent white icon */
+        }
+
+        /* Styles for "How the Allpree Gift Card Works" section */
+        #how-it-works .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #how-it-works .card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #how-it-works .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        #how-it-works .icon-wrapper {
+            background-color: #e0f2fe; /* Light blue background for icons */
+            border-radius: 50%;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #how-it-works .icon-wrapper svg {
+            width: 2.5rem; /* Larger SVG icons */
+            height: 2.5rem;
+        }
+
+        /* Styles for Testimonials Section */
+        #testimonials .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .testimonial {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .testimonial:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .testimonial__quote {
+            margin-bottom: 1.5rem;
+            flex-grow: 1; /* Allows quote to take available space */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .testimonial__text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial__meta {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center align meta content */
+            margin-top: auto; /* Push to bottom */
+        }
+
+        .testimonial__img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+            border: 2px solid #007bff; /* Blue border for image */
+        }
+
+        .testimonial__author {
+            font-weight: 700;
+            color: #1a202c;
+            font-size: 1.125rem;
+        }
+
+        .testimonial__position {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Styles for Cashback Tiers Section */
+        #cashback-tiers .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #cashback-tiers .card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%; /* Ensure cards have equal height */
+        }
+
+        #cashback-tiers .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        #cashback-tiers .card h3 {
+            margin-bottom: 1rem;
+        }
+
+        #cashback-tiers .card p {
+            margin-bottom: 0.5rem;
+        }
+
+        #cashback-tiers ul {
+            list-style: disc;
+            list-style-position: inside;
+            padding-left: 0;
+            margin-top: 1rem;
+        }
+
+        #cashback-tiers ul li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Styles for FAQ Section */
+        #faq {
+            background-color: #f0f4ff; /* Light background for FAQ */
+        }
+
+        #faq .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .faq-item {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            overflow: hidden; /* Hide overflow for smooth transition */
+        }
+
+        .faq-question-button {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #333;
+            background-color: #ffffff;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        .faq-question-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .faq-question-button svg {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-question-button[aria-expanded="true"] svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .faq-answer p {
+            padding-bottom: 1.25rem; /* Add padding to the bottom of the answer text */
+        }
+
+        .faq-question-button[aria-expanded="true"] + .faq-answer {
+            max-height: 500px; /* Adjust as needed for content length */
+            padding-top: 1rem;
+            padding-bottom: 1.25rem;
+        }
+
+        /* Important Notice styles */
+        .important-notice {
+            background-color: #fffbeb; /* Light yellow background */
+            border-left: 4px solid #f59e0b; /* Yellow left border */
+            color: #92400e; /* Darker yellow text */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .important-notice h3 {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .important-notice p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .gift-card-section {
+                padding: 1.5rem;
+            }
+            .gift-card-section h1 {
+                font-size: 2rem;
+            }
+            .section-heading {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            .content-block {
+                padding: 1.5rem;
+            }
+            .sub-heading {
+                font-size: 1.5rem;
+            }
+            .visual-placeholder {
+                height: 200px; /* Smaller height on mobile */
+                font-size: 3rem;
+            }
+            #how-it-works .section-title,
+            #testimonials .section-title,
+            #cashback-tiers .section-title,
+            #faq .section-title {
+                font-size: 2rem;
+            }
+            #how-it-works .card {
+                padding: 1.5rem;
+            }
+            #how-it-works .icon-wrapper {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            #how-it-works .icon-wrapper svg {
+                width: 2rem;
+                height: 2rem;
+            }
+            .testimonial {
+                padding: 1.5rem;
+            }
+            .testimonial__img {
+                width: 50px;
+                height: 50px;
+            }
+            .testimonial__author {
+                font-size: 1rem;
+            }
+            .testimonial__position {
+                font-size: 0.8rem;
+            }
+            #cashback-tiers .card {
+                padding: 1.5rem;
+            }
+            #cashback-tiers .card h3 {
+                font-size: 1.75rem;
+            }
+            .faq-question-button {
+                font-size: 1rem;
+                padding: 1rem 1.25rem;
+            }
+            .faq-answer {
+                padding: 0 1.25rem;
+            }
+            .faq-answer p {
+                padding-bottom: 1rem;
+            }
+            .faq-question-button[aria-expanded="true"] + .faq-answer {
+                padding-top: 0.75rem;
+                padding-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-bg py-4 sticky top-0 z-50">
+        <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <!-- Allpree Logo -->
+                <img src="https://www.allpree.com/img/allpree.com.logo.ja.png" alt="Allpree Logo" class="h-14 w-auto">
+            </div>
+
+            <!-- Desktop Navigation - Hidden on mobile -->
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6 text-gray-700 font-medium">
+                    <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Hero Section for Allpree Gift Card -->
+        <section class="relative bg-gradient-to-br  py-16 md:py-24 lg:py-32 overflow-hidden flex-grow flex items-center justify-center w-full">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-center relative z-10 w-full">
+                <!-- Left Content - Digital Gift Card Image -->
+                <div class="md:w-1/2 flex justify-center items-center mb-12 md:mb-0">
+                    <img src="https://www.allpree.com/img/card%20scan%203.png" alt="Digital Gift Card" class="rounded-xl shadow-2xl w-full max-w-md">
+                </div>
+
+                <!-- Right Content - Textual Information -->
+                <div class="md:w-1/2 text-center md:text-left">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-4 text-gray-900">
+                        <span class="text-gradient-purple-blue">Allpree Gift Card!</span>
+                    </h1>
+                    <p class="text-gray-700 text-lg sm:text-xl mb-8 max-w-lg mx-auto md:mx-0">
+                        Buy vouchers to add to your Allpree digital gift card to use at hundreds of Giftme merchants across Jamaica, and earn cashback on every voucher purchase.
+                    </p>
+                    <a href="#how-it-works" class="btn-primary text-lg px-8 py-3">See How It Works</a>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Discover Our Apps Section - Alternating Layout -->
+        <section class="py-20 px-6 max-w-7xl-custom mx-auto">
+            <div class="max-w-7xl-custom mx-auto">
+                <h2 class="section-heading mb-16">Discover Our Apps</h2>
+                
+                <!-- Block 1: Text Left, Visual Right -->
+                <div class="md:grid md:grid-cols-2 gap-12 items-center mb-16">
+                    <!-- Text Content Block -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-mobile-alt feature-card-icon text-indigo-600"></i>
+                        <h3 class="sub-heading">Your Ultimate Shopping Guide</h3>
+                        <p class="content-paragraph">
+                            Our apps and websites seamlessly guide you through every step of the purchasing process. From planning at home—discovering promotions, choosing a product, and searching for it online—to buying in-store at the best available price.
+                        </p>
+                        <a href="#" class="btn-primary mt-4">DISCOVER OUR APPS</a>
+                    </div>
+                    <!-- Visual Placeholder -->
+                    <div class="visual-placeholder bg-indigo-200 text-indigo-700 relative overflow-hidden">
+                        <i class="fas fa-mobile-alt z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">App Mockup Here</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-300 to-indigo-400 opacity-70"></div>
+                    </div>
+                </div>
+
+                <!-- Block 2: Visual Left, Text Right -->
+                <div class="md:grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Visual Placeholder -->
+                    <div class="visual-placeholder bg-purple-200 text-purple-700 relative overflow-hidden mb-8 md:mb-0">
+                        <i class="fas fa-chart-pie z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Data Visualization Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-300 to-purple-400 opacity-70"></div>
+                    </div>
+                    <!-- Text Content Block -->
+                    <div class="content-block p-8 md:p-12">
+                        <i class="fas fa-lightbulb feature-card-icon text-purple-600"></i>
+                        <h3 class="sub-heading">Make Smarter Purchasing Decisions</h3>
+                        <p class="content-paragraph">
+                            Virtually explore all your nearby stores without leaving home. Compare promotions from different stores and brands effortlessly, ensuring you always get the best deal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Participate & Buy Section - Alternating Layout -->
+        <section class="py-20 px-6 max-w-7xl-custom mx-auto">
+            <div class="max-w-7xl-custom mx-auto">
+                <!-- Removed: <h2 class="section-heading mb-16">How You Shop with Allpree</h2> -->
+                
+                <!-- Block 1: Text Left, Visual Right -->
+                <div class="md:grid md:grid-cols-2 gap-12 items-center mb-16">
+                    <!-- Text Content Block -->
+                    <div class="content-block p-8 md:p-12 mb-8 md:mb-0">
+                        <i class="fas fa-search-dollar feature-card-icon text-green-600"></i>
+                        <h3 class="sub-heading">Participate: Find the Best Option Before You Buy</h3>
+                        <p class="content-paragraph">
+                            Access the latest products, offers, and catalogs from leading stores and brands right from your phone. Get all the information you need before visiting your nearest store, ensuring you make informed decisions.
+                        </p>
+                    </div>
+                    <!-- Visual Placeholder -->
+                    <div class="visual-placeholder bg-green-200 text-green-700 relative overflow-hidden">
+                        <i class="fas fa-map-marked-alt z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Local Store Map Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-300 to-green-400 opacity-70"></div>
+                    </div>
+                </div>
+
+                <!-- Block 2: Visual Left, Text Right -->
+                <div class="md:grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Visual Placeholder -->
+                    <div class="visual-placeholder bg-red-200 text-red-700 relative overflow-hidden mb-8 md:mb-0">
+                        <i class="fas fa-cash-register z-10"></i>
+                        <span class="absolute text-sm font-bold text-white z-10 bottom-4">Checkout Mockup</span>
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-300 to-red-400 opacity-70"></div>
+                    </div>
+                    <!-- Text Content Block -->
+                    <div class="content-block p-8 md:p-12">
+                        <i class="fas fa-shopping-cart feature-card-icon text-red-600"></i>
+                        <h3 class="sub-heading">Buy: In Store or Online, You Decide</h3>
+                        <p class="content-paragraph">
+                            Choose how to complete your purchase: by visiting the store in person for a hands-on experience, or purchasing conveniently through the store's website. The choice is always yours.
+                        </p>
+                        <a href="https://www.allpree.com/getapp" class="btn-primary mt-4">
+                            Download Our Apps <i class="fas fa-download ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: How the Allpree Gift Card Works -->
+        <section id="how-it-works" class="py-16 bg-blue-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title text-blue-800">How the Allpree Gift Card Works</h2>
+                <p class="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
+                    The Allpree Gift Card simplifies your shopping and rewards you. Here's a step-by-step guide to get you started:
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4C16.4112 4 20 7.58881 20 12C20 16.4112 16.4112 20 12 20C7.58881 20 4 16.4112 4 12C4 7.58881 7.58881 4 12 4ZM13.5 8H10.5C9.67157 8 9 8.67157 9 9.5V14.5C9 15.3284 9.67157 16 10.5 16H13.5C14.3284 16 15 15.3284 15 14.5V9.5C15 8.67157 14.3284 8 13.5 8Z" fill="currentColor"/>
+                                <path d="M12 9.5L12 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">1. Create An Account</h3>
+                        <p class="text-gray-600 text-base">
+                            Install the Allpree app, then use the invitation code to create your account. enter the card information in the app to generate your Allpree Gift Card.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 6C4 5.44772 4.44772 5 5 5H19C19.5523 5 20 5.44772 20 6V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 9H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M13 13H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">2. Buy Vouchers</h3>
+                        <p class="text-gray-600 text-base">
+                            Purchase gift card vouchers directly through the app to add funds to your digital Allpree Gift Card.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">3. Pay At Merchant</h3>
+                        <p class="text-gray-600 text-base">
+                            Use your Allpree digital gift card to pay for goods and services at Giftme merchant across Jamaica.
+                        </p>
+                    </div>
+
+                    <div class="card items-center text-center">
+                        <div class="icon-wrapper">
+                            <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM15.5 13C15.5 13.8284 14.8284 14.5 14 14.5H10C9.17157 14.5 8.5 13.8284 8.5 13V10C8.5 9.17157 9.17157 8.5 10 8.5H14C14.8284 8.5 15.5 9.17157 15.5 10V13ZM12 17C10.6193 17 9.5 15.8807 9.5 14.5H14.5C14.5 15.8807 13.3807 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">4. Earn Cashback</h3>
+                        <p class="text-gray-600 text-base">
+                            After 121 days from your purchase, receive cashback directly into your bank account. The longer you hold, the more you earn!
+                        </p>
+                    </div>
+                </div>
+                <p class="text-center text-gray-600 mt-8 max-w-2xl mx-auto">
+                    This system allows for sustainable rewards and full transparency, with your earnings tracked daily in your Allpree account dashboard.
+                </p>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 ">
+           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title text-blue-800">🗣️ What People Are Saying</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">I love this option as a way to get even more for my money. I simply purchase the gift card ahead of time and then make my purchases as normal. It goes a long way in helping me save money!</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/Screenshot_20220417-164539_WhatsApp.jpg" alt="Abegayle" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Abegayle</cite><br>
+                                    <span class="testimonial__position">Shop @ HiLo Fairview</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">I love Allpree.com, the fact that it's convenient, and it's only one card I need plus they help me get a little money back for purchases I plan to make anyway.</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/Screenshot_20220417-170432_WhatsApp.jpg" alt="Garen" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Garen</cite><br>
+                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">On February 24, 2024, was the first time I used the Allpree Gift Card at the Progressive supermarket! The process was super easy, just like using my debit card to pay.</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/tricia%202024-02-24.jpg" alt="Tricia" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Tricia</cite><br>
+                                    <span class="testimonial__position">Shop @ Progressive Fairview</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">I've been using my gift card for about 11 months and reached over $115,700 in cashback, It’s safe and I highly recommend them! I intend to stay with them.</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/20241117_221141.jpg" alt="Lisa" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Lisa</cite><br>
+                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">At first there were glitches at the supermarket with their device not working, but now! I can say it's much better. I look forward to receiving the cashback. It's a good investment.</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/Kim20241209-163411.jpg" alt="Kimone" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Kimone</cite><br>
+                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote class="testimonial__quote">
+                            <p class="testimonial__text">I've been using the Allpree Gift Card for some time now, it is simple to use and I look forward to receiving the CashBack every month.</p>
+                            <div class="testimonial__meta">
+                                <img class="testimonial__img" src="https://www.allpree.com/img/kadian20241210-071943.jpg" alt="Kadian" onerror="this.onerror=null;this.src='https://placehold.co/60x60/cccccc/333333?text=User';"/>
+                                <div>
+                                    <cite class="testimonial__author">Kadian</cite><br>
+                                    <span class="testimonial__position">Shop @ Shoppers Fair Sav-la-Mar</span>
+                                </div>
+                            </div>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- New Section: Cashback Tiers -->
+        <section id="cashback-tiers" class="py-16 ">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="section-title text-blue-800">💎Our CashBack Tiers</h2>
+                <p class="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
+                    Choose whats best for your spending habits to maximize your cashback earnings.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- BASIC Tier Card (Box 1 - formerly Introductory Card) -->
+                    <div class="card p-8 items-center text-center border-2 border-green-200">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">BASIC</h3>
+                        <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">FREE</strong></p>
+                        <p class="text-gray-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">30%</strong></p>
+
+                        <div class="w-full text-left">
+                            <h4 class="font-semibold text-green-600 mb-2">Cashback Rates:</h4>
+                            <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                <li>Top-up J$10,000: 30% Cashback</li>
+                                <li>Top-up J$15,000: 30% Cashback</li>
+                                <li>Top-up J$20,000: 30% Cashback</li>
+                            </ul>
+                        </div>
+                        <!--  <a href="https://www.allpree.com/signup" class="btn-primary mt-auto w-full max-w-xs mx-auto">Get Standard</a> -->
+                    </div>
+
+                    <!-- Standard Tier Card (Box 2) -->
+                    <div class="card p-8 items-center text-center border-2 border-blue-200">
+
+                        <h3 class="text-2xl font-bold mb-4 text-blue-700">STANDARD</h3>
+                        <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">3 Invite</strong> / monthly</p>
+                        <p class="text-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">33–36%</strong></p>
+
+                        <div class="w-full text-left">
+                            <h4 class="font-semibold text-blue-600 mb-2">Cashback Rates:</h4>
+                            <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                <li>Top-up J$10,000: 33% Cashback</li>
+                                <li>Top-up J$15,000: 34% Cashback</li>
+                                <li>Top-up J$20,000: 36% Cashback</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Premium Tier Card (Box 3) -->
+                    <div class="card p-8 items-center text-center border-2 border-purple-200">
+
+                        <h3 class="text-2xl font-bold mb-4 text-purple-700">PREMIUM</h3>
+                        <p class="text-gray-700 text-lg mb-2">Price: <strong class="text-gray-900">J$8,400</strong> / year</p>
+                        <p class="text-gray-700 text-md mb-6">Money Back Range: <strong class="text-gray-900">37–49%</strong></p>
+
+                        <div class="w-full text-left">
+                            <h4 class="font-semibold text-purple-600 mb-2">Cashback Rates:</h4>
+                            <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                <li>Top-up J$10,000: 37% Cashback</li>
+                                <li>Top-up J$15,000: 41% Cashback</li>
+                                <li>Top-up J$20,000: 49% Cashback</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+        <!-- New Section: Frequently Asked Questions -->
+        <section id="faq" class="py-16 bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="section-title text-blue-800">Frequently Asked Questions</h2>
+
+                <div class="space-y-6">
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>1. How does the cashback gift card system work?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sign up to get a universal digital gift card accepted at all partner merchants. Buy gift card vouchers from us at a 25% markup. After 121 days, receive up to 49% cashback paid to your bank.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>2. Where can I use the gift cards?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Gift cards are redeemable at local physical stores that participate in the gift card system managed by our partner. Any store listed in their network can accept the digital gift card we provide you. Our app shows deals and promotions from some of these local stores to encourage shopping. We track only the gift cards you buy from us and manage your cashback payouts accordingly.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>3. Where does the cashback come from?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>The cashback comes entirely from our company’s income. When you buy a gift card, the full value goes directly to our partner, who manages the gift card system. We use a portion of the markup (company income) to generate returns through our internal operations. That’s what powers the cashback you receive.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>4. Do I need a membership?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. But members pay J$8,400 per year to unlock up to 49% cashback on select gift card vouchers.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>5. What are the cashback tiers?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>
+                                Free members: 30% cashback <br>
+                                Paid members: <br>
+                                &nbsp;- J$20,000 vouchers &rarr; 49% cashback <br>
+                                &nbsp;- J$15,000 vouchers &rarr; 41% cashback <br>
+                                &nbsp;- J$10,000 vouchers &rarr; 37% cashback <br>
+                                (All cashback paid 121 days after purchase.)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>6. When do I get paid?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Exactly 121 days after your gift card purchase, your cashback is sent directly to your linked bank account.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>7. Is this a financial product or investment?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. This is not an investment. You are purchasing a retail gift card. Cashback is a loyalty reward funded by our company’s income, not from your payment.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>8. What happens if I don’t use the gift card?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Gift card vouchers are valid at listed stores. To activate the cashback payout after 121 days, you must make at least one purchase using the gift card following your gift card voucher top-up.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>9. Can I see my purchases and payouts?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes. Your app dashboard shows all gift cards you’ve bought, expected cashback, and payout schedule. To view your balance and in-store transactions, please check our partner’s gift card system.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>10. Will stores pay to be listed in the app?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Eventually, yes. For now, listing deals is free for participating stores.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>11. How are payouts sent?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Payouts are made via bank transfer to your linked Jamaican bank account. You’ll need to provide your account number and bank name in the app to receive funds.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>12. Can I get paid in cash or mobile wallet instead?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>For now, we only support payouts to Jamaican bank accounts. We may add support for wallets like Lynk or JN Pay later on.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question-button" aria-expanded="false">
+                            <span>13. Is this available outside Jamaica?</span>
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>No. At this time, cashback rewards are only available to users in Jamaica with a local bank account.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="mt-12 p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-lg mb-2">Important Notice:</h3>
+                    <p class="text-sm">Cashback rewards are issued as loyalty payouts and not as part of any financial service or investment product. Terms and eligibility may vary. Please use responsibly.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-section mt-auto">
+        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
+            <!-- About Allpree Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">About Allpree</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Allpree shows you the best local deals. From groceries to fashion and many more. We help you save every day. We search high and low to bring you unbeatable local prices on the products you love, so you can spend less and enjoy more
+                </p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-tiktok fa-lg"></i>
+                    </a>
+                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- My Account Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">CASHBACK CLUB</h3>
+                <ul>
+                    <li><a href="https://www.allpree.com/for-giftcard" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Gift Card</a></li>
+                    <li><a href="https://www.allpree.com/all-stores" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: All Stores</a></li>
+                    <li><a href="https://www.allpree.com/install" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Install App</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: How It Works</a></li>
+                    <li><a href="https://www.allpree.com/join" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Register Now</a></li>
+                </ul>
+            </div>
+
+            <!-- Let Us Help Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">LET US HELP</h3>
+                <ul>
+                   <li><a href="https://www.allpree.com/for-retailers" class="text-gray-300 hover:text-white transition-colors duration-200">For Giftme Retailers</a></li>
+                   <li><a href="https://www.allpree.com/getapp" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
+                    <li><a href="#" class="text-gray-300 hover:underline">Help Center</a></li>
+                    <li><a href="#" class="text-gray-300 hover:underline">Contact Customer Care</a></li>
+                    <li><a href="#" class="text-gray-300 hover:underline">Frequently Asked Questions</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Information Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">COMPANY</h3>
+                <ul>
+                  <li><a href="https://www.allpree.com/about-us" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
+                   <li><a href="https://www.allpree.com/who-we-are" class="text-gray-300 hover:text-white transition-colors duration-200">Who We Are</a></li>
+                  <li><a href="https://www.allpree.com/what-we-do" class="text-gray-300 hover:text-white transition-colors duration-200">What We Do</a></li>
+                   <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Work With Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - <span id="current-year"></span>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set the current year dynamically
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // FAQ Accordion Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqButtons = document.querySelectorAll('.faq-question-button');
+
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const expanded = button.getAttribute('aria-expanded') === 'true' || false;
+                    button.setAttribute('aria-expanded', !expanded);
+                    const answer = button.nextElementSibling;
+                    if (expanded) {
+                        answer.style.maxHeight = null;
+                        answer.style.paddingTop = '0';
+                        answer.style.paddingBottom = '0';
+                    } else {
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        answer.style.paddingTop = '1rem';
+                        answer.style.paddingBottom = '1.25rem';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
