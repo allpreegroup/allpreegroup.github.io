@@ -248,6 +248,115 @@
     color: #2d3748;
 }
 
+         /* Simulation Specific Styles */
+        .simulation-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 1000px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+        .simulation-container h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .simulation-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .simulation-input-field {
+            flex: 1 1 200px;
+        }
+        .simulation-input-field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        .simulation-input-field input[type="number"],
+        .simulation-input-field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-3.2-3.2-8.4-3.2-11.6%2C0L5.4%2C197.3c-3.2%2C3.2-3.2%2C8.4%2C0%2C11.6l11.6%2C11.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l124.6-124.6l124.6%2C124.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l11.6-11.6C290.2%2C205.7%2C290.2%2C200.5%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.8rem auto;
+        }
+        .simulation-input-field input[type="number"]::-webkit-outer-spin-button,
+        .simulation-input-field input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .simulation-input-field input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .simulation-input-field input[type="number"]:focus,
+        .simulation-input-field select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .simulation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+        .simulation-table th, .simulation-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .simulation-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+        .simulation-table tbody tr:nth-child(odd) {
+            background-color: #f8fafc;
+        }
+        .simulation-table tbody tr:hover {
+            background-color: #eef7ff;
+        }
+        .simulation-summary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e0f2fe;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c5282;
+        }
+        .simulation-summary span {
+            color: #007bff;
+            font-weight: 700;
+        }
+        .simulation-text-green-600 {
+            color: #22c55e;
+        }
+        .simulation-text-red-600 {
+            color: #ef4444;
+        }
+
+        
         /* Styles for "How the Allpree Gift Card Works" section */
         #how-it-works .section-title {
             font-size: 2.5rem;
@@ -1034,6 +1143,65 @@
                                 <li>Top-up J$20,000: 49% Cashback</li>
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+     <!-- New Section: Allpree Cashback Simulation -->
+        <section id="cashback-simulation" class="py-16 bg-blue-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="simulation-container">
+                    <h2 class="section-title text-blue-800">Calculate Your Cashback!</h2>
+                    <p class="text-center text-gray-600 mb-6">Adjust the settings below to see your potential cashback over a year!</p>
+
+                    <div class="simulation-input-group">
+                        <div class="simulation-input-field">
+                            <label for="membershipTierSim">Membership Tier:</label>
+                            <select id="membershipTierSim">
+                                <option value="Free">Free</option>
+                                <option value="Standard">Standard</option>
+                                <option value="Premium" selected>Premium</option>
+                            </select>
+                        </div>
+                        <div class="simulation-input-field">
+                            <label for="voucherValueSim">Voucher Value:</label>
+                            <select id="voucherValueSim">
+                                <option value="10000">J$10,000</option>
+                                <option value="15000">J$15,000</option>
+                                <option value="20000" selected>J$20,000</option>
+                            </select>
+                        </div>
+                        <div class="simulation-input-field">
+                            <label for="vouchersPerMonthSim">Vouchers per Month:</label>
+                            <input type="number" id="vouchersPerMonthSim" value="3" min="1" max="10">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="cashbackTableSim" class="simulation-table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Date Bought</th>
+                                    <th>Vouchers Bought</th>
+                                    <th>Total Vouchers (J$)</th>
+                                    <th>121 Days Later</th>
+                                    <th>Payout Month</th>
+                                    <th>Cashback (J$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Table rows will be dynamically generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="simulation-summary">
+                        Total Amount Paid: <span id="totalVouchersSpentSim">J$0</span><br>
+                        Annual Membership Fee: <span id="annualMembershipFeeSim">J$0</span><br>
+                        Gross Total Cashback: <span id="grossTotalCashbackSim">J$0</span><br>
+                        Net Cashback (Gross - Fee): <span id="netCashbackSim">J$0</span>
                     </div>
                 </div>
             </div>
@@ -2668,7 +2836,7 @@
         </div>
     </footer>
 
-   <script>
+    <script>
         // Set the current year dynamically
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -2692,7 +2860,128 @@
                     }
                 });
             });
+
+            // Initial simulation update on page load
+            updateSimulation();
         });
+
+        // Simulation Script
+        const membershipTierInputSim = document.getElementById('membershipTierSim');
+        const voucherValueInputSim = document.getElementById('voucherValueSim');
+        const vouchersPerMonthInputSim = document.getElementById('vouchersPerMonthSim');
+        const cashbackTableBodySim = document.querySelector('#cashbackTableSim tbody');
+        const totalVouchersSpentSpanSim = document.getElementById('totalVouchersSpentSim');
+        const annualMembershipFeeSpanSim = document.getElementById('annualMembershipFeeSim');
+        const grossTotalCashbackSpanSim = document.getElementById('grossTotalCashbackSim');
+        const netCashbackSpanSim = document.getElementById('netCashbackSim');
+
+        // Define cashback rates based on tier and voucher value
+        const cashbackRatesSim = {
+            'Free': {
+                10000: 0.30,
+                15000: 0.30,
+                20000: 0.30
+            },
+            'Standard': { // J$4,200/year
+                10000: 0.33,
+                15000: 0.34,
+                20000: 0.36
+            },
+            'Premium': { // J$8,400/year
+                10000: 0.37,
+                15000: 0.41,
+                20000: 0.49
+            }
+        };
+
+        // Define membership fees
+        const membershipFeesSim = {
+            'Free': 0,
+            'Standard': 4200,
+            'Premium': 8400
+        };
+
+        // Define markup percentage
+        const markupPercentage = 0.25; // 25% markup
+
+        // Function to format currency
+        const formatCurrencySim = (amount) => {
+            return new Intl.NumberFormat('en-JM', {
+                style: 'currency',
+                currency: 'JMD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        };
+
+        // Function to calculate payout date
+        const calculatePayoutDateSim = (startDate) => {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + 121);
+            return date;
+        };
+
+        const updateSimulation = () => {
+            const selectedTier = membershipTierInputSim.value;
+            const selectedVoucherValue = parseInt(voucherValueInputSim.value);
+            const vouchersPerMonth = parseInt(vouchersPerMonthInputSim.value);
+
+            // Get the correct cashback rate for the selected tier and voucher value
+            const currentCashbackRate = cashbackRatesSim[selectedTier][selectedVoucherValue];
+            const currentMembershipFee = membershipFeesSim[selectedTier];
+
+            let totalVouchersFaceValue = 0;
+            let totalAmountPaidByUser = 0; // This will include the markup
+            let grossTotalCashback = 0;
+            cashbackTableBodySim.innerHTML = ''; // Clear existing rows
+
+            const months = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
+
+            for (let i = 0; i < 12; i++) {
+                const monthName = months[i];
+                const dateBought = new Date(2025, i, 2); // Assuming starting from Jan 2, 2025
+                const monthlyVoucherFaceValue = vouchersPerMonth * selectedVoucherValue;
+                const monthlyAmountPaid = monthlyVoucherFaceValue * (1 + markupPercentage); // Add 25% markup
+
+                const payoutDate = calculatePayoutDateSim(dateBought);
+                const payoutMonth = months[payoutDate.getMonth()];
+                const calculatedGrossCashback = monthlyVoucherFaceValue * currentCashbackRate; // Cashback is on face value
+
+                totalVouchersFaceValue += monthlyVoucherFaceValue; // Keep track of face value for clarity if needed
+                totalAmountPaidByUser += monthlyAmountPaid;
+                grossTotalCashback += calculatedGrossCashback;
+
+                const row = `
+                    <tr>
+                        <td>${monthName}</td>
+                        <td>${dateBought.toLocaleDateString('en-JM', { month: 'short', day: 'numeric' })}</td>
+                        <td>${vouchersPerMonth} x J$${selectedVoucherValue.toLocaleString()}</td>
+                        <td>${formatCurrencySim(monthlyVoucherFaceValue)}</td>
+                        <td>${payoutDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td>${payoutMonth}</td>
+                        <td class="font-semibold ${calculatedGrossCashback > 0 ? 'simulation-text-green-600' : 'simulation-text-red-600'}">${formatCurrencySim(calculatedGrossCashback)}</td>
+                    </tr>
+                `;
+                cashbackTableBodySim.insertAdjacentHTML('beforeend', row);
+            }
+
+            const netCashback = grossTotalCashback - currentMembershipFee;
+
+            totalVouchersSpentSpanSim.textContent = formatCurrencySim(totalAmountPaidByUser); // Display total amount paid
+            annualMembershipFeeSpanSim.textContent = formatCurrencySim(currentMembershipFee);
+            grossTotalCashbackSpanSim.textContent = formatCurrencySim(grossTotalCashback);
+            netCashbackSpanSim.textContent = formatCurrencySim(netCashback);
+            netCashbackSpanSim.classList.toggle('simulation-text-green-600', netCashback >= 0);
+            netCashbackSpanSim.classList.toggle('simulation-text-red-600', netCashback < 0);
+        };
+
+        // Event Listeners for simulation controls
+        membershipTierInputSim.addEventListener('change', updateSimulation);
+        voucherValueInputSim.addEventListener('change', updateSimulation);
+        vouchersPerMonthInputSim.addEventListener('input', updateSimulation);
     </script>
 </body>
 </html>
