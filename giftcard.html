@@ -2845,7 +2845,205 @@
             <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
         </div>
     </footer>
+ <script>
+        // Set the current year dynamically
+        document.getElementById('current-year').textContent = new Date().getFullYear();
 
+        // FAQ Accordion Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqButtons = document.querySelectorAll('.faq-question-button');
+
+            faqButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const expanded = button.getAttribute('aria-expanded') === 'true' || false;
+                    button.setAttribute('aria-expanded', !expanded);
+                    const answer = button.nextElementSibling;
+                    if (expanded) {
+                        answer.style.maxHeight = null;
+                        answer.style.paddingTop = '0';
+                        answer.style.paddingBottom = '0';
+                    } else {
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        answer.style.paddingTop = '1rem';
+                        answer.style.paddingBottom = '1.25rem';
+                    }
+                });
+            });
+
+            // Initial simulation update on page load
+            updateSimulation();
+        });
+
+        // Simulation Script
+        const membershipTierInputSim = document.getElementById('membershipTierSim');
+        const voucherValueInputSim = document.getElementById('voucherValueSim');
+        const vouchersPerMonthInputSim = document.getElementById('vouchersPerMonthSim');
+        const simulationStartDateInputSim = document.getElementById('simulationStartDateSim'); // New input
+        const cashbackTableBodySim = document.querySelector('#cashbackTableSim tbody');
+        const totalVouchersSpentSpanSim = document.getElementById('totalVouchersSpentSim');
+        const annualMembershipFeeSpanSim = document.getElementById('annualMembershipFeeSim');
+        const grossTotalCashbackSpanSim = document.getElementById('grossTotalCashbackSim');
+        const netCashbackSpanSim = document.getElementById('netCashbackSim');
+
+        // Define cashback rates based on tier and voucher value
+        const cashbackRatesSim = {
+            'Free': {
+                10000: 0.30,
+                15000: 0.30,
+                20000: 0.30
+            },
+            'Standard': { // J$4,200/year
+                10000: 0.33,
+                15000: 0.34,
+                20000: 0.36
+            },
+            'Premium': { // J$8,400/year
+                10000: 0.37,
+                15000: 0.41,
+                20000: 0.49
+            }
+        };
+
+        // Define membership fees
+        const membershipFeesSim = {
+            'Free': 0,
+            'Standard': 4200,
+            'Premium': 8400
+        };
+
+        // Define markup percentage
+        const markupPercentage = 0.25; // 25% markup
+
+        // Function to format currency
+        const formatCurrencySim = (amount) => {
+            return new Intl.NumberFormat('en-JM', {
+                style: 'currency',
+                currency: 'JMD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        };
+
+        // Function to calculate payout date
+        const calculatePayoutDateSim = (startDate) => {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + 121);
+            return date;
+        };
+
+        const updateSimulation = () => {
+            const selectedTier = membershipTierInputSim.value;
+            const selectedVoucherValue = parseInt(voucherValueInputSim.value);
+            const vouchersPerMonth = parseInt(vouchersPerMonthInputSim.value);
+
+            // Get the selected start date string (e.g., "2025-01-12")
+            const startDateString = simulationStartDateInputSim.value;
+            let initialDate;
+
+            if (startDateString) {
+                // Manually parse YYYY-MM-DD to ensure local timezone interpretation
+                const [year, month, day] = startDateString.split('-').map(Number);
+                initialDate = new Date(year, month - 1, day); // month - 1 because months are 0-indexed
+                initialDate.setHours(0, 0, 0, 0); // Normalize to midnight local time
+            } else {
+                // If no date is set, default to today's date, local time, midnight
+                initialDate = new Date();
+                initialDate.setHours(0, 0, 0, 0);
+            }
+
+            // Ensure initialDate is valid. If user types an invalid date, Date constructor might return "Invalid Date".
+            if (isNaN(initialDate.getTime())) {
+                // Fallback to a valid default and update the input field
+                initialDate = new Date();
+                initialDate.setHours(0, 0, 0, 0); // Normalize default to midnight local time
+                const year = initialDate.getFullYear();
+                const month = (initialDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = initialDate.getDate().toString().padStart(2, '0');
+                simulationStartDateInputSim.value = `${year}-${month}-${day}`;
+                console.error("Invalid date entered. Defaulting to today's date.");
+            }
+
+            // Get the correct cashback rate for the selected tier and voucher value
+            const currentCashbackRate = cashbackRatesSim[selectedTier][selectedVoucherValue];
+            const currentMembershipFee = membershipFeesSim[selectedTier];
+
+            let totalVouchersFaceValue = 0;
+            let totalAmountPaidByUser = 0; // This will include the markup
+            let grossTotalCashback = 0;
+            cashbackTableBodySim.innerHTML = ''; // Clear existing rows
+
+            const monthNames = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
+
+            for (let i = 0; i < 12; i++) {
+                // Create a new Date object for each month's "Date Bought"
+                // This correctly handles month/year rollovers if the day overflows (e.g., Jan 31 + 1 month = March 2)
+                const dateBought = new Date(
+                    initialDate.getFullYear(),
+                    initialDate.getMonth() + i,
+                    initialDate.getDate()
+                );
+                dateBought.setHours(0, 0, 0, 0); // Ensure each date in the loop is also normalized to midnight local time
+
+                // Get the month name from the actual dateBought object, which accounts for rollovers
+                const monthName = monthNames[dateBought.getMonth()];
+
+                const monthlyVoucherFaceValue = vouchersPerMonth * selectedVoucherValue;
+                const monthlyAmountPaid = monthlyVoucherFaceValue * (1 + markupPercentage); // Add 25% markup
+
+                const payoutDate = calculatePayoutDateSim(dateBought);
+                const payoutMonth = monthNames[payoutDate.getMonth()];
+                const calculatedGrossCashback = monthlyVoucherFaceValue * currentCashbackRate; // Cashback is on face value
+
+                totalVouchersFaceValue += monthlyVoucherFaceValue; // Keep track of face value for clarity if needed
+                totalAmountPaidByUser += monthlyAmountPaid;
+                grossTotalCashback += calculatedGrossCashback;
+
+                const row = `
+                    <tr>
+                        <td>${monthName}</td>
+                        <td>${dateBought.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td>${vouchersPerMonth} x J$${selectedVoucherValue.toLocaleString()}</td>
+                        <td>${formatCurrencySim(monthlyVoucherFaceValue)}</td>
+                        <td>${payoutDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td>${payoutMonth}</td>
+                        <td class="font-semibold ${calculatedGrossCashback > 0 ? 'simulation-text-green-600' : 'simulation-text-red-600'}">${formatCurrencySim(calculatedGrossCashback)}</td>
+                    </tr>
+                `;
+                cashbackTableBodySim.insertAdjacentHTML('beforeend', row);
+            }
+
+            const netCashback = grossTotalCashback - currentMembershipFee;
+
+            totalVouchersSpentSpanSim.textContent = formatCurrencySim(totalAmountPaidByUser); // Display total amount paid
+            annualMembershipFeeSpanSim.textContent = formatCurrencySim(currentMembershipFee);
+            grossTotalCashbackSpanSim.textContent = formatCurrencySim(grossTotalCashback);
+            netCashbackSpanSim.textContent = formatCurrencySim(netCashback);
+            netCashbackSpanSim.classList.toggle('simulation-text-green-600', netCashback >= 0);
+            netCashbackSpanSim.classList.toggle('simulation-text-red-600', netCashback < 0);
+        };
+
+        // Event Listeners for simulation controls
+        membershipTierInputSim.addEventListener('change', updateSimulation);
+        voucherValueInputSim.addEventListener('change', updateSimulation);
+        vouchersPerMonthInputSim.addEventListener('input', updateSimulation);
+        simulationStartDateInputSim.addEventListener('change', updateSimulation); // New event listener for start date
+
+        // Set default date to today's date
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            // Normalize default date to midnight local time
+            today.setHours(0, 0, 0, 0); 
+            // Format to YYYY-MM-DD for the input type="date"
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            simulationStartDateInputSim.value = `${year}-${month}-${day}`;
+            updateSimulation(); // Initial simulation update on page load
+        });
+    </script>
   
 </body>
 </html>
