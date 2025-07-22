@@ -452,10 +452,10 @@
         };
 
         /**
-         * Adds a specified number of days to a Date object.
-         * @param {Date} date - The starting Date object.
+         * Adds a specified number of days to a Date object, maintaining Jamaica timezone alignment.
+         * @param {Date} date - The starting Date object (expected to be Jamaica-aligned).
          * @param {number} days - The number of days to add.
-         * @returns {Date} A new Date object with the added days.
+         * @returns {Date} A new Date object with the added days, also Jamaica-aligned.
          */
         const addDays = (date, days) => {
             const result = new Date(date);
@@ -464,15 +464,26 @@
         };
 
         /**
-         * Gets the last day of the month for a given date.
-         * @param {Date} date - The Date object.
-         * @returns {Date} A new Date object representing the last day of the month.
+         * Gets the last day of the month for a given date, aligned to America/Jamaica timezone.
+         * @param {Date} date - The Date object (expected to be Jamaica-aligned).
+         * @returns {Date} A new Date object representing the last day of the month in America/Jamaica.
          */
-        const getEndOfMonth = (date) => {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            return new Date(year, month + 1, 0); // Day 0 of next month is last day of current month
+        const getEndOfMonthJamaica = (date) => {
+            // Get year and month components as they would be in Jamaica
+            const jamaicaDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
+            const year = jamaicaDate.getFullYear();
+            const month = jamaicaDate.getMonth(); // 0-indexed
+
+            // Create a date for the first day of the *next* month in Jamaica time
+            // By setting UTC hours to 5, we ensure it's midnight Jamaica time (UTC-5)
+            const firstDayOfNextMonthJamaica = new Date(Date.UTC(year, month + 1, 1, 5, 0, 0));
+
+            // Subtract one day to get the last day of the current month in Jamaica time
+            firstDayOfNextMonthJamaica.setDate(firstDayOfNextMonthJamaica.getDate() - 1);
+
+            return firstDayOfNextMonthJamaica;
         };
+
 
         /**
          * Generates a shuffled array of win/loss outcomes for a given number of trades.
@@ -542,21 +553,29 @@
             // before that month's new contributions are added.
             let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
 
-            // Parse Start Date
+            // Parse Start Date to be consistently in America/Jamaica timezone
             let initialDate;
             if (simulationStartDateString) {
                 const [year, month, day] = simulationStartDateString.split('-').map(Number);
-                initialDate = new Date(year, month - 1, day);
-                initialDate.setHours(0, 0, 0, 0);
+                // Create a Date object whose internal UTC time corresponds to midnight in Jamaica (UTC-5)
+                // So, 00:00 Jamaica time is 05:00 UTC.
+                initialDate = new Date(Date.UTC(year, month - 1, day, 5, 0, 0));
             } else {
-                initialDate = new Date();
-                initialDate.setHours(0, 0, 0, 0);
-                // Set default date to today's date if not already set
-                const year = initialDate.getFullYear();
-                const month = (initialDate.getMonth() + 1).toString().padStart(2, '0');
-                const day = initialDate.getDate().toString().padStart(2, '0');
-                simulationStartDateInput.value = `${year}-${month}-${day}`;
+                // For default today's date, also ensure it's Jamaica's midnight
+                const now = new Date();
+                // Get current date components in Jamaica timezone
+                const jamaicaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
+                const year = jamaicaTime.getFullYear();
+                const month = jamaicaTime.getMonth();
+                const day = jamaicaTime.getDate();
+                // Create a UTC date corresponding to Jamaica midnight
+                initialDate = new Date(Date.UTC(year, month, day, 5, 0, 0));
+
+                // Set default date input value to today's date in Jamaica
+                // Use toISOString and slice to get YYYY-MM-DD from a Jamaica-aligned date
+                simulationStartDateInput.value = new Date(jamaicaTime.getTime() - (jamaicaTime.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
             }
+
 
             // Calculate the portion of cashback covered by the 83% markup allocation
             const markupAllocationToPayoutPercent = 1 - markupAllocationToTradingFund;
@@ -582,7 +601,8 @@
 
                 // For the first 12 months, calculate purchase-related data
                 if (monthIndex < 12) {
-                    const purchaseDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                    // Create purchaseDate aligned to Jamaica timezone
+                    const purchaseDate = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
                     monthData.purchaseDate = purchaseDate;
                     monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate; // Full cashback owed for this month's purchases
                     monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed; // Store for summary
@@ -597,7 +617,7 @@
 
                 // Calculate Dates relevant to the current month in the loop
                 // This is based on the *current month's position* in the simulation, not the purchase date
-                const currentMonthDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                const currentMonthDate = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
                 monthData.month = monthIndex + 1; // This is the simulation month number
                 // The cashbackDueDate and payoutMonthEnd for the simulation table are based on the *purchase date*
                 // These are placeholders for the simulation loop's internal use, actual ones are stored on pastMonthData
@@ -645,7 +665,7 @@
                 // --- Handle Delayed Payouts (Actual Deductions) ---
                 // We need to check if any payout for a *previous purchase month* is due in *this current simulation month*.
                 // Iterate through the already processed months (monthlySimulationResults) to find if their payout date falls in this month.
-                const currentSimMonthEnd = getEndOfMonth(currentMonthDate);
+                const currentSimMonthEnd = getEndOfMonthJamaica(currentMonthDate);
 
                 for (let i = 0; i < monthlySimulationResults.length; i++) {
                     const pastMonthData = monthlySimulationResults[i];
@@ -653,7 +673,7 @@
                     if (i < 12 && pastMonthData.purchaseDate && pastMonthData.actualPayoutMetStatus === null) {
                         const payoutDateForPastPurchase = addDays(pastMonthData.purchaseDate, PAYOUT_DELAY_DAYS);
                         // The actual payout should happen at the end of the month of the 121st day
-                        const payoutMonthEndDateForPastPurchase = getEndOfMonth(payoutDateForPastPurchase);
+                        const payoutMonthEndDateForPastPurchase = getEndOfMonthJamaica(payoutDateForPastPurchase);
 
                         // Check if this payoutMonthEndDateForPastPurchase is due by the end of the current simulation month
                         if (payoutMonthEndDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
@@ -701,9 +721,9 @@
                     // These are not updated in the main loop's `monthData` object directly because `monthData` represents
                     // the *current simulation month*, not necessarily a purchase month.
                     // So, we set them here for the 12 purchase months.
-                    const purchaseDateForDisplay = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                    const purchaseDateForDisplay = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
                     monthData.cashbackDueDate = addDays(purchaseDateForDisplay, PAYOUT_DELAY_DAYS);
-                    monthData.payoutMonthEnd = getEndOfMonth(monthData.cashbackDueDate);
+                    monthData.payoutMonthEnd = getEndOfMonthJamaica(monthData.cashbackDueDate);
 
                     monthlyPurchaseData.push(monthData);
                     // Update Cumulative Summaries only for the first 12 months of purchases
@@ -735,7 +755,7 @@
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${data.payoutDeductedInThisMonth > 0 ? 'text-red-600' : 'text-gray-600'}">${formatCurrency(data.payoutDeductedInThisMonth)}</td> <!-- New cell -->
@@ -794,8 +814,8 @@
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td> <!-- New cell here -->
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
@@ -1040,13 +1060,14 @@
                 return; // No data to simulate
             }
 
-            const startDate = new Date(simulationStartDateInput.value);
-            startDate.setHours(0, 0, 0, 0);
+            // Start date for daily log, aligned to Jamaica timezone midnight
+            const [year, month, day] = simulationStartDateInput.value.split('-').map(Number);
+            const startDate = new Date(Date.UTC(year, month - 1, day, 5, 0, 0)); // 5 hours ahead of Jamaica midnight
 
             // Determine the absolute end date for the cumulative log: payout month-end of the LAST purchase month
             const lastPurchaseMonthData = monthlyPurchaseData[11]; // Assuming 12 purchase months always
-            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd);
-            endDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd); // This is already Jamaica-aligned from monthly sim
+            endDate.setUTCHours(5, 0, 0, 0); // Ensure it's midnight Jamaica time for comparison
 
             // Initial capital for the daily log starts with the user's input initial fund
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
@@ -1063,13 +1084,15 @@
             const totalTradesToDistribute = Math.max(TOTAL_TRADES_FOR_CUMULATIVE_LOG, Math.floor(estimatedTradingDays / 2)); // Ensure enough trades for the long period
 
             const tradeOutcomes = generateTradeOutcomes(totalTradesToDistribute, winRate);
-            const tradeDays = new Set(); // Stores dates where a trade will occur
+            const tradeDays = new Set(); // Stores dates where a trade will occur (as 'YYYY-MM-DD' strings)
 
             // Randomly select `totalTradesToDistribute` weekdays for trades
             const allWeekdays = [];
             let tempDateForWeekdays = new Date(startDate);
             while (tempDateForWeekdays <= endDate) {
-                if (tempDateForWeekdays.getDay() !== 0 && tempDateForWeekdays.getDay() !== 6) { // Not Sunday or Saturday
+                // Check day of week in Jamaica timezone
+                const dayOfWeekJamaica = new Date(tempDateForWeekdays.toLocaleString('en-US', { timeZone: 'America/Jamaica', weekday: 'long' })).getDay();
+                if (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6) { // Not Sunday or Saturday in Jamaica
                     allWeekdays.push(new Date(tempDateForWeekdays));
                 }
                 tempDateForWeekdays.setDate(tempDateForWeekdays.getDate() + 1);
@@ -1081,15 +1104,16 @@
                 [allWeekdays[i], allWeekdays[j]] = [allWeekdays[j], allWeekdays[i]];
             }
             for (let i = 0; i < Math.min(totalTradesToDistribute, allWeekdays.length); i++) {
-                tradeDays.add(allWeekdays[i].toDateString());
+                // Store date as YYYY-MM-DD string for easy lookup
+                tradeDays.add(allWeekdays[i].toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }));
             }
 
             let dayCounter = 1;
-            let currentDate = new Date(startDate);
+            let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
 
             // Store monthly contribution amounts and their respective purchase dates
-            const monthlyContributionsMap = new Map(); // Map: dateString -> contributionAmount
-            const monthlyPayoutsMap = new Map(); // Map: dateString -> Array of { netObligation, actualDeduction }
+            const monthlyContributionsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> contributionAmount
+            const monthlyPayoutsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> Array of { netObligation, actualDeduction }
 
             // Populate contributions and payouts map from monthlyPurchaseData
             const selectedTier = membershipTierInput.value;
@@ -1101,36 +1125,38 @@
             const oneTimeMembershipFundAddition = tierConfig.fee * 0.50;
 
             // Month 1 Contribution (includes one-time membership addition)
-            const month1PurchaseDate = new Date(monthlyPurchaseData[0].purchaseDate);
-            month1PurchaseDate.setHours(0, 0, 0, 0);
-            monthlyContributionsMap.set(month1PurchaseDate.toDateString(), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
+            if (monthlyPurchaseData.length > 0) {
+                const month1PurchaseDate = new Date(monthlyPurchaseData[0].purchaseDate);
+                monthlyContributionsMap.set(month1PurchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
 
-            // Other 11 months contributions (standard monthly contribution)
-            for (let i = 1; i < 12; i++) { // Start from month 2 (index 1)
-                const purchaseDate = new Date(monthlyPurchaseData[i].purchaseDate);
-                purchaseDate.setHours(0, 0, 0, 0);
-                monthlyContributionsMap.set(purchaseDate.toDateString(), monthlyTradingFundContribution);
-            }
+                // Other 11 months contributions (standard monthly contribution)
+                for (let i = 1; i < 12; i++) { // Start from month 2 (index 1)
+                    const purchaseDate = new Date(monthlyPurchaseData[i].purchaseDate);
+                    monthlyContributionsMap.set(purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }), monthlyTradingFundContribution);
+                }
 
-            // Populate payouts map for all 12 purchase months
-            for (let i = 0; i < 12; i++) {
-                const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
-                payoutDate.setHours(0, 0, 0, 0);
-                const payoutInfo = {
-                    netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
-                    actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
-                };
-                if (monthlyPayoutsMap.has(payoutDate.toDateString())) {
-                    monthlyPayoutsMap.get(payoutDate.toDateString()).push(payoutInfo);
-                } else {
-                    monthlyPayoutsMap.set(payoutDate.toDateString(), [payoutInfo]);
+                // Populate payouts map for all 12 purchase months
+                for (let i = 0; i < 12; i++) {
+                    const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
+                    const payoutDateString = payoutDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
+                    const payoutInfo = {
+                        netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
+                        actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
+                    };
+                    if (monthlyPayoutsMap.has(payoutDateString)) {
+                        monthlyPayoutsMap.get(payoutDateString).push(payoutInfo);
+                    } else {
+                        monthlyPayoutsMap.set(payoutDateString, [payoutInfo]);
+                    }
                 }
             }
 
+
             // Iterate through each day of the cumulative simulation period
             while (currentDate <= endDate) {
-                const dayOfWeek = currentDate.getDay();
-                const isTradingDay = (dayOfWeek !== 0 && dayOfWeek !== 6); // Monday-Friday
+                const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
+                const dayOfWeekJamaica = new Date(currentDate.toLocaleString('en-US', { timeZone: 'America/Jamaica', weekday: 'long' })).getDay();
+                const isTradingDay = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica
 
                 let eventOccurred = false;
                 let eventType = 'No Event';
@@ -1140,7 +1166,7 @@
                 let capitalStartOfDay = currentDailyCapital; // Capital at the very beginning of this day
 
                 // 1. Apply Contributions for the day
-                const contributionForToday = monthlyContributionsMap.get(currentDate.toDateString());
+                const contributionForToday = monthlyContributionsMap.get(currentDateString);
                 if (contributionForToday) {
                     currentDailyCapital += contributionForToday;
                     dailyNetChange += contributionForToday; // Contributions also add to net change
@@ -1149,7 +1175,7 @@
                 }
 
                 // 2. Simulate Trading for the day (if it's a trading day and a trade is scheduled)
-                const tradeOccurred = isTradingDay && tradeDays.has(currentDate.toDateString());
+                const tradeOccurred = isTradingDay && tradeDays.has(currentDateString);
                 if (tradeOccurred) {
                     const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
                     const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
@@ -1170,7 +1196,7 @@
                 }
 
                 // 3. Apply Payouts for the day (if any are due)
-                const payoutsDueToday = monthlyPayoutsMap.get(currentDate.toDateString());
+                const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0; // Define isPayoutDay here
 
                 if (isPayoutDay) {
@@ -1265,10 +1291,11 @@
         // Set default start date to today and run initial simulation
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const day = today.getDate().toString().padStart(2, '0');
+            // Get today's date components in Jamaica timezone
+            const jamaicaTime = new Date(today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
+            const year = jamaicaTime.getFullYear();
+            const month = (jamaicaTime.getMonth() + 1).toString().padStart(2, '0');
+            const day = jamaicaTime.getDate().toString().padStart(2, '0');
             simulationStartDateInput.value = `${year}-${month}-${day}`;
 
             // Set the initial default value for initialTradingFundInput on load
