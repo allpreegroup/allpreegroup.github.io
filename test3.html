@@ -277,7 +277,7 @@
                         <th class="px-6 py-3">Purchase Date</th>
                         <th class="px-6 py-3">Cashback Due Date</th>
                         <th class="px-6 py-3">Payout Month-End</th>
-                        <th class="px-6 py-3">Net Payout Obligation (J$)</th> <!-- Changed header -->
+                        <th class="px-6 py-3">Net Payout Obligation (J$)</th> <!-- Reverted header -->
                         <th class="px-6 py-3">Starting Trading Capital (J$)</th>
                         <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
                         <th class="px-6 py-3">Ending Capital (J$)</th>
@@ -337,7 +337,7 @@
 
     <script>
         // --- Constants and Configuration ---
-        const PAYOUT_DELAY_DAYS = 121; // Approximately 4 months
+        const PAYOUT_DELAY_DAYS = 121; // Reverted to 121 days
         const TRADING_WEEKS_PER_MONTH = 20; // This is the number of trades per month for the monthly simulation
         const TOTAL_TRADES_FOR_DAILY_LOG = 20; // Total trades over the 121-day period for the daily log
 
@@ -515,7 +515,7 @@
 
             // Calculate the portion of cashback covered by the 83% markup allocation
             const markupAllocationToPayoutPercent = 1 - markupAllocationToTradingFund; // This is 83%
-            const amountCoveredByMarkup = markupPerMonth * markupAllocationToPayoutPercent;
+            const amountCoveredByMarkup = monthlyVoucherSpend * markupRate * markupAllocationToPayoutPercent;
 
 
             // --- Simulation Variables ---
@@ -538,8 +538,13 @@
                 monthData.purchaseDate = purchaseDate;
                 monthData.cashbackDueDate = cashbackDueDate;
                 monthData.payoutMonthEnd = payoutMonthEnd;
-                monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate; // This is the full cashback owed
-                monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed;
+                monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate; // This is the full cashback owed (accrued for this month's purchases)
+                monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed; // Store for summary
+
+                // Calculate the net payout obligation for the *current month's purchases*
+                // This is what the user wants to see in the "Net Payout Obligation (J$)" column from Month 1
+                monthData.accruedNetPayoutObligation = Math.max(0, monthData.totalCashbackOwed - amountCoveredByMarkup);
+
 
                 let monthlyContributionForDisplay; // This variable is for table display only
 
@@ -580,8 +585,8 @@
                 // fundAfterTrades now holds the capital after all trades for this month, *before* payouts.
                 monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
 
-                // --- Handle Delayed Payouts ---
-                monthData.cashbackToPayThisMonth = 0; // This will be the net amount the trading fund needs to cover
+                // --- Handle Delayed Payouts (Actual Deductions) ---
+                monthData.cashbackToPayThisMonth = 0; // This will be the net amount the trading fund needs to cover (actual deduction)
                 monthData.surplusDeficit = 0;
                 monthData.payoutMet = false;
 
@@ -590,12 +595,13 @@
                 if (payoutSourceMonthIndex >= 0 && monthlySimulationResults[payoutSourceMonthIndex]) {
                     const owedFromPastFull = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth; // Full cashback originally owed
                     // Calculate the net amount the trading fund needs to cover after markup contribution
+                    // This is the amount that the trading fund *actually* has to cover.
                     const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
-                    monthData.cashbackToPayThisMonth = netCashbackToCoverByTradingFund;
+                    monthData.cashbackToPayThisMonth = netCashbackToCoverByTradingFund; // This is the actual amount deducted
 
                     if (fundAfterTrades >= netCashbackToCoverByTradingFund) {
                         fundAfterTrades -= netCashbackToCoverByTradingFund; // Deduct only the portion trading fund is responsible for
-                        totalCashbackPaid += owedFromPastFull; // User receives the full amount
+                        totalCashbackPaid += owedFromPastFull; // User receives the full amount (markup + fund)
                         monthData.surplusDeficit = fundAfterTrades; // Remaining fund after payout
                         monthData.payoutMet = true;
                     } else {
@@ -646,7 +652,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.cashbackToPayThisMonth)}</td> <!-- Changed to cashbackToPayThisMonth -->
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td> <!-- Now displaying the accrued net obligation -->
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.endingTradingCapital)}</td>
