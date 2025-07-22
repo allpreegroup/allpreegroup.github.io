@@ -315,7 +315,7 @@
             <canvas id="surplusDeficitChart"></canvas>
         </div>
 
-        <!-- Combined Table for Net Payout Obligation and Surplus/Deficit -->
+        <!-- Combined Table for Net Payout Obligation and Fund Balance After Payout -->
         <div class="table-container">
             <h2>Payout Obligation & Fund Performance</h2>
             <div class="overflow-x-auto">
@@ -326,7 +326,7 @@
                             <th class="px-6 py-3">Cashback Due Date</th>
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Net Payout Obligation (J$)</th>
-                            <th class="px-6 py-3">Surplus/Deficit (J$)</th>
+                            <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
                     </thead>
@@ -737,29 +737,26 @@
         };
 
         /**
-         * Updates the combined Net Payout Obligation and Surplus/Deficit table.
+         * Updates the combined Net Payout Obligation and Fund Balance After Payout table.
          * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
          */
         const updateCombinedPayoutTable = (results) => {
             combinedPayoutTableBody.innerHTML = ''; // Clear existing rows
 
             results.forEach(data => {
-                let surplusDeficitDisplay;
-                let surplusDeficitClass;
+                let fundBalanceDisplay;
+                let fundBalanceClass;
                 let payoutMetDisplay;
                 let payoutMetClass;
 
-                // For Surplus/Deficit: Always use the actual payout surplus/deficit if available.
-                // If it's null, it implies an error in simulation logic or insufficient TOTAL_SIMULATION_MONTHS.
+                // For Fund Balance After Payout: Always use the actual payout surplus/deficit if available.
                 if (data.actualPayoutSurplusDeficit !== null) {
-                    surplusDeficitDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
-                    surplusDeficitClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
+                    fundBalanceDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
+                    fundBalanceClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // This block should ideally not be hit for the first 12 months with extended simulation.
-                    // If it is, it indicates a problem in the simulation's payout processing.
                     console.warn(`Payout for Month ${data.month} was not processed. actualPayoutSurplusDeficit is null.`);
-                    surplusDeficitDisplay = 'Error: Payout Not Processed';
-                    surplusDeficitClass = 'text-gray-500';
+                    fundBalanceDisplay = 'N/A'; // Or a placeholder indicating not yet processed
+                    fundBalanceClass = 'text-gray-500';
                 }
 
                 // For Payout Met?: Always use the actual status if available.
@@ -767,9 +764,8 @@
                     payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
                     payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // This block should ideally not be hit for the first 12 months with extended simulation.
                     console.warn(`Payout for Month ${data.month} was not processed. actualPayoutMetStatus is null.`);
-                    payoutMetDisplay = 'Error: Payout Not Processed';
+                    payoutMetDisplay = 'N/A'; // Or a placeholder indicating not yet processed
                     payoutMetClass = 'text-gray-500';
                 }
 
@@ -779,7 +775,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${surplusDeficitClass}">${surplusDeficitDisplay}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
                                 ${payoutMetDisplay}
@@ -942,14 +938,13 @@
         };
 
         /**
-         * Updates or creates the Chart.js graph for Surplus/Deficit vs. Payout.
+         * Updates or creates the Chart.js graph for Fund Balance After Payout.
          * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
          */
         const updateSurplusDeficitChart = (results) => {
             const labels = results.map(data => `Month ${data.month}`);
-            const surplusDeficitData = results.map(data => {
-                // For this chart, we want the actual surplus/deficits after payout
-                // This should now always be a number due to extended simulation
+            const fundBalanceData = results.map(data => {
+                // For this chart, we want the actual fund balance after payout
                 return data.actualPayoutSurplusDeficit;
             });
 
@@ -963,8 +958,8 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Surplus/Deficit vs. Payout (J$)',
-                            data: surplusDeficitData,
+                            label: 'Fund Balance After Payout (J$)',
+                            data: fundBalanceData,
                             borderColor: (context) => {
                                 const value = context.raw;
                                 return value >= 0 ? '#22c55e' : '#ef4444'; // Green for surplus, Red for deficit
@@ -999,7 +994,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Surplus/Deficit vs. Payout Over 12 Months',
+                            text: 'Fund Balance After Payout Over 12 Months',
                             font: {
                                 size: 18
                             }
