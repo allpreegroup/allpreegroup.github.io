@@ -2,2088 +2,934 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Updated viewport meta tag for fixed width scaling -->
-    <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
-    <title>Allpree.com — View Local In-Store Deal Catalogs Across Jamaica</title>
-    <meta itemprop="description" name="description" content="Allpree is an online platform that digitizes local in-store catalog deals, so you can browse everything from the comfort of your couch" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashback Payout + Trading Simulation</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-<!-- <script src="/js/dt.main.js" defer></script> -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Font Awesome for social icons and location icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-  <style>
-        /* Custom CSS for header */
-        .header-bg {
-            background-color: #ffffff; /* White background for the header */
-            border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
-        }
-        .max-w-7xl-custom {
-            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
-        }
-
-        /* Custom CSS for footer */
-        .footer-section {
-            background-color: #2C3E50; /* Dark blue background */
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        .footer-section a {
-            color: #60a5fa; /* A light blue for links */
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .footer-section a:hover {
-            color: #93c5fd; /* Lighter blue on hover */
-            text-decoration: underline;
-        }
-        .footer-section h3 {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: #ffffff;
-        }
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
-        }
-        .footer-section ul li a {
-            color: #d1d5db; /* Lighter gray for footer links */
-            font-weight: 400;
-        }
-        .footer-section ul li a:hover {
-            color: #ffffff;
-        }
-
-        /* Base styles */
+    <!-- Chart.js CDN for graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff; /* Light background */
+            background-color: #f0f4ff;
             color: #333;
-            overflow-x: hidden; /* Keep hidden to prevent scrollbars from min-width on body */
+            min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Arrange header, main, footer vertically */
-            justify-content: space-between; /* Push footer to bottom */
-            min-height: 100vh; /* Ensure it takes full viewport height */
-            /* Removed min-width: 1200px; from body as viewport handles scaling now */
-        }
-        .btn-primary {
-            background-color: #007bff; /* Primary blue for CTA */
-            color: white;
-            padding: 12px 28px; /* Slightly larger padding for main CTA */
-            border-radius: 9999px; /* Fully rounded */
-            font-weight: 600;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Consistent shadow */
-            display: inline-flex; /* For better alignment with icon if added */
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px; /* Space for potential icon */
-        }
-        .btn-primary:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        .container-wrapper {
-            border-radius: 1.5rem; /* Rounded corners for the main container */
-            padding: 0; /* Remove padding here, it's inside sections */
-            margin: 2rem auto; /* Center horizontally and add vertical margin */
-            max-width: 1200px; /* Max width for content */
-            width: 95%; /* Responsive width */
-            overflow: hidden; /* Ensure rounded corners clip content */
-            flex-grow: 1; /* Allow main content to grow and push footer down */
-        }
-
-        /* Deal Grid and Cards */
-        .deal-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for general product cards */
-            gap: 1.5rem;
             padding: 2rem;
         }
-        .deal-card {
+        .container {
             background-color: #ffffff;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: left;
-            padding-bottom: 1rem;
-            /* max-width removed - let grid control width */
-        }
-        .deal-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-        .deal-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: contain; /* Changed from 'cover' to 'contain' */
-            border-top-left-radius: 0.75rem;
-            border-top-right-radius: 0.75rem;
-        }
-        .discount-badge {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background-color: red;
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.75rem;
-            z-index: 10;
-        }
-        .deal-content {
-            padding: 0.75rem;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-grow: 1;
-        }
-        .product-brand-text {
-            font-size: 0.875rem;
-            color: #6b7280;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            white-space: nowrap; /* Re-added for truncation */
-            overflow: hidden; /* Re-added for truncation */
-            text-overflow: ellipsis; /* Re-added for truncation */
-        }
-
-        .deal-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #1a202c;
-            margin-bottom: 0.25rem;
-            height: 1.2rem; /* Fixed height to allow for truncation */
-            overflow: hidden; /* Re-added for truncation */
-            text-overflow: ellipsis; /* Re-added for truncation */
-            display: -webkit-box; /* Re-added for truncation */
-            -webkit-line-clamp: 2; /* Re-added for truncation */
-            -webkit-box-orient: vertical; /* Re-added for truncation */
-        }
-        .price-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-        .price-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .original-price {
-            text-decoration: line-through;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .discount-price {
-            font-weight: 700;
-            color: red;
-            font-size: 1.0rem;
-        }
-        .add-to-cart-button {
-            background-color: #2C3E50;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: .95rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
-        }
-        .add-to-cart-button:hover {
-            background-color: #34495E;
-        }
-
-        /* Current Brand Info Card (now part of the grid) */
-        .brand-info-card-grid-item {
-            background-color: #2C3E50; /* Default background */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem; /* Reduced padding to fit better in grid */
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Match other deal cards */
-            text-align: center;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Added transitions for consistency */
-            /* Ensure it takes full width in its grid cell */
-            width: 100%;
-            height: 100%;
-            /* max-width removed - let grid control width */
-        }
-        .brand-info-card-grid-item:hover { /* Added hover effect for consistency */
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-        .brand-info-card-grid-item .brand-logo-grid {
-            width: 120px; /* Slightly smaller logo for grid item */
-            height: 100px;
-            object-fit: contain;
-            border-radius: 50%;
-            background-color: rgba(255,255,255,0.2);
-            padding: 5px;
-            flex-shrink: 0;
-            margin-bottom: 0.5rem; /* Space below logo */
-        }
-        .brand-info-card-grid-item .brand-name-grid {
-            font-size: .8rem; /* Slightly smaller font for grid item */
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        .brand-info-card-grid-item .category-parish-text {
-            font-size: 0.85rem;
-            font-weight: 500;
-            opacity: 0.9;
-            margin-bottom: 0.25rem;
-        }
-        .brand-info-card-grid-item .countdown-text-grid {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: white; /* Default color for the timer text */
-            margin-top: 0.5rem;
-        }
-        /* New style for timer error messages */
-        .brand-info-card-grid-item .countdown-text-grid.error {
-            color: #ffb3b3; /* Light red for error messages */
-            font-weight: 600;
-        }
-        /* New class for cashback text on brand card */
-        .cashback-brand-text {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: white; /* Set text color to white */
-            margin-top: 0.5rem;
-        }
-
-        /* Shop More Deals Button (per brand section) */
-        .shop-more-deals-container {
-            display: flex;
-            justify-content: center;
-            padding: 1.5rem 2rem;
-            background-color: #ffffff;
-            border-radius: 0 0 1.5rem 1.5rem; /* Rounded bottom corners only for the last section */
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.03);
-        }
-        .shop-more-button {
-            background-color: #2C3E50;
-            color: white;
-            padding: 0.75rem 0.75rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .shop-more-button:hover {
-            background-color: #34495E;
-        }
-        .shop-more-button svg {
-            width: 16px;
-            height: 16px;
-            fill: white;
-        }
-
-        /* Popup Styles */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        .popup-content {
-            background-color: white;
-            padding: 2rem;
             border-radius: 1.5rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            max-width: 600px;
-            width: 90%;
-            position: relative;
-            animation: fadeInScale 0.3s ease-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .popup-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 2rem;
-            color: #6b7280;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .popup-close:hover {
-            color: #ef4444;
-        }
-        .popup-img {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 1200px;
             width: 100%;
-            max-height: 300px; /* Adjusted max-height */
-            object-fit: contain;
-            border-radius: 1rem;
-            margin-bottom: 1.5rem;
-            background-color: #f8fafc;
-            padding: 1rem;
+            margin-top: 2rem;
         }
-        .popup-title {
-            font-size: 1rem;
+        h1 {
+            font-size: 2.5rem;
             font-weight: 800;
             color: #1a202c;
-            margin-bottom: 0.75rem;
-        }
-        .popup-brand {
-            font-size: 1.125rem;
-            color: #4a5568;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        .popup-price-info-popup {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .popup-price {
-            text-decoration: line-through;
-            color: #6b7280;
-            font-size: 1rem;
-        }
-        .popup-discount {
-            font-weight: 700;
-            color: red;
-            font-size: 1.125rem;
-        }
-        .popup-desc {
-            color: #4a5568;
-            font-size: 0.5rem;
-            line-height: .6rem;
-            margin-bottom: 1.5rem;
-        }
-        .popup-badge {
-            position: absolute;
-            top: 0.75rem;
-            left: 0.75rem;
-            background-color: #ef4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
-        .shop-button {
-            background-color: #3f51b5;
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .shop-button:hover {
-            background-color: #303f9f;
-        }
-
-        /* Floating Categories Styles */
-        .floating-categories-container {
-            background-color: #f8fafc; /* Light gray background for the floating bar */
-            padding: 0.75rem 0; /* Vertical padding only */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 70px; /* Adjust based on your header's height */
-            z-index: 40; /* Below header, above main content */
-            border-bottom: 1px solid #e5e7eb;
-            width: 100%; /* Ensures the background spans the full width of the page */
-        }
-        .categories-list-wrapper { /* This new wrapper centers the content and handles scrolling */
-            max-width: 1280px; /* Equivalent to max-w-7xl in Tailwind's default config */
-            margin: 0 auto; /* Centers the content within the full-width container */
-            padding: 0 1rem; /* Added horizontal padding for content inside */
-            overflow-x: auto; /* Now this element handles horizontal scrolling */
-            white-space: nowrap; /* Prevent items from wrapping here */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-        /* Scrollbar hiding for the categories-list-wrapper */
-        .categories-list-wrapper::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-        }
-        .categories-list-wrapper {
-            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-
-        .categories-list {
-            display: flex;
-            align-items: center;
-            gap: 1rem; /* Space between category items */
-        }
-        .category-item {
-            display: inline-flex; /* Keep items inline for horizontal scroll */
-            flex-direction: column;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            flex-shrink: 0; /* Prevent items from shrinking */
-        }
-        .category-item:hover {
-            background-color: #e2e8f0; /* Light hover effect */
-            transform: translateY(-2px);
-        }
-        .category-item.active {
-            background-color: #dbeafe; /* Tailwind blue-100 for active state */
-            border: 1px solid #93c5fd; /* Tailwind blue-300 border */
-        }
-        .category-name {
-            font-size: 0.75rem; /* Smaller text for category names */
-            font-weight: 500;
-            color: #4a5568;
             text-align: center;
-            white-space: normal; /* Allow text to wrap */
-            overflow: visible; /* Ensure content is visible */
-            text-overflow: clip; /* Prevent ellipsis */
-            max-width: none; /* Remove max-width constraint */
+            margin-bottom: 2rem;
         }
-
-        /* Styles for combined search/dropdown container */
-        .combined-search-container {
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .input-field {
             display: flex;
-            border: 1px solid #d1d5db; /* Gray-300 */
-            border-radius: 0.5rem; /* Rounded-lg */
-            overflow: hidden; /* Ensures inner elements respect the container's border-radius */
-            flex-grow: 1;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Shadow-sm */
-            height: 42px; /* Fixed height for consistent alignment */
+            flex-direction: column;
         }
-        .combined-search-container:focus-within {
-            border-color: transparent; /* Hide individual border on focus */
-            box-shadow: 0 0 0 2px #2C3E50; /* Focus ring */
-            outline: none;
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
         }
-
-        /* Styles for the search input field */
-        .combined-search-container input[type="text"] {
-            border: none; /* Remove individual border */
-            border-radius: 0; /* Remove individual border-radius */
-            padding-left: 2.5rem; /* Space for icon */
-            flex-grow: 1;
-            background-color: white;
-            outline: none; /* Remove focus outline */
-            padding-top: 0.5rem; /* py-2 */
-            padding-bottom: 0.5rem; /* py-2 */
-            font-size: 0.875rem; /* text-sm */
-            color: #333;
-        }
-        .combined-search-container input[type="text"]::placeholder {
-            color: #9ca3af; /* Placeholder color */
-        }
-
-        /* Styles for the parish dropdown */
-        .combined-search-container select.parish-select {
-            border: none; /* Remove individual border */
-            border-left: 1px solid #e5e7eb; /* Add a separator line */
-            border-radius: 0; /* Remove individual border-radius */
-            padding-right: 0.75rem; /* Adjust padding as no custom arrow here */
-            background-color: #f9fafb; /* Light background color for the dropdown */
-            appearance: none; /* Hide default dropdown arrow */
-            outline: none; /* Remove focus outline */
-            flex-shrink: 0; /* Prevent shrinking */
-            width: auto; /* Allow width to be determined by content/padding */
-            min-width: 120px; /* Minimum width for the dropdown */
-            cursor: pointer;
-            padding-top: 0.5rem; /* py-2 */
-            padding-bottom: 0.5rem; /* py-2 */
-            font-size: 0.875rem; /* text-sm */
-            color: #333;
-            transition: background-color 0.2s ease-in-out; /* Added transition for hover */
-            text-align: center; /* Center the selected text in the dropdown */
-            text-align-last: center; /* For Firefox to center selected text */
-        }
-        .combined-search-container select.parish-select:hover {
-            background-color: #f5f5f5; /* Slightly darker light hover background */
-        }
-
-        /* Styles for the town dropdown */
-        .combined-search-container select.town-select {
-            border: none; /* Remove individual border */
-            border-left: 1px solid #e5e7eb; /* Add a separator line */
-            border-radius: 0; /* Remove individual border-radius */
-            padding-right: 2.5rem; /* Space for custom arrow */
-            background-color: #f9fafb; /* Light background color for the dropdown */
-            appearance: none; /* Hide default dropdown arrow */
-            outline: none; /* Remove focus outline */
-            flex-shrink: 0; /* Prevent shrinking */
-            width: auto; /* Allow width to be determined by content/padding */
-            min-width: 120px; /* Minimum width for the dropdown */
-            cursor: pointer;
-            padding-top: 0.5rem; /* py-2 */
-            padding-bottom: 0.5rem; /* py-2 */
-            font-size: 0.875rem; /* text-sm */
-            color: #333;
-            transition: background-color 0.2s ease-in-out; /* Added transition for hover */
-            text-align: center; /* Center the selected text in the dropdown */
-            text-align-last: center; /* For Firefox to center selected text */
-        }
-        .combined-search-container select.town-select:hover {
-            background-color: #f5f5f5; /* Slightly darker light hover background */
-        }
-
-        .combined-search-container select option {
-            color: #333; /* Ensure option text color is readable */
-            text-align: center; /* Attempt to center options in the dropdown list */
-        }
-
-        /* Styles for the search icon wrapper */
-        .combined-search-container .search-icon-wrapper {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            padding-left: 0.75rem; /* pl-3 */
-            display: flex;
-            align-items: center;
-            pointer-events: none;
-            z-index: 1; /* Ensure icon is above input */
-        }
-
-        /* Styles for the dropdown arrow wrapper (only for the last select) */
-        .combined-search-container .dropdown-arrow-wrapper {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            padding-right: 0.5rem; /* px-2 */
-            display: flex;
-            align-items: center;
-            pointer-events: none;
-            z-index: 1; /* Ensure arrow is above select */
-        }
-
-        /* Loading Overlay Styles */
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        input[type="number"], input[type="date"], select {
             width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000; /* High z-index to cover everything */
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        /* Explicit hidden class for the overlay */
-        #loading-overlay.hidden {
-            display: none !important; /* Added !important */
-        }
-
-        .spinner {
-            border: 8px solid #f3f3f3; /* Light grey */
-            border-top: 8px solid #3498db; /* Blue */
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Featured Brands Section Styles */
-        #featured-brands-section {
-            background-color: transparent; /* Changed to transparent */
-            border-radius: 0.75rem;
-            padding: 1rem;
-            /* Removed flex-direction: column and align-items: center */
-            text-align: center;
-            box-shadow: none; /* Removed shadow for transparent background */
-            /* Removed flex properties here, they are on the container now */
-        }
-
-        #featured-brands-container {
-            display: flex; /* Changed to flex */
-            flex-wrap: nowrap; /* Prevent wrapping */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            justify-content: flex-start; /* Align items to the start */
-            gap: 1rem; /* Space between cards */
-            padding: 1rem 0; /* Add some vertical padding for scrollbar */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-            /* Hide scrollbar */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
-        }
-
-        #featured-brands-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        .featured-brand-card {
-            background-color: #f8fafc; /* Light background */
-            border-radius: 0.75rem;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0; /* Prevent shrinking */
-            min-width: 150px; /* Minimum width for each card */
-            max-width: 200px; /* Maximum width for each card */
-        }
-
-        .featured-brand-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            background-color: #e2e8f0; /* Slightly darker hover */
-        }
-
-        .featured-brand-card.active {
-            border: 2px solid #3f51b5; /* Highlight active card */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            background-color: #e0e7ff; /* Light blue background for active */
-        }
-
-        .featured-brand-card img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            border-radius: 50%;
-            margin-bottom: 0.5rem;
-            background-color: white;
-            padding: 5px;
-        }
-
-        .featured-brand-card .brand-name {
-            font-weight: 600;
-            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
             color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%; /* Ensure text truncates within the card */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-3.2-3.2-8.4-3.2-11.6%2C0L5.4%2C197.3c-3.2%2C3.2-3.2%2C8.4%2C0%2C11.6l11.6%2C11.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l124.6-124.6l124.6%2C124.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l11.6-11.6C290.2%2C205.7%2C290.2%2C200.5%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.8rem auto;
         }
-
-        /* Responsive adjustments for featured brands */
-        /* These media queries are less critical now that it's a horizontal scroll,
-           but can still fine-tune min-width if needed */
-        @media (max-width: 1024px) {
-            .featured-brand-card {
-                min-width: 140px;
-            }
+        input[type="date"] {
+            background-image: none;
         }
-
-        @media (max-width: 768px) {
-            .featured-brand-card {
-                min-width: 120px;
-            }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-
-        @media (max-width: 640px) {
-            .featured-brand-card {
-                min-width: 100px;
-            }
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
-
-        @media (max-width: 480px) {
-            .featured-brand-card {
-                min-width: 90px;
-            }
+        input[type="number"]:focus, input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
-
-        /* Today's Special Brand Section Styles */
-        #top-special-brand-section { /* Renamed from single-featured-brand-section */
-            background: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
-            color: white;
-            padding: 1rem 1rem; /* More padding */
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Reverted box-shadow */
-            margin: 1rem auto; /* Center horizontally and add vertical margin */
-            max-width: 1200px; /* Changed from 800px to 1200px */
-            width: 95%;
-            text-align: center;
-            display: flex; /* Use flex for centering content */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem; /* Space between title and card */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
         }
-
-        #top-special-brand-section h2 {
-            font-size: 2.5rem; /* Larger title */
-            font-weight: 900;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 0; /* Adjusted margin */
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: left;
         }
-
-        #todays-special-brand-content {
-            width: 100%; /* Ensure the grid container takes full width of its parent */
-        }
-
-        /* Specific grid layout for the special brand section */
-        #todays-special-brand-content.special-deal-grid-layout {
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for better control */
-            justify-content: center;
-            align-items: stretch; /* Ensure items stretch to fill the cell height */
-        }
-
-        /* New: Limit max-width and fixed height of cards within the special brand section */
-        #todays-special-brand-content .deal-card,
-        #todays-special-brand-content .brand-info-card-grid-item {
-            max-width: 200px; /* Still limit max width */
-            height: 280px; /* Changed from max-height to fixed height to enforce uniform height */
-            overflow: hidden; /* Hide overflow if content exceeds fixed height */
-            justify-self: center; /* Center individual cards within their grid cells */
-            /* align-self: stretch; is inherited from grid container */
-        }
-
-        /* Responsive adjustments for special-deal-grid-layout */
-        /* Removed fixed max-width from cards within media queries */
-        @media (max-width: 1200px) {
-            #todays-special-brand-content.special-deal-grid-layout {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            }
-        }
-        @media (max-width: 1000px) {
-            #todays-special-brand-content.special-deal-grid-layout {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-        }
-        @media (max-width: 768px) {
-            #todays-special-brand-content.special-deal-grid-layout {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
-        }
-
-        /* Beta Sign Styles */
-        .beta-sign {
-            position: fixed;
-            top: 10px;
-            left: 10px; /* Changed from left to right */
-            background-color: #ef4444; /* Red background */
-            color: white;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
+        th {
+            background-color: #e0f2fe;
+            color: #2c5282;
             font-weight: 700;
             text-transform: uppercase;
-            z-index: 100; /* Ensure it's above other content */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 0.875rem;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f8fafc;
+        }
+        tbody tr:hover {
+            background-color: #eef7ff;
+        }
+        .summary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e0f2fe;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c5282;
+        }
+        .summary span {
+            color: #007bff;
+            font-weight: 700;
+        }
+        .text-green-600 {
+            color: #22c55e;
+        }
+        .text-red-600 {
+            color: #ef4444;
+        }
+        .text-orange-600 {
+            color: #f97316;
+        }
+        .stress-test-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .stress-test-checkbox input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .chart-container {
+            margin-top: 2rem;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        /* Daily Log Specific Styles */
+        .daily-log-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .daily-log-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .daily-log-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .daily-log-controls select {
+            width: auto;
+            min-width: 250px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            th, td {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            .summary {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+            .daily-log-section h2 {
+                font-size: 1.5rem;
+            }
+            .daily-log-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .daily-log-controls select {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Beta Sign -->
-    <div class="beta-sign">BETA</div>
+    <div class="container">
+        <h1>Cashback Payout + Trading Simulation</h1>
+        <p class="text-center text-gray-600 mb-6">Model the growth of a trading fund and its ability to cover delayed cashback payouts.</p>
 
-    <!-- Header -->
-    <header class="header-bg py-4 sticky top-0 z-50">
-        <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <!-- Allpree Logo -->
-                <img src="https://www.allpree.com/img/allpree.com.logo.ja.png" alt="Allpree Logo" class="h-14 w-auto">
+        <div class="input-grid">
+            <div class="input-field">
+                <label for="membershipTier">Membership Tier:</label>
+                <select id="membershipTier">
+                    <option value="Free">Free</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Premium" selected>Premium</option>
+                </select>
             </div>
-
-            <!-- Combined Search and Location Bar Container -->
-            <div class="flex flex-grow mx-4 max-w-2xl">
-                <div class="relative flex-grow combined-search-container">
-                    <div class="search-icon-wrapper">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <input type="text" id="brandSearchInput" placeholder="Search brands..." class="py-2">
-
-                    <select id="parishSelect" class="py-2 parish-select">
-                        <!-- Options populated by JS -->
-                    </select>
-                     
-                    <select id="townSelect" class="py-2 town-select">
-                        <!-- Options populated by JS -->
-                    </select>
-                    <div class="dropdown-arrow-wrapper">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="input-field">
+                <label for="simulationStartDate">Simulation Start Date:</label>
+                <input type="date" id="simulationStartDate">
             </div>
-
-            <!-- Desktop Navigation - Hidden on mobile -->
-            <nav class="hidden md:block">
-                <ul class="flex space-x-6 text-gray-700 font-medium">
-                   <li><a href="https://www.allpree.com/getapp" class="btn-primary py-2 px-6 text-base shadow-md">Get The App</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Floating Categories Section -->
-    <div id="floating-categories-container" class="floating-categories-container">
-        <div class="categories-list-wrapper"> <!-- This wrapper now handles horizontal scrolling -->
-            <div id="categories-list" class="categories-list">
-                <!-- "All Brands" category item -->
-                <div class="category-item active" data-filter-type="category" data-filter-value="all">
-                    <span class="category-name">All Categories</span>
-                </div>
-                <!-- Dynamic category items will be inserted here by JavaScript -->
+            <div class="input-field">
+                <label for="voucherValue">Voucher Value (J$):</label>
+                <select id="voucherValue">
+                    <option value="10000">10,000</option>
+                    <option value="15000">15,000</option>
+                    <option value="20000" selected>20,000</option>
+                </select>
             </div>
-        </div>
-    </div >
-
-    <!-- Featured Brands Section -->
-    <div id="featured-brands-section" class="py-8 bg-white  shadow-lg mb-8 overflow-hidden hidden max-w-7xl-custom mx-auto px-6">
-        <!-- Removed H2: <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">Featured Brands</h2> -->
-        <div id="featured-brands-container" class="flex flex-wrap justify-center gap-4">
-            <!-- Featured brand cards will be inserted here by JavaScript -->
-        </div>
-    </div>
-
-    <!-- Today's Special Brand Section (Moved to be below Featured Brands) -->
-    <div id="top-special-brand-section" class="py-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg mb-8 overflow-hidden">
-        <!-- Removed H2: <h2 class="text-center text-2xl font-bold mb-6">Today's Special Brand</h2> -->
-        <div id="todays-special-brand-content" class="deal-grid special-deal-grid-layout">
-            <!-- Special Brand Info Card and its Deals will be inserted here by JavaScript -->
-        </div>
-        <div id="shop-more-container-special" class="">
-            <button class="shop-more-button" onclick="loadMoreDealsForSpecialBrand()">
-                <span id="shop-more-count-special">View More Deals</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
-            </button>
-        </div>
-    </div>
-
-    <main class="flex-grow flex flex-col items-center">
-        <div class="container-wrapper">
-            <div id="all-brands-container">
-                <!-- Each brand's section will be dynamically added here -->
-                <p class="col-span-full text-center text-gray-500 py-4" id="loading-brands-message">Loading Brands...</p>
+            <div class="input-field">
+                <label for="vouchersPerMonth">Vouchers per Month:</label>
+                <input type="number" id="vouchersPerMonth" value="2" min="1" max="10">
+            </div>
+            <div class="input-field">
+                <label for="markupRate">Markup Rate (%):</label>
+                <input type="number" id="markupRate" value="25" min="0" max="100" step="1">
+            </div>
+            <div class="input-field">
+                <label for="markupAllocationToTradingFund">Markup Allocation to Fund (%):</label>
+                <input type="number" id="markupAllocationToTradingFund" value="17" min="0" max="100" step="1">
+            </div>
+            <div class="input-field">
+                <label for="initialTradingFund">Initial Trading Fund (J$):</label>
+                <input type="number" id="initialTradingFund" value="0" min="0" step="100">
+            </div>
+            <div class="input-field">
+                <label for="avgWeeklyWin">Avg Weekly Win (%):</label>
+                <input type="number" id="avgWeeklyWin" value="23" min="0" max="100" step="1">
+            </div>
+            <div class="input-field">
+                <label for="maxWeeklyLoss">Max Weekly Loss (%):</label>
+                <input type="number" id="maxWeeklyLoss" value="5" min="0" max="100" step="1">
+            </div>
+            <div class="input-field">
+                <label for="winRate">Win Rate (%):</label>
+                <input type="number" id="winRate" value="60" min="0" max="100" step="1">
+            </div>
+            <div class="input-field stress-test-checkbox">
+                <input type="checkbox" id="stressTestMode">
+                <label for="stressTestMode" class="mb-0">Enable Stress Test Mode</label>
             </div>
         </div>
-    </main>
 
-     <!-- Footer -->
-    <footer class="footer-section mt-auto">
-        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-4 gap-8 text-left">
-            <!-- About Allpree Column -->
-            <div class="col-span-1">
-                <h3 class="text-white mb-4">About Allpree</h3>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                    Allpree shows you the best local deals. From groceries to fashion and many more. We help you save every day. We search high and low to bring you unbeatable local prices on the products you love, so you can spend less and enjoy more 
-                </p>
-                <div class="flex space-x-4 mt-6">
-                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-facebook-f fa-lg"></i>
-                    </a>
-                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-instagram fa-lg"></i>
-                    </a>
-                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-youtube fa-lg"></i>
-                    </a>
-                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-tiktok fa-lg"></i>
-                    </a>
-                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-twitter fa-lg"></i>
-                    </a>
-                </div>
+        <div class="overflow-x-auto">
+            <table id="simulationTable" class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3">Month</th>
+                        <th class="px-6 py-3">Purchase Date</th>
+                        <th class="px-6 py-3">Cashback Due Date</th>
+                        <th class="px-6 py-3">Payout Month-End</th>
+                        <th class="px-6 py-3">Total Cashback Owed (J$)</th>
+                        <th class="px-6 py-3">Starting Trading Capital (J$)</th>
+                        <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
+                        <th class="px-6 py-3">Ending Capital (J$)</th>
+                        <th class="px-6 py-3">Surplus/Deficit vs. Payout (J$)</th>
+                        <th class="px-6 py-3">Payout Met?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Simulation rows will be generated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary">
+            <h2 class="text-xl font-bold mb-4">12-Month Rolling View Summary</h2>
+            <p>Cumulative Voucher Purchases: <span id="cumulativeVoucherPurchases" class="font-bold">J$0</span></p>
+            <p>Total Cashback Owed (Accrued): <span id="totalCashbackOwedAccrued" class="font-bold">J$0</span></p>
+            <p>Total Cashback Paid: <span id="totalCashbackPaid" class="font-bold">J$0</span></p>
+            <p>Net Fund Performance: <span id="netFundPerformance" class="font-bold">J$0</span></p>
+            <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="simulationChart"></canvas>
+        </div>
+
+        <!-- Daily Trading Log Section -->
+        <div class="daily-log-section">
+            <h2>Daily Trading Log (121-Day Cycle)</h2>
+            <div class="daily-log-controls">
+                <label for="dailyLogMonthSelector" class="mr-2">Select Purchase Month:</label>
+                <select id="dailyLogMonthSelector"></select>
             </div>
-
-            <!-- My Account Column -->
-            <div class="col-span-1">
-                <h3 class="text-white mb-4">CASHBACK CLUB</h3>
-                <ul>
-                    <li><a href="https://www.allpree.com/for-giftcard" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Gift Card</a></li>
-                    <li><a href="https://www.allpree.com/all-stores" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: All Stores</a></li>
-                    <li><a href="https://www.allpree.com/install" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: Install App</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">CashBack Club: How It Works</a></li>
-                    
-                    
-                </ul>
-            </div>
-
-            <!-- Let Us Help Column -->
-            <div class="col-span-1">
-                <h3 class="text-white mb-4">LET US HELP</h3>
-                <ul>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Contact Customer Care</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Frequently Asked Questions</a></li>
-                </ul>
-            </div>
-
-            <!-- Company Information Column -->
-            <div class="col-span-1">
-                <h3 class="text-white mb-4">COMPANY</h3>
-                <ul>
-                    <li><a href="https://www.allpree.com/for-retailers" class="text-gray-300 hover:text-white transition-colors duration-200">For Giftme Retailers</a></li>
-                    <li><a href="https://www.allpree.com/getapp" class="text-gray-300 hover:text-white transition-colors duration-200">Get The App</a></li>
-                </ul>
+            <div class="overflow-x-auto">
+                <table id="dailyLogTable" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3">Day</th>
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3">Day of Week</th>
+                            <th class="px-6 py-3">Trading Day?</th>
+                            <th class="px-6 py-3">Trade Occurred?</th>
+                            <th class="px-6 py-3">Trade Outcome</th>
+                            <th class="px-6 py-3">Gain/Loss (J$)</th>
+                            <th class="px-6 py-3">Capital Before Trade (J$)</th>
+                            <th class="px-6 py-3">Capital After Trade (J$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Daily log rows will be generated here -->
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
-            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
-            <p class="mb-2">&copy; Copyright 2024 - <script>document.write(new Date().getFullYear());</script>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
-            <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
-        </div>
-    </footer>
 
-    <!-- Popup Modal -->
-    <div id="popup" class="popup-overlay hidden">
-        <div class="popup-content">
-            <span class="popup-close" onclick="closePopup()">&times;</span>
-            <img  class="popup-img" id="popupImg" src="" alt="Deal Image" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Image+Not+Found';">
-            <h2 id="popupTitle" class="popup-title"></h2>
-            <p id="popupBrand" class="popup-brand"></p>
-            <div class="popup-price-info-popup">
-                <p id="popupPrice" class="popup-price"></p>
-                <p id="popupDiscount" class="popup-discount"></p>
-            </div>
-            <p id="popupDesc" class="popup-desc"></p>
-            <span id="popupBadge" class="popup-badge"></span>
-
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="hidden">
-        <div class="spinner"></div>
     </div>
 
     <script>
-        const masterSheetUrl = 'https://opensheet.elk.sh/1WcTbHLTOpUl-TK7r0rTWZ_PuT0umIaBc00tzGZozgFw/Sheet1';
-        const rankedSlotsUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet2';
-        const SpecialBrandUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet1'; // Corrected variable name
-        const productsPerPage = 4; // Number of products to show initially per brand section
+        // --- Constants and Configuration ---
+        const PAYOUT_DELAY_DAYS = 121; // Approximately 4 months
+        const TRADING_WEEKS_PER_MONTH = 20; // This is the number of trades per month for the monthly simulation
+        const TOTAL_TRADES_FOR_DAILY_LOG = 20; // Total trades over the 121-day period for the daily log
 
-        // Store product data and current index per brand
-        const brandDataMap = {}; // { brandId: { allProducts: [], currentProductIndex: 0, brandName: '', category: '', parish: '', town: '' } }
-        const countdownIntervals = {}; // To store interval IDs for each brand's countdown
-
-        // These will now be dynamically populated
-        let dynamicJamaicanLocations = {
-            "All Parishes": ["All Towns"]
+        const MEMBERSHIP_TIERS = {
+            'Free': {
+                fee: 0,
+                cashbackRates: { 10000: 0.30, 15000: 0.30, 20000: 0.30 }
+            },
+            'Standard': {
+                fee: 4200,
+                cashbackRates: { 10000: 0.33, 15000: 0.34, 20000: 0.36 }
+            },
+            'Premium': {
+                fee: 8400,
+                cashbackRates: { 10000: 0.37, 15000: 0.41, 20000: 0.49 }
+            }
         };
-        let dynamicCategories = new Set(); // Using a Set to store unique categories
 
-        let firstBrandLoaded = false; // Flag to track if the first brand has been loaded
-        let selectedFeaturedBrandId = null; // New: To store the currently selected featured brand
-        let currentSpecialBrandData = null; // To store the data for the currently active special brand
+        // --- DOM Elements ---
+        const membershipTierInput = document.getElementById('membershipTier');
+        const simulationStartDateInput = document.getElementById('simulationStartDate');
+        const voucherValueInput = document.getElementById('voucherValue');
+        const vouchersPerMonthInput = document.getElementById('vouchersPerMonth');
+        const markupRateInput = document.getElementById('markupRate');
+        const markupAllocationToTradingFundInput = document.getElementById('markupAllocationToTradingFund');
+        const initialTradingFundInput = document.getElementById('initialTradingFund');
+        const avgWeeklyWinInput = document.getElementById('avgWeeklyWin');
+        const maxWeeklyLossInput = document.getElementById('maxWeeklyLoss');
+        const winRateInput = document.getElementById('winRate');
+        const stressTestModeCheckbox = document.getElementById('stressTestMode');
+
+        const simulationTableBody = document.querySelector('#simulationTable tbody');
+        const cumulativeVoucherPurchasesSpan = document.getElementById('cumulativeVoucherPurchases');
+        const totalCashbackOwedAccruedSpan = document.getElementById('totalCashbackOwedAccrued');
+        const totalCashbackPaidSpan = document.getElementById('totalCashbackPaid');
+        const netFundPerformanceSpan = document.getElementById('netFundPerformance');
+        const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
+        const chartCanvas = document.getElementById('simulationChart');
+        let simulationChart; // To store the Chart.js instance
+
+        // Daily Log DOM Elements
+        const dailyLogMonthSelector = document.getElementById('dailyLogMonthSelector');
+        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody');
+
+        let monthlySimulationResults = []; // Store results for daily log selection
+
+        // --- Helper Functions ---
 
         /**
-         * Shows the loading overlay.
+         * Formats a number as Jamaican Dollar currency.
+         * @param {number} amount - The amount to format.
+         * @returns {string} The formatted currency string.
          */
-        function showLoadingOverlay() {
-            document.getElementById('loading-overlay').classList.remove('hidden');
-            console.log("[Loading Overlay] Showing loading overlay.");
-        }
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-JM', {
+                style: 'currency',
+                currency: 'JMD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        };
 
         /**
-         * Hides the loading overlay.
+         * Adds a specified number of days to a Date object.
+         * @param {Date} date - The starting Date object.
+         * @param {number} days - The number of days to add.
+         * @returns {Date} A new Date object with the added days.
          */
-        function hideLoadingOverlay() {
-            document.getElementById('loading-overlay').classList.add('hidden');
-            console.log("[Loading Overlay] Hiding loading overlay.");
-        }
+        const addDays = (date, days) => {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        };
 
         /**
-         * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
-         * @param {Array} array The array to shuffle.
-         * @returns {Array} The shuffled array (same reference).
+         * Gets the last day of the month for a given date.
+         * @param {Date} date - The Date object.
+         * @returns {Date} A new Date object representing the last day of the month.
          */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
+        const getEndOfMonth = (date) => {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            return new Date(year, month + 1, 0); // Day 0 of next month is last day of current month
+        };
+
+        /**
+         * Generates a shuffled array of win/loss outcomes for a given number of trades.
+         * Ensures the exact win rate is met.
+         * @param {number} totalTrades - Total number of trades.
+         * @param {number} winRatePercent - Win rate as a percentage (e.g., 60).
+         * @returns {boolean[]} An array where true is a win, false is a loss.
+         */
+        const generateTradeOutcomes = (totalTrades, winRatePercent) => {
+            const numWins = Math.round(totalTrades * (winRatePercent / 100));
+            const numLosses = totalTrades - numWins;
+
+            const outcomes = [];
+            for (let i = 0; i < numWins; i++) {
+                outcomes.push(true); // Win
+            }
+            for (let i = 0; i < numLosses; i++) {
+                outcomes.push(false); // Loss
+            }
+
+            // Shuffle the array (Fisher-Yates algorithm)
+            for (let i = outcomes.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                [outcomes[i], outcomes[j]] = [outcomes[j], outcomes[i]];
             }
-            return array;
-        }
+            return outcomes;
+        };
 
-        /**
-         * Opens the deal popup with the given product details.
-         * @param {Object} deal - Object containing deal details (image, name, original, discount, description, brandName).
-         */
-        function openPopup({ image, name, original, discount, description, brandName }) {
-            const originalPrice = parseFloat(String(original).replace(/,/g, '')) || 0;
-            const discountPrice = parseFloat(String(discount).replace(/,/g, '')) || 0;
-            const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
+        // --- Main Simulation Logic (Monthly) ---
 
-            document.getElementById('popupImg').src = image;
-            document.getElementById('popupTitle').textContent = name;
-            document.getElementById('popupBrand').textContent = brandName ? `${brandName}` : '';
-            document.getElementById('popupPrice').textContent = `Original Price: JMD $${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: JMD $${discount}`;
-            document.getElementById('popupDesc').textContent = description || '';
-            document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
-            document.getElementById('popup').style.display = 'flex';
-        }
+        const runSimulation = () => {
+            // 1. Read Input Parameters
+            const selectedTier = membershipTierInput.value;
+            const simulationStartDateString = simulationStartDateInput.value;
+            const voucherValue = parseInt(voucherValueInput.value);
+            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value);
+            const markupRate = parseFloat(markupRateInput.value) / 100; // Convert to decimal
+            const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100; // Convert to decimal
+            let avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100; // Convert to decimal
+            let maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100; // Convert to decimal
+            let winRate = parseFloat(winRateInput.value); // Percentage
 
-        /**
-         * Closes the deal popup.
-         */
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
+            const isStressTestMode = stressTestModeCheckbox.checked;
 
-        /**
-         * Loads more deals for a specific brand section.
-         * @param {string} brandId - The unique ID of the brand.
-         */
-        function loadMoreDealsForBrand(brandId) {
-            const brandData = brandDataMap[brandId];
-            if (!brandData) return;
-
-            const productsToAdd = brandData.allProducts.slice(brandData.currentProductIndex, brandData.currentProductIndex + productsPerPage);
-            if (productsToAdd.length > 0) {
-                const container = document.getElementById(`deals-container-${brandId}`);
-                productsToAdd.forEach(row => {
-                    const card = createDealCard(row);
-                    if (card) {
-                        container.appendChild(card);
-                    }
-                });
-                brandData.currentProductIndex += productsToAdd.length;
-                updateShopMoreButton(brandId);
-            }
-        }
-
-        /**
-         * Loads more deals for the special brand section.
-         */
-        function loadMoreDealsForSpecialBrand() {
-            if (!currentSpecialBrandData) return;
-
-            const productsToAdd = currentSpecialBrandData.allProducts.slice(currentSpecialBrandData.currentProductIndex, currentSpecialBrandData.currentProductIndex + productsPerPage);
-            if (productsToAdd.length > 0) {
-                const container = document.getElementById('todays-special-brand-content');
-                productsToAdd.forEach(row => {
-                    const card = createDealCard(row);
-                    if (card) {
-                        container.appendChild(card);
-                    }
-                });
-                currentSpecialBrandData.currentProductIndex += productsToAdd.length;
-                updateShopMoreButtonForSpecialBrand();
-            }
-        }
-
-        /**
-         * Creates an HTML deal card element from product row data.
-         * @param {Object} row - The product data row from the sheet.
-         * @returns {HTMLElement|null} The created deal card element or null if data is incomplete.
-         */
-        function createDealCard(row) {
-            if (!row.ProductName || !row.ImageURL) {
-                return null;
+            if (isStressTestMode) {
+                // Apply stress test adjustments
+                avgWeeklyWin *= 0.8; // Reduce average win by 20%
+                maxWeeklyLoss *= 1.2; // Increase max loss by 20%
+                winRate = Math.max(0, winRate - 10); // Reduce win rate by 10 percentage points, not below 0
             }
 
-            const original = parseFloat(String(row.OriginalPrice).replace(/,/g, '')) || 0;
-            const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
-            const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
+            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
+            const membershipFee = tierConfig.fee;
+            const cashbackRate = tierConfig.cashbackRates[voucherValue];
 
-            const shortName = row.ProductName.length > 18 ? row.ProductName.slice(0, 17) + '...' : row.ProductName;
+            const monthlyVoucherSpend = voucherValue * vouchersPerMonth;
+            const markupPerMonth = monthlyVoucherSpend * markupRate;
+            const monthlyTradingFundContribution = markupPerMonth * markupAllocationToTradingFund;
 
-            const dealCard = document.createElement('div');
-            dealCard.className = 'deal-card';
+            const membershipAllocationToTradingFund = 0.50; // 50%
+            const oneTimeMembershipFundAddition = membershipFee * membershipAllocationToTradingFund;
 
-            dealCard.innerHTML = `
-                <span class="discount-badge">SAVE ${percentOff}%</span>
-                <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
-                <div class="deal-content">
-                    <div class="product-brand-text">${row.BrandName || ''}</div>
-                    <div class="deal-title">${shortName}</div>
-                    <div class="price-section">
-                        <div class="price-info">
-                            <div class="discount-price">JMD $${discount.toLocaleString()}</div>
-                            <div class="original-price">JMD $${original.toLocaleString()}</div>
-                        </div>
-                        <button class="add-to-cart-button">+</button>
-                    </div>
-                </div>
-            `;
-            dealCard.addEventListener('click', () => {
-                openPopup({
-                    image: row.ImageURL,
-                    name: row.ProductName,
-                    original: original.toLocaleString(),
-                    discount: discount.toLocaleString(),
-                    description: row.Description,
-                    brandName: row.BrandName // Use brand name from the product row for popup
-                });
-            });
-            return dealCard;
-        }
+            // Calculate the base initial fund for Month 1 as per problem statement
+            const calculatedMonth1BaseContribution = monthlyTradingFundContribution + oneTimeMembershipFundAddition;
 
-        /**
-         * Renders the initial set of products for a specific brand's section.
-         * @param {string} brandId - The unique ID of the brand.
-         * @param {Array} productsToRender - Array of product objects to render.
-         * @param {HTMLElement} container - The HTML element to append products to.
-         * @param {boolean} isSpecialBrandSection - True if rendering for the special brand section.
-         */
-        function renderInitialProducts(brandId, productsToRender, container, isSpecialBrandSection = false) {
-            container.innerHTML = ''; // Clear existing content
-
-            // Create and prepend the brand info card first
-            const brandData = isSpecialBrandSection ? currentSpecialBrandData : brandDataMap[brandId];
-            const brandInfoCard = createBrandInfoCard(
-                brandData.brandName,
-                brandData.brandId,
-                brandData.brandLogo,
-                brandData.brandColor,
-                brandData.brandImage,
-                brandData.category,
-                brandData.parish,
-                brandData.town, // Pass town data
-                brandData.expiryDate,
-                brandData.brandSecondaryColor, // Pass secondary color
-                brandData.cashbackStatus // Pass cashback status
-            );
-            if (brandInfoCard) {
-                container.appendChild(brandInfoCard); // Append first, then products
+            // Determine the starting trading fund for Month 1
+            // User's input overrides the calculated base if it's not 0.
+            let currentTradingFund = parseFloat(initialTradingFundInput.value);
+            if (currentTradingFund === 0) {
+                 // If user input is 0, default to the problem statement's calculated initial fund.
+                currentTradingFund = calculatedMonth1BaseContribution;
+                // Update the input field to reflect this default value for transparency.
+                initialTradingFundInput.value = currentTradingFund.toFixed(0);
             }
 
-            productsToRender.forEach(row => {
-                const card = createDealCard(row);
-                if (card) {
-                    container.appendChild(card);
-                }
-            });
-
-            if (isSpecialBrandSection) {
-                updateShopMoreButtonForSpecialBrand();
+            // Parse Start Date
+            let initialDate;
+            if (simulationStartDateString) {
+                const [year, month, day] = simulationStartDateString.split('-').map(Number);
+                initialDate = new Date(year, month - 1, day);
+                initialDate.setHours(0, 0, 0, 0);
             } else {
-                updateShopMoreButton(brandId);
-            }
-        }
-
-        /**
-         * Creates the dedicated brand information card to be placed in the grid.
-         * @param {string} brandName - The name of the brand.
-         * @param {string} brandId - The unique ID for the brand.
-         * @param {string} brandLogo - URL to the brand's logo.
-         * @param {string} brandColor - Primary background color for the brand card.
-         * @param {string} brandImage - Background image URL for the brand card.
-         * @param {string} category - The category of the brand.
-         * @param {string} parish - The parish where the brand is located.
-         * @param {string} town - The town where the brand is located.
-         * @param {string} expiryDate - The expiry date of the deal for countdown.
-         * @param {string} secondaryColor - The secondary background color for the brand card (optional).
-         * @param {string} cashbackStatus - The cashback status ('yes' or 'no' or empty).
-         * @returns {HTMLElement} The created brand info card element.
-         */
-        function createBrandInfoCard(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor, cashbackStatus) {
-            const brandInfoCard = document.createElement('div');
-            brandInfoCard.className = 'brand-info-card-grid-item'; // New class for styling as a grid item
-            brandInfoCard.id = `brand-info-card-${brandId}`;
-
-            let backgroundStyle = '';
-            if (brandImage) {
-                backgroundStyle = `background-image: url('${brandImage}'); background-size: cover; background-position: center;`;
-            } else if (brandColor && secondaryColor) { // If both primary and secondary colors are present
-                backgroundStyle = `background: linear-gradient(to right, ${brandColor}, ${secondaryColor});`;
-            } else if (brandColor) { // Fallback to solid primary color
-                backgroundStyle = `background-color: ${brandColor};`;
-            }
-            brandInfoCard.style = backgroundStyle;
-
-            // Conditional rendering for cashback text on the brand info card
-            let cashbackTextHtml = '';
-            if (cashbackStatus && String(cashbackStatus).toLowerCase() === 'yes') {
-                cashbackTextHtml = `<p class="cashback-brand-text">30 - 49% CashBack ¹²¹</p>`;
+                initialDate = new Date();
+                initialDate.setHours(0, 0, 0, 0);
+                // Set default date to today's date if not already set
+                const year = initialDate.getFullYear();
+                const month = (initialDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = initialDate.getDate().toString().padStart(2, '0');
+                simulationStartDateInput.value = `${year}-${month}-${day}`;
             }
 
-            brandInfoCard.innerHTML = `
-                <img src="${brandLogo}" alt="${brandName} Logo" class="brand-logo-grid">
-                <p class="brand-name-grid">${brandName}</p>
-                <p class="category-parish-text">${category}</p>
-                <p class="category-parish-text">${parish || 'N/A'}${town ? ': ' + town : ''}</p>
-                ${cashbackTextHtml} <!-- Insert cashback text here -->
-                <p id="countdown-${brandId}" class="countdown-text-grid"></p>
-            `;
+            // --- Simulation Variables ---
+            monthlySimulationResults = []; // Clear and re-initialize for monthly results
+            let cumulativeVoucherPurchases = 0;
+            let totalCashbackOwedAccrued = 0;
+            let totalCashbackPaid = 0;
+            let overallPayoutSuccess = true; // Assume success until a deficit occurs
 
-            const countdownElement = brandInfoCard.querySelector(`#countdown-${brandId}`);
+            // --- Monthly Simulation Loop ---
+            for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+                const monthData = {};
 
-            if (expiryDate) {
-                const endDate = new Date(expiryDate).getTime();
-                console.log(`[Timer Debug] Brand: ${brandName}, Raw ExpiryDate: "${expiryDate}", Parsed endDate (ms): ${endDate}, isNaN: ${isNaN(endDate)}`);
+                // Calculate Dates
+                const purchaseDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                const cashbackDueDate = addDays(purchaseDate, PAYOUT_DELAY_DAYS);
+                const payoutMonthEnd = getEndOfMonth(cashbackDueDate);
 
-                if (!isNaN(endDate)) {
-                    updateCountdown(brandId, endDate, countdownElement); // Pass the element directly
+                monthData.month = monthIndex + 1;
+                monthData.purchaseDate = purchaseDate;
+                monthData.cashbackDueDate = cashbackDueDate;
+                monthData.payoutMonthEnd = payoutMonthEnd;
+                monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate;
+                monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed;
+
+                let monthlyContributionForDisplay; // This variable is for table display only
+
+                if (monthIndex === 0) {
+                    // For the first month, the contribution is the sum of markup and membership allocation.
+                    // The `currentTradingFund` already holds this as its starting value.
+                    monthlyContributionForDisplay = calculatedMonth1BaseContribution;
                 } else {
-                    if (countdownElement) {
-                        countdownElement.textContent = "Invalid Expiry Date";
-                        countdownElement.classList.add('error'); // Add error class
-                    }
+                    // For subsequent months, only the monthly markup allocation is added to the fund.
+                    currentTradingFund += monthlyTradingFundContribution;
+                    monthlyContributionForDisplay = monthlyTradingFundContribution;
                 }
-            } else {
-                if (countdownElement) {
-                    countdownElement.textContent = "No Expiry Date Provided";
-                    countdownElement.classList.add('error'); // Add error class
-                }
-            }
-            return brandInfoCard;
-        }
-
-
-        /**
-         * Updates the "Shop More Deals" button for a specific brand section.
-         * @param {string} brandId - The unique ID of the brand.
-         */
-        function updateShopMoreButton(brandId) {
-            const brandData = brandDataMap[brandId];
-            if (!brandData) return;
-
-            // Subtract 1 from allProducts.length because the first "product" is now the brand info card
-            const remainingCount = (brandData.allProducts.length - brandData.currentProductIndex);
-            const shopMoreButtonSpan = document.getElementById(`shop-more-count-${brandId}`);
-            const shopMoreButtonContainer = document.getElementById(`shop-more-container-${brandId}`);
-
-            if (shopMoreButtonSpan && shopMoreButtonContainer) {
-                // The button should only show if there are actual products remaining
-                if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
-                    shopMoreButtonContainer.classList.remove('hidden');
-                } else {
-                    shopMoreButtonContainer.classList.add('hidden');
-                }
-            }
-        }
-
-        /**
-         * Updates the "Shop More Deals" button for the special brand section.
-         */
-        function updateShopMoreButtonForSpecialBrand() {
-            if (!currentSpecialBrandData) return;
-
-            const remainingCount = (currentSpecialBrandData.allProducts.length - currentSpecialBrandData.currentProductIndex);
-            const shopMoreButtonSpan = document.getElementById(`shop-more-count-special`);
-            const shopMoreButtonContainer = document.getElementById(`shop-more-container-special`);
-
-            if (shopMoreButtonSpan && shopMoreButtonContainer) {
-                if (remainingCount > 0) {
-                    shopMoreButtonSpan.textContent = `Shop ${remainingCount} More Deals`;
-                    shopMoreButtonContainer.classList.remove('hidden');
-                } else {
-                    shopMoreButtonContainer.classList.add('hidden');
-                }
-            }
-        }
-
-        /**
-         * Updates the countdown timer for a specific brand.
-         * @param {string} brandId - The unique ID of the brand.
-         * @param {number} endDate - The timestamp (milliseconds) when the deal ends.
-         * @param {HTMLElement} countdownElement - The actual element to update.
-         */
-        function updateCountdown(brandId, endDate, countdownElement) {
-            if (!countdownElement) return;
-
-            // Clear any existing interval for this brand to prevent duplicates
-            if (countdownIntervals[brandId]) {
-                clearInterval(countdownIntervals[brandId]);
-            }
-
-            const intervalId = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = endDate - now;
-
-                if (distance < 0) {
-                    countdownElement.textContent = "Deal Ended";
-                    clearInterval(intervalId);
-                    delete countdownIntervals[brandId];
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                countdownElement.textContent = `Ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-            }, 1000);
-
-            countdownIntervals[brandId] = intervalId; // Store the interval ID
-        }
-
-        /**
-         * Renders a complete section for a single brand on the page.
-         * @param {string} brandName - The name of the brand.
-         * @param {string} brandId - The unique ID for the brand.
-         * @param {string} brandLogo - URL to the brand's logo.
-         * @param {string} brandColor - Primary background color for the brand card.
-         * @param {string} brandImage - Background image URL for the brand card.
-         * @param {string} category - The category of the brand.
-         * @param {string} parish - The parish where the brand is located.
-         * @param {string} town - The town where the brand is located.
-         * @param {string} expiryDate - The expiry date of the deal for countdown.
-         * @param {string} secondaryColor - The secondary background color for the brand card (optional).
-         * @param {string} cashbackStatus - The cashback status ('yes' or 'no' or empty).
-         */
-        function renderBrandSection(brandName, brandId, brandLogo, brandColor, brandImage, category, parish, town, expiryDate, secondaryColor, cashbackStatus) {
-            const allBrandsContainer = document.getElementById('all-brands-container');
-            const brandSection = document.createElement('section');
-            brandSection.id = `brand-section-${brandId}`;
-            brandSection.className = 'bg-white rounded-2xl shadow-lg mb-8 overflow-hidden';
-            brandSection.setAttribute('data-brand-name', brandName);
-            brandSection.setAttribute('data-category', category.toLowerCase());
-            brandSection.setAttribute('data-parish', (parish || '').toLowerCase()); // Ensure parish is always a string for data attribute
-            brandSection.setAttribute('data-town', (town || '').toLowerCase()); // Ensure town is always a string for data attribute
-
-            const brandProducts = brandDataMap[brandId].allProducts;
-            // Initial products will be productsPerPage, but the first slot is for the brand info card
-            const initialProductsToDisplay = brandProducts.slice(0, productsPerPage);
-            brandDataMap[brandId].currentProductIndex = initialProductsToDisplay.length;
-
-
-            brandSection.innerHTML = `
-                <div id="deals-container-${brandId}" class="deal-grid">
-                    <!-- Brand Info Card and Deals will be inserted here -->
-                </div>
-                <div id="shop-more-container-${brandId}" class="shop-more-deals-container ${brandProducts.length <= productsPerPage ? 'hidden' : ''}">
-                    <button class="shop-more-button" onclick="loadMoreDealsForBrand('${brandId}')">
-                        <span id="shop-more-count-${brandId}">View ${brandProducts.length - initialProductsToDisplay.length} More Deals</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 21l-8-8 1.41-1.41L11 17.17V3h2v14.17l5.59-5.58L20 13z"/></svg>
-                    </button>
-                </div>
-            `;
-            allBrandsContainer.appendChild(brandSection);
-
-            renderInitialProducts(brandId, initialProductsToDisplay, document.getElementById(`deals-container-${brandId}`)); // Pass the container
-        }
-
-        /**
-         * Fetches all brand data from the master sheet and individual brand sheets,
-         * populates the brandDataMap, and then applies filters to render content.
-         */
-        async function fetchAndProcessData() {
-            showLoadingOverlay(); // Show loading overlay at the start
-            const loadingMessage = document.getElementById('loading-brands-message');
-            if (loadingMessage) loadingMessage.textContent = 'Loading all brands and their deals...';
-            console.log("[Data Fetch] Starting fetch and process data...");
-
-            // Reset dynamicJamaicanLocations and dynamicCategories before fetching new data
-            dynamicJamaicanLocations = { "All Parishes": ["All Towns"] };
-            dynamicCategories = new Set();
-            firstBrandLoaded = false; // Reset flag for new data fetch
-            selectedFeaturedBrandId = null; // Reset featured brand selection
-
-            try {
-                const masterRes = await fetch(masterSheetUrl);
-                const masterBrands = await masterRes.json();
-                console.log("[Data Fetch] Master sheet loaded:", masterBrands);
-
-                // Clear previous brandDataMap and countdown intervals
-                Object.keys(brandDataMap).forEach(key => delete brandDataMap[key]);
-                Object.keys(countdownIntervals).forEach(key => clearInterval(countdownIntervals[key]));
-
-                const allBrandsContainer = document.getElementById('all-brands-container');
-                allBrandsContainer.innerHTML = ''; // Clear existing content
-
-                if (masterBrands.length === 0) {
-                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands found in the master sheet.</p>';
-                    console.log("[Data Fetch] No brands found in master sheet. Hiding loading message.");
-                    hideLoadingOverlay(); // Hide on no brands
-                    return;
-                }
-
-                const brandPromises = masterBrands.map(async (brandEntry) => {
-                    const brandName = brandEntry.BrandName || brandEntry.undefined;
-                    const sheetUrl = brandEntry.sheeturls;
-
-                    if (!brandName || !sheetUrl) {
-                        console.warn(`[Data Fetch] Skipping brand entry due to missing name or sheet URL:`, brandEntry);
-                        return null;
-                    }
-
-                    const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                    console.log(`[Data Fetch] Processing brand: "${brandName}" (ID: ${brandId}), URL: ${sheetUrl}`);
-
-                    try {
-                        const res = await fetch(sheetUrl);
-                        const rows = await res.json();
-                        console.log(`[Data Fetch] Sheet data for "${brandName}" loaded:`, rows);
-
-                        let featuredBrandData = null;
-                        let tempProducts = [];
-                        let brandParish = '';
-                        let brandTown = '';
-                        let brandCategory = 'Uncategorized';
-                        let brandLogo = 'https://placehold.co/150x120/2C3E50/ffffff?text=Logo';
-                        let brandColor = '#2C3E50';
-                        let brandSecondaryColor = '';
-                        let brandImage = '';
-                        let expiryDate = null;
-                        let cashbackStatus = ''; // Initialize cashback status for the brand
-
-                        for (const row of rows) {
-                            // Identify the brand's main information row (no ProductName or empty ProductName)
-                            if (row.BrandName && row.BrandLogo && row.ExpiryDate && (!row.ProductName || row.ProductName.trim() === "")) {
-                                featuredBrandData = row;
-                                brandParish = (row.Parish || '').trim();
-                                brandTown = (row.Town || '').trim();
-                                brandCategory = (row.Category || 'Uncategorized').trim();
-                                brandLogo = row.BrandLogo;
-                                brandColor = row.PrimaryColor || '#2C3E50';
-                                brandSecondaryColor = row.SecondaryColor || '';
-                                brandImage = row.BrandImage || '';
-                                expiryDate = row.ExpiryDate;
-                                cashbackStatus = (row.Cashback || '').trim(); // Extract cashback status from brand row
-
-                                // Dynamically populate jamaicanLocations
-                                if (brandParish) {
-                                    if (!dynamicJamaicanLocations[brandParish]) {
-                                        dynamicJamaicanLocations[brandParish] = ["All Towns"];
-                                    }
-                                    if (brandTown && !dynamicJamaicanLocations[brandParish].includes(brandTown)) {
-                                        dynamicJamaicanLocations[brandParish].push(brandTown);
-                                    }
-                                }
-                                // Dynamically populate categories
-                                if (brandCategory && brandCategory !== 'Uncategorized') {
-                                    dynamicCategories.add(brandCategory);
-                                }
-
-                                console.log(`[Data Fetch] Found brand info row for "${brandName}": Category="${brandCategory}", Parish="${brandParish}", Town="${brandTown}", ExpiryDate="${expiryDate}", Cashback="${cashbackStatus}"`);
-                            } else if (row.ProductName && row.ImageURL) {
-                                // This is a product row
-                                tempProducts.push(row);
-                            }
-                        }
-
-                        // Ensure featuredBrandData was found. If not, this brand's sheet structure might be off.
-                        if (!featuredBrandData) {
-                            console.warn(`[Data Fetch] No main brand info row found for "${brandName}" (ID: ${brandId}). Skipping this brand.`);
-                            return null;
-                        }
-
-                        if (tempProducts.length === 0) {
-                            console.log(`[Data Fetch] Brand "${brandName}" (ID: ${brandId}) has no products. Will not be rendered.`);
-                            return null;
-                        }
-
-                        shuffleArray(tempProducts);
-
-                        brandDataMap[brandId] = {
-                            allProducts: tempProducts,
-                            currentProductIndex: 0,
-                            brandName: brandName,
-                            category: brandCategory,
-                            parish: brandParish,
-                            town: brandTown,
-                            brandLogo: brandLogo,
-                            brandColor: brandColor,
-                            brandSecondaryColor: brandSecondaryColor,
-                            brandImage: brandImage,
-                            expiryDate: expiryDate,
-                            cashbackStatus: cashbackStatus, // Store cashback status in brandDataMap
-                            brandId: brandId
-                        };
-                        console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
-
-                        // Hide loading overlay as soon as the first brand is successfully loaded and processed
-                        if (!firstBrandLoaded) {
-                            hideLoadingOverlay();
-                            console.log("[Loading Overlay] Hidden after first brand loaded.");
-                            firstBrandLoaded = true;
-                        }
-
-                        return brandId;
-                    } catch (err) {
-                        console.error(`[Data Fetch] Failed to load deals for "${brandName}" from ${sheetUrl}:`, err);
-                        return null;
-                    }
-                });
-
-                const loadedBrandIds = await Promise.all(brandPromises);
-                const successfullyLoadedBrands = loadedBrandIds.filter(id => id !== null);
-                console.log("[Data Fetch] Successfully loaded brand IDs:", successfullyLoadedBrands);
-
-
-                if (successfullyLoadedBrands.length === 0) {
-                    allBrandsContainer.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No brands with products found or all failed to load.</p>';
-                    console.log("[Data Fetch] No brands with products found after processing all sheets.");
-                    // If no brands loaded at all, ensure overlay is hidden
-                    if (!firstBrandLoaded) {
-                        hideLoadingOverlay();
-                        console.log("[Loading Overlay] Hidden because no brands were successfully loaded.");
-                    }
-                    return;
-                }
-
-                // After all data is processed and dynamicJamaicanLocations and dynamicCategories are built
-                populateCategories(); // Populate categories using the dynamic data
-                populateParishes(); // Populate parishes and then towns using the dynamic data
-
-                // Fetch and render ranked slots
-                await fetchAndRenderFeaturedBrands();
-                // Fetch and render today's special brand (now using SpecialBrandUrl)
-                await fetchAndRenderTodaysSpecialBrand();
-
-
-                console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
-                // Now, explicitly call applyFilters to show all brands by default (since no featured brand is initially selected)
-                applyFilters();
-
-            } catch (err) {
-                console.error('[Data Fetch] Failed to load master sheet:', err);
-                document.getElementById('all-brands-container').innerHTML = '<p class="col-span-full text-center text-red-500 py-4">Failed to load brand list. Please check the master sheet URL.</p>';
-            } finally {
-                // This finally block will now only hide the overlay if no brands were loaded at all
-                // or if an error occurred before any brand could trigger the hide.
-                if (!firstBrandLoaded) {
-                    hideLoadingOverlay();
-                    console.log("[Loading Overlay] Hidden by finally block (all promises settled, first brand not loaded).");
-                }
-            }
-        }
-
-        /**
-         * Fetches and renders the featured brands from the ranked slots sheet.
-         */
-        async function fetchAndRenderFeaturedBrands() {
-            try {
-                const res = await fetch(rankedSlotsUrl);
-                const rankedBrands = await res.json();
-                console.log("[Featured Brands] Ranked slots sheet loaded:", rankedBrands);
-
-                const featuredBrandsContainer = document.getElementById('featured-brands-container');
-                featuredBrandsContainer.innerHTML = ''; // Clear previous featured brands
-
-                const now = new Date();
-                const featuredBrandIds = [];
-
-                // Filter for valid and non-expired ranked brands, limit to 5
-                for (const row of rankedBrands) {
-                    const brandName = row['Brand'];
-                    const expiryDateStr = row['Expires At']; // Assuming this is the column name for expiry
-
-                    if (brandName && expiryDateStr) {
-                        const expiry = new Date(expiryDateStr);
-                        if (expiry && now < expiry) {
-                            const brandId = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                            if (brandDataMap[brandId]) { // Ensure the brand exists in our main data map
-                                featuredBrandIds.push(brandId);
-                                if (featuredBrandIds.length >= 5) break; // Limit to 5 featured brands
-                            } else {
-                                console.warn(`[Featured Brands] Ranked brand "${brandName}" (ID: ${brandId}) not found in master brand data. Skipping.`);
-                            }
-                        } else {
-                            console.log(`[Featured Brands] Ranked brand "${brandName}" (Expires: ${expiryDateStr}) is expired or invalid. Skipping.`);
-                        }
-                    }
-                }
-
-                if (featuredBrandIds.length > 0) {
-                    document.getElementById('featured-brands-section').classList.remove('hidden');
-                    featuredBrandIds.forEach(brandId => {
-                        const brand = brandDataMap[brandId];
-                        if (brand) {
-                            const card = createFeaturedBrandCard(brand.brandName, brand.brandLogo, brand.brandId);
-                            featuredBrandsContainer.appendChild(card);
-                        }
-                    });
-
-                    // Removed: Automatically select the first featured brand on load
-                    // selectFeaturedBrand(featuredBrandIds[0]);
-                } else {
-                    document.getElementById('featured-brands-section').classList.add('hidden');
-                    console.log("[Featured Brands] No valid featured brands found or all expired. Hiding section.");
-                }
-
-            } catch (err) {
-                console.error('[Featured Brands] Failed to load ranked slots sheet:', err);
-                document.getElementById('featured-brands-section').classList.add('hidden'); // Hide section on error
-            }
-        }
-
-        /**
-         * Creates an HTML card for a featured brand.
-         * @param {string} brandName - The name of the brand.
-         * @param {string} brandLogo - URL to the brand's logo.
-         * @param {string} brandId - The unique ID for the brand.
-         * @returns {HTMLElement} The created featured brand card element.
-         */
-        function createFeaturedBrandCard(brandName, brandLogo, brandId) {
-            const card = document.createElement('div');
-            card.className = 'featured-brand-card';
-            card.id = `featured-card-${brandId}`; // Unique ID for each featured card
-            card.setAttribute('data-brand-id', brandId);
-
-            card.innerHTML = `
-                <img src="${brandLogo}" alt="${brandName} Logo" onerror="this.onerror=null;this.src='https://placehold.co/80x80/cccccc/333333?text=Logo';">
-                <p class="brand-name">${brandName}</p>
-            `;
-
-            card.addEventListener('click', () => selectFeaturedBrand(brandId));
-            return card;
-        }
-
-        /**
-         * Fetches data from the special brand sheet to determine and render "Today's Special Brand".
-         */
-        async function fetchAndRenderTodaysSpecialBrand() {
-            const specialBrandSection = document.getElementById('top-special-brand-section');
-            specialBrandSection.style.display = 'none'; // Explicitly hide at the start
-            console.log("[Today's Special Brand] Initial state: Hiding section.");
-
-            try {
-                const res = await fetch(SpecialBrandUrl); // Using the corrected SpecialBrandUrl
-                const data = await res.json();
-                console.log("[Today's Special Brand] Special brand sheet data:", data);
-
-                const todaysSpecialBrandContent = document.getElementById('todays-special-brand-content');
-                todaysSpecialBrandContent.innerHTML = ''; // Clear previous content
-
-                if (data.length === 0) {
-                    console.log("[Today's Special Brand] No data in special brand sheet to determine special brand. Section remains hidden.");
-                    return; // Section is already hidden, just return
-                }
-
-                const last = data[data.length - 1]; // Get the last row
-                const now = new Date();
-                const expiry = new Date(last['Expires At']);
-                const featuredBrandName = last['Featured Brand'];
-
-                console.log('[Today\'s Special Brand] Now:', now.toISOString());
-                console.log('[Today\'s Special Brand] Expiry from sheet:', last['Expires At']);
-                console.log('[Today\'s Special Brand] Parsed Expiry:', expiry.toISOString());
-                console.log('[Today\'s Special Brand] Featured Brand Name:', featuredBrandName);
-
-                const storedBrand = localStorage.getItem('selectedFavoriteBrand');
-                const originalBrand = localStorage.getItem('originalBrand');
-
-                let specialBrandIdToRender = null;
-
-                if (now < expiry && featuredBrandName) {
-                    const featuredBrandId = featuredBrandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                    if (brandDataMap[featuredBrandId]) {
-                        // Logic from user's prompt for localStorage
-                        if (!originalBrand && storedBrand && storedBrand !== featuredBrandName) {
-                            localStorage.setItem('originalBrand', storedBrand);
-                        }
-                        localStorage.setItem('selectedFavoriteBrand', featuredBrandName);
-                        localStorage.setItem('tempExpiryTime', expiry.getTime());
-                        console.log('[Today\'s Special Brand] tempExpiryTime set to:', expiry.getTime());
-                        specialBrandIdToRender = featuredBrandId;
+                monthData.monthlyFundContribution = monthlyContributionForDisplay; // Store for table display
+
+                monthData.startingTradingCapital = currentTradingFund; // This is the capital *before* this month's trading
+
+                // Simulate Weekly Trades (20 trades per month as per problem statement)
+                const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate);
+                monthData.weeklyTrades = [];
+                let fundAfterTrades = currentTradingFund; // Start trading with this month's capital
+
+                for (let week = 0; week < TRADING_WEEKS_PER_MONTH; week++) {
+                    const isWin = tradeOutcomes[week];
+                    let gainLossAmount;
+                    if (isWin) {
+                        gainLossAmount = fundAfterTrades * avgWeeklyWin;
                     } else {
-                        console.warn(`[Today's Special Brand] Featured Brand "${featuredBrandName}" (ID: ${featuredBrandId}) not found in main brand data map. Skipping.`);
-                        // Fallback if featured brand is not in main data
-                        if (originalBrand) {
-                            localStorage.setItem('selectedFavoriteBrand', originalBrand);
-                            localStorage.removeItem('originalBrand');
+                        gainLossAmount = -fundAfterTrades * maxWeeklyLoss;
+                    }
+                    fundAfterTrades += gainLossAmount;
+                    monthData.weeklyTrades.push({
+                        week: week + 1,
+                        type: isWin ? 'Win' : 'Loss',
+                        gainLoss: gainLossAmount
+                    });
+                }
+
+                // fundAfterTrades now holds the capital after all trades for this month, *before* payouts.
+                monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
+
+                // --- Handle Delayed Payouts ---
+                monthData.cashbackToPayThisMonth = 0;
+                monthData.surplusDeficit = 0;
+                monthData.payoutMet = false;
+
+                const payoutSourceMonthIndex = monthIndex - (Math.floor(PAYOUT_DELAY_DAYS / 30.4375)); // Approx months delay
+                // If the payoutSourceMonthIndex is valid (i.e., we have data from that far back)
+                if (payoutSourceMonthIndex >= 0 && monthlySimulationResults[payoutSourceMonthIndex]) {
+                    const owedFromPast = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth;
+                    monthData.cashbackToPayThisMonth = owedFromPast;
+
+                    if (fundAfterTrades >= owedFromPast) {
+                        fundAfterTrades -= owedFromPast; // Deduct payout from fund
+                        totalCashbackPaid += owedFromPast;
+                        monthData.surplusDeficit = fundAfterTrades; // Remaining fund after payout
+                        monthData.payoutMet = true;
+                    } else {
+                        monthData.surplusDeficit = fundAfterTrades - owedFromPast; // Negative value for deficit
+                        overallPayoutSuccess = false; // Mark overall status as failed
+                        // If fund isn't enough, pay what's available and note the shortfall
+                        totalCashbackPaid += fundAfterTrades; // Pay what's available
+                        fundAfterTrades = 0; // Fund is depleted
+                        monthData.payoutMet = false;
+                    }
+                }
+
+                monthData.endingTradingCapital = fundAfterTrades; // Final ending capital for the month
+                // This `currentTradingFund` will be the starting point for the *next* month's calculation
+                // (before adding the next month's `monthlyTradingFundContribution` if monthIndex > 0).
+                currentTradingFund = monthData.endingTradingCapital;
+
+                monthlySimulationResults.push(monthData);
+
+                // Update Cumulative Summaries
+                cumulativeVoucherPurchases += monthlyVoucherSpend;
+                totalCashbackOwedAccrued += monthData.cashbackAccruedThisMonth;
+            }
+
+            // --- Update UI ---
+            updateTable(monthlySimulationResults);
+            updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, currentTradingFund, overallPayoutSuccess);
+            updateChart(monthlySimulationResults);
+            populateDailyLogDropdown(monthlySimulationResults); // Populate dropdown after monthly sim
+            // Automatically run daily simulation for the first month
+            if (monthlySimulationResults.length > 0) {
+                dailyLogMonthSelector.value = 0; // Select the first month by default
+                runDailySimulation(0); // Run daily sim for the first month
+            }
+        };
+
+        /**
+         * Updates the simulation results table.
+         * @param {Array<Object>} results - The array of monthly simulation data.
+         */
+        const updateTable = (results) => {
+            simulationTableBody.innerHTML = ''; // Clear existing rows
+
+            results.forEach(data => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackOwed)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.endingTradingCapital)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(data.surplusDeficit)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="${data.payoutMet ? 'text-green-600' : (data.cashbackToPayThisMonth > 0 ? 'text-red-600' : 'text-orange-600')}">
+                                ${data.cashbackToPayThisMonth > 0 ? (data.payoutMet ? 'Met' : 'Shortfall') : 'N/A'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                simulationTableBody.insertAdjacentHTML('beforeend', row);
+            });
+        };
+
+        /**
+         * Updates the summary section.
+         * @param {number} cumulativeVoucherPurchases - Total voucher purchases.
+         * @param {number} totalCashbackOwedAccrued - Total cashback accrued.
+         * @param {number} totalCashbackPaid - Total cashback actually paid out.
+         * @param {number} finalTradingFund - The trading fund at the end of the simulation.
+         * @param {boolean} overallPayoutSuccess - Whether all payouts were met.
+         */
+        const updateSummary = (cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalTradingFund, overallPayoutSuccess) => {
+            cumulativeVoucherPurchasesSpan.textContent = formatCurrency(cumulativeVoucherPurchases);
+            totalCashbackOwedAccruedSpan.textContent = formatCurrency(totalCashbackOwedAccrued);
+            totalCashbackPaidSpan.textContent = formatCurrency(totalCashbackPaid);
+            netFundPerformanceSpan.textContent = formatCurrency(finalTradingFund);
+            netFundPerformanceSpan.classList.toggle('text-green-600', finalTradingFund >= 0);
+            netFundPerformanceSpan.classList.toggle('text-red-600', finalTradingFund < 0);
+
+            if (overallPayoutSuccess) {
+                overallPayoutStatusSpan.textContent = 'All Payouts Met';
+                overallPayoutStatusSpan.className = 'font-bold text-green-600';
+            } else {
+                overallPayoutStatusSpan.textContent = 'Payout Shortfall Occurred';
+                overallPayoutStatusSpan.className = 'font-bold text-red-600';
+            }
+        };
+
+        /**
+         * Updates or creates the Chart.js graph.
+         * @param {Array<Object>} results - The array of monthly simulation data.
+         */
+        const updateChart = (results) => {
+            const labels = results.map(data => `Month ${data.month}`);
+            const tradingFundData = results.map(data => data.endingTradingCapital);
+            const cashbackOwedData = results.map(data => data.cashbackAccruedThisMonth);
+
+            if (simulationChart) {
+                simulationChart.destroy(); // Destroy existing chart before creating a new one
+            }
+
+            simulationChart = new Chart(chartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Ending Trading Capital',
+                            data: tradingFundData,
+                            borderColor: '#3b82f6', // Tailwind blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Cashback Owed (Accrued Monthly)',
+                            data: cashbackOwedData,
+                            borderColor: '#8b5cf6', // Tailwind purple-500
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            fill: true,
+                            tension: 0.1
                         }
-                        localStorage.removeItem('tempExpiryTime');
-                        console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
-                    }
-                } else {
-                    if (originalBrand) {
-                        localStorage.setItem('selectedFavoriteBrand', originalBrand);
-                        localStorage.removeItem('originalBrand');
-                    }
-                    localStorage.removeItem('tempExpiryTime');
-                    console.log('[Today\'s Special Brand] Expired or missing brand — reset to original.');
-                }
-
-                if (specialBrandIdToRender && brandDataMap[specialBrandIdToRender]) {
-                    currentSpecialBrandData = { ...brandDataMap[specialBrandIdToRender] }; // Copy data for independent tracking
-                    currentSpecialBrandData.currentProductIndex = 0; // Reset index for this section
-
-                    const initialProductsToDisplay = currentSpecialBrandData.allProducts.slice(0, productsPerPage);
-
-                    renderInitialProducts(
-                        currentSpecialBrandData.brandId,
-                        initialProductsToDisplay,
-                        todaysSpecialBrandContent,
-                        true // Indicate this is for the special brand section
-                    );
-                    currentSpecialBrandData.currentProductIndex = initialProductsToDisplay.length; // Update index after initial render
-
-                    specialBrandSection.style.display = 'flex'; // Show the section
-                    console.log("[Today's Special Brand] Special brand found and rendered. Showing section.");
-                    updateShopMoreButtonForSpecialBrand(); // Update the specific shop more button
-                } else {
-                    console.log("[Today's Special Brand] No valid special brand to display. Section remains hidden.");
-                    specialBrandSection.style.display = 'none'; // Ensure it stays hidden
-                }
-
-            } catch (err) {
-                console.error('[Today\'s Special Brand] Failed to load special brand sheet:', err);
-                specialBrandSection.style.display = 'none'; // Ensure hidden on error
-            }
-        }
-
-        /**
-         * Selects a featured brand, highlights its card, and filters the main content.
-         * @param {string} brandId - The ID of the featured brand to select.
-         */
-        function selectFeaturedBrand(brandId) {
-            selectedFeaturedBrandId = brandId;
-
-            // Remove active class from all featured cards
-            document.querySelectorAll('.featured-brand-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            // Also remove active class from the "Today's Special Brand" card if it exists
-            const todaysSpecialCard = document.querySelector('.todays-special-brand-card');
-            if (todaysSpecialCard) {
-                todaysSpecialCard.classList.remove('active');
-            }
-
-
-            // Add active class to the selected card (either featured or today's special)
-            const activeCard = document.getElementById(`featured-card-${brandId}`); // Only featured cards respond to this now
-            if (activeCard) {
-                activeCard.classList.add('active');
-            }
-
-            // Clear other filter inputs when a featured brand is selected
-            brandSearchInput.value = '';
-            parishSelect.value = 'All Parishes';
-            townSelect.value = 'All Towns';
-            sessionStorage.setItem('selectedCategory', 'all');
-            highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
-
-
-            applyFilters(); // Apply filters based on the selected featured brand
-        }
-
-
-        /**
-         * Applies all active filters (search term, category, parish, town, or featured brand) and updates the displayed brand sections.
-         */
-        function applyFilters() {
-            const allBrandsContainer = document.getElementById('all-brands-container');
-            allBrandsContainer.innerHTML = ''; // Clear existing content before re-rendering filtered results
-
-            let foundContent = false;
-
-            if (selectedFeaturedBrandId) {
-                // If a featured brand is selected, only show that brand
-                const brand = brandDataMap[selectedFeaturedBrandId];
-                if (brand) {
-                    renderBrandSection(
-                        brand.brandName,
-                        brand.brandId,
-                        brand.brandLogo,
-                        brand.brandColor,
-                        brand.brandImage,
-                        brand.category,
-                        brand.parish,
-                        brand.town,
-                        brand.expiryDate,
-                        brand.brandSecondaryColor,
-                        brand.cashbackStatus
-                    );
-                    foundContent = true;
-                } else {
-                    console.warn(`[Filter] Selected featured brand (ID: ${selectedFeaturedBrandId}) not found in brandDataMap.`);
-                }
-            } else {
-                // If no featured brand is selected, apply normal filters
-                const searchTerm = brandSearchInput.value.toLowerCase().trim();
-                const selectedParish = parishSelect.value.toLowerCase().trim();
-                const selectedTown = townSelect.value.toLowerCase().trim();
-                const selectedCategory = sessionStorage.getItem('selectedCategory') || 'all';
-
-                console.log(`[Filter] Applying filters: Search="${searchTerm}", Category="${selectedCategory}", Parish="${selectedParish}", Town="${selectedTown}"`);
-
-                for (const brandId in brandDataMap) {
-                    const brand = brandDataMap[brandId];
-
-                    // Skip rendering the special brand in the regular section
-                    if (currentSpecialBrandData && brandId === currentSpecialBrandData.brandId) {
-                        console.log(`[Filter] Skipping special brand "${brand.brandName}" (ID: ${brandId}) in regular listing.`);
-                        continue;
-                    }
-
-                    let matchesSearch = true;
-                    if (searchTerm !== '') {
-                        matchesSearch = brand.brandName.toLowerCase().includes(searchTerm) ||
-                                         brand.allProducts.some(p => (p.ProductName || '').toLowerCase().includes(searchTerm));
-                    }
-
-                    let matchesCategory = true;
-                    if (selectedCategory !== 'all') {
-                        matchesCategory = (brand.category || '').toLowerCase() === selectedCategory;
-                    }
-
-                    let matchesParish = true;
-                    if (selectedParish !== '' && selectedParish !== 'all parishes') {
-                        matchesParish = (brand.parish || '').toLowerCase() === selectedParish;
-                    }
-
-                    let matchesTown = true;
-                    if (selectedTown !== '' && selectedTown !== 'all towns') {
-                        matchesTown = (brand.town || '').toLowerCase() === selectedTown;
-                    }
-
-                    const shouldShow = matchesSearch && matchesCategory && matchesParish && matchesTown;
-
-                    if (shouldShow) {
-                        renderBrandSection(
-                            brand.brandName,
-                            brandId,
-                            brand.brandLogo,
-                            brand.brandColor,
-                            brand.brandImage,
-                            brand.category,
-                            brand.parish,
-                            brand.town,
-                            brand.expiryDate,
-                            brand.brandSecondaryColor,
-                            brand.cashbackStatus
-                        );
-                        foundContent = true;
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (J$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Trading Fund vs. Cashback Owed Over 12 Months',
+                            font: {
+                                size: 18
+                            }
+                        }
                     }
                 }
-            }
+            });
+        };
 
-            let noResultsMessage = document.getElementById('no-results-message');
-
-            if (!foundContent) {
-                if (!noResultsMessage) {
-                    noResultsMessage = document.createElement('p');
-                    noResultsMessage.id = 'no-results-message';
-                    noResultsMessage.className = 'col-span-full text-center text-gray-500 py-8 text-xl';
-                    allBrandsContainer.appendChild(noResultsMessage);
-                }
-                noResultsMessage.textContent = `No brands or deals found matching your filters.`;
-                console.log("[Filter] No content found after applying filters.");
-            } else if (noResultsMessage) {
-                noResultsMessage.remove();
-                console.log("[Filter] Content found, removing 'no results' message.");
-            }
-        }
+        // --- Daily Simulation Logic ---
 
         /**
-         * Creates a category item for the floating bar.
-         * @param {string} categoryName - The name of the category.
-         * @returns {HTMLElement} The created category item element.
+         * Populates the dropdown for selecting a month for the daily log.
+         * @param {Array<Object>} results - The array of monthly simulation data.
          */
-        function createFloatingCategoryItem(categoryName) {
-            const categoryItem = document.createElement('div');
-            categoryItem.className = 'category-item';
-            categoryItem.setAttribute('data-filter-type', 'category');
-            categoryItem.setAttribute('data-filter-value', categoryName.toLowerCase());
-
-            categoryItem.innerHTML = `
-                <span class="category-name">${categoryName}</span>
-            `;
-            categoryItem.addEventListener('click', () => {
-                sessionStorage.setItem('selectedCategory', categoryName.toLowerCase()); // Save selected category
-                highlightCategory(categoryItem);
-                selectedFeaturedBrandId = null; // Clear featured brand selection
-                applyFilters(); // Apply filters
-            });
-            return categoryItem;
-        }
-
-        /**
-         * Highlights the active category item in the floating bar.
-         * @param {HTMLElement} activeItem - The category item to highlight.
-         */
-        function highlightCategory(activeItem) {
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            activeItem.classList.add('active');
-        }
-
-        /**
-         * Populates the categories in the floating bar.
-         */
-        function populateCategories() {
-            const categoriesList = document.getElementById('categories-list');
-            // Clear existing categories before re-populating to prevent duplicates
-            categoriesList.innerHTML = '';
-
-            // Get the currently selected category from session storage, default to 'all'
-            const currentSelectedCategory = sessionStorage.getItem('selectedCategory') || 'all';
-
-            // Add "All Categories" as the first item
-            const allCategoriesItem = document.createElement('div');
-            allCategoriesItem.className = 'category-item';
-            allCategoriesItem.setAttribute('data-filter-type', 'category');
-            allCategoriesItem.setAttribute('data-filter-value', 'all');
-            allCategoriesItem.innerHTML = `<span class="category-name">All Categories</span>`;
-            categoriesList.appendChild(allCategoriesItem);
-
-            allCategoriesItem.addEventListener('click', () => {
-                sessionStorage.setItem('selectedCategory', 'all'); // Save selected category
-                highlightCategory(allCategoriesItem);
-                selectedFeaturedBrandId = null; // Clear featured brand selection
-                applyFilters(); // Apply filters
-            });
-
-            // Populate floating categories from the dynamically collected list
-            const sortedCategories = Array.from(dynamicCategories).sort(); // Convert Set to Array and sort
-            sortedCategories.forEach(category => {
-                const categoryItem = createFloatingCategoryItem(category);
-                categoriesList.appendChild(categoryItem);
-            });
-
-            // After all categories are added, highlight the one that was selected
-            const activeItem = categoriesList.querySelector(`[data-filter-value="${currentSelectedCategory}"]`);
-            if (activeItem) {
-                highlightCategory(activeItem);
-            } else {
-                // If the previously selected category is no longer available, default to "All Categories"
-                highlightCategory(allCategoriesItem);
-                sessionStorage.setItem('selectedCategory', 'all');
-            }
-        }
-
-        /**
-         * Populates the parish dropdown with options from dynamicJamaicanLocations.
-         */
-        function populateParishes() {
-            const parishSelect = document.getElementById('parishSelect');
-            parishSelect.innerHTML = ''; // Clear existing options
-
-            // Always add "All Parishes" first
-            const allParishesOption = document.createElement('option');
-            allParishesOption.value = "All Parishes";
-            allParishesOption.textContent = "All Parishes";
-            parishSelect.appendChild(allParishesOption);
-
-            // Add parishes from dynamic data, ensuring unique and sorted order (optional)
-            const sortedParishes = Object.keys(dynamicJamaicanLocations)
-                                        .filter(p => p !== "All Parishes")
-                                        .sort();
-            sortedParishes.forEach(parish => {
+        const populateDailyLogDropdown = (results) => {
+            dailyLogMonthSelector.innerHTML = ''; // Clear existing options
+            results.forEach((data, index) => {
                 const option = document.createElement('option');
-                option.value = parish;
-                option.textContent = parish;
-                parishSelect.appendChild(option);
+                option.value = index; // Store the index of the month in the results array
+                option.textContent = `Month ${data.month} (Purchase: ${data.purchaseDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })})`;
+                dailyLogMonthSelector.appendChild(option);
             });
-
-            // Restore previous selection or set default
-            if (sessionStorage.getItem('selectedParish')) {
-                parishSelect.value = sessionStorage.getItem('selectedParish');
-            } else {
-                parishSelect.value = "All Parishes";
-            }
-            populateTowns(parishSelect.value); // Populate towns for the initial parish
-        }
+        };
 
         /**
-         * Populates the town dropdown based on the selected parish.
-         * @param {string} selectedParish - The currently selected parish.
+         * Runs the daily simulation for a selected 121-day period.
+         * @param {number} selectedMonthIndex - The index of the month from monthlySimulationResults to simulate daily.
          */
-        function populateTowns(selectedParish) {
-            const townSelect = document.getElementById('townSelect');
-            townSelect.innerHTML = ''; // Clear existing options
+        const runDailySimulation = (selectedMonthIndex) => {
+            dailyLogTableBody.innerHTML = ''; // Clear existing rows
 
-            const towns = dynamicJamaicanLocations[selectedParish] || ["All Towns"];
-
-            // Always add "All Towns" first for the selected parish
-            const allTownsOption = document.createElement('option');
-            allTownsOption.value = "All Towns";
-            allTownsOption.textContent = "All Towns";
-            townSelect.appendChild(allTownsOption);
-
-            // Add other towns, ensuring unique and sorted order (optional)
-            const sortedTowns = towns.filter(t => t !== "All Towns").sort();
-            sortedTowns.forEach(town => {
-                const option = document.createElement('option');
-                option.value = town;
-                option.textContent = town;
-                townSelect.appendChild(option);
-            });
-
-            // Restore previous selection or set default
-            if (sessionStorage.getItem('selectedTown') && dynamicJamaicanLocations[selectedParish]?.includes(sessionStorage.getItem('selectedTown'))) {
-                townSelect.value = sessionStorage.getItem('selectedTown');
-            } else {
-                townSelect.value = "All Towns";
+            if (selectedMonthIndex === undefined || monthlySimulationResults.length === 0) {
+                return; // No data to simulate
             }
-        }
+
+            const monthData = monthlySimulationResults[selectedMonthIndex];
+            const startDateForDailyLog = new Date(monthData.purchaseDate);
+            const endDateForDailyLog = addDays(startDateForDailyLog, PAYOUT_DELAY_DAYS - 1); // -1 because it's 121 *days* including start
+
+            // Parameters for daily trading
+            let currentDailyCapital = monthData.startingTradingCapital; // Start with the capital at the beginning of the selected purchase month
+            const avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
+            const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
+            const winRate = parseFloat(winRateInput.value);
+
+            // Generate all trade outcomes for the 121-day period
+            const tradeOutcomes = generateTradeOutcomes(TOTAL_TRADES_FOR_DAILY_LOG, winRate);
+            const tradingDaysWithTrades = new Set(); // Stores dates where a trade will occur
+
+            const allTradingDaysInPeriod = [];
+            let tempDate = new Date(startDateForDailyLog);
+            while (tempDate <= endDateForDailyLog) {
+                const dayOfWeek = tempDate.getDay(); // 0 = Sunday, 6 = Saturday
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Is a weekday
+                    allTradingDaysInPeriod.push(new Date(tempDate)); // Store a copy
+                }
+                tempDate.setDate(tempDate.getDate() + 1);
+            }
+
+            // Randomly select days for trades
+            const shuffledTradingDays = [...allTradingDaysInPeriod].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < Math.min(TOTAL_TRADES_FOR_DAILY_LOG, shuffledTradingDays.length); i++) {
+                tradingDaysWithTrades.add(shuffledTradingDays[i].toDateString()); // Use date string for easy lookup
+            }
+
+            let dayCounter = 1;
+            tempDate = new Date(startDateForDailyLog);
+            let currentMonth = tempDate.getMonth(); // Track current month for contributions
+
+            while (tempDate <= endDateForDailyLog) {
+                const dayOfWeek = tempDate.getDay();
+                const isTradingDay = (dayOfWeek !== 0 && dayOfWeek !== 6); // Exclude weekends
+                let tradeOccurred = false;
+                let tradeOutcome = 'N/A';
+                let gainLossAmount = 0;
+                let capitalBeforeTrade = currentDailyCapital;
+
+                // Apply monthly contribution on the first day of each new month within the 121-day cycle
+                if (tempDate.getDate() === 1 && tempDate.getMonth() !== currentMonth) {
+                    currentDailyCapital += monthlySimulationResults[0].monthlyFundContribution; // Use the standard monthly contribution (J$1,700 or first month's full contribution)
+                    capitalBeforeTrade = currentDailyCapital; // Update capital before trade for this specific day
+                    currentMonth = tempDate.getMonth();
+                }
 
 
-        // Event listener for Brand Search Input (with debounce)
-        const brandSearchInput = document.getElementById('brandSearchInput');
-        let searchTimeout;
-        brandSearchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                selectedFeaturedBrandId = null; // Clear featured brand selection
-                // Reset category/parish/town selections if search is used
-                sessionStorage.setItem('selectedCategory', 'all');
-                highlightCategory(document.querySelector('.category-item[data-filter-value="all"]'));
-                parishSelect.value = 'All Parishes';
-                townSelect.value = 'All Towns';
+                if (isTradingDay && tradingDaysWithTrades.has(tempDate.toDateString())) {
+                    tradeOccurred = true;
+                    const isWin = tradeOutcomes.pop(); // Get a trade outcome
+                    if (isWin) {
+                        gainLossAmount = currentDailyCapital * avgWeeklyWin;
+                        tradeOutcome = 'Win';
+                    } else {
+                        gainLossAmount = -currentDailyCapital * maxWeeklyLoss;
+                        tradeOutcome = 'Loss';
+                    }
+                    currentDailyCapital += gainLossAmount;
+                }
 
-                applyFilters(); // Apply filters
-            }, 300); // Debounce for 300ms
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${tempDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${tempDate.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${isTradingDay ? 'Yes' : 'No'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${tradeOccurred ? 'Yes' : 'No'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="${tradeOutcome === 'Win' ? 'text-green-600' : (tradeOutcome === 'Loss' ? 'text-red-600' : 'text-gray-500')}">
+                                ${tradeOutcome}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap ${gainLossAmount >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(gainLossAmount)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalBeforeTrade)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
+                    </tr>
+                `;
+                dailyLogTableBody.insertAdjacentHTML('beforeend', row);
+
+                tempDate.setDate(tempDate.getDate() + 1); // Move to the next day
+                dayCounter++;
+            }
+        };
+
+
+        // --- Event Listeners and Initial Setup ---
+
+        // Attach event listeners to all input fields to re-run simulation
+        membershipTierInput.addEventListener('change', runSimulation);
+        simulationStartDateInput.addEventListener('change', runSimulation);
+        voucherValueInput.addEventListener('change', runSimulation);
+        vouchersPerMonthInput.addEventListener('input', runSimulation);
+        markupRateInput.addEventListener('input', runSimulation);
+        markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
+        initialTradingFundInput.addEventListener('input', runSimulation);
+        avgWeeklyWinInput.addEventListener('input', runSimulation);
+        maxWeeklyLossInput.addEventListener('input', runSimulation);
+        winRateInput.addEventListener('input', runSimulation);
+        stressTestModeCheckbox.addEventListener('change', runSimulation);
+
+        // Event listener for daily log month selection
+        dailyLogMonthSelector.addEventListener('change', (event) => {
+            runDailySimulation(parseInt(event.target.value));
         });
 
-        // Event listener for Parish Dropdown
-        const parishSelect = document.getElementById('parishSelect');
-        parishSelect.addEventListener('change', () => {
-            sessionStorage.setItem('selectedParish', parishSelect.value); // Save selected parish
-            sessionStorage.removeItem('selectedTown'); // Clear town when parish changes
-            populateTowns(parishSelect.value); // Update towns based on selected parish
-            selectedFeaturedBrandId = null; // Clear featured brand selection
-            applyFilters(); // Apply filters
-        });
-
-        // Event listener for Town Dropdown
-        const townSelect = document.getElementById('townSelect');
-        townSelect.addEventListener('change', () => {
-            sessionStorage.setItem('selectedTown', townSelect.value); // Save selected town
-            selectedFeaturedBrandId = null; // Clear featured brand selection
-            applyFilters(); // Apply filters
-        });
-
-        // Initial fetch and render on page load
+        // Set default start date to today
         document.addEventListener('DOMContentLoaded', () => {
-            fetchAndProcessData(); // Fetch and process all brand data, which will then populate locations and categories and apply filters
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            simulationStartDateInput.value = `${year}-${month}-${day}`;
+
+            // Initial run of simulation and also set the default initialTradingFund based on premium tier
+            // This ensures the problem statement's default of J$5,900 for Premium is reflected.
+            const selectedTier = membershipTierInput.value;
+            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
+            const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
+            const markupPerMonth = monthlyVoucherSpend * (parseFloat(markupRateInput.value) / 100);
+            const monthlyTradingFundContribution = markupPerMonth * (parseFloat(markupAllocationToTradingFundInput.value) / 100);
+            const oneTimeMembershipFundAddition = tierConfig.fee * 0.50; // 50% allocation
+
+            const currentInitialFundValue = parseFloat(initialTradingFundInput.value);
+
+            if (selectedTier === 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+                initialTradingFundInput.value = (monthlyTradingFundContribution + oneTimeMembershipFundAddition).toFixed(0);
+            } else if (selectedTier !== 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+                initialTradingFundInput.value = 0;
+            }
+
+            runSimulation(); // Run simulation on initial page load
         });
 
-        // Close popup when clicking outside the content
-        document.getElementById('popup').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closePopup();
+        // Update parameters based on membership tier selection
+        membershipTierInput.addEventListener('change', () => {
+            const selectedTier = membershipTierInput.value;
+            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
+
+            // Recalculate monthly contributions to set the default initialTradingFund value
+            const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
+            const markupPerMonth = monthlyVoucherSpend * (parseFloat(markupRateInput.value) / 100);
+            const monthlyTradingFundContribution = markupPerMonth * (parseFloat(markupAllocationToTradingFundInput.value) / 100);
+            const oneTimeMembershipFundAddition = tierConfig.fee * 0.50; // 50% allocation
+
+            const currentInitialFundValue = parseFloat(initialTradingFundInput.value);
+
+            if (selectedTier === 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+                initialTradingFundInput.value = (monthlyTradingFundContribution + oneTimeMembershipFundAddition).toFixed(0);
+            } else if (selectedTier !== 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+                initialTradingFundInput.value = 0;
             }
+
+            runSimulation();
         });
     </script>
 </body>
