@@ -646,20 +646,39 @@
             simulationTableBody.innerHTML = ''; // Clear existing rows
 
             results.forEach(data => {
+                let surplusDeficitDisplay;
+                let surplusDeficitClass;
+                let payoutMetDisplay;
+                let payoutMetClass;
+
+                if (data.cashbackToPayThisMonth > 0) {
+                    // Actual payout month - display real surplus/deficit
+                    surplusDeficitDisplay = formatCurrency(data.surplusDeficit);
+                    surplusDeficitClass = data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
+                    payoutMetDisplay = data.payoutMet ? 'Met' : 'Shortfall';
+                    payoutMetClass = data.payoutMet ? 'text-green-600' : 'text-red-600';
+                } else {
+                    // Month where payout is not yet due - display accrued obligation as pending deficit
+                    surplusDeficitDisplay = formatCurrency(-data.accruedNetPayoutObligation); // Show as negative for obligation
+                    surplusDeficitClass = 'text-orange-600'; // Indicate pending/future obligation
+                    payoutMetDisplay = 'Pending';
+                    payoutMetClass = 'text-orange-600'; // Indicate pending/future
+                }
+
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td> <!-- Now displaying the accrued net obligation -->
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.endingTradingCapital)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(data.surplusDeficit)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${surplusDeficitClass}">${surplusDeficitDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="${data.payoutMet ? 'text-green-600' : (data.cashbackToPayThisMonth > 0 ? 'text-red-600' : 'text-orange-600')}">
-                                ${data.cashbackToPayThisMonth > 0 ? (data.payoutMet ? 'Met' : 'Shortfall') : 'N/A'}
+                            <span class="${payoutMetClass}">
+                                ${payoutMetDisplay}
                             </span>
                         </td>
                     </tr>
