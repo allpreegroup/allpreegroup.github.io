@@ -1089,9 +1089,9 @@
             const allWeekdays = [];
             let tempDateForWeekdays = new Date(startDate);
             while (tempDateForWeekdays <= endDate) {
-                // Check day of week in Jamaica timezone
-                const dayOfWeekJamaica = new Date(tempDateForWeekdays.toLocaleString('en-US', { timeZone: 'America/Jamaica', weekday: 'long' })).getDay();
-                if (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6) { // Not Sunday or Saturday in Jamaica
+                // Get day of week using getUTCDay() as currentDate is UTC-aligned for Jamaica midnight
+                const dayOfWeekJamaica = tempDateForWeekdays.getUTCDay();
+                if (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6) { // Not Sunday (0) or Saturday (6) in Jamaica
                     allWeekdays.push(new Date(tempDateForWeekdays));
                 }
                 tempDateForWeekdays.setDate(tempDateForWeekdays.getDate() + 1);
@@ -1154,8 +1154,9 @@
             // Iterate through each day of the cumulative simulation period
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
-                const dayOfWeekJamaica = new Date(currentDate.toLocaleString('en-US', { timeZone: 'America/Jamaica', weekday: 'long' })).getDay();
-                const isWeekday = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica
+                // Get day of week using getUTCDay() as currentDate is UTC-aligned for Jamaica midnight
+                const dayOfWeekJamaica = currentDate.getUTCDay();
+                const isWeekday = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica (0=Sunday, 6=Saturday)
 
                 let eventOccurred = false;
                 let eventType = 'No Event';
@@ -1175,12 +1176,10 @@
 
                 // 2. Apply Payouts for the day (if any are due)
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
-                // let dailyPayoutObligationDisplay = 0; // Removed this variable as the column is being removed
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
                 if (isPayoutDay) {
                     payoutsDueToday.forEach(payout => {
-                        // dailyPayoutObligationDisplay += payout.netObligation; // Removed this line
                         currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
                         dailyNetChange -= payout.actualDeduction; // Payouts are negative change
                     });
@@ -1190,7 +1189,7 @@
                 }
 
                 // 3. Simulate Trading for the day (if it's a trading day and a trade is scheduled AND no other events)
-                // A day is a "Trading Day" only if it's a weekday AND it's a designated trade day AND no other events occurred.
+                // A day is a "Trading Day?" only if it's a weekday AND it's a designated trade day AND no other events occurred.
                 const isTradingDayForDisplay = isWeekday && tradeDays.has(currentDateString) && !contributionForToday && !isPayoutDay;
                 const tradeOccurred = isTradingDayForDisplay && tradeOutcomes.length > 0; // Ensure there are still trade outcomes left
 
