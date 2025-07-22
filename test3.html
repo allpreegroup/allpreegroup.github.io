@@ -142,8 +142,17 @@
             width: auto;
             margin: 0;
         }
-        .chart-container, .table-container {
-            margin-top: 2rem;
+        /* Updated chart-container and table-container styles */
+        .chart-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            flex: 1; /* Allows charts to grow and shrink equally within flex container */
+            min-width: 300px; /* Minimum width for charts to prevent squishing */
+        }
+        .table-container {
+            margin-top: 2rem; /* Keep margin for table container */
             background-color: #ffffff;
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -308,17 +317,19 @@
             <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
         </div>
 
-        <div class="chart-container">
-            <canvas id="simulationChart"></canvas>
-        </div>
+        <div class="flex flex-wrap justify-center gap-8 mt-8"> <!-- New wrapper div for charts -->
+            <div class="chart-container">
+                <canvas id="simulationChart"></canvas>
+            </div>
 
-        <div class="chart-container">
-            <canvas id="netPayoutObligationChart"></canvas>
-        </div>
+            <div class="chart-container">
+                <canvas id="netPayoutObligationChart"></canvas>
+            </div>
 
-        <div class="chart-container">
-            <canvas id="surplusDeficitChart"></canvas>
-        </div>
+            <div class="chart-container">
+                <canvas id="surplusDeficitChart"></canvas>
+            </div>
+        </div> <!-- End new wrapper div -->
 
         <!-- Combined Table for Net Payout Obligation and Fund Balance After Payout -->
         <div class="table-container">
@@ -375,8 +386,8 @@
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 8; // Used for monthly simulation (approx 2 trades per week)
-        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 8 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
+        const TRADING_WEEKS_PER_MONTH = 10; // Used for monthly simulation (approx 2 trades per week)
+        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 10 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
         // Calculate the number of extra months needed for payouts to complete
         // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
@@ -640,7 +651,8 @@
                 // Capital available for trading this month (Starting Capital + Monthly Contribution)
                 let capitalForTradingThisMonth = currentTradingFundAtStartOfMonth + monthlyContributionForCurrentMonth;
 
-                // Simulate Weekly Trades (8 trades per month)
+                // Simulate Weekly Trades (8 trades per month) - This part is primarily for monthly overview
+                // The detailed daily trade simulation happens in runCumulativeDailySimulation
                 const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate);
                 let fundAfterTrades = capitalForTradingThisMonth; // Start trading with this combined capital
 
@@ -1050,7 +1062,7 @@
         // --- Cumulative Daily Simulation Logic ---
 
         /**
-         * Runs the cumulative daily simulation for the entire period.
+         * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
          */
         const runCumulativeDailySimulation = () => {
             dailyLogTableBody.innerHTML = ''; // Clear existing rows
@@ -1077,38 +1089,19 @@
             const winRate = parseFloat(winRateInput.value);
 
             // Pre-calculate all trade outcomes for the entire period
-            const totalDaysInPeriod = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1; // +1 to include end date
-            const estimatedTradingDays = Math.floor(totalDaysInPeriod * (5 / 7)); // Approx weekdays
-            // Distribute TOTAL_TRADES_FOR_CUMULATIVE_LOG randomly over the estimated trading days
-            const totalTradesToDistribute = Math.max(TOTAL_TRADES_FOR_CUMULATIVE_LOG, Math.floor(estimatedTradingDays / 2)); // Ensure enough trades for the long period
+            // We need enough outcomes for roughly 2 trades per week for the duration of the simulation.
+            const totalDaysInPeriod = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            const totalWeeksInPeriod = Math.ceil(totalDaysInPeriod / 7);
+            const maxPossibleTrades = totalWeeksInPeriod * 2; // Max 2 trades per week
 
-            const tradeOutcomes = generateTradeOutcomes(totalTradesToDistribute, winRate);
-            const tradeDays = new Set(); // Stores dates where a trade will occur (as 'YYYY-MM-DD' strings)
-
-            // Randomly select `totalTradesToDistribute` weekdays for trades
-            const allWeekdays = [];
-            let tempDateForWeekdays = new Date(startDate);
-            while (tempDateForWeekdays <= endDate) {
-                // Get day of week using getUTCDay() as currentDate is UTC-aligned for Jamaica midnight
-                const dayOfWeekJamaica = tempDateForWeekdays.getUTCDay();
-                if (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6) { // Not Sunday (0) or Saturday (6) in Jamaica
-                    allWeekdays.push(new Date(tempDateForWeekdays));
-                }
-                tempDateForWeekdays.setDate(tempDateForWeekdays.getDate() + 1);
-            }
-
-            // Shuffle and pick trade days
-            for (let i = allWeekdays.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [allWeekdays[i], allWeekdays[j]] = [allWeekdays[j], allWeekdays[i]];
-            }
-            for (let i = 0; i < Math.min(totalTradesToDistribute, allWeekdays.length); i++) {
-                // Store date as YYYY-MM-DD string for easy lookup
-                tradeDays.add(allWeekdays[i].toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }));
-            }
+            // Generate enough trade outcomes for the maximum possible trades
+            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate);
 
             let dayCounter = 1;
             let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
+
+            let tradesThisWeek = 0;
+            let currentWeekStartDay = currentDate.getUTCDay(); // 0 for Sunday, 1 for Monday...
 
             // Store monthly contribution amounts and their respective purchase dates
             const monthlyContributionsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> contributionAmount
@@ -1155,8 +1148,13 @@
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
                 // Get day of week using getUTCDay() as currentDate is UTC-aligned for Jamaica midnight
-                const dayOfWeekJamaica = currentDate.getUTCDay();
-                const isWeekday = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica (0=Sunday, 6=Saturday)
+                const dayOfWeekJamaica = currentDate.getUTCDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                const isWeekday = (dayOfWeekJamaica >= 1 && dayOfWeekJamaica <= 5); // Monday-Friday
+
+                // Reset trades for the week if it's a new week (Monday or the very first day if it's not Monday)
+                if (dayOfWeekJamaica === 1 || dayCounter === 1) {
+                    tradesThisWeek = 0;
+                }
 
                 let eventOccurred = false;
                 let eventType = 'No Event';
@@ -1188,28 +1186,37 @@
                     else eventType += ' & Payout'; // If other events occurred, append
                 }
 
-                // 3. Simulate Trading for the day (if it's a trading day and a trade is scheduled AND no other events)
+                // 3. Simulate Trading for the day (if it's an eligible trading day and a trade is scheduled)
                 // A day is a "Trading Day?" only if it's a weekday AND it's a designated trade day AND no other events occurred.
-                const isTradingDayForDisplay = isWeekday && tradeDays.has(currentDateString) && !contributionForToday && !isPayoutDay;
-                const tradeOccurred = isTradingDayForDisplay && tradeOutcomes.length > 0; // Ensure there are still trade outcomes left
+                let isTradingDayForDisplay = false; // Default to false
 
-                if (tradeOccurred) {
-                    const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
-                    const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
+                const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < 2;
 
-                    let tradeGainLossAmount;
-                    if (isWin) {
-                        tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
-                        if (eventType === 'No Event') eventType = 'Trade (Win)';
-                        else eventType += ' & Trade (Win)';
-                    } else {
-                        tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
-                        if (eventType === 'No Event') eventType = 'Trade (Loss)';
-                        else eventType += ' & Trade (Loss)';
+                if (canTradeOnThisDay && tradeOutcomes.length > 0) {
+                    // Randomly decide if a trade occurs on this specific eligible day.
+                    // Since we want max 2 trades over 5 weekdays, average chance is 2/5 = 0.4
+                    const shouldTrade = Math.random() < 0.4;
+
+                    if (shouldTrade) {
+                        const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
+                        const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
+
+                        let tradeGainLossAmount;
+                        if (isWin) {
+                            tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
+                            if (eventType === 'No Event') eventType = 'Trade (Win)';
+                            else eventType += ' & Trade (Win)';
+                        } else {
+                            tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
+                            if (eventType === 'No Event') eventType = 'Trade (Loss)';
+                            else eventType += ' & Trade (Loss)';
+                        }
+                        currentDailyCapital += tradeGainLossAmount;
+                        dailyNetChange += tradeGainLossAmount;
+                        eventOccurred = true;
+                        tradesThisWeek++; // Increment trade count for the current week
+                        isTradingDayForDisplay = true; // Mark as a trading day for display
                     }
-                    currentDailyCapital += tradeGainLossAmount;
-                    dailyNetChange += tradeGainLossAmount;
-                    eventOccurred = true;
                 }
 
                 const row = `
