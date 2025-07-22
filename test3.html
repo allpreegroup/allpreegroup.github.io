@@ -284,13 +284,9 @@
                         <th class="px-6 py-3">Month</th>
                         <th class="px-6 py-3">Purchase Date</th>
                         <th class="px-6 py-3">Cashback Due Date</th>
-                        <th class="px-6 py-3">Payout Month-End</th>
-                        <th class="px-6 py-3">Net Payout Obligation (J$)</th>
                         <th class="px-6 py-3">Starting Trading Capital (J$)</th>
                         <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
                         <th class="px-6 py-3">Ending Capital (J$)</th>
-                        <th class="px-6 py-3">Surplus/Deficit vs. Payout (J$)</th>
-                        <th class="px-6 py-3">Payout Met?</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -320,39 +316,22 @@
             <canvas id="surplusDeficitChart"></canvas>
         </div>
 
-        <!-- New Tables for specific data points -->
+        <!-- Combined Table for Net Payout Obligation and Surplus/Deficit -->
         <div class="table-container">
-            <h2>Net Payout Obligation (J$)</h2>
+            <h2>Payout Obligation & Fund Performance</h2>
             <div class="overflow-x-auto">
-                <table id="netPayoutObligationTable" class="min-w-full divide-y divide-gray-200">
+                <table id="combinedPayoutTable" class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
                             <th class="px-6 py-3">Month</th>
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Net Payout Obligation (J$)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Net Payout Obligation rows will be generated here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <h2>Surplus/Deficit vs. Payout (J$)</h2>
-            <div class="overflow-x-auto">
-                <table id="surplusDeficitTable" class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-6 py-3">Month</th>
-                            <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Surplus/Deficit (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Surplus/Deficit rows will be generated here -->
+                        <!-- Combined Payout rows will be generated here -->
                     </tbody>
                 </table>
             </div>
@@ -439,8 +418,7 @@
         let surplusDeficitChartInstance;
 
         // New table bodies
-        const netPayoutObligationTableBody = document.querySelector('#netPayoutObligationTable tbody');
-        const surplusDeficitTableBody = document.querySelector('#surplusDeficitTable tbody');
+        const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
 
 
         // Daily Log DOM Elements
@@ -674,12 +652,11 @@
 
             // --- Update UI ---
             updateTable(monthlySimulationResults);
-            updateNetPayoutObligationTable(monthlySimulationResults); // New table update
-            updateSurplusDeficitTable(monthlySimulationResults); // New table update
+            updateCombinedPayoutTable(monthlySimulationResults); // New combined table update
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, currentTradingFundAtStartOfMonth, overallPayoutSuccess);
             updateChart(monthlySimulationResults);
-            updateNetPayoutObligationChart(monthlySimulationResults); // New chart update
-            updateSurplusDeficitChart(monthlySimulationResults); // New chart update
+            updateNetPayoutObligationChart(monthlySimulationResults); // Chart update (still needed)
+            updateSurplusDeficitChart(monthlySimulationResults); // Chart update (still needed)
             populateDailyLogDropdown(monthlySimulationResults); // Populate dropdown after monthly sim
             // Automatically run daily simulation for the first month
             if (monthlySimulationResults.length > 0) {
@@ -696,41 +673,14 @@
             simulationTableBody.innerHTML = ''; // Clear existing rows
 
             results.forEach(data => {
-                let surplusDeficitDisplay;
-                let surplusDeficitClass;
-                let payoutMetDisplay;
-                let payoutMetClass;
-
-                if (data.cashbackToPayThisMonth > 0) {
-                    // Actual payout month - display real surplus/deficit
-                    surplusDeficitDisplay = formatCurrency(data.surplusDeficit);
-                    surplusDeficitClass = data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
-                    payoutMetDisplay = data.payoutMet ? 'Met' : 'Shortfall';
-                    payoutMetClass = data.payoutMet ? 'text-green-600' : 'text-red-600';
-                } else {
-                    // Month where payout is not yet due - display accrued obligation as pending deficit
-                    surplusDeficitDisplay = formatCurrency(-data.accruedNetPayoutObligation); // Show as negative for obligation
-                    surplusDeficitClass = 'text-orange-600'; // Indicate pending/future obligation
-                    payoutMetDisplay = 'Pending';
-                    payoutMetClass = 'text-orange-600'; // Indicate pending/future
-                }
-
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.endingTradingCapital)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${surplusDeficitClass}">${surplusDeficitDisplay}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="${payoutMetClass}">
-                                ${payoutMetDisplay}
-                            </span>
-                        </td>
                     </tr>
                 `;
                 simulationTableBody.insertAdjacentHTML('beforeend', row);
@@ -738,30 +688,11 @@
         };
 
         /**
-         * Updates the Net Payout Obligation table.
+         * Updates the combined Net Payout Obligation and Surplus/Deficit table.
          * @param {Array<Object>} results - The array of monthly simulation data.
          */
-        const updateNetPayoutObligationTable = (results) => {
-            netPayoutObligationTableBody.innerHTML = ''; // Clear existing rows
-
-            results.forEach(data => {
-                const row = `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
-                    </tr>
-                `;
-                netPayoutObligationTableBody.insertAdjacentHTML('beforeend', row);
-            });
-        };
-
-        /**
-         * Updates the Surplus/Deficit vs. Payout table.
-         * @param {Array<Object>} results - The array of monthly simulation data.
-         */
-        const updateSurplusDeficitTable = (results) => {
-            surplusDeficitTableBody.innerHTML = ''; // Clear existing rows
+        const updateCombinedPayoutTable = (results) => {
+            combinedPayoutTableBody.innerHTML = ''; // Clear existing rows
 
             results.forEach(data => {
                 let surplusDeficitDisplay;
@@ -787,6 +718,7 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${surplusDeficitClass}">${surplusDeficitDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
@@ -795,9 +727,10 @@
                         </td>
                     </tr>
                 `;
-                surplusDeficitTableBody.insertAdjacentHTML('beforeend', row);
+                combinedPayoutTableBody.insertAdjacentHTML('beforeend', row);
             });
         };
+
 
         /**
          * Updates the summary section.
