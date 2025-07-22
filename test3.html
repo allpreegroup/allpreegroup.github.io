@@ -261,7 +261,7 @@
             </div>
             <div class="input-field">
                 <label for="initialTradingFund">Initial Trading Fund (J$):</label>
-                <input type="number" id="initialTradingFund" value="0" min="0" step="100">
+                <input type="number" id="initialTradingFund" value="0" min="0" step="100" title="This is the fund balance at the very start of the simulation, before any monthly contributions are added.">
             </div>
             <div class="input-field">
                 <label for="avgWeeklyWin">Avg Weekly Win (%):</label>
@@ -1156,14 +1156,14 @@
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
                 const dayOfWeekJamaica = new Date(currentDate.toLocaleString('en-US', { timeZone: 'America/Jamaica', weekday: 'long' })).getDay();
-                const isTradingDay = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica
+                const isWeekday = (dayOfWeekJamaica !== 0 && dayOfWeekJamaica !== 6); // Monday-Friday in Jamaica
 
                 let eventOccurred = false;
                 let eventType = 'No Event';
                 let dailyNetChange = 0; // Net change for the 'Net Change (J$)' column
-                let dailyPayoutObligationDisplay = 0; // Total payout obligation for the 'Payout Obligation (J$)' column
 
-                let capitalStartOfDay = currentDailyCapital; // Capital at the very beginning of this day
+                // Store capital before any events for this specific day
+                let capitalBeforeEvent = currentDailyCapital;
 
                 // 1. Apply Contributions for the day
                 const contributionForToday = monthlyContributionsMap.get(currentDateString);
@@ -1171,11 +1171,30 @@
                     currentDailyCapital += contributionForToday;
                     dailyNetChange += contributionForToday; // Contributions also add to net change
                     eventOccurred = true;
-                    eventType = 'Contribution'; // Default, might be overridden by trade/payout
+                    eventType = 'Contribution';
                 }
 
-                // 2. Simulate Trading for the day (if it's a trading day and a trade is scheduled)
-                const tradeOccurred = isTradingDay && tradeDays.has(currentDateString);
+                // 2. Apply Payouts for the day (if any are due)
+                const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
+                let dailyPayoutObligationDisplay = 0; // Total payout obligation for the 'Payout Obligation (J$)' column
+                const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
+
+                if (isPayoutDay) {
+                    payoutsDueToday.forEach(payout => {
+                        dailyPayoutObligationDisplay += payout.netObligation; // Sum of obligations for display
+                        currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
+                        dailyNetChange -= payout.actualDeduction; // Payouts are negative change
+                    });
+                    eventOccurred = true;
+                    if (eventType === 'No Event') eventType = 'Cashback Payout';
+                    else eventType += ' & Payout'; // If other events occurred, append
+                }
+
+                // 3. Simulate Trading for the day (if it's a trading day and a trade is scheduled AND no other events)
+                // A day is a "Trading Day" only if it's a weekday AND it's a designated trade day AND no other events occurred.
+                const isTradingDayForDisplay = isWeekday && tradeDays.has(currentDateString) && !contributionForToday && !isPayoutDay;
+                const tradeOccurred = isTradingDayForDisplay && tradeOutcomes.length > 0; // Ensure there are still trade outcomes left
+
                 if (tradeOccurred) {
                     const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
                     const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
@@ -1195,28 +1214,13 @@
                     eventOccurred = true;
                 }
 
-                // 3. Apply Payouts for the day (if any are due)
-                const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
-                const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0; // Define isPayoutDay here
-
-                if (isPayoutDay) {
-                    payoutsDueToday.forEach(payout => {
-                        dailyPayoutObligationDisplay += payout.netObligation; // Sum of obligations for display
-                        currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
-                        dailyNetChange -= payout.actualDeduction; // Payouts are negative change
-                    });
-                    eventOccurred = true;
-                    if (eventType === 'No Event') eventType = 'Cashback Payout';
-                    else eventType += ' & Payout'; // If other events occurred, append
-                }
-
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            ${isTradingDay ? 'Yes' : 'No'}
+                            ${isTradingDayForDisplay ? 'Yes' : 'No'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${eventOccurred ? 'Yes' : 'No'}
@@ -1228,7 +1232,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap ${dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(dailyNetChange)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${dailyPayoutObligationDisplay > 0 ? 'text-orange-600' : 'text-gray-600'}">${formatCurrency(dailyPayoutObligationDisplay)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalStartOfDay)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalBeforeEvent)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
                     </tr>
                 `;
@@ -1242,28 +1246,13 @@
 
         // New helper function to set the default initial trading fund input value
         function updateInitialTradingFundDefault() {
-            const selectedTier = membershipTierInput.value;
-            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
-            const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
-            const markupPerMonth = monthlyVoucherSpend * (parseFloat(markupRateInput.value) / 100);
-            const monthlyTradingFundContribution = markupPerMonth * (parseFloat(markupAllocationToTradingFundInput.value) / 100);
-            const oneTimeMembershipFundAddition = tierConfig.fee * 0.50; // 50% allocation
-
-            let newCalculatedDefaultFund = 0;
-            if (selectedTier === 'Premium' || selectedTier === 'Standard') {
-                newCalculatedDefaultFund = monthlyTradingFundContribution + oneTimeMembershipFundAddition;
-            }
-
+            // This function now only ensures the input is 0 if it's currently 0 or empty,
+            // and does NOT attempt to calculate a default based on monthly contributions.
+            // The initial fund is purely user-defined.
             const currentInputValue = parseFloat(initialTradingFundInput.value);
-            const lastCalculatedDefault = parseFloat(initialTradingFundInput.dataset.lastCalculatedDefault || '0');
-
-            // If the current input value is either 0, or matches the previously calculated default,
-            // or if the input is empty, then update it to the new calculated default.
-            if (currentInputValue === 0 || isNaN(currentInputValue) || currentInputValue === lastCalculatedDefault) {
-                initialTradingFundInput.value = newCalculatedDefaultFund.toFixed(0);
-                initialTradingFundInput.dataset.lastCalculatedDefault = newCalculatedDefaultFund.toFixed(0); // Store the new calculated default
+            if (isNaN(currentInputValue) || currentInputValue === 0) {
+                initialTradingFundInput.value = '0';
             }
-            // If the user has manually entered a non-zero value that is NOT the previous default, leave it.
         }
 
 
@@ -1271,18 +1260,11 @@
 
         // Attach event listeners to all input fields to re-run simulation
         simulationStartDateInput.addEventListener('change', runSimulation);
-        voucherValueInput.addEventListener('change', () => {
-            updateInitialTradingFundDefault(); // Update default initial fund when voucher value changes
-            runSimulation(); // Run simulation after updating initial fund
-        });
-        // Modified: Vouchers per Month now triggers updateInitialTradingFundDefault
-        vouchersPerMonthInput.addEventListener('change', () => {
-            updateInitialTradingFundDefault(); // Update default initial fund when vouchers per month changes
-            runSimulation(); // Run simulation after updating initial fund
-        });
+        voucherValueInput.addEventListener('change', runSimulation);
+        vouchersPerMonthInput.addEventListener('change', runSimulation);
         markupRateInput.addEventListener('input', runSimulation);
         markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
-        initialTradingFundInput.addEventListener('input', runSimulation);
+        initialTradingFundInput.addEventListener('input', runSimulation); // Keep this for manual changes
         avgWeeklyWinInput.addEventListener('input', runSimulation);
         maxWeeklyLossInput.addEventListener('input', runSimulation);
         winRateInput.addEventListener('input', runSimulation);
@@ -1299,15 +1281,12 @@
             simulationStartDateInput.value = `${year}-${month}-${day}`;
 
             // Set the initial default value for initialTradingFundInput on load
-            updateInitialTradingFundDefault();
+            updateInitialTradingFundDefault(); // Ensure it's 0 or user's last input
             runSimulation(); // Run simulation on initial page load
         });
 
         // Update parameters based on membership tier selection
-        membershipTierInput.addEventListener('change', () => {
-            updateInitialTradingFundDefault(); // Update default initial fund when tier changes
-            runSimulation(); // Run simulation after updating initial fund
-        });
+        membershipTierInput.addEventListener('change', runSimulation); // No longer calls updateInitialTradingFundDefault
     </script>
 </body>
 </html>
