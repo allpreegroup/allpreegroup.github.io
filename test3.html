@@ -323,7 +323,6 @@
                     <thead>
                         <tr>
                             <th class="px-6 py-3">Month</th>
-                            <th class="px-6 py-3">Purchase Date</th>
                             <th class="px-6 py-3">Cashback Due Date</th>
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Net Payout Obligation (J$)</th>
@@ -361,12 +360,12 @@
                             <th class="px-6 py-3">Capital After Trade (J$)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Daily log rows will be generated here -->
-                    </tbody>
-                </table>
-            </div>
+                <tbody>
+                    <!-- Daily log rows will be generated here -->
+                </tbody>
+            </table>
         </div>
+    </div>
 
     </div>
 
@@ -700,24 +699,29 @@
                 let payoutMetDisplay;
                 let payoutMetClass;
 
+                // Determine if an actual payout for a *past* purchase is due this month
+                // This is based on `data.cashbackToPayThisMonth` being greater than 0,
+                // which is set in runSimulation when `payoutSourceMonthIndex >= 0`.
                 if (data.cashbackToPayThisMonth > 0) {
-                    // Actual payout month - display real surplus/deficit
+                    // Actual payout month - display real surplus/deficit after deduction
                     surplusDeficitDisplay = formatCurrency(data.surplusDeficit);
                     surplusDeficitClass = data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
                     payoutMetDisplay = data.payoutMet ? 'Met' : 'Shortfall';
                     payoutMetClass = data.payoutMet ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // Month where payout is not yet due - display accrued obligation as pending deficit
-                    surplusDeficitDisplay = formatCurrency(-data.accruedNetPayoutObligation); // Show as negative for obligation
-                    surplusDeficitClass = 'text-orange-600'; // Indicate pending/future obligation
-                    payoutMetDisplay = 'Pending';
+                    // Month where no actual payout is due yet for a past purchase.
+                    // Calculate a 'notional' surplus/deficit: Ending Capital - Accrued Obligation for this month's purchases.
+                    // This shows the fund's position *relative to its future liability* for this month's purchases.
+                    const notionalSurplusDeficit = data.endingTradingCapital - data.accruedNetPayoutObligation;
+                    surplusDeficitDisplay = formatCurrency(notionalSurplusDeficit);
+                    surplusDeficitClass = notionalSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600'; // Still use green/red for notional
+                    payoutMetDisplay = 'Accruing'; // Indicate that cashback is accruing for future payout
                     payoutMetClass = 'text-orange-600'; // Indicate pending/future
                 }
 
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
@@ -894,7 +898,7 @@
                 if (data.cashbackToPayThisMonth > 0) {
                     return data.surplusDeficit; // Actual surplus/deficit
                 } else {
-                    return -data.accruedNetPayoutObligation; // Pending obligation shown as negative
+                    return -data.accruedNetPayoutObligation; // Show accrued obligation as negative on chart
                 }
             });
 
