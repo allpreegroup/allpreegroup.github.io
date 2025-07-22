@@ -6,8 +6,8 @@
     <title>Cashback Payout + Trading Simulation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for graphing -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js CDN for graphing (removed, but keeping for reference if needed later) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -142,15 +142,7 @@
             width: auto;
             margin: 0;
         }
-        /* Updated chart-container and table-container styles */
-        .chart-container {
-            background-color: #ffffff;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            flex: 1; /* Allows charts to grow and shrink equally within flex container */
-            min-width: 300px; /* Minimum width for charts to prevent squishing */
-        }
+        /* Removed chart-container styles */
         .table-container {
             margin-top: 2rem; /* Keep margin for table container */
             background-color: #ffffff;
@@ -256,8 +248,8 @@
                 <label for="vouchersPerMonth">Vouchers per Month:</label>
                 <select id="vouchersPerMonth">
                     <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
                 </select>
             </div>
             <div class="input-field">
@@ -283,6 +275,10 @@
             <div class="input-field">
                 <label for="winRate">Win Rate (%):</label>
                 <input type="number" id="winRate" value="61.78" min="0" max="100" step="1">
+            </div>
+            <div class="input-field">
+                <label for="simulationSeed">Simulation Seed (Optional):</label>
+                <input type="number" id="simulationSeed" value="" placeholder="Enter a number for consistent results">
             </div>
             <div class="input-field stress-test-checkbox">
                 <input type="checkbox" id="stressTestMode">
@@ -317,19 +313,7 @@
             <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
         </div>
 
-        <div class="flex flex-wrap justify-center gap-8 mt-8"> <!-- New wrapper div for charts -->
-            <div class="chart-container">
-                <canvas id="simulationChart"></canvas>
-            </div>
-
-            <div class="chart-container">
-                <canvas id="netPayoutObligationChart"></canvas>
-            </div>
-
-            <div class="chart-container">
-                <canvas id="surplusDeficitChart"></canvas>
-            </div>
-        </div> <!-- End new wrapper div -->
+        <!-- Removed chart wrapper div -->
 
         <!-- Combined Table for Net Payout Obligation and Fund Balance After Payout -->
         <div class="table-container">
@@ -358,7 +342,6 @@
         <!-- Daily Trading Log Section -->
         <div class="daily-log-section">
             <h2>Cumulative Daily Trading Log</h2>
-            <!-- Removed dailyLogMonthSelector as it's now a cumulative log -->
             <div class="overflow-x-auto">
                 <table id="dailyLogTable" class="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -386,8 +369,8 @@
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 10; // Used for monthly simulation (approx 2 trades per week)
-        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 10 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
+        const TRADING_WEEKS_PER_MONTH = 20; // Used for monthly simulation (approx 2 trades per week)
+        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 20 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
         // Calculate the number of extra months needed for payouts to complete
         // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
@@ -419,6 +402,7 @@
         const avgWeeklyWinInput = document.getElementById('avgWeeklyWin');
         const maxWeeklyLossInput = document.getElementById('maxWeeklyLoss');
         const winRateInput = document.getElementById('winRate');
+        const simulationSeedInput = document.getElementById('simulationSeed'); // New seed input
         const stressTestModeCheckbox = document.getElementById('stressTestMode');
 
         const simulationTableBody = document.querySelector('#simulationTable tbody');
@@ -427,13 +411,15 @@
         const totalCashbackPaidSpan = document.getElementById('totalCashbackPaid');
         const netFundPerformanceSpan = document.getElementById('netFundPerformance');
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
-        const chartCanvas = document.getElementById('simulationChart');
-        const netPayoutObligationChartCanvas = document.getElementById('netPayoutObligationChart');
-        const surplusDeficitChartCanvas = document.getElementById('surplusDeficitChart');
+        // Removed chart canvas elements
+        // const chartCanvas = document.getElementById('simulationChart');
+        // const netPayoutObligationChartCanvas = document.getElementById('netPayoutObligationChart');
+        // const surplusDeficitChartCanvas = document.getElementById('surplusDeficitChart');
 
-        let simulationChart; // To store the Chart.js instance
-        let netPayoutObligationChartInstance;
-        let surplusDeficitChartInstance;
+        // Removed chart instances
+        // let simulationChart;
+        // let netPayoutObligationChartInstance;
+        // let surplusDeficitChartInstance;
 
         // New table bodies
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
@@ -444,6 +430,22 @@
 
         let monthlySimulationResults = []; // Store results for daily log selection (includes extended months)
         let monthlyPurchaseData = []; // Store only the first 12 months of purchase data for display
+
+        // --- Seeded Random Number Generator ---
+        // Simple Linear Congruential Generator (LCG)
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed % 2147483647; // Modulo to keep it within a reasonable range for LCG
+                if (this.seed <= 0) this.seed += 2147483646; // Ensure positive seed
+            }
+
+            next() {
+                this.seed = (this.seed * 16807) % 2147483647;
+                return (this.seed - 1) / 2147483646; // Return a value between 0 (inclusive) and 1 (exclusive)
+            }
+        }
+
+        let rng = null; // Global instance of the seeded random generator
 
         // --- Helper Functions ---
 
@@ -500,9 +502,10 @@
          * Ensures the exact win rate is met.
          * @param {number} totalTrades - Total number of trades.
          * @param {number} winRatePercent - Win rate as a percentage (e.g., 60).
+         * @param {SeededRandom} rngInstance - The seeded random number generator instance.
          * @returns {boolean[]} An array where true is a win, false is a loss.
          */
-        const generateTradeOutcomes = (totalTrades, winRatePercent) => {
+        const generateTradeOutcomes = (totalTrades, winRatePercent, rngInstance) => {
             const numWins = Math.round(totalTrades * (winRatePercent / 100));
             const numLosses = totalTrades - numWins;
 
@@ -514,9 +517,9 @@
                 outcomes.push(false); // Loss
             }
 
-            // Shuffle the array (Fisher-Yates algorithm)
+            // Shuffle the array (Fisher-Yates algorithm) using the seeded RNG
             for (let i = outcomes.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
+                const j = Math.floor(rngInstance.next() * (i + 1)); // Use rngInstance.next()
                 [outcomes[i], outcomes[j]] = [outcomes[j], outcomes[i]];
             }
             return outcomes;
@@ -562,6 +565,11 @@
             // currentTradingFundAtStartOfMonth represents the fund balance at the very beginning of each month,
             // before that month's new contributions are added.
             let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
+
+            // Initialize Seeded Random Number Generator
+            const seedValue = parseInt(simulationSeedInput.value);
+            rng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
+
 
             // Parse Start Date to be consistently in America/Jamaica timezone
             let initialDate;
@@ -653,7 +661,7 @@
 
                 // Simulate Weekly Trades (20 trades per month) - This part is primarily for monthly overview
                 // The detailed daily trade simulation happens in runCumulativeDailySimulation
-                const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate);
+                const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate, rng); // Pass rng
                 let fundAfterTrades = capitalForTradingThisMonth; // Start trading with this combined capital
 
                 for (let week = 0; week < TRADING_WEEKS_PER_MONTH; week++) {
@@ -748,9 +756,10 @@
             updateTable(monthlyPurchaseData);
             updateCombinedPayoutTable(monthlyPurchaseData);
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, currentTradingFundAtStartOfMonth, overallPayoutSuccess);
-            updateChart(monthlyPurchaseData);
-            updateNetPayoutObligationChart(monthlyPurchaseData);
-            updateSurplusDeficitChart(monthlyPurchaseData);
+            // Removed chart update calls
+            // updateChart(monthlyPurchaseData);
+            // updateNetPayoutObligationChart(monthlyPurchaseData);
+            // updateSurplusDeficitChart(monthlyPurchaseData);
             // Automatically run cumulative daily simulation
             runCumulativeDailySimulation();
         };
@@ -867,196 +876,9 @@
             }
         };
 
-        /**
-         * Updates or creates the Chart.js graph for Ending Trading Capital and Cashback Owed.
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
-         */
-        const updateChart = (results) => {
-            const labels = results.map(data => `Month ${data.month}`);
-            const tradingFundData = results.map(data => data.endingTradingCapital);
-            const cashbackOwedData = results.map(data => data.cashbackAccruedThisMonth);
-
-            if (simulationChart) {
-                simulationChart.destroy(); // Destroy existing chart before creating a new one
-            }
-
-            simulationChart = new Chart(chartCanvas, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Ending Trading Capital',
-                            data: tradingFundData,
-                            borderColor: '#3b82f6', // Tailwind blue-500
-                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                            fill: true,
-                            tension: 0.1
-                        },
-                        {
-                            label: 'Cashback Owed (Accrued Monthly)',
-                            data: cashbackOwedData,
-                            borderColor: '#8b5cf6', // Tailwind purple-500
-                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                            fill: true,
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Amount (J$)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Month'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Trading Fund vs. Cashback Owed Over 12 Months',
-                            font: {
-                                size: 18
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        /**
-         * Updates or creates the Chart.js graph for Net Payout Obligation.
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
-         */
-        const updateNetPayoutObligationChart = (results) => {
-            const labels = results.map(data => `Month ${data.month}`);
-            const netPayoutData = results.map(data => data.accruedNetPayoutObligation);
-
-            if (netPayoutObligationChartInstance) {
-                netPayoutObligationChartInstance.destroy();
-            }
-
-            netPayoutObligationChartInstance = new Chart(netPayoutObligationChartCanvas, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Net Payout Obligation (J$)',
-                            data: netPayoutData,
-                            backgroundColor: '#f97316', // Tailwind orange-500
-                            borderColor: '#ea580c',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Amount (J$)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Month'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Net Payout Obligation Over 12 Months',
-                            font: {
-                                size: 18
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        /**
-         * Updates or creates the Chart.js graph for Fund Balance After Payout.
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
-         */
-        const updateSurplusDeficitChart = (results) => {
-            const labels = results.map(data => `Month ${data.month}`);
-            const fundBalanceData = results.map(data => {
-                // For this chart, we want the actual fund balance after payout
-                return data.actualPayoutSurplusDeficit;
-            });
-
-            if (surplusDeficitChartInstance) {
-                surplusDeficitChartInstance.destroy();
-            }
-
-            surplusDeficitChartInstance = new Chart(surplusDeficitChartCanvas, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Fund Balance After Payout (J$)',
-                            data: fundBalanceData,
-                            borderColor: (context) => {
-                                const value = context.raw;
-                                return value >= 0 ? '#22c55e' : '#ef4444'; // Green for surplus, Red for deficit
-                            },
-                            backgroundColor: (context) => {
-                                const value = context.raw;
-                                return value >= 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-                            },
-                            fill: true,
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false, // Allow negative values for deficit
-                            title: {
-                                display: true,
-                                text: 'Amount (J$)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Month'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Fund Balance After Payout Over 12 Months',
-                            font: {
-                                size: 18
-                            }
-                        }
-                    }
-                }
-            });
-        };
+        // Removed updateChart function
+        // Removed updateNetPayoutObligationChart function
+        // Removed updateSurplusDeficitChart function
 
 
         // --- Cumulative Daily Simulation Logic ---
@@ -1088,20 +910,18 @@
             const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
             const winRate = parseFloat(winRateInput.value);
 
-            // Pre-calculate all trade outcomes for the entire period
-            // We need enough outcomes for roughly 2 trades per week for the duration of the simulation.
+            // Pre-calculate all trade outcomes for the entire period using the seeded RNG
             const totalDaysInPeriod = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             const totalWeeksInPeriod = Math.ceil(totalDaysInPeriod / 7);
             const maxPossibleTrades = totalWeeksInPeriod * 2; // Max 2 trades per week
 
-            // Generate enough trade outcomes for the maximum possible trades
-            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate);
+            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate, rng); // Pass rng here
 
             let dayCounter = 1;
             let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
 
             let tradesThisWeek = 0;
-            let currentWeekStartDay = currentDate.getUTCDay(); // 0 for Sunday, 1 for Monday...
+            // The `currentWeekStartDay` logic is implicitly handled by resetting `tradesThisWeek` on Monday (day 1)
 
             // Store monthly contribution amounts and their respective purchase dates
             const monthlyContributionsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> contributionAmount
@@ -1190,33 +1010,29 @@
                 // A day is a "Trading Day?" only if it's a weekday AND it's a designated trade day AND no other events occurred.
                 let isTradingDayForDisplay = false; // Default to false
 
+                // A trade occurs if it's a weekday, no other events, and we haven't hit the weekly trade limit
                 const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < 2;
 
                 if (canTradeOnThisDay && tradeOutcomes.length > 0) {
-                    // Randomly decide if a trade occurs on this specific eligible day.
-                    // Since we want max 2 trades over 5 weekdays, average chance is 2/5 = 0.4
-                    const shouldTrade = Math.random() < 0.4;
+                    // Consume a pre-generated trade outcome if eligible for a trade
+                    const isWin = tradeOutcomes.shift(); // Use shift to consume from the beginning of the pre-generated array
+                    const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
 
-                    if (shouldTrade) {
-                        const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
-                        const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
-
-                        let tradeGainLossAmount;
-                        if (isWin) {
-                            tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
-                            if (eventType === 'No Event') eventType = 'Trade (Win)';
-                            else eventType += ' & Trade (Win)';
-                        } else {
-                            tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
-                            if (eventType === 'No Event') eventType = 'Trade (Loss)';
-                            else eventType += ' & Trade (Loss)';
-                        }
-                        currentDailyCapital += tradeGainLossAmount;
-                        dailyNetChange += tradeGainLossAmount;
-                        eventOccurred = true;
-                        tradesThisWeek++; // Increment trade count for the current week
-                        isTradingDayForDisplay = true; // Mark as a trading day for display
+                    let tradeGainLossAmount;
+                    if (isWin) {
+                        tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
+                        if (eventType === 'No Event') eventType = 'Trade (Win)';
+                        else eventType += ' & Trade (Win)';
+                    } else {
+                        tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
+                        if (eventType === 'No Event') eventType = 'Trade (Loss)';
+                        else eventType += ' & Trade (Loss)';
                     }
+                    currentDailyCapital += tradeGainLossAmount;
+                    dailyNetChange += tradeGainLossAmount;
+                    eventOccurred = true;
+                    tradesThisWeek++; // Increment trade count for the current week
+                    isTradingDayForDisplay = true; // Mark as a trading day for display
                 }
 
                 const row = `
@@ -1272,6 +1088,7 @@
         avgWeeklyWinInput.addEventListener('input', runSimulation);
         maxWeeklyLossInput.addEventListener('input', runSimulation);
         winRateInput.addEventListener('input', runSimulation);
+        simulationSeedInput.addEventListener('input', runSimulation); // New: Listen to seed changes
         stressTestModeCheckbox.addEventListener('change', runSimulation);
 
         // Set default start date to today and run initial simulation
