@@ -376,8 +376,8 @@
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 20; // Used for monthly simulation
-        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 20 * 12; // Roughly 20 trades per month for 12 months, adjust as needed for daily granularity
+        const TRADING_WEEKS_PER_MONTH = 8; // Used for monthly simulation (approx 2 trades per week)
+        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 8 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
         // Calculate the number of extra months needed for payouts to complete
         // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
@@ -641,7 +641,7 @@
                 // Capital available for trading this month (Starting Capital + Monthly Contribution)
                 let capitalForTradingThisMonth = currentTradingFundAtStartOfMonth + monthlyContributionForCurrentMonth;
 
-                // Simulate Weekly Trades (20 trades per month)
+                // Simulate Weekly Trades (8 trades per month)
                 const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate);
                 let fundAfterTrades = capitalForTradingThisMonth; // Start trading with this combined capital
 
