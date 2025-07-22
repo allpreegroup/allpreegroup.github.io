@@ -611,32 +611,40 @@
                     fundAfterTrades += gainLossAmount;
                 }
 
-                monthData.endingTradingCapitalBeforePayout = fundAfterTrades; // Fund after trades, before any payouts
+                // Store the fund's status *before* any potential payout for a past month's purchases
+                monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
 
                 // --- Handle Delayed Payouts (Actual Deductions) ---
-                monthData.cashbackToPayThisMonth = 0; // Net amount the trading fund needs to cover (actual deduction)
-                monthData.surplusDeficit = 0;
-                monthData.payoutMet = false;
+                // Initialize payout-related fields for the *current* month's purchases to null
+                monthData.actualPayoutSurplusDeficit = null; // Will store the actual outcome for *this month's purchases*
+                monthData.actualPayoutMetStatus = null; // Will store "Met" or "Shortfall" for *this month's purchases*
 
                 const payoutSourceMonthIndex = monthIndex - (Math.floor(PAYOUT_DELAY_DAYS / 30.4375)); // Approx months delay
-                // If the payoutSourceMonthIndex is valid (i.e., we have data from that far back)
+
+                // If a payout for a *past month's purchases* is due in *this current month*
                 if (payoutSourceMonthIndex >= 0 && monthlySimulationResults[payoutSourceMonthIndex]) {
-                    const owedFromPastFull = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth; // Full cashback originally owed
+                    const owedFromPastFull = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth;
                     const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
-                    monthData.cashbackToPayThisMonth = netCashbackToCoverByTradingFund;
+
+                    let payoutSurplusDeficitForPastMonth;
+                    let payoutMetStatusForPastMonth;
 
                     if (fundAfterTrades >= netCashbackToCoverByTradingFund) {
-                        fundAfterTrades -= netCashbackToCoverByTradingFund; // Deduct only the portion trading fund is responsible for
-                        totalCashbackPaid += owedFromPastFull; // User receives the full amount (markup + fund)
-                        monthData.surplusDeficit = fundAfterTrades; // Remaining fund after payout
-                        monthData.payoutMet = true;
+                        fundAfterTrades -= netCashbackToCoverByTradingFund;
+                        totalCashbackPaid += owedFromPastFull;
+                        payoutSurplusDeficitForPastMonth = fundAfterTrades; // Remaining fund after this specific payout
+                        payoutMetStatusForPastMonth = true; // Payout was met
                     } else {
-                        monthData.surplusDeficit = fundAfterTrades - netCashbackToCoverByTradingFund; // Negative value for deficit
-                        overallPayoutSuccess = false; // Mark overall status as failed
-                        totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup; // Pay what's available from fund + markup covers
-                        fundAfterTrades = 0; // Fund is depleted
-                        monthData.payoutMet = false;
+                        payoutSurplusDeficitForPastMonth = fundAfterTrades - netCashbackToCoverByTradingFund; // Negative value
+                        overallPayoutSuccess = false;
+                        totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup;
+                        fundAfterTrades = 0; // Fund depleted
+                        payoutMetStatusForPastMonth = false; // Payout was a shortfall
                     }
+
+                    // Store the actual payout outcome back into the *original purchase month's* data
+                    monthlySimulationResults[payoutSourceMonthIndex].actualPayoutSurplusDeficit = payoutSurplusDeficitForPastMonth;
+                    monthlySimulationResults[payoutSourceMonthIndex].actualPayoutMetStatus = payoutMetStatusForPastMonth;
                 }
 
                 monthData.endingTradingCapital = fundAfterTrades; // Final ending capital for the month
@@ -699,24 +707,18 @@
                 let payoutMetDisplay;
                 let payoutMetClass;
 
-                // Determine if an actual payout for a *past* purchase is due this month
-                // This is based on `data.cashbackToPayThisMonth` being greater than 0,
-                // which is set in runSimulation when `payoutSourceMonthIndex >= 0`.
-                if (data.cashbackToPayThisMonth > 0) {
-                    // Actual payout month - display real surplus/deficit after deduction
-                    surplusDeficitDisplay = formatCurrency(data.surplusDeficit);
-                    surplusDeficitClass = data.surplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
-                    payoutMetDisplay = data.payoutMet ? 'Met' : 'Shortfall';
-                    payoutMetClass = data.payoutMet ? 'text-green-600' : 'text-red-600';
+                // Check if the actual payout for *this specific month's purchases* has occurred and its result is stored
+                if (data.actualPayoutSurplusDeficit !== null) {
+                    surplusDeficitDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
+                    surplusDeficitClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
+                    payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
+                    payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // Month where no actual payout is due yet for a past purchase.
-                    // Calculate a 'notional' surplus/deficit: Ending Capital - Accrued Obligation for this month's purchases.
-                    // This shows the fund's position *relative to its future liability* for this month's purchases.
-                    const notionalSurplusDeficit = data.endingTradingCapital - data.accruedNetPayoutObligation;
-                    surplusDeficitDisplay = formatCurrency(notionalSurplusDeficit);
-                    surplusDeficitClass = notionalSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600'; // Still use green/red for notional
-                    payoutMetDisplay = 'Accruing'; // Indicate that cashback is accruing for future payout
-                    payoutMetClass = 'text-orange-600'; // Indicate pending/future
+                    // Payout for this month's purchases is not yet due/processed
+                    surplusDeficitDisplay = 'N/A';
+                    surplusDeficitClass = 'text-gray-500';
+                    payoutMetDisplay = 'Accruing';
+                    payoutMetClass = 'text-orange-600';
                 }
 
                 const row = `
@@ -895,8 +897,8 @@
             const labels = results.map(data => `Month ${data.month}`);
             // For months where payout is pending, surplusDeficit is 0, so we use accruedNetPayoutObligation as a proxy (negative)
             const surplusDeficitData = results.map(data => {
-                if (data.cashbackToPayThisMonth > 0) {
-                    return data.surplusDeficit; // Actual surplus/deficit
+                if (data.actualPayoutSurplusDeficit !== null) {
+                    return data.actualPayoutSurplusDeficit; // Actual surplus/deficit
                 } else {
                     return -data.accruedNetPayoutObligation; // Show accrued obligation as negative on chart
                 }
