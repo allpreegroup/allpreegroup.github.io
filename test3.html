@@ -245,7 +245,11 @@
             </div>
             <div class="input-field">
                 <label for="vouchersPerMonth">Vouchers per Month:</label>
-                <input type="number" id="vouchersPerMonth" value="1" min="1" max="10">
+                <select id="vouchersPerMonth">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                </select>
             </div>
             <div class="input-field">
                 <label for="markupRate">Markup Rate (%):</label>
@@ -505,7 +509,7 @@
             const selectedTier = membershipTierInput.value;
             const simulationStartDateString = simulationStartDateInput.value;
             const voucherValue = parseInt(voucherValueInput.value);
-            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value);
+            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value); // Now reads from select
             const markupRate = parseFloat(markupRateInput.value) / 100; // Convert to decimal
             const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100; // Convert to decimal
             let avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100; // Convert to decimal
@@ -1167,7 +1171,11 @@
             updateInitialTradingFundDefault(); // Update default initial fund when voucher value changes
             runSimulation(); // Run simulation after updating initial fund
         });
-        vouchersPerMonthInput.addEventListener('input', runSimulation);
+        // Modified: Vouchers per Month now triggers updateInitialTradingFundDefault
+        vouchersPerMonthInput.addEventListener('change', () => {
+            updateInitialTradingFundDefault(); // Update default initial fund when vouchers per month changes
+            runSimulation(); // Run simulation after updating initial fund
+        });
         markupRateInput.addEventListener('input', runSimulation);
         markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
         initialTradingFundInput.addEventListener('input', runSimulation);
