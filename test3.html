@@ -304,6 +304,14 @@
             <canvas id="simulationChart"></canvas>
         </div>
 
+        <div class="chart-container">
+            <canvas id="netPayoutObligationChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="surplusDeficitChart"></canvas>
+        </div>
+
         <!-- Daily Trading Log Section -->
         <div class="daily-log-section">
             <h2>Daily Trading Log (121-Day Cycle)</h2>
@@ -376,7 +384,12 @@
         const netFundPerformanceSpan = document.getElementById('netFundPerformance');
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
         const chartCanvas = document.getElementById('simulationChart');
+        const netPayoutObligationChartCanvas = document.getElementById('netPayoutObligationChart');
+        const surplusDeficitChartCanvas = document.getElementById('surplusDeficitChart');
+
         let simulationChart; // To store the Chart.js instance
+        let netPayoutObligationChartInstance;
+        let surplusDeficitChartInstance;
 
         // Daily Log DOM Elements
         const dailyLogMonthSelector = document.getElementById('dailyLogMonthSelector');
@@ -611,6 +624,8 @@
             updateTable(monthlySimulationResults);
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, currentTradingFundAtStartOfMonth, overallPayoutSuccess);
             updateChart(monthlySimulationResults);
+            updateNetPayoutObligationChart(monthlySimulationResults); // New chart update
+            updateSurplusDeficitChart(monthlySimulationResults); // New chart update
             populateDailyLogDropdown(monthlySimulationResults); // Populate dropdown after monthly sim
             // Automatically run daily simulation for the first month
             if (monthlySimulationResults.length > 0) {
@@ -694,7 +709,7 @@
         };
 
         /**
-         * Updates or creates the Chart.js graph.
+         * Updates or creates the Chart.js graph for Ending Trading Capital and Cashback Owed.
          * @param {Array<Object>} results - The array of monthly simulation data.
          */
         const updateChart = (results) => {
@@ -759,6 +774,135 @@
                 }
             });
         };
+
+        /**
+         * Updates or creates the Chart.js graph for Net Payout Obligation.
+         * @param {Array<Object>} results - The array of monthly simulation data.
+         */
+        const updateNetPayoutObligationChart = (results) => {
+            const labels = results.map(data => `Month ${data.month}`);
+            const netPayoutData = results.map(data => data.accruedNetPayoutObligation);
+
+            if (netPayoutObligationChartInstance) {
+                netPayoutObligationChartInstance.destroy();
+            }
+
+            netPayoutObligationChartInstance = new Chart(netPayoutObligationChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Net Payout Obligation (J$)',
+                            data: netPayoutData,
+                            backgroundColor: '#f97316', // Tailwind orange-500
+                            borderColor: '#ea580c',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (J$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Net Payout Obligation Over 12 Months',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        /**
+         * Updates or creates the Chart.js graph for Surplus/Deficit vs. Payout.
+         * @param {Array<Object>} results - The array of monthly simulation data.
+         */
+        const updateSurplusDeficitChart = (results) => {
+            const labels = results.map(data => `Month ${data.month}`);
+            // For months where payout is pending, surplusDeficit is 0, so we use accruedNetPayoutObligation as a proxy (negative)
+            const surplusDeficitData = results.map(data => {
+                if (data.cashbackToPayThisMonth > 0) {
+                    return data.surplusDeficit; // Actual surplus/deficit
+                } else {
+                    return -data.accruedNetPayoutObligation; // Pending obligation shown as negative
+                }
+            });
+
+            if (surplusDeficitChartInstance) {
+                surplusDeficitChartInstance.destroy();
+            }
+
+            surplusDeficitChartInstance = new Chart(surplusDeficitChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Surplus/Deficit vs. Payout (J$)',
+                            data: surplusDeficitData,
+                            borderColor: (context) => {
+                                const value = context.raw;
+                                return value >= 0 ? '#22c55e' : '#ef4444'; // Green for surplus, Red for deficit
+                            },
+                            backgroundColor: (context) => {
+                                const value = context.raw;
+                                return value >= 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                            },
+                            fill: true,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false, // Allow negative values for deficit
+                            title: {
+                                display: true,
+                                text: 'Amount (J$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Surplus/Deficit vs. Payout Over 12 Months',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
 
         // --- Daily Simulation Logic ---
 
