@@ -289,6 +289,7 @@
                         <th class="px-6 py-3">Purchase Date</th>
                         <th class="px-6 py-3">Starting Trading Capital (J$)</th>
                         <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
+                        <th class="px-6 py-3">Payout Deducted (J$)</th> <!-- New column -->
                         <th class="px-6 py-3">Ending Capital (J$)</th>
                     </tr>
                 </thead>
@@ -330,6 +331,7 @@
                             <th class="px-6 py-3">Cashback Due Date</th>
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Net Payout Obligation (J$)</th>
+                            <th class="px-6 py-3">Payout Deducted (J$)</th> <!-- New column here -->
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
@@ -344,11 +346,8 @@
 
         <!-- Daily Trading Log Section -->
         <div class="daily-log-section">
-            <h2>Daily Trading Log (121-Day Cycle)</h2>
-            <div class="daily-log-controls">
-                <label for="dailyLogMonthSelector" class="mr-2">Select Purchase Month:</label>
-                <select id="dailyLogMonthSelector"></select>
-            </div>
+            <h2>Cumulative Daily Trading Log</h2>
+            <!-- Removed dailyLogMonthSelector as it's now a cumulative log -->
             <div class="overflow-x-auto">
                 <table id="dailyLogTable" class="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -357,11 +356,12 @@
                             <th class="px-6 py-3">Date</th>
                             <th class="px-6 py-3">Day of Week</th>
                             <th class="px-6 py-3">Trading Day?</th>
-                            <th class="px-6 py-3">Trade Occurred?</th>
-                            <th class="px-6 py-3">Trade Outcome</th>
-                            <th class="px-6 py-3">Gain/Loss (J$)</th>
-                            <th class="px-6 py-3">Capital Before Trade (J$)</th>
-                            <th class="px-6 py-3">Capital After Trade (J$)</th>
+                            <th class="px-6 py-3">Event Occurred?</th>
+                            <th class="px-6 py-3">Event Type</th>
+                            <th class="px-6 py-3">Net Change (J$)</th>
+                            <th class="px-6 py-3">Payout Obligation (J$)</th> <!-- New column here -->
+                            <th class="px-6 py-3">Capital Before Event (J$)</th>
+                            <th class="px-6 py-3">Capital After Event (J$)</th>
                         </tr>
                     </thead>
                 <tbody>
@@ -376,8 +376,8 @@
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 20;
-        const TOTAL_TRADES_FOR_DAILY_LOG = 20;
+        const TRADING_WEEKS_PER_MONTH = 20; // Used for monthly simulation
+        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 20 * 12; // Roughly 20 trades per month for 12 months, adjust as needed for daily granularity
         // Calculate the number of extra months needed for payouts to complete
         // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
@@ -430,8 +430,7 @@
 
 
         // Daily Log DOM Elements
-        const dailyLogMonthSelector = document.getElementById('dailyLogMonthSelector');
-        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody');
+        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody'); // Removed selector dropdown
 
         let monthlySimulationResults = []; // Store results for daily log selection (includes extended months)
         let monthlyPurchaseData = []; // Store only the first 12 months of purchase data for display
@@ -576,7 +575,9 @@
             for (let monthIndex = 0; monthIndex < TOTAL_SIMULATION_MONTHS; monthIndex++) {
                 const monthData = {
                     actualPayoutSurplusDeficit: null, // Explicitly initialize
-                    actualPayoutMetStatus: null      // Explicitly initialize
+                    actualPayoutMetStatus: null,      // Explicitly initialize
+                    payoutDeductedInThisMonth: 0,     // Initialize new field for explicit deduction (accumulates for this sim month)
+                    actualDeductionForThisPurchaseMonth: 0 // Initialize for combinedPayoutTable
                 };
 
                 // For the first 12 months, calculate purchase-related data
@@ -651,24 +652,32 @@
                     // Only process if it's a purchase month (i.e., i < 12) and its payout hasn't been processed yet
                     if (i < 12 && pastMonthData.purchaseDate && pastMonthData.actualPayoutMetStatus === null) {
                         const payoutDateForPastPurchase = addDays(pastMonthData.purchaseDate, PAYOUT_DELAY_DAYS);
+                        // The actual payout should happen at the end of the month of the 121st day
+                        const payoutMonthEndDateForPastPurchase = getEndOfMonth(payoutDateForPastPurchase);
 
-                        // Check if this payoutDateForPastPurchase is due by the end of the current simulation month
-                        if (payoutDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
+                        // Check if this payoutMonthEndDateForPastPurchase is due by the end of the current simulation month
+                        if (payoutMonthEndDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
                             const owedFromPastFull = pastMonthData.cashbackAccruedThisMonth;
                             const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
 
                             let payoutSurplusDeficitForPastMonth;
                             let payoutMetStatusForPastMonth;
 
-                            if (fundAfterTrades >= netCashbackToCoverByTradingFund) {
-                                fundAfterTrades -= netCashbackToCoverByTradingFund;
-                                totalCashbackPaid += owedFromPastFull;
+                            const actualDeduction = Math.min(fundAfterTrades, netCashbackToCoverByTradingFund);
+
+                            fundAfterTrades -= actualDeduction;
+                            monthData.payoutDeductedInThisMonth += actualDeduction; // Accumulate deductions for this month in current simulation month
+                            pastMonthData.actualDeductionForThisPurchaseMonth = actualDeduction; // Store for combinedPayoutTable
+
+                            if (actualDeduction === netCashbackToCoverByTradingFund) {
+                                totalCashbackPaid += owedFromPastFull; // Full cashback was paid
                                 payoutSurplusDeficitForPastMonth = fundAfterTrades; // Remaining fund after this specific payout
                                 payoutMetStatusForPastMonth = true; // Payout was met
                             } else {
-                                payoutSurplusDeficitForPastMonth = fundAfterTrades - netCashbackToCoverByTradingFund; // Negative value
+                                // Shortfall occurred for this specific payout
+                                payoutSurplusDeficitForPastMonth = fundAfterTrades; // Remaining fund after partial payout
                                 overallPayoutSuccess = false;
-                                totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup; // Only what could be paid
+                                totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup; // Only what could be paid from fund + markup
                                 fundAfterTrades = 0; // Fund depleted
                                 payoutMetStatusForPastMonth = false; // Payout was a shortfall
                             }
@@ -711,12 +720,8 @@
             updateChart(monthlyPurchaseData);
             updateNetPayoutObligationChart(monthlyPurchaseData);
             updateSurplusDeficitChart(monthlyPurchaseData);
-            populateDailyLogDropdown(monthlyPurchaseData);
-            // Automatically run daily simulation for the first month
-            if (monthlyPurchaseData.length > 0) {
-                dailyLogMonthSelector.value = 0; // Select the first month by default
-                runDailySimulation(0); // Run daily sim for the first month
-            }
+            // Automatically run cumulative daily simulation
+            runCumulativeDailySimulation();
         };
 
         /**
@@ -733,6 +738,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.startingTradingCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${data.payoutDeductedInThisMonth > 0 ? 'text-red-600' : 'text-gray-600'}">${formatCurrency(data.payoutDeductedInThisMonth)}</td> <!-- New cell -->
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.endingTradingCapital)}</td>
                     </tr>
                 `;
@@ -752,6 +758,8 @@
                 let fundBalanceClass;
                 let payoutMetDisplay;
                 let payoutMetClass;
+                let payoutDeductedDisplay;
+                let payoutDeductedClass;
 
                 // For Fund Balance After Payout: Always use the actual payout surplus/deficit if available.
                 if (data.actualPayoutSurplusDeficit !== null) {
@@ -773,12 +781,23 @@
                     payoutMetClass = 'text-gray-500';
                 }
 
+                // For Payout Deducted (J$): Use the new actualDeductionForThisPurchaseMonth
+                if (data.actualDeductionForThisPurchaseMonth !== undefined) {
+                    payoutDeductedDisplay = formatCurrency(data.actualDeductionForThisPurchaseMonth);
+                    payoutDeductedClass = data.actualDeductionForThisPurchaseMonth > 0 ? 'text-red-600' : 'text-gray-600';
+                } else {
+                    payoutDeductedDisplay = 'N/A';
+                    payoutDeductedClass = 'text-gray-500';
+                }
+
+
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td> <!-- New cell here -->
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
@@ -1009,43 +1028,70 @@
         };
 
 
-        // --- Daily Simulation Logic ---
+        // --- Cumulative Daily Simulation Logic ---
 
         /**
-         * Populates the dropdown for selecting a month for the daily log.
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
+         * Runs the cumulative daily simulation for the entire period.
          */
-        const populateDailyLogDropdown = (results) => {
-            dailyLogMonthSelector.innerHTML = ''; // Clear existing options
-            results.forEach((data, index) => {
-                const option = document.createElement('option');
-                option.value = index; // Store the index of the month in the results array
-                option.textContent = `Month ${data.month} (Purchase: ${data.purchaseDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })})`;
-                dailyLogMonthSelector.appendChild(option);
-            });
-        };
-
-        /**
-         * Runs the daily simulation for a selected 121-day period.
-         * @param {number} selectedMonthIndex - The index of the month from monthlyPurchaseData to simulate daily.
-         */
-        const runDailySimulation = (selectedMonthIndex) => {
+        const runCumulativeDailySimulation = () => {
             dailyLogTableBody.innerHTML = ''; // Clear existing rows
 
-            if (selectedMonthIndex === undefined || monthlyPurchaseData.length === 0) {
+            if (monthlyPurchaseData.length === 0) {
                 return; // No data to simulate
             }
 
-            const monthData = monthlyPurchaseData[selectedMonthIndex];
-            const startDateForDailyLog = new Date(monthData.purchaseDate);
-            const endDateForDailyLog = addDays(startDateForDailyLog, PAYOUT_DELAY_DAYS - 1);
+            const startDate = new Date(simulationStartDateInput.value);
+            startDate.setHours(0, 0, 0, 0);
 
-            // Parameters for daily trading
+            // Determine the absolute end date for the cumulative log: payout month-end of the LAST purchase month
+            const lastPurchaseMonthData = monthlyPurchaseData[11]; // Assuming 12 purchase months always
+            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd);
+            endDate.setHours(0, 0, 0, 0);
+
+            // Initial capital for the daily log starts with the user's input initial fund
+            let currentDailyCapital = parseFloat(initialTradingFundInput.value);
+
+            // Get parameters for daily trading
             const avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
             const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
             const winRate = parseFloat(winRateInput.value);
 
-            // Calculate the actual monthly fund contribution for THIS specific month (index 0 for first month, or standard for others)
+            // Pre-calculate all trade outcomes for the entire period
+            const totalDaysInPeriod = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1; // +1 to include end date
+            const estimatedTradingDays = Math.floor(totalDaysInPeriod * (5 / 7)); // Approx weekdays
+            // Distribute TOTAL_TRADES_FOR_CUMULATIVE_LOG randomly over the estimated trading days
+            const totalTradesToDistribute = Math.max(TOTAL_TRADES_FOR_CUMULATIVE_LOG, Math.floor(estimatedTradingDays / 2)); // Ensure enough trades for the long period
+
+            const tradeOutcomes = generateTradeOutcomes(totalTradesToDistribute, winRate);
+            const tradeDays = new Set(); // Stores dates where a trade will occur
+
+            // Randomly select `totalTradesToDistribute` weekdays for trades
+            const allWeekdays = [];
+            let tempDateForWeekdays = new Date(startDate);
+            while (tempDateForWeekdays <= endDate) {
+                if (tempDateForWeekdays.getDay() !== 0 && tempDateForWeekdays.getDay() !== 6) { // Not Sunday or Saturday
+                    allWeekdays.push(new Date(tempDateForWeekdays));
+                }
+                tempDateForWeekdays.setDate(tempDateForWeekdays.getDate() + 1);
+            }
+
+            // Shuffle and pick trade days
+            for (let i = allWeekdays.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allWeekdays[i], allWeekdays[j]] = [allWeekdays[j], allWeekdays[i]];
+            }
+            for (let i = 0; i < Math.min(totalTradesToDistribute, allWeekdays.length); i++) {
+                tradeDays.add(allWeekdays[i].toDateString());
+            }
+
+            let dayCounter = 1;
+            let currentDate = new Date(startDate);
+
+            // Store monthly contribution amounts and their respective purchase dates
+            const monthlyContributionsMap = new Map(); // Map: dateString -> contributionAmount
+            const monthlyPayoutsMap = new Map(); // Map: dateString -> Array of { netObligation, actualDeduction }
+
+            // Populate contributions and payouts map from monthlyPurchaseData
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
             const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
@@ -1054,83 +1100,112 @@
             const monthlyTradingFundContribution = monthlyVoucherSpend * markupRate * markupAllocationToTradingFund;
             const oneTimeMembershipFundAddition = tierConfig.fee * 0.50;
 
-            let monthlyContributionForDailyLog;
-            if (selectedMonthIndex === 0) {
-                monthlyContributionForDailyLog = monthlyTradingFundContribution + oneTimeMembershipFundAddition;
-            } else {
-                monthlyContributionForDailyLog = monthlyTradingFundContribution;
+            // Month 1 Contribution (includes one-time membership addition)
+            const month1PurchaseDate = new Date(monthlyPurchaseData[0].purchaseDate);
+            month1PurchaseDate.setHours(0, 0, 0, 0);
+            monthlyContributionsMap.set(month1PurchaseDate.toDateString(), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
+
+            // Other 11 months contributions (standard monthly contribution)
+            for (let i = 1; i < 12; i++) { // Start from month 2 (index 1)
+                const purchaseDate = new Date(monthlyPurchaseData[i].purchaseDate);
+                purchaseDate.setHours(0, 0, 0, 0);
+                monthlyContributionsMap.set(purchaseDate.toDateString(), monthlyTradingFundContribution);
             }
 
-            // Start daily capital with the *previous month's ending capital* (which is monthData.startingTradingCapital)
-            // PLUS the contribution for the *current* month being detailed in the daily log.
-            let currentDailyCapital = monthData.startingTradingCapital + monthlyContributionForDailyLog;
-
-
-            // Generate all trade outcomes for the 121-day period
-            const tradeOutcomes = generateTradeOutcomes(TOTAL_TRADES_FOR_DAILY_LOG, winRate);
-            const tradingDaysWithTrades = new Set();
-
-            const allTradingDaysInPeriod = [];
-            let tempDate = new Date(startDateForDailyLog);
-            while (tempDate <= endDateForDailyLog) {
-                const dayOfWeek = tempDate.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Is a weekday
-                    allTradingDaysInPeriod.push(new Date(tempDate));
+            // Populate payouts map for all 12 purchase months
+            for (let i = 0; i < 12; i++) {
+                const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
+                payoutDate.setHours(0, 0, 0, 0);
+                const payoutInfo = {
+                    netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
+                    actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
+                };
+                if (monthlyPayoutsMap.has(payoutDate.toDateString())) {
+                    monthlyPayoutsMap.get(payoutDate.toDateString()).push(payoutInfo);
+                } else {
+                    monthlyPayoutsMap.set(payoutDate.toDateString(), [payoutInfo]);
                 }
-                tempDate.setDate(tempDate.getDate() + 1);
             }
 
-            const shuffledTradingDays = [...allTradingDaysInPeriod].sort(() => 0.5 - Math.random());
-            for (let i = 0; i < Math.min(TOTAL_TRADES_FOR_DAILY_LOG, shuffledTradingDays.length); i++) {
-                tradingDaysWithTrades.add(shuffledTradingDays[i].toDateString());
-            }
+            // Iterate through each day of the cumulative simulation period
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                const isTradingDay = (dayOfWeek !== 0 && dayOfWeek !== 6); // Monday-Friday
 
-            let dayCounter = 1;
-            tempDate = new Date(startDateForDailyLog);
+                let eventOccurred = false;
+                let eventType = 'No Event';
+                let dailyNetChange = 0; // Net change for the 'Net Change (J$)' column
+                let dailyPayoutObligationDisplay = 0; // Total payout obligation for the 'Payout Obligation (J$)' column
 
-            while (tempDate <= endDateForDailyLog) {
-                const dayOfWeek = tempDate.getDay();
-                const isTradingDay = (dayOfWeek !== 0 && dayOfWeek !== 6);
-                let tradeOccurred = false;
-                let tradeOutcome = 'N/A';
-                let gainLossAmount = 0;
-                let capitalBeforeTrade = currentDailyCapital;
+                let capitalStartOfDay = currentDailyCapital; // Capital at the very beginning of this day
 
-                if (isTradingDay && tradingDaysWithTrades.has(tempDate.toDateString())) {
-                    tradeOccurred = true;
-                    const isWin = tradeOutcomes.pop();
-                    // Ensure we don't calculate percentage of a negative fund for trading
-                    const capitalForTradeCalculation = Math.max(0, currentDailyCapital);
+                // 1. Apply Contributions for the day
+                const contributionForToday = monthlyContributionsMap.get(currentDate.toDateString());
+                if (contributionForToday) {
+                    currentDailyCapital += contributionForToday;
+                    dailyNetChange += contributionForToday; // Contributions also add to net change
+                    eventOccurred = true;
+                    eventType = 'Contribution'; // Default, might be overridden by trade/payout
+                }
+
+                // 2. Simulate Trading for the day (if it's a trading day and a trade is scheduled)
+                if (isTradingDay && tradeDays.has(currentDate.toDateString())) {
+                    const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
+                    const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
+
+                    let tradeGainLossAmount;
                     if (isWin) {
-                        gainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
-                        tradeOutcome = 'Win';
+                        tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
+                        if (eventType === 'No Event') eventType = 'Trade (Win)';
+                        else eventType += ' & Trade (Win)';
                     } else {
-                        gainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
-                        tradeOutcome = 'Loss';
+                        tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
+                        if (eventType === 'No Event') eventType = 'Trade (Loss)';
+                        else eventType += ' & Trade (Loss)';
                     }
-                    currentDailyCapital += gainLossAmount;
+                    currentDailyCapital += tradeGainLossAmount;
+                    dailyNetChange += tradeGainLossAmount;
+                    eventOccurred = true;
+                }
+
+                // 3. Apply Payouts for the day (if any are due)
+                const payoutsDueToday = monthlyPayoutsMap.get(currentDate.toDateString());
+                if (payoutsDueToday && payoutsDueToday.length > 0) {
+                    payoutsDueToday.forEach(payout => {
+                        dailyPayoutObligationDisplay += payout.netObligation; // Sum of obligations for display
+                        currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
+                        dailyNetChange -= payout.actualDeduction; // Payouts are negative change
+                    });
+                    eventOccurred = true;
+                    if (eventType === 'No Event') eventType = 'Cashback Payout';
+                    else eventType += ' & Payout'; // If other events occurred, append
                 }
 
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${tempDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${tempDate.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${isTradingDay ? 'Yes' : 'No'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${tradeOccurred ? 'Yes' : 'No'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="${tradeOutcome === 'Win' ? 'text-green-600' : (tradeOutcome === 'Loss' ? 'text-red-600' : 'text-gray-500')}">
-                                ${tradeOutcome}
+                            ${isPayoutDay ? 'Payout Day' : (isTradingDay ? 'Yes' : 'No')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${isPayoutDay ? 'Payout Event' : (tradeOccurred ? 'Yes' : 'No')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="${eventType.includes('Win') ? 'text-green-600' : (eventType.includes('Loss') || eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">
+                                ${eventType}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap ${gainLossAmount >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(gainLossAmount)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalBeforeTrade)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(dailyNetChange)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${dailyPayoutObligationDisplay > 0 ? 'text-orange-600' : 'text-gray-600'}">${formatCurrency(dailyPayoutObligationDisplay)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalStartOfDay)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
                     </tr>
                 `;
                 dailyLogTableBody.insertAdjacentHTML('beforeend', row);
 
-                tempDate.setDate(tempDate.getDate() + 1);
+                currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
         };
@@ -1183,11 +1258,6 @@
         maxWeeklyLossInput.addEventListener('input', runSimulation);
         winRateInput.addEventListener('input', runSimulation);
         stressTestModeCheckbox.addEventListener('change', runSimulation);
-
-        // Event listener for daily log month selection
-        dailyLogMonthSelector.addEventListener('change', (event) => {
-            runDailySimulation(parseInt(event.target.value));
-        });
 
         // Set default start date to today and run initial simulation
         document.addEventListener('DOMContentLoaded', () => {
