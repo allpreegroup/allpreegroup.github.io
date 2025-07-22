@@ -1163,7 +1163,10 @@
 
         // Attach event listeners to all input fields to re-run simulation
         simulationStartDateInput.addEventListener('change', runSimulation);
-        voucherValueInput.addEventListener('change', runSimulation);
+        voucherValueInput.addEventListener('change', () => {
+            updateInitialTradingFundDefault(); // Update default initial fund when voucher value changes
+            runSimulation(); // Run simulation after updating initial fund
+        });
         vouchersPerMonthInput.addEventListener('input', runSimulation);
         markupRateInput.addEventListener('input', runSimulation);
         markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
