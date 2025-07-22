@@ -1149,7 +1149,8 @@
                 }
 
                 // 2. Simulate Trading for the day (if it's a trading day and a trade is scheduled)
-                if (isTradingDay && tradeDays.has(currentDate.toDateString())) {
+                const tradeOccurred = isTradingDay && tradeDays.has(currentDate.toDateString());
+                if (tradeOccurred) {
                     const isWin = tradeOutcomes.pop(); // Use pre-generated outcomes
                     const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
 
@@ -1170,7 +1171,9 @@
 
                 // 3. Apply Payouts for the day (if any are due)
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDate.toDateString());
-                if (payoutsDueToday && payoutsDueToday.length > 0) {
+                const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0; // Define isPayoutDay here
+
+                if (isPayoutDay) {
                     payoutsDueToday.forEach(payout => {
                         dailyPayoutObligationDisplay += payout.netObligation; // Sum of obligations for display
                         currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
@@ -1187,10 +1190,10 @@
                         <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            ${isPayoutDay ? 'Payout Day' : (isTradingDay ? 'Yes' : 'No')}
+                            ${isTradingDay ? 'Yes' : 'No'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            ${isPayoutDay ? 'Payout Event' : (tradeOccurred ? 'Yes' : 'No')}
+                            ${eventOccurred ? 'Yes' : 'No'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${eventType.includes('Win') ? 'text-green-600' : (eventType.includes('Loss') || eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">
