@@ -359,7 +359,6 @@
                             <th class="px-6 py-3">Event Occurred?</th>
                             <th class="px-6 py-3">Event Type</th>
                             <th class="px-6 py-3">Net Change (J$)</th>
-                            <th class="px-6 py-3">Payout Obligation (J$)</th> <!-- New column here -->
                             <th class="px-6 py-3">Capital Before Event (J$)</th>
                             <th class="px-6 py-3">Capital After Event (J$)</th>
                         </tr>
@@ -1176,12 +1175,12 @@
 
                 // 2. Apply Payouts for the day (if any are due)
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
-                let dailyPayoutObligationDisplay = 0; // Total payout obligation for the 'Payout Obligation (J$)' column
+                // let dailyPayoutObligationDisplay = 0; // Removed this variable as the column is being removed
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
                 if (isPayoutDay) {
                     payoutsDueToday.forEach(payout => {
-                        dailyPayoutObligationDisplay += payout.netObligation; // Sum of obligations for display
+                        // dailyPayoutObligationDisplay += payout.netObligation; // Removed this line
                         currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
                         dailyNetChange -= payout.actualDeduction; // Payouts are negative change
                     });
@@ -1231,7 +1230,6 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap ${dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(dailyNetChange)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${dailyPayoutObligationDisplay > 0 ? 'text-orange-600' : 'text-gray-600'}">${formatCurrency(dailyPayoutObligationDisplay)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalBeforeEvent)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
                     </tr>
