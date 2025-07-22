@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashback Payout + Trading Simulation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -512,6 +512,11 @@
                 simulationStartDateInput.value = `${year}-${month}-${day}`;
             }
 
+            // Calculate the portion of cashback covered by the 83% markup allocation
+            const markupAllocationToPayoutPercent = 1 - markupAllocationToTradingFund; // This is 83%
+            const amountCoveredByMarkup = markupPerMonth * markupAllocationToPayoutPercent;
+
+
             // --- Simulation Variables ---
             monthlySimulationResults = []; // Clear and re-initialize for monthly results
             let cumulativeVoucherPurchases = 0;
@@ -532,7 +537,7 @@
                 monthData.purchaseDate = purchaseDate;
                 monthData.cashbackDueDate = cashbackDueDate;
                 monthData.payoutMonthEnd = payoutMonthEnd;
-                monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate;
+                monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate; // This is the full cashback owed
                 monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed;
 
                 let monthlyContributionForDisplay; // This variable is for table display only
@@ -575,26 +580,28 @@
                 monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
 
                 // --- Handle Delayed Payouts ---
-                monthData.cashbackToPayThisMonth = 0;
+                monthData.cashbackToPayThisMonth = 0; // This will be the net amount the trading fund needs to cover
                 monthData.surplusDeficit = 0;
                 monthData.payoutMet = false;
 
                 const payoutSourceMonthIndex = monthIndex - (Math.floor(PAYOUT_DELAY_DAYS / 30.4375)); // Approx months delay
                 // If the payoutSourceMonthIndex is valid (i.e., we have data from that far back)
                 if (payoutSourceMonthIndex >= 0 && monthlySimulationResults[payoutSourceMonthIndex]) {
-                    const owedFromPast = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth;
-                    monthData.cashbackToPayThisMonth = owedFromPast;
+                    const owedFromPastFull = monthlySimulationResults[payoutSourceMonthIndex].cashbackAccruedThisMonth; // Full cashback originally owed
+                    // Calculate the net amount the trading fund needs to cover after markup contribution
+                    const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
+                    monthData.cashbackToPayThisMonth = netCashbackToCoverByTradingFund;
 
-                    if (fundAfterTrades >= owedFromPast) {
-                        fundAfterTrades -= owedFromPast; // Deduct payout from fund
-                        totalCashbackPaid += owedFromPast;
+                    if (fundAfterTrades >= netCashbackToCoverByTradingFund) {
+                        fundAfterTrades -= netCashbackToCoverByTradingFund; // Deduct only the portion trading fund is responsible for
+                        totalCashbackPaid += owedFromPastFull; // User receives the full amount
                         monthData.surplusDeficit = fundAfterTrades; // Remaining fund after payout
                         monthData.payoutMet = true;
                     } else {
-                        monthData.surplusDeficit = fundAfterTrades - owedFromPast; // Negative value for deficit
+                        monthData.surplusDeficit = fundAfterTrades - netCashbackToCoverByTradingFund; // Negative value for deficit
                         overallPayoutSuccess = false; // Mark overall status as failed
                         // If fund isn't enough, pay what's available and note the shortfall
-                        totalCashbackPaid += fundAfterTrades; // Pay what's available
+                        totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup; // Pay what's available from fund + markup covers
                         fundAfterTrades = 0; // Fund is depleted
                         monthData.payoutMet = false;
                     }
@@ -816,8 +823,23 @@
                 let capitalBeforeTrade = currentDailyCapital;
 
                 // Apply monthly contribution on the first day of each new month within the 121-day cycle
+                // This logic needs to be careful not to double-count contributions already part of startingTradingCapital
+                // For simplicity, we'll assume monthly contributions are already factored into the startingCapital for the daily log's initial day.
+                // If a new month starts *within* the 121-day period, subsequent monthly contributions would be added.
+                // However, the problem statement implies these are "per month" contributions to the fund, which are part of the monthly cycle.
+                // The daily log is a breakdown of *that month's* trading.
+                // So, we should not add monthly contributions *within* the daily log unless explicitly stated that they happen on specific days within the 121-day period.
+                // For now, keeping the existing logic which adds it on the first day of new calendar month.
+                // This means if the 121-day period spans across multiple calendar months, the monthly contribution will be added.
                 if (tempDate.getDate() === 1 && tempDate.getMonth() !== currentMonth) {
-                    currentDailyCapital += monthlySimulationResults[0].monthlyFundContribution; // Use the standard monthly contribution (J$1,700 or first month's full contribution)
+                    // This logic is for adding subsequent monthly contributions *within* the 121-day period
+                    // if the 121 days span across month boundaries.
+                    // The `monthlyFundContribution` from the first month's data (index 0) is used as a proxy
+                    // for the standard monthly contribution (J$1,700).
+                    // This might not be perfectly aligned if the first month had the large oneTimeMembershipFundAddition.
+                    // A more accurate way would be to pass the actual `monthlyTradingFundContribution` from the main simulation.
+                    const monthlyTradingFundContribution = (parseFloat(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value) * (parseFloat(markupRateInput.value) / 100) * (parseFloat(markupAllocationToTradingFundInput.value) / 100));
+                    currentDailyCapital += monthlyTradingFundContribution;
                     capitalBeforeTrade = currentDailyCapital; // Update capital before trade for this specific day
                     currentMonth = tempDate.getMonth();
                 }
@@ -864,7 +886,7 @@
         // --- Event Listeners and Initial Setup ---
 
         // Attach event listeners to all input fields to re-run simulation
-        membershipTierInput.addEventListener('change', runSimulation);
+        // membershipTierInput.addEventListener('change', runSimulation); // This is now handled by the specific tier change logic below
         simulationStartDateInput.addEventListener('change', runSimulation);
         voucherValueInput.addEventListener('change', runSimulation);
         vouchersPerMonthInput.addEventListener('input', runSimulation);
@@ -899,11 +921,12 @@
             const monthlyTradingFundContribution = markupPerMonth * (parseFloat(markupAllocationToTradingFundInput.value) / 100);
             const oneTimeMembershipFundAddition = tierConfig.fee * 0.50; // 50% allocation
 
-            const currentInitialFundValue = parseFloat(initialTradingFundInput.value);
-
-            if (selectedTier === 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+            // Always set initial fund based on selected tier on load
+            if (selectedTier === 'Premium') {
                 initialTradingFundInput.value = (monthlyTradingFundContribution + oneTimeMembershipFundAddition).toFixed(0);
-            } else if (selectedTier !== 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+            } else if (selectedTier === 'Standard') { // Assuming Standard also has a one-time allocation based on fee
+                initialTradingFundInput.value = (monthlyTradingFundContribution + (MEMBERSHIP_TIERS['Standard'].fee * 0.50)).toFixed(0);
+            } else { // Free tier
                 initialTradingFundInput.value = 0;
             }
 
@@ -921,15 +944,16 @@
             const monthlyTradingFundContribution = markupPerMonth * (parseFloat(markupAllocationToTradingFundInput.value) / 100);
             const oneTimeMembershipFundAddition = tierConfig.fee * 0.50; // 50% allocation
 
-            const currentInitialFundValue = parseFloat(initialTradingFundInput.value);
-
-            if (selectedTier === 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+            // Always update initial fund based on selected tier
+            if (selectedTier === 'Premium') {
                 initialTradingFundInput.value = (monthlyTradingFundContribution + oneTimeMembershipFundAddition).toFixed(0);
-            } else if (selectedTier !== 'Premium' && (isNaN(currentInitialFundValue) || currentInitialFundValue === 0)) {
+            } else if (selectedTier === 'Standard') { // Assuming Standard also has a one-time allocation based on fee
+                initialTradingFundInput.value = (monthlyTradingFundContribution + (MEMBERSHIP_TIERS['Standard'].fee * 0.50)).toFixed(0);
+            } else { // Free tier
                 initialTradingFundInput.value = 0;
             }
 
-            runSimulation();
+            runSimulation(); // Run simulation after updating initial fund
         });
     </script>
 </body>
