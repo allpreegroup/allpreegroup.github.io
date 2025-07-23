@@ -286,7 +286,20 @@
             </div>
         </div>
 
-      
+        <!-- Removed the main simulationTable -->
+        <!--
+        <div class="overflow-x-auto">
+            <table id="simulationTable" class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3">Month</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        -->
 
         <div class="summary">
             <h2 class="text-xl font-bold mb-4">12-Month Rolling View Summary</h2>
@@ -307,10 +320,12 @@
                     <thead>
                         <tr>
                             <th class="px-6 py-3">Month</th>
+                            <th class="px-6 py-3">Purchase Date</th>
+                            <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
                             <th class="px-6 py-3">Cashback Due Date</th>
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Net Payout Obligation (J$)</th>
-                            <th class="px-6 py-3">Payout Deducted (J$)</th> <!-- New column here -->
+                            <th class="px-6 py-3">Payout Deducted (J$)</th>
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
@@ -348,22 +363,6 @@
         </div>
     </div>
 
-
-  <div class="overflow-x-auto">
-            <table id="simulationTable" class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-6 py-3">Month</th>
-                        <th class="px-6 py-3">Purchase Date</th>
-                        <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                 <!--    Simulation rows will be generated here -->
-                </tbody>
-            </table>
-        </div> 
-        
     </div>
 
     <script>
@@ -405,21 +404,13 @@
         const simulationSeedInput = document.getElementById('simulationSeed'); // New seed input
         const stressTestModeCheckbox = document.getElementById('stressTestMode');
 
-        const simulationTableBody = document.querySelector('#simulationTable tbody');
+        // Removed simulationTableBody as the table is removed
+        // const simulationTableBody = document.querySelector('#simulationTable tbody');
         const cumulativeVoucherPurchasesSpan = document.getElementById('cumulativeVoucherPurchases');
         const totalCashbackOwedAccruedSpan = document.getElementById('totalCashbackOwedAccrued');
         const totalCashbackPaidSpan = document.getElementById('totalCashbackPaid');
         const netFundPerformanceSpan = document.getElementById('netFundPerformance');
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
-        // Removed chart canvas elements
-        // const chartCanvas = document.getElementById('simulationChart');
-        // const netPayoutObligationChartCanvas = document.getElementById('netPayoutObligationChart');
-        // const surplusDeficitChartCanvas = document.getElementById('surplusDeficitChart');
-
-        // Removed chart instances
-        // let simulationChart;
-        // let netPayoutObligationChartInstance;
-        // let surplusDeficitChartInstance;
 
         // New table bodies
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
@@ -727,8 +718,8 @@
             }
 
             // --- Update UI ---
-            // Display only the first 12 months of purchase data in the tables
-            updateTable(monthlyPurchaseData);
+            // The main simulationTable is removed, so no need to call updateTable
+            // updateTable(monthlyPurchaseData);
 
             // Run cumulative daily simulation and get the final fund performance.
             // This function will also update the actualPayoutSurplusDeficit and actualPayoutMetStatus
@@ -750,23 +741,23 @@
         };
 
         /**
-         * Updates the simulation results table.
+         * The main simulationTable is removed, so this function is no longer needed.
+         * Keeping it as a placeholder comment for clarity.
+         *
+         * Updates the simulation results table (main table).
          * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
          */
-        const updateTable = (results) => {
-            simulationTableBody.innerHTML = ''; // Clear existing rows
-
-            results.forEach(data => {
-                const row = `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
-                    </tr>
-                `;
-                simulationTableBody.insertAdjacentHTML('beforeend', row);
-            });
-        };
+        // const updateTable = (results) => {
+        //     simulationTableBody.innerHTML = ''; // Clear existing rows
+        //     results.forEach(data => {
+        //         const row = `
+        //             <tr>
+        //                 <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
+        //             </tr>
+        //         `;
+        //         simulationTableBody.insertAdjacentHTML('beforeend', row);
+        //     });
+        // };
 
         /**
          * Updates the combined Net Payout Obligation and Fund Balance After Payout table.
@@ -818,10 +809,12 @@
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td> <!-- New cell here -->
+                        <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
