@@ -605,8 +605,8 @@
             monthlyPurchaseData = []; // Clear and re-initialize for display (only first 12 months of purchases)
             let cumulativeVoucherPurchases = 0;
             let totalCashbackOwedAccrued = 0; // This will now track the net obligation
-            let totalCashbackPaid = 0; // Will be calculated from daily log deductions
-            let overallPayoutSuccess = true; // Assume success until a deficit occurs
+            // let totalCashbackPaid = 0; // Will be calculated from daily log deductions - moved after daily sim
+            // let overallPayoutSuccess = true; // Assume success until a deficit occurs - moved after daily sim
 
             // --- Monthly Simulation Loop (Extended to cover all payouts) ---
             for (let monthIndex = 0; monthIndex < TOTAL_SIMULATION_MONTHS; monthIndex++) {
@@ -681,63 +681,39 @@
                 monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
 
                 // --- Handle Delayed Payouts (Actual Deductions) ---
-                // We need to check if any payout for a *previous purchase month* is due in *this current simulation month*.
-                // Iterate through the already processed months (monthlySimulationResults) to find if their payout date falls in this month.
+                // This part of the monthly loop is primarily for accumulating payoutDeductedInThisMonth
+                // and setting up the pastMonthData.actualDeductionForThisPurchaseMonth.
+                // The actualPayoutSurplusDeficit and actualPayoutMetStatus will be finalized by the daily simulation.
                 const currentSimMonthEnd = getEndOfMonthJamaica(currentMonthDate);
 
                 for (let i = 0; i < monthlySimulationResults.length; i++) {
                     const pastMonthData = monthlySimulationResults[i];
-                    // Only process if it's a purchase month (i.e., i < 12) and its payout hasn't been processed yet
+                    // Only process if it's a purchase month (i.e., i < 12)
+                    // and its payout hasn't been processed yet by this monthly loop (actualPayoutMetStatus === null)
                     if (i < 12 && pastMonthData.purchaseDate && pastMonthData.actualPayoutMetStatus === null) {
                         const payoutDateForPastPurchase = addDays(pastMonthData.purchaseDate, PAYOUT_DELAY_DAYS);
-                        // The actual payout should happen at the end of the month of the 121st day
                         const payoutMonthEndDateForPastPurchase = getEndOfMonthJamaica(payoutDateForPastPurchase);
 
-                        // Check if this payoutMonthEndDateForPastPurchase is due by the end of the current simulation month
                         if (payoutMonthEndDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
                             const owedFromPastFull = pastMonthData.cashbackAccruedThisMonth;
                             const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
-
-                            let payoutSurplusDeficitForPastMonth;
-                            let payoutMetStatusForPastMonth;
-
-                            // Always deduct the full net obligation, allowing the fund to go negative
-                            const actualDeduction = netCashbackToCoverByTradingFund;
-
-                            fundAfterTrades -= actualDeduction;
-                            monthData.payoutDeductedInThisMonth += actualDeduction; // Accumulate deductions for this month in current simulation month
-                            pastMonthData.actualDeductionForThisPurchaseMonth = actualDeduction; // Store for combinedPayoutTable
-
-                            payoutSurplusDeficitForPastMonth = fundAfterTrades; // The fund's balance after this specific payout
-
-                            // Determine payout status: if fund is non-negative OR if no net obligation was due, it's met.
-                            // Otherwise, if fund is negative and there was an obligation, it's a shortfall.
-                            if (fundAfterTrades >= 0 || (fundAfterTrades < 0 && netCashbackToCoverByTradingFund === 0)) {
-                                payoutMetStatusForPastMonth = true; // Payout was met (or no payout was due)
-                            } else {
-                                overallPayoutSuccess = false; // A shortfall occurred if fund went negative and there was an obligation
-                                payoutMetStatusForPastMonth = false; // Payout was a shortfall
-                            }
-
-                            // Store the actual payout outcome back into the *original purchase month's* data
-                            pastMonthData.actualPayoutSurplusDeficit = payoutSurplusDeficitForPastMonth;
-                            pastMonthData.actualPayoutMetStatus = payoutMetStatusForPastMonth;
+                            
+                            // This deduction is for the *monthly* overview table's payout deducted column.
+                            // The actual fund deduction for the daily log will happen in runCumulativeDailySimulation.
+                            const deductionForMonthlyTable = netCashbackToCoverByTradingFund;
+                            monthData.payoutDeductedInThisMonth += deductionForMonthlyTable;
+                            pastMonthData.actualDeductionForThisPurchaseMonth = deductionForMonthlyTable; // Store for combinedPayoutTable
                         }
                     }
                 }
 
-                monthData.endingTradingCapital = fundAfterTrades; // Final ending capital for the month
+                monthData.endingTradingCapital = fundAfterTrades; // Final ending capital for the month (before daily sim adjustments)
                 currentTradingFundAtStartOfMonth = monthData.endingTradingCapital; // This becomes the starting capital for the *next* month's calculation
 
                 monthlySimulationResults.push(monthData); // Add to the full simulation results
 
                 // Only add to monthlyPurchaseData if it's one of the initial 12 purchase months
                 if (monthIndex < 12) {
-                    // For the monthlyPurchaseData, we need to ensure the cashbackDueDate and payoutMonthEnd
-                    // are correctly set for *that specific purchase month*.
-                    // These are not updated in the main loop's `monthData` object directly because `monthData` represents
-                    // the *current simulation month*, not necessarily a purchase month.
-                    // So, we set them here for the 12 purchase months.
                     const purchaseDateForDisplay = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
                     monthData.cashbackDueDate = addDays(purchaseDateForDisplay, PAYOUT_DELAY_DAYS);
                     monthData.payoutMonthEnd = getEndOfMonthJamaica(monthData.cashbackDueDate);
@@ -751,21 +727,26 @@
             }
 
             // --- Update UI ---
-            // Display only the first 12 months of purchase data in the tables and charts
+            // Display only the first 12 months of purchase data in the tables
             updateTable(monthlyPurchaseData);
-            updateCombinedPayoutTable(monthlyPurchaseData);
 
-            // Calculate totalCashbackPaid from actual deductions in monthlyPurchaseData
-            totalCashbackPaid = monthlyPurchaseData.reduce((sum, data) => sum + data.actualDeductionForThisPurchaseMonth, 0);
-
-            // Run cumulative daily simulation and get the final fund performance
+            // Run cumulative daily simulation and get the final fund performance.
+            // This function will also update the actualPayoutSurplusDeficit and actualPayoutMetStatus
+            // within the monthlyPurchaseData objects based on daily fund movements.
             const finalNetFundPerformance = runCumulativeDailySimulation();
 
+            // Recalculate overallPayoutSuccess and totalCashbackPaid after daily simulation has updated monthlyPurchaseData
+            let totalCashbackPaid = 0;
+            let overallPayoutSuccess = true; // Reset and re-evaluate
+            monthlyPurchaseData.forEach(data => {
+                totalCashbackPaid += data.actualDeductionForThisPurchaseMonth;
+                if (data.actualPayoutMetStatus === false) { // If any single payout was a shortfall
+                    overallPayoutSuccess = false;
+                }
+            });
+
+            updateCombinedPayoutTable(monthlyPurchaseData); // Update combined table AFTER daily sim has finalized payout statuses
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
-            // Removed chart update calls
-            // updateChart(monthlyPurchaseData);
-            // updateNetPayoutObligationChart(monthlyPurchaseData);
-            // updateSurplusDeficitChart(monthlyPurchaseData);
         };
 
         /**
@@ -805,27 +786,29 @@
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
 
-                // For Fund Balance After Payout: Always use the actual payout surplus/deficit if available.
+                // For Fund Balance After Payout: Always use the actual payout surplus/deficit if available from daily sim.
                 if (data.actualPayoutSurplusDeficit !== null) {
                     fundBalanceDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
                     fundBalanceClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
-                    console.warn(`Payout for Month ${data.month} was not processed. actualPayoutSurplusDeficit is null.`);
-                    fundBalanceDisplay = 'N/A'; // Or a placeholder indicating not yet processed
+                    // This case should ideally not be hit if daily simulation runs correctly for all payouts
+                    console.warn(`Payout for Month ${data.month} was not fully processed by daily sim. actualPayoutSurplusDeficit is null.`);
+                    fundBalanceDisplay = 'N/A';
                     fundBalanceClass = 'text-gray-500';
                 }
 
-                // For Payout Met?: Always use the actual status if available.
+                // For Payout Met?: Always use the actual status if available from daily sim.
                 if (data.actualPayoutMetStatus !== null) {
                     payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
                     payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
                 } else {
-                    console.warn(`Payout for Month ${data.month} was not processed. actualPayoutMetStatus is null.`);
-                    payoutMetDisplay = 'N/A'; // Or a placeholder indicating not yet processed
+                    // This case should ideally not be hit if daily simulation runs correctly for all payouts
+                    console.warn(`Payout for Month ${data.month} was not fully processed by daily sim. actualPayoutMetStatus is null.`);
+                    payoutMetDisplay = 'N/A';
                     payoutMetClass = 'text-gray-500';
                 }
 
-                // For Payout Deducted (J$): Use the new actualDeductionForThisPurchaseMonth
+                // For Payout Deducted (J$): Use the actualDeductionForThisPurchaseMonth (set in monthly loop, confirmed by daily)
                 if (data.actualDeductionForThisPurchaseMonth !== undefined) {
                     payoutDeductedDisplay = formatCurrency(data.actualDeductionForThisPurchaseMonth);
                     payoutDeductedClass = data.actualDeductionForThisPurchaseMonth > 0 ? 'text-red-600' : 'text-gray-600';
@@ -880,15 +863,12 @@
             }
         };
 
-        // Removed updateChart function
-        // Removed updateNetPayoutObligationChart function
-        // Removed updateSurplusDeficitChart function
-
-
         // --- Cumulative Daily Simulation Logic ---
 
         /**
          * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
+         * This function also updates the `actualPayoutSurplusDeficit` and `actualPayoutMetStatus`
+         * for each relevant monthly purchase data object based on the daily fund balance.
          * @returns {number} The final capital after all daily events.
          */
         const runCumulativeDailySimulation = () => {
@@ -929,11 +909,10 @@
             let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
 
             let tradesThisWeek = 0;
-            // The `currentWeekStartDay` logic is implicitly handled by resetting `tradesThisWeek` on Monday (day 1)
 
             // Store monthly contribution amounts and their respective purchase dates
             const monthlyContributionsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> contributionAmount
-            const monthlyPayoutsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> Array of { netObligation, actualDeduction }
+            const monthlyPayoutsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> Array of { monthlyDataRef, netObligation, actualDeduction }
 
             // Populate contributions and payouts map from monthlyPurchaseData
             const selectedTier = membershipTierInput.value;
@@ -955,11 +934,12 @@
                     monthlyContributionsMap.set(purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }), monthlyTradingFundContribution);
                 }
 
-                // Populate payouts map for all 12 purchase months
+                // Populate payouts map for all 12 purchase months, including reference to the original monthlyData object
                 for (let i = 0; i < 12; i++) {
                     const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
                     const payoutDateString = payoutDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
                     const payoutInfo = {
+                        monthlyDataRef: monthlyPurchaseData[i], // Reference to the actual monthly data object
                         netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
                         actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
                     };
@@ -1008,6 +988,11 @@
                     payoutsDueToday.forEach(payout => {
                         currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
                         dailyNetChange -= payout.actualDeduction; // Payouts are negative change
+
+                        // Update the original monthly data object with the actual fund balance and status from daily sim
+                        const originalMonthlyData = payout.monthlyDataRef;
+                        originalMonthlyData.actualPayoutSurplusDeficit = currentDailyCapital;
+                        originalMonthlyData.actualPayoutMetStatus = (currentDailyCapital >= 0 || (currentDailyCapital < 0 && originalMonthlyData.accruedNetPayoutObligation === 0));
                     });
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
