@@ -6,8 +6,6 @@
     <title>Cashback Payout + Trading Simulation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for graphing (removed, but keeping for reference if needed later) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -142,9 +140,8 @@
             width: auto;
             margin: 0;
         }
-        /* Removed chart-container styles */
         .table-container {
-            margin-top: 2rem; /* Keep margin for table container */
+            margin-top: 2rem;
             background-color: #ffffff;
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -157,9 +154,6 @@
             text-align: center;
             margin-bottom: 1.5rem;
         }
-
-
-        /* Daily Log Specific Styles */
         .daily-log-section {
             margin-top: 3rem;
             padding-top: 2rem;
@@ -181,8 +175,6 @@
             width: auto;
             min-width: 250px;
         }
-
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -198,7 +190,7 @@
             }
             th, td {
                 padding: 0.5rem 0.75rem;
-                font-size: 0.75rem; /* Smaller font size on mobile */
+                font-size: 0.75rem;
             }
             .summary {
                 font-size: 1rem;
@@ -237,6 +229,10 @@
                 <input type="date" id="simulationStartDate">
             </div>
             <div class="input-field">
+                <label for="numberOfPurchaseMonths"># Of Months:</label>
+                <input type="number" id="numberOfPurchaseMonths" value="1" min="1" max="60">
+            </div>
+            <div class="input-field">
                 <label for="voucherValue">Voucher Value (J$):</label>
                 <select id="voucherValue">
                     <option value="10000">10,000</option>
@@ -257,19 +253,19 @@
                 <input type="number" id="markupRate" value="25" min="0" max="100" step="1">
             </div>
             <div class="input-field">
-                <label for="markupAllocationToTradingFund">Markup Allocation to Fund (%):</label>
+                <label for="markupAllocationToTradingFund">Allocation to Fund (%):</label>
                 <input type="number" id="markupAllocationToTradingFund" value="17" min="0" max="100" step="1">
             </div>
             <div class="input-field">
-                <label for="initialTradingFund">Initial Trading Fund (J$):</label>
+                <label for="initialTradingFund">Trading Fund (J$):</label>
                 <input type="number" id="initialTradingFund" value="0" min="0" step="100" title="This is the fund balance at the very start of the simulation, before any monthly contributions are added.">
             </div>
             <div class="input-field">
-                <label for="avgWeeklyWin">Avg Weekly Win (%):</label>
-                <input type="number" id="avgWeeklyWin" value="10.68" min="0" max="100" step="0.01">
+                <label for="avgWeeklyWin">Max Win (%):</label>
+                <input type="number" id="avgWeeklyWin" value="6" min="0" max="100" step="0.01">
             </div>
             <div class="input-field">
-                <label for="maxWeeklyLoss">Max Weekly Loss (%):</label>
+                <label for="maxWeeklyLoss">Max Loss (%):</label>
                 <input type="number" id="maxWeeklyLoss" value="5" min="0" max="100" step="1">
             </div>
             <div class="input-field">
@@ -277,32 +273,17 @@
                 <input type="number" id="winRate" value="53.4" min="0" max="100" step="0.1">
             </div>
             <div class="input-field">
-                <label for="simulationSeed">Simulation Seed (Optional):</label>
+                <label for="simulationSeed">Seed:</label>
                 <input type="number" id="simulationSeed" value="1" placeholder="Enter a number for consistent results">
             </div>
             <div class="input-field stress-test-checkbox">
                 <input type="checkbox" id="stressTestMode">
-                <label for="stressTestMode" class="mb-0">Enable Stress Test Mode</label>
+                <label for="stressTestMode" class="mb-0">Stress Test</label>
             </div>
         </div>
 
-        <!-- Removed the main simulationTable -->
-        <!--
-        <div class="overflow-x-auto">
-            <table id="simulationTable" class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-6 py-3">Month</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        -->
-
         <div class="summary">
-            <h2 class="text-xl font-bold mb-4">12-Month Rolling View Summary</h2>
+            <h2 class="text-xl font-bold mb-4">Simulation Summary</h2>
             <p>Cumulative Voucher Purchases: <span id="cumulativeVoucherPurchases" class="font-bold">J$0</span></p>
             <p>Total Cashback Owed (Accrued): <span id="totalCashbackOwedAccrued" class="font-bold">J$0</span></p>
             <p>Total Cashback Paid: <span id="totalCashbackPaid" class="font-bold">J$0</span></p>
@@ -310,9 +291,6 @@
             <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
         </div>
 
-        <!-- Removed chart wrapper div -->
-
-        <!-- Combined Table for Net Payout Obligation and Fund Balance After Payout -->
         <div class="table-container">
             <h2>Payout Obligation & Fund Performance</h2>
             <div class="overflow-x-auto">
@@ -337,8 +315,6 @@
             </div>
         </div>
 
-
-        <!-- Daily Trading Log Section -->
         <div class="daily-log-section">
             <h2>Cumulative Daily Trading Log</h2>
             <div class="overflow-x-auto">
@@ -363,17 +339,12 @@
         </div>
     </div>
 
-    </div>
-
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 8; // Used for monthly simulation (approx 2 trades per week)
-        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 8 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
-        // Calculate the number of extra months needed for payouts to complete
-        // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
+        const TRADING_WEEKS_PER_MONTH = 8;
+        const MAX_TRADES_PER_WEEK = 2;
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
-        const TOTAL_SIMULATION_MONTHS = 12 + EXTRA_MONTHS_FOR_PAYOUTS; // Total months to run the internal simulation (12 + 5 = 17)
 
         const MEMBERSHIP_TIERS = {
             'Free': {
@@ -393,6 +364,7 @@
         // --- DOM Elements ---
         const membershipTierInput = document.getElementById('membershipTier');
         const simulationStartDateInput = document.getElementById('simulationStartDate');
+        const numberOfPurchaseMonthsInput = document.getElementById('numberOfPurchaseMonths');
         const voucherValueInput = document.getElementById('voucherValue');
         const vouchersPerMonthInput = document.getElementById('vouchersPerMonth');
         const markupRateInput = document.getElementById('markupRate');
@@ -401,38 +373,31 @@
         const avgWeeklyWinInput = document.getElementById('avgWeeklyWin');
         const maxWeeklyLossInput = document.getElementById('maxWeeklyLoss');
         const winRateInput = document.getElementById('winRate');
-        const simulationSeedInput = document.getElementById('simulationSeed'); // New seed input
+        const simulationSeedInput = document.getElementById('simulationSeed');
         const stressTestModeCheckbox = document.getElementById('stressTestMode');
 
-        // Removed simulationTableBody as the table is removed
-        // const simulationTableBody = document.querySelector('#simulationTable tbody');
         const cumulativeVoucherPurchasesSpan = document.getElementById('cumulativeVoucherPurchases');
         const totalCashbackOwedAccruedSpan = document.getElementById('totalCashbackOwedAccrued');
         const totalCashbackPaidSpan = document.getElementById('totalCashbackPaid');
         const netFundPerformanceSpan = document.getElementById('netFundPerformance');
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
 
-        // New table bodies
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
+        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody');
 
-
-        // Daily Log DOM Elements
-        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody'); // Removed selector dropdown
-
-        let monthlySimulationResults = []; // Store results for daily log selection (includes extended months)
-        let monthlyPurchaseData = []; // Store only the first 12 months of purchase data for display
+        let monthlySimulationResults = []; // Stores results for daily log selection (includes extended months)
+        let monthlyPurchaseData = []; // Stores only the purchase data for display in combinedPayoutTable
 
         // --- Seeded Random Number Generator ---
-        // Simple Linear Congruential Generator (LCG)
         class SeededRandom {
             constructor(seed) {
-                this.seed = seed % 2147483647; // Modulo to keep it within a reasonable range for LCG
-                if (this.seed <= 0) this.seed += 2147483646; // Ensure positive seed
+                this.seed = seed % 2147483647;
+                if (this.seed <= 0) this.seed += 2147483646;
             }
 
             next() {
                 this.seed = (this.seed * 16807) % 2147483647;
-                return (this.seed - 1) / 2147483646; // Return a value between 0 (inclusive) and 1 (exclusive)
+                return (this.seed - 1) / 2147483646;
             }
         }
 
@@ -455,10 +420,10 @@
         };
 
         /**
-         * Adds a specified number of days to a Date object, maintaining Jamaica timezone alignment.
-         * @param {Date} date - The starting Date object (expected to be Jamaica-aligned).
+         * Adds a specified number of days to a Date object.
+         * @param {Date} date - The starting Date object.
          * @param {number} days - The number of days to add.
-         * @returns {Date} A new Date object with the added days, also Jamaica-aligned.
+         * @returns {Date} A new Date object with the added days.
          */
         const addDays = (date, days) => {
             const result = new Date(date);
@@ -467,26 +432,16 @@
         };
 
         /**
-         * Gets the last day of the month for a given date, aligned to America/Jamaica timezone.
-         * @param {Date} date - The Date object (expected to be Jamaica-aligned).
-         * @returns {Date} A new Date object representing the last day of the month in America/Jamaica.
+         * Gets the last day of the month for a given date (local time).
+         * @param {Date} date - The Date object.
+         * @returns {Date} A new Date object representing the last day of the month.
          */
-        const getEndOfMonthJamaica = (date) => {
-            // Get year and month components as they would be in Jamaica
-            const jamaicaDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
-            const year = jamaicaDate.getFullYear();
-            const month = jamaicaDate.getMonth(); // 0-indexed
-
-            // Create a date for the first day of the *next* month in Jamaica time
-            // By setting UTC hours to 5, we ensure it's midnight Jamaica time (UTC-5)
-            const firstDayOfNextMonthJamaica = new Date(Date.UTC(year, month + 1, 1, 5, 0, 0));
-
-            // Subtract one day to get the last day of the current month in Jamaica time
-            firstDayOfNextMonthJamaica.setDate(firstDayOfNextMonthJamaica.getDate() - 1);
-
-            return firstDayOfNextMonthJamaica;
+        const getEndOfMonthLocal = (date) => {
+            const d = new Date(date.getFullYear(), date.getMonth() + 1, 1); // First day of next month
+            d.setDate(d.getDate() - 1); // Last day of current month
+            d.setHours(0, 0, 0, 0); // Normalize to local midnight
+            return d;
         };
-
 
         /**
          * Generates a shuffled array of win/loss outcomes for a given number of trades.
@@ -510,7 +465,7 @@
 
             // Shuffle the array (Fisher-Yates algorithm) using the seeded RNG
             for (let i = outcomes.length - 1; i > 0; i--) {
-                const j = Math.floor(rngInstance.next() * (i + 1)); // Use rngInstance.next()
+                const j = Math.floor(rngInstance.next() * (i + 1));
                 [outcomes[i], outcomes[j]] = [outcomes[j], outcomes[i]];
             }
             return outcomes;
@@ -522,21 +477,21 @@
             // 1. Read Input Parameters
             const selectedTier = membershipTierInput.value;
             const simulationStartDateString = simulationStartDateInput.value;
+            const numberOfPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
             const voucherValue = parseInt(voucherValueInput.value);
-            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value); // Now reads from select
-            const markupRate = parseFloat(markupRateInput.value) / 100; // Convert to decimal
-            const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100; // Convert to decimal
-            let avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100; // Convert to decimal
-            let maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100; // Convert to decimal
-            let winRate = parseFloat(winRateInput.value); // Percentage
+            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value);
+            const markupRate = parseFloat(markupRateInput.value) / 100;
+            const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100;
+            let avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
+            let maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
+            let winRate = parseFloat(winRateInput.value);
 
             const isStressTestMode = stressTestModeCheckbox.checked;
 
             if (isStressTestMode) {
-                // Apply stress test adjustments
-                avgWeeklyWin *= 0.8; // Reduce average win by 20%
-                maxWeeklyLoss *= 1.2; // Increase max loss by 20%
-                winRate = Math.max(0, winRate - 10); // Reduce win rate by 10 percentage points, not below 0
+                avgWeeklyWin *= 0.8;
+                maxWeeklyLoss *= 1.2;
+                winRate = Math.max(0, winRate - 10);
             }
 
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
@@ -547,118 +502,85 @@
             const markupPerMonth = monthlyVoucherSpend * markupRate;
             const monthlyTradingFundContribution = markupPerMonth * markupAllocationToTradingFund;
 
-            const membershipAllocationToTradingFund = 0.50; // 50%
+            const membershipAllocationToTradingFund = 0.50;
             const oneTimeMembershipFundAddition = membershipFee * membershipAllocationToTradingFund;
 
-            // Calculate the base initial fund for Month 1's contribution
             const calculatedMonth1BaseContribution = monthlyTradingFundContribution + oneTimeMembershipFundAddition;
 
-            // currentTradingFundAtStartOfMonth represents the fund balance at the very beginning of each month,
-            // before that month's new contributions are added.
             let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
 
-            // Initialize Seeded Random Number Generator
             const seedValue = parseInt(simulationSeedInput.value);
             rng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
 
-
-            // Parse Start Date to be consistently in America/Jamaica timezone
+            // Parse Start Date to be consistently at local midnight
             let initialDate;
             if (simulationStartDateString) {
-                const [year, month, day] = simulationStartDateString.split('-').map(Number);
-                // Create a Date object whose internal UTC time corresponds to midnight in Jamaica (UTC-5)
-                // So, 00:00 Jamaica time is 05:00 UTC.
-                initialDate = new Date(Date.UTC(year, month - 1, day, 5, 0, 0));
+                initialDate = new Date(simulationStartDateString);
             } else {
-                // For default today's date, also ensure it's Jamaica's midnight
-                const now = new Date();
-                // Get current date components in Jamaica timezone
-                const jamaicaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
-                const year = jamaicaTime.getFullYear();
-                const month = jamaicaTime.getMonth();
-                const day = jamaicaTime.getDate();
-                // Create a UTC date corresponding to Jamaica midnight
-                initialDate = new Date(Date.UTC(year, month, day, 5, 0, 0));
-
-                // Set default date input value to today's date in Jamaica
-                // Use toISOString and slice to get YYYY-MM-DD from a Jamaica-aligned date
-                simulationStartDateInput.value = new Date(jamaicaTime.getTime() - (jamaicaTime.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                initialDate = new Date(); // Default to today
             }
+            initialDate.setHours(0, 0, 0, 0); // Normalize to local midnight
 
-
-            // Calculate the portion of cashback covered by the 83% markup allocation
             const markupAllocationToPayoutPercent = 1 - markupAllocationToTradingFund;
             const amountCoveredByMarkup = monthlyVoucherSpend * markupRate * markupAllocationToPayoutPercent;
 
-
-            // --- Simulation Variables ---
-            monthlySimulationResults = []; // Clear and re-initialize for monthly results (will contain all calculated months)
-            monthlyPurchaseData = []; // Clear and re-initialize for display (only first 12 months of purchases)
+            monthlySimulationResults = [];
+            monthlyPurchaseData = [];
             let cumulativeVoucherPurchases = 0;
-            let totalCashbackOwedAccrued = 0; // This will now track the net obligation
-            // let totalCashbackPaid = 0; // Will be calculated from daily log deductions - moved after daily sim
-            // let overallPayoutSuccess = true; // Assume success until a deficit occurs - moved after daily sim
+            let totalCashbackOwedAccrued = 0;
+
+            const actualPurchaseMonths = isNaN(numberOfPurchaseMonths) || numberOfPurchaseMonths < 1 ? 12 : numberOfPurchaseMonths;
+            const currentTotalSimulationMonths = actualPurchaseMonths + EXTRA_MONTHS_FOR_PAYOUTS;
 
             // --- Monthly Simulation Loop (Extended to cover all payouts) ---
-            for (let monthIndex = 0; monthIndex < TOTAL_SIMULATION_MONTHS; monthIndex++) {
+            for (let monthIndex = 0; monthIndex < currentTotalSimulationMonths; monthIndex++) {
                 const monthData = {
-                    actualPayoutSurplusDeficit: null, // Explicitly initialize
-                    actualPayoutMetStatus: null,      // Explicitly initialize
-                    payoutDeductedInThisMonth: 0,     // Initialize new field for explicit deduction (accumulates for this sim month)
-                    actualDeductionForThisPurchaseMonth: 0 // Initialize for combinedPayoutTable
+                    actualPayoutSurplusDeficit: null,
+                    actualPayoutMetStatus: null,
+                    payoutDeductedInThisMonth: 0,
+                    actualDeductionForThisPurchaseMonth: 0
                 };
 
-                // For the first 12 months, calculate purchase-related data
-                if (monthIndex < 12) {
-                    // Create purchaseDate aligned to Jamaica timezone
-                    const purchaseDate = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
+                if (monthIndex < actualPurchaseMonths) {
+                    // Create purchaseDate aligned to local timezone midnight
+                    const purchaseDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                    purchaseDate.setHours(0, 0, 0, 0); // Normalize to local midnight
                     monthData.purchaseDate = purchaseDate;
-                    monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate; // Full cashback owed for this month's purchases
-                    monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed; // Store for summary
+                    monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate;
+                    monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed;
                     monthData.accruedNetPayoutObligation = Math.max(0, monthData.totalCashbackOwed - amountCoveredByMarkup);
                 } else {
-                    // For extended months, no new purchases, so obligations are zero
-                    monthData.purchaseDate = null; // No new purchases
+                    monthData.purchaseDate = null;
                     monthData.cashbackAccruedThisMonth = 0;
                     monthData.accruedNetPayoutObligation = 0;
                 }
 
-                // Calculate Dates relevant to the current month in the loop
-                // This is based on the *current month's position* in the simulation, not the purchase date
-                const currentMonthDate = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
-                monthData.month = monthIndex + 1; // This is the simulation month number
-                // The cashbackDueDate and payoutMonthEnd for the simulation table are based on the *purchase date*
-                // These are placeholders for the simulation loop's internal use, actual ones are stored on pastMonthData
+                const currentMonthDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                currentMonthDate.setHours(0, 0, 0, 0); // Normalize to local midnight
+                monthData.month = monthIndex + 1;
                 monthData.cashbackDueDate = new Date(); // Placeholder
                 monthData.payoutMonthEnd = new Date(); // Placeholder
 
-                // Determine this month's specific contribution to the fund
                 let monthlyContributionForCurrentMonth;
                 if (monthIndex === 0) {
                     monthlyContributionForCurrentMonth = calculatedMonth1BaseContribution;
-                } else if (monthIndex < 12) { // Only contribute for the first 12 months of purchases
+                } else if (monthIndex < actualPurchaseMonths) {
                     monthlyContributionForCurrentMonth = monthlyTradingFundContribution;
                 } else {
-                    monthlyContributionForCurrentMonth = 0; // No new contributions after 12 months
+                    monthlyContributionForCurrentMonth = 0;
                 }
                 monthData.monthlyFundContribution = monthlyContributionForCurrentMonth;
 
-                // Starting capital for this month (fund balance from end of previous month)
                 monthData.startingTradingCapital = currentTradingFundAtStartOfMonth;
-
-                // Capital available for trading this month (Starting Capital + Monthly Contribution)
                 let capitalForTradingThisMonth = currentTradingFundAtStartOfMonth + monthlyContributionForCurrentMonth;
 
-                // Simulate Weekly Trades (20 trades per month) - This part is primarily for monthly overview
-                // The detailed daily trade simulation happens in runCumulativeDailySimulation
-                const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate, rng); // Pass rng
-                let fundAfterTrades = capitalForTradingThisMonth; // Start trading with this combined capital
+                const tradeOutcomes = generateTradeOutcomes(TRADING_WEEKS_PER_MONTH, winRate, rng);
+                let fundAfterTrades = capitalForTradingThisMonth;
 
                 for (let week = 0; week < TRADING_WEEKS_PER_MONTH; week++) {
                     const isWin = tradeOutcomes[week];
                     let gainLossAmount;
-                    // Ensure we don't calculate percentage of a negative fund for trading
-                    const capitalForTradeCalculation = fundAfterTrades; // Allow trading on negative capital
+                    const capitalForTradeCalculation = fundAfterTrades;
 
                     if (isWin) {
                         gainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
@@ -668,103 +590,65 @@
                     fundAfterTrades += gainLossAmount;
                 }
 
-                // Store the fund's status *before* any potential payout for a past month's purchases
                 monthData.endingTradingCapitalBeforePayout = fundAfterTrades;
 
-                // --- Handle Delayed Payouts (Actual Deductions) ---
-                // This part of the monthly loop is primarily for accumulating payoutDeductedInThisMonth
-                // and setting up the pastMonthData.actualDeductionForThisPurchaseMonth.
-                // The actualPayoutSurplusDeficit and actualPayoutMetStatus will be finalized by the daily simulation.
-                const currentSimMonthEnd = getEndOfMonthJamaica(currentMonthDate);
+                const currentSimMonthEnd = getEndOfMonthLocal(currentMonthDate);
 
                 for (let i = 0; i < monthlySimulationResults.length; i++) {
                     const pastMonthData = monthlySimulationResults[i];
-                    // Only process if it's a purchase month (i.e., i < 12)
-                    // and its payout hasn't been processed yet by this monthly loop (actualPayoutMetStatus === null)
-                    if (i < 12 && pastMonthData.purchaseDate && pastMonthData.actualPayoutMetStatus === null) {
+                    if (i < actualPurchaseMonths && pastMonthData.purchaseDate && pastMonthData.actualPayoutMetStatus === null) {
                         const payoutDateForPastPurchase = addDays(pastMonthData.purchaseDate, PAYOUT_DELAY_DAYS);
-                        const payoutMonthEndDateForPastPurchase = getEndOfMonthJamaica(payoutDateForPastPurchase);
+                        const payoutMonthEndDateForPastPurchase = getEndOfMonthLocal(payoutDateForPastPurchase);
 
                         if (payoutMonthEndDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
                             const owedFromPastFull = pastMonthData.cashbackAccruedThisMonth;
                             const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
                             
-                            // This deduction is for the *monthly* overview table's payout deducted column.
-                            // The actual fund deduction for the daily log will happen in runCumulativeDailySimulation.
                             const deductionForMonthlyTable = netCashbackToCoverByTradingFund;
                             monthData.payoutDeductedInThisMonth += deductionForMonthlyTable;
-                            pastMonthData.actualDeductionForThisPurchaseMonth = deductionForMonthlyTable; // Store for combinedPayoutTable
+                            pastMonthData.actualDeductionForThisPurchaseMonth = deductionForMonthlyTable;
                         }
                     }
                 }
 
-                monthData.endingTradingCapital = fundAfterTrades; // Final ending capital for the month (before daily sim adjustments)
-                currentTradingFundAtStartOfMonth = monthData.endingTradingCapital; // This becomes the starting capital for the *next* month's calculation
+                monthData.endingTradingCapital = fundAfterTrades;
+                currentTradingFundAtStartOfMonth = monthData.endingTradingCapital;
 
-                monthlySimulationResults.push(monthData); // Add to the full simulation results
+                monthlySimulationResults.push(monthData);
 
-                // Only add to monthlyPurchaseData if it's one of the initial 12 purchase months
-                if (monthIndex < 12) {
-                    const purchaseDateForDisplay = new Date(Date.UTC(initialDate.getUTCFullYear(), initialDate.getUTCMonth() + monthIndex, initialDate.getUTCDate(), 5, 0, 0));
+                if (monthIndex < actualPurchaseMonths) {
+                    const purchaseDateForDisplay = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
+                    purchaseDateForDisplay.setHours(0, 0, 0, 0); // Normalize to local midnight
                     monthData.cashbackDueDate = addDays(purchaseDateForDisplay, PAYOUT_DELAY_DAYS);
-                    monthData.payoutMonthEnd = getEndOfMonthJamaica(monthData.cashbackDueDate);
+                    monthData.payoutMonthEnd = getEndOfMonthLocal(monthData.cashbackDueDate);
 
                     monthlyPurchaseData.push(monthData);
-                    // Update Cumulative Voucher Purchases (still full value)
                     cumulativeVoucherPurchases += monthlyVoucherSpend;
-                    // Update Total Cashback Owed (Accrued) with the NET obligation
                     totalCashbackOwedAccrued += monthData.accruedNetPayoutObligation;
                 }
             }
 
-            // --- Update UI ---
-            // The main simulationTable is removed, so no need to call updateTable
-            // updateTable(monthlyPurchaseData);
-
-            // Run cumulative daily simulation and get the final fund performance.
-            // This function will also update the actualPayoutSurplusDeficit and actualPayoutMetStatus
-            // within the monthlyPurchaseData objects based on daily fund movements.
             const finalNetFundPerformance = runCumulativeDailySimulation();
 
-            // Recalculate overallPayoutSuccess and totalCashbackPaid after daily simulation has updated monthlyPurchaseData
             let totalCashbackPaid = 0;
-            let overallPayoutSuccess = true; // Reset and re-evaluate
+            let overallPayoutSuccess = true;
             monthlyPurchaseData.forEach(data => {
                 totalCashbackPaid += data.actualDeductionForThisPurchaseMonth;
-                if (data.actualPayoutMetStatus === false) { // If any single payout was a shortfall
+                if (data.actualPayoutMetStatus === false) {
                     overallPayoutSuccess = false;
                 }
             });
 
-            updateCombinedPayoutTable(monthlyPurchaseData); // Update combined table AFTER daily sim has finalized payout statuses
+            updateCombinedPayoutTable(monthlyPurchaseData);
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
         };
 
         /**
-         * The main simulationTable is removed, so this function is no longer needed.
-         * Keeping it as a placeholder comment for clarity.
-         *
-         * Updates the simulation results table (main table).
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
-         */
-        // const updateTable = (results) => {
-        //     simulationTableBody.innerHTML = ''; // Clear existing rows
-        //     results.forEach(data => {
-        //         const row = `
-        //             <tr>
-        //                 <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-        //             </tr>
-        //         `;
-        //         simulationTableBody.insertAdjacentHTML('beforeend', row);
-        //     });
-        // };
-
-        /**
          * Updates the combined Net Payout Obligation and Fund Balance After Payout table.
-         * @param {Array<Object>} results - The array of monthly simulation data (first 12 months of purchases).
+         * @param {Array<Object>} results - The array of monthly simulation data (actual purchase months).
          */
         const updateCombinedPayoutTable = (results) => {
-            combinedPayoutTableBody.innerHTML = ''; // Clear existing rows
+            combinedPayoutTableBody.innerHTML = '';
 
             results.forEach(data => {
                 let fundBalanceDisplay;
@@ -774,29 +658,24 @@
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
 
-                // For Fund Balance After Payout: Always use the actual payout surplus/deficit if available from daily sim.
                 if (data.actualPayoutSurplusDeficit !== null) {
                     fundBalanceDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
                     fundBalanceClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // This case should ideally not be hit if daily simulation runs correctly for all payouts
                     console.warn(`Payout for Month ${data.month} was not fully processed by daily sim. actualPayoutSurplusDeficit is null.`);
                     fundBalanceDisplay = 'N/A';
                     fundBalanceClass = 'text-gray-500';
                 }
 
-                // For Payout Met?: Always use the actual status if available from daily sim.
                 if (data.actualPayoutMetStatus !== null) {
                     payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
                     payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // This case should ideally not be hit if daily simulation runs correctly for all payouts
                     console.warn(`Payout for Month ${data.month} was not fully processed by daily sim. actualPayoutMetStatus is null.`);
                     payoutMetDisplay = 'N/A';
                     payoutMetClass = 'text-gray-500';
                 }
 
-                // For Payout Deducted (J$): Use the actualDeductionForThisPurchaseMonth (set in monthly loop, confirmed by daily)
                 if (data.actualDeductionForThisPurchaseMonth !== undefined) {
                     payoutDeductedDisplay = formatCurrency(data.actualDeductionForThisPurchaseMonth);
                     payoutDeductedClass = data.actualDeductionForThisPurchaseMonth > 0 ? 'text-red-600' : 'text-gray-600';
@@ -805,14 +684,13 @@
                     payoutDeductedClass = 'text-gray-500';
                 }
 
-
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.purchaseDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.monthlyFundContribution)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.cashbackDueDate.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
@@ -826,7 +704,6 @@
                 combinedPayoutTableBody.insertAdjacentHTML('beforeend', row);
             });
         };
-
 
         /**
          * Updates the summary section.
@@ -862,49 +739,42 @@
          * @returns {number} The final capital after all daily events.
          */
         const runCumulativeDailySimulation = () => {
-            dailyLogTableBody.innerHTML = ''; // Clear existing rows
+            dailyLogTableBody.innerHTML = '';
 
-            if (monthlyPurchaseData.length === 0) {
-                return parseFloat(initialTradingFundInput.value); // Return initial fund if no data
+            const actualPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
+            if (isNaN(actualPurchaseMonths) || actualPurchaseMonths < 1 || monthlyPurchaseData.length === 0) {
+                return parseFloat(initialTradingFundInput.value);
             }
 
-            // Start date for daily log, aligned to Jamaica timezone midnight
-            const [year, month, day] = simulationStartDateInput.value.split('-').map(Number);
-            const startDate = new Date(Date.UTC(year, month - 1, day, 5, 0, 0)); // 5 hours ahead of Jamaica midnight
+            const startDate = new Date(simulationStartDateInput.value);
+            startDate.setHours(0, 0, 0, 0);
 
-            // Determine the absolute end date for the cumulative log: payout month-end of the LAST purchase month
-            const lastPurchaseMonthData = monthlyPurchaseData[11]; // Assuming 12 purchase months always
-            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd); // This is already Jamaica-aligned from monthly sim
-            endDate.setUTCHours(5, 0, 0, 0); // Ensure it's midnight Jamaica time for comparison
+            const lastPurchaseMonthData = monthlyPurchaseData[monthlyPurchaseData.length - 1]; 
+            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd);
+            endDate.setHours(0, 0, 0, 0);
 
-            // Initial capital for the daily log starts with the user's input initial fund
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
 
-            // Get parameters for daily trading
             const avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
             const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
             const winRate = parseFloat(winRateInput.value);
 
-            // Pre-calculate all trade outcomes for the entire period using the seeded RNG
             const totalDaysInPeriod = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             const totalWeeksInPeriod = Math.ceil(totalDaysInPeriod / 7);
-            const maxPossibleTrades = totalWeeksInPeriod * 2; // Max 2 trades per week
+            const maxPossibleTrades = totalWeeksInPeriod * MAX_TRADES_PER_WEEK;
 
-            // Re-initialize RNG for daily simulation to ensure consistent daily outcomes for the given seed
             const seedValue = parseInt(simulationSeedInput.value);
             const dailyRng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
-            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate, dailyRng); // Pass dailyRng here
+            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate, dailyRng);
 
             let dayCounter = 1;
-            let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
+            let currentDate = new Date(startDate);
 
             let tradesThisWeek = 0;
 
-            // Store monthly contribution amounts and their respective purchase dates
-            const monthlyContributionsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> contributionAmount
-            const monthlyPayoutsMap = new Map(); // Map: dateString (YYYY-MM-DD) -> Array of { monthlyDataRef, netObligation, actualDeduction }
+            const monthlyContributionsMap = new Map();
+            const monthlyPayoutsMap = new Map();
 
-            // Populate contributions and payouts map from monthlyPurchaseData
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
             const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
@@ -913,23 +783,20 @@
             const monthlyTradingFundContribution = monthlyVoucherSpend * markupRate * markupAllocationToTradingFund;
             const oneTimeMembershipFundAddition = tierConfig.fee * 0.50;
 
-            // Month 1 Contribution (includes one-time membership addition)
             if (monthlyPurchaseData.length > 0) {
                 const month1PurchaseDate = new Date(monthlyPurchaseData[0].purchaseDate);
-                monthlyContributionsMap.set(month1PurchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
+                monthlyContributionsMap.set(month1PurchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
 
-                // Other 11 months contributions (standard monthly contribution)
-                for (let i = 1; i < 12; i++) { // Start from month 2 (index 1)
+                for (let i = 1; i < monthlyPurchaseData.length; i++) {
                     const purchaseDate = new Date(monthlyPurchaseData[i].purchaseDate);
-                    monthlyContributionsMap.set(purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' }), monthlyTradingFundContribution);
+                    monthlyContributionsMap.set(purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }), monthlyTradingFundContribution);
                 }
 
-                // Populate payouts map for all 12 purchase months, including reference to the original monthlyData object
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < monthlyPurchaseData.length; i++) {
                     const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
-                    const payoutDateString = payoutDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
+                    const payoutDateString = payoutDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                     const payoutInfo = {
-                        monthlyDataRef: monthlyPurchaseData[i], // Reference to the actual monthly data object
+                        monthlyDataRef: monthlyPurchaseData[i],
                         netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
                         actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
                     };
@@ -941,66 +808,52 @@
                 }
             }
 
-
-            // Iterate through each day of the cumulative simulation period
             while (currentDate <= endDate) {
-                const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Jamaica' });
-                // Get day of week using getUTCDay() as currentDate is UTC-aligned for Jamaica midnight
-                const dayOfWeekJamaica = currentDate.getUTCDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-                const isWeekday = (dayOfWeekJamaica >= 1 && dayOfWeekJamaica <= 5); // Monday-Friday
+                const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5);
 
-                // Reset trades for the week if it's a new week (Monday or the very first day if it's not Monday)
-                if (dayOfWeekJamaica === 1 || dayCounter === 1) {
+                if (dayOfWeek === 1 || dayCounter === 1) {
                     tradesThisWeek = 0;
                 }
 
                 let eventOccurred = false;
                 let eventType = 'No Event';
-                let dailyNetChange = 0; // Net change for the 'Net Change (J$)' column
+                let dailyNetChange = 0;
 
-                // Store capital before any events for this specific day
                 let capitalBeforeEvent = currentDailyCapital;
 
-                // 1. Apply Contributions for the day
                 const contributionForToday = monthlyContributionsMap.get(currentDateString);
                 if (contributionForToday) {
                     currentDailyCapital += contributionForToday;
-                    dailyNetChange += contributionForToday; // Contributions also add to net change
+                    dailyNetChange += contributionForToday;
                     eventOccurred = true;
                     eventType = 'Contribution';
                 }
 
-                // 2. Apply Payouts for the day (if any are due)
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
                 if (isPayoutDay) {
                     payoutsDueToday.forEach(payout => {
-                        currentDailyCapital -= payout.actualDeduction; // Deduct actual amount from fund
-                        dailyNetChange -= payout.actualDeduction; // Payouts are negative change
+                        currentDailyCapital -= payout.actualDeduction;
+                        dailyNetChange -= payout.actualDeduction;
 
-                        // Update the original monthly data object with the actual fund balance and status from daily sim
                         const originalMonthlyData = payout.monthlyDataRef;
                         originalMonthlyData.actualPayoutSurplusDeficit = currentDailyCapital;
                         originalMonthlyData.actualPayoutMetStatus = (currentDailyCapital >= 0 || (currentDailyCapital < 0 && originalMonthlyData.accruedNetPayoutObligation === 0));
                     });
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
-                    else eventType += ' & Payout'; // If other events occurred, append
+                    else eventType += ' & Payout';
                 }
 
-                // 3. Simulate Trading for the day (if it's an eligible trading day and a trade is scheduled)
-                // A day is a "Trading Day?" only if it's a weekday AND it's a designated trade day AND no other events occurred.
-                let isTradingDayForDisplay = false; // Default to false
-
-                // A trade occurs if it's a weekday, no other events, we haven't hit the weekly trade limit,
-                // AND the currentDailyCapital is positive.
-                const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < 2 && currentDailyCapital > 0;
+                let isTradingDayForDisplay = false;
+                const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < MAX_TRADES_PER_WEEK && currentDailyCapital > 0;
 
                 if (canTradeOnThisDay && tradeOutcomes.length > 0) {
-                    // Consume a pre-generated trade outcome if eligible for a trade
-                    const isWin = tradeOutcomes.shift(); // Use shift to consume from the beginning of the pre-generated array
-                    const capitalForTradeCalculation = currentDailyCapital; // Use current capital for percentage calculation
+                    const isWin = tradeOutcomes.shift();
+                    const capitalForTradeCalculation = currentDailyCapital;
 
                     let tradeGainLossAmount;
                     if (isWin) {
@@ -1015,15 +868,15 @@
                     currentDailyCapital += tradeGainLossAmount;
                     dailyNetChange += tradeGainLossAmount;
                     eventOccurred = true;
-                    tradesThisWeek++; // Increment trade count for the current week
-                    isTradingDayForDisplay = true; // Mark as a trading day for display
+                    tradesThisWeek++;
+                    isTradingDayForDisplay = true;
                 }
 
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Jamaica' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short', timeZone: 'America/Jamaica' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${isTradingDayForDisplay ? 'Yes' : 'No'}
                         </td>
@@ -1045,54 +898,43 @@
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
-            return currentDailyCapital; // Return the final capital
+            return currentDailyCapital;
         };
 
-
-        // New helper function to set the default initial trading fund input value
         function updateInitialTradingFundDefault() {
-            // This function now only ensures the input is 0 if it's currently 0 or empty,
-            // and does NOT attempt to calculate a default based on monthly contributions.
-            // The initial fund is purely user-defined.
             const currentInputValue = parseFloat(initialTradingFundInput.value);
             if (isNaN(currentInputValue) || currentInputValue === 0) {
                 initialTradingFundInput.value = '0';
             }
         }
 
-
         // --- Event Listeners and Initial Setup ---
 
-        // Attach event listeners to all input fields to re-run simulation
+        membershipTierInput.addEventListener('change', runSimulation);
         simulationStartDateInput.addEventListener('change', runSimulation);
+        numberOfPurchaseMonthsInput.addEventListener('input', runSimulation);
         voucherValueInput.addEventListener('change', runSimulation);
-        vouchersPerMonthInput.addEventListener('change', runSimulation);
+        vouchersPerMonthInput.addEventListener('input', runSimulation); // Changed to 'input' for live updates
         markupRateInput.addEventListener('input', runSimulation);
         markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
-        initialTradingFundInput.addEventListener('input', runSimulation); // Keep this for manual changes
+        initialTradingFundInput.addEventListener('input', runSimulation);
         avgWeeklyWinInput.addEventListener('input', runSimulation);
         maxWeeklyLossInput.addEventListener('input', runSimulation);
         winRateInput.addEventListener('input', runSimulation);
-        simulationSeedInput.addEventListener('input', runSimulation); // New: Listen to seed changes
+        simulationSeedInput.addEventListener('input', runSimulation);
         stressTestModeCheckbox.addEventListener('change', runSimulation);
 
-        // Set default start date to today and run initial simulation
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
-            // Get today's date components in Jamaica timezone
-            const jamaicaTime = new Date(today.toLocaleString('en-US', { timeZone: 'America/Jamaica' }));
-            const year = jamaicaTime.getFullYear();
-            const month = (jamaicaTime.getMonth() + 1).toString().padStart(2, '0');
-            const day = jamaicaTime.getDate().toString().padStart(2, '0');
+            today.setHours(0, 0, 0, 0); // Normalize to local midnight
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
             simulationStartDateInput.value = `${year}-${month}-${day}`;
 
-            // Set the initial default value for initialTradingFundInput on load
-            updateInitialTradingFundDefault(); // Ensure it's 0 or user's last input
-            runSimulation(); // Run simulation on initial page load
+            updateInitialTradingFundDefault();
+            runSimulation();
         });
-
-        // Update parameters based on membership tier selection
-        membershipTierInput.addEventListener('change', runSimulation); // No longer calls updateInitialTradingFundDefault
     </script>
 </body>
 </html>
