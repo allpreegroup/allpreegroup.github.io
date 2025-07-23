@@ -248,8 +248,8 @@
                 <label for="vouchersPerMonth">Vouchers per Month:</label>
                 <select id="vouchersPerMonth">
                     <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
                 </select>
             </div>
             <div class="input-field">
@@ -266,7 +266,7 @@
             </div>
             <div class="input-field">
                 <label for="avgWeeklyWin">Avg Weekly Win (%):</label>
-                <input type="number" id="avgWeeklyWin" value="11.5" min="0" max="100" step="1">
+                <input type="number" id="avgWeeklyWin" value="11" min="0" max="100" step="1">
             </div>
             <div class="input-field">
                 <label for="maxWeeklyLoss">Max Weekly Loss (%):</label>
@@ -274,11 +274,11 @@
             </div>
             <div class="input-field">
                 <label for="winRate">Win Rate (%):</label>
-                <input type="number" id="winRate" value="61.78" min="0" max="100" step="1">
+                <input type="number" id="winRate" value="62" min="0" max="100" step="1">
             </div>
             <div class="input-field">
                 <label for="simulationSeed">Simulation Seed (Optional):</label>
-                <input type="number" id="simulationSeed" value="" placeholder="Enter a number for consistent results">
+                <input type="number" id="simulationSeed" value="1" placeholder="Enter a number for consistent results">
             </div>
             <div class="input-field stress-test-checkbox">
                 <input type="checkbox" id="stressTestMode">
@@ -369,8 +369,8 @@
     <script>
         // --- Constants and Configuration ---
         const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 20; // Used for monthly simulation (approx 2 trades per week)
-        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 20 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
+        const TRADING_WEEKS_PER_MONTH = 8; // Used for monthly simulation (approx 2 trades per week)
+        const TOTAL_TRADES_FOR_CUMULATIVE_LOG = 8 * 12; // Roughly 8 trades per month for 12 months, adjust as needed for daily granularity
         // Calculate the number of extra months needed for payouts to complete
         // Add an extra month to ensure all 12 months of payouts are covered, even for purchases late in the month.
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
@@ -604,8 +604,8 @@
             monthlySimulationResults = []; // Clear and re-initialize for monthly results (will contain all calculated months)
             monthlyPurchaseData = []; // Clear and re-initialize for display (only first 12 months of purchases)
             let cumulativeVoucherPurchases = 0;
-            let totalCashbackOwedAccrued = 0;
-            let totalCashbackPaid = 0;
+            let totalCashbackOwedAccrued = 0; // This will now track the net obligation
+            let totalCashbackPaid = 0; // Will be calculated from daily log deductions
             let overallPayoutSuccess = true; // Assume success until a deficit occurs
 
             // --- Monthly Simulation Loop (Extended to cover all payouts) ---
@@ -628,7 +628,6 @@
                 } else {
                     // For extended months, no new purchases, so obligations are zero
                     monthData.purchaseDate = null; // No new purchases
-                    monthData.totalCashbackOwed = 0;
                     monthData.cashbackAccruedThisMonth = 0;
                     monthData.accruedNetPayoutObligation = 0;
                 }
@@ -702,22 +701,21 @@
                             let payoutSurplusDeficitForPastMonth;
                             let payoutMetStatusForPastMonth;
 
-                            const actualDeduction = Math.min(fundAfterTrades, netCashbackToCoverByTradingFund);
+                            // Always deduct the full net obligation, allowing the fund to go negative
+                            const actualDeduction = netCashbackToCoverByTradingFund;
 
                             fundAfterTrades -= actualDeduction;
                             monthData.payoutDeductedInThisMonth += actualDeduction; // Accumulate deductions for this month in current simulation month
                             pastMonthData.actualDeductionForThisPurchaseMonth = actualDeduction; // Store for combinedPayoutTable
 
-                            if (actualDeduction === netCashbackToCoverByTradingFund) {
-                                totalCashbackPaid += owedFromPastFull; // Full cashback was paid
-                                payoutSurplusDeficitForPastMonth = fundAfterTrades; // Remaining fund after this specific payout
-                                payoutMetStatusForPastMonth = true; // Payout was met
+                            payoutSurplusDeficitForPastMonth = fundAfterTrades; // The fund's balance after this specific payout
+
+                            // Determine payout status: if fund is non-negative OR if no net obligation was due, it's met.
+                            // Otherwise, if fund is negative and there was an obligation, it's a shortfall.
+                            if (fundAfterTrades >= 0 || (fundAfterTrades < 0 && netCashbackToCoverByTradingFund === 0)) {
+                                payoutMetStatusForPastMonth = true; // Payout was met (or no payout was due)
                             } else {
-                                // Shortfall occurred for this specific payout
-                                payoutSurplusDeficitForPastMonth = fundAfterTrades; // Remaining fund after partial payout
-                                overallPayoutSuccess = false;
-                                totalCashbackPaid += fundAfterTrades + amountCoveredByMarkup; // Only what could be paid from fund + markup
-                                fundAfterTrades = 0; // Fund depleted
+                                overallPayoutSuccess = false; // A shortfall occurred if fund went negative and there was an obligation
                                 payoutMetStatusForPastMonth = false; // Payout was a shortfall
                             }
 
@@ -745,9 +743,10 @@
                     monthData.payoutMonthEnd = getEndOfMonthJamaica(monthData.cashbackDueDate);
 
                     monthlyPurchaseData.push(monthData);
-                    // Update Cumulative Summaries only for the first 12 months of purchases
+                    // Update Cumulative Voucher Purchases (still full value)
                     cumulativeVoucherPurchases += monthlyVoucherSpend;
-                    totalCashbackOwedAccrued += monthData.cashbackAccruedThisMonth;
+                    // Update Total Cashback Owed (Accrued) with the NET obligation
+                    totalCashbackOwedAccrued += monthData.accruedNetPayoutObligation;
                 }
             }
 
@@ -755,13 +754,18 @@
             // Display only the first 12 months of purchase data in the tables and charts
             updateTable(monthlyPurchaseData);
             updateCombinedPayoutTable(monthlyPurchaseData);
-            updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, currentTradingFundAtStartOfMonth, overallPayoutSuccess);
+
+            // Calculate totalCashbackPaid from actual deductions in monthlyPurchaseData
+            totalCashbackPaid = monthlyPurchaseData.reduce((sum, data) => sum + data.actualDeductionForThisPurchaseMonth, 0);
+
+            // Run cumulative daily simulation and get the final fund performance
+            const finalNetFundPerformance = runCumulativeDailySimulation();
+
+            updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
             // Removed chart update calls
             // updateChart(monthlyPurchaseData);
             // updateNetPayoutObligationChart(monthlyPurchaseData);
             // updateSurplusDeficitChart(monthlyPurchaseData);
-            // Automatically run cumulative daily simulation
-            runCumulativeDailySimulation();
         };
 
         /**
@@ -885,12 +889,13 @@
 
         /**
          * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
+         * @returns {number} The final capital after all daily events.
          */
         const runCumulativeDailySimulation = () => {
             dailyLogTableBody.innerHTML = ''; // Clear existing rows
 
             if (monthlyPurchaseData.length === 0) {
-                return; // No data to simulate
+                return parseFloat(initialTradingFundInput.value); // Return initial fund if no data
             }
 
             // Start date for daily log, aligned to Jamaica timezone midnight
@@ -915,7 +920,10 @@
             const totalWeeksInPeriod = Math.ceil(totalDaysInPeriod / 7);
             const maxPossibleTrades = totalWeeksInPeriod * 2; // Max 2 trades per week
 
-            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate, rng); // Pass rng here
+            // Re-initialize RNG for daily simulation to ensure consistent daily outcomes for the given seed
+            const seedValue = parseInt(simulationSeedInput.value);
+            const dailyRng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
+            const tradeOutcomes = generateTradeOutcomes(maxPossibleTrades, winRate, dailyRng); // Pass dailyRng here
 
             let dayCounter = 1;
             let currentDate = new Date(startDate); // Start with the Jamaica-aligned start date
@@ -1061,6 +1069,7 @@
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
+            return currentDailyCapital; // Return the final capital
         };
 
 
