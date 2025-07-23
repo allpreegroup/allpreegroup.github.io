@@ -1003,13 +1003,14 @@
                 // A day is a "Trading Day?" only if it's a weekday AND it's a designated trade day AND no other events occurred.
                 let isTradingDayForDisplay = false; // Default to false
 
-                // A trade occurs if it's a weekday, no other events, and we haven't hit the weekly trade limit
-                const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < 2;
+                // A trade occurs if it's a weekday, no other events, we haven't hit the weekly trade limit,
+                // AND the currentDailyCapital is positive.
+                const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < 2 && currentDailyCapital > 0;
 
                 if (canTradeOnThisDay && tradeOutcomes.length > 0) {
                     // Consume a pre-generated trade outcome if eligible for a trade
                     const isWin = tradeOutcomes.shift(); // Use shift to consume from the beginning of the pre-generated array
-                    const capitalForTradeCalculation = currentDailyCapital; // Allow trading on negative capital
+                    const capitalForTradeCalculation = currentDailyCapital; // Use current capital for percentage calculation
 
                     let tradeGainLossAmount;
                     if (isWin) {
