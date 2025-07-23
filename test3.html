@@ -266,7 +266,7 @@
             </div>
             <div class="input-field">
                 <label for="avgWeeklyWin">Avg Weekly Win (%):</label>
-                <input type="number" id="avgWeeklyWin" value="11" min="0" max="100" step="1">
+                <input type="number" id="avgWeeklyWin" value="10.68" min="0" max="100" step="0.01">
             </div>
             <div class="input-field">
                 <label for="maxWeeklyLoss">Max Weekly Loss (%):</label>
@@ -274,7 +274,7 @@
             </div>
             <div class="input-field">
                 <label for="winRate">Win Rate (%):</label>
-                <input type="number" id="winRate" value="62" min="0" max="100" step="1">
+                <input type="number" id="winRate" value="53.4" min="0" max="100" step="0.1">
             </div>
             <div class="input-field">
                 <label for="simulationSeed">Simulation Seed (Optional):</label>
@@ -667,7 +667,7 @@
                     const isWin = tradeOutcomes[week];
                     let gainLossAmount;
                     // Ensure we don't calculate percentage of a negative fund for trading
-                    const capitalForTradeCalculation = Math.max(0, fundAfterTrades);
+                    const capitalForTradeCalculation = fundAfterTrades; // Allow trading on negative capital
 
                     if (isWin) {
                         gainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
@@ -1024,7 +1024,7 @@
                 if (canTradeOnThisDay && tradeOutcomes.length > 0) {
                     // Consume a pre-generated trade outcome if eligible for a trade
                     const isWin = tradeOutcomes.shift(); // Use shift to consume from the beginning of the pre-generated array
-                    const capitalForTradeCalculation = Math.max(0, currentDailyCapital); // Ensure non-negative for percentage calc
+                    const capitalForTradeCalculation = currentDailyCapital; // Allow trading on negative capital
 
                     let tradeGainLossAmount;
                     if (isWin) {
