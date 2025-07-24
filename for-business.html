@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
+    <title>Join Our Deal Platform - For Business</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for social media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+       /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EFF6FF; /* Light background */
+            color: #333;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Custom CSS for header */
+        .header-bg {
+            background-color: #ffffff; /* White background for the header */
+            border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
+        }
+
+        /* Custom CSS for footer */
+        .footer-section {
+            background-color: #2C3E50; /* Dark blue background */
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .footer-section a {
+            color: #60a5fa; /* A light blue for links */
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: #93c5fd; /* Lighter blue on hover */
+            text-decoration: underline;
+        }
+        .footer-section h3 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section ul li a {
+            color: #d1d5db; /* Lighter gray for footer links */
+            font-weight: 400;
+        }
+        .footer-section ul li a:hover {
+            color: #ffffff;
+        }
+
+        /* Re-usable max-width for content containers */
+        .max-w-7xl-custom {
+            max-width: 80rem; /* Equivalent to Tailwind's max-w-7xl (1280px) */
+        }
+       
+
+
+        /* Button primary style */
+        .btn-primary {
+            background-color: #007bff; /* Blue background */
+            color: white;
+            border-radius: 0.5rem; /* Rounded corners */
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Main content area styling */
+        main { /* Changed from .main-content to main tag */
+            flex-grow: 1; /* Allows content to expand and push footer down */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Main content wrapper for form section */
+        .container-wrapper {
+            background-color: #ffffff; /* Background for the wrapper */
+            border-radius: 1.5rem; /* Rounded corners for the main container */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Shadow for the wrapper */
+            padding: 0; /* Remove padding here, it's inside sections */
+            margin: 2rem auto; /* Center horizontally and add vertical margin */
+            max-width: 900px; /* Max width for content, adjusted to fit form */
+            width: 95%; /* Responsive width */
+            overflow: hidden; /* Ensure rounded corners clip content */
+        }
+
+        /* Original container styles, now applied to a div inside container-wrapper */
+        .form-container {
+            padding: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem; /* Larger heading */
+            font-weight: 800; /* Extra bold */
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .benefit-card {
+            background-color: #e0f2fe; /* Light blue */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        .benefit-card:hover {
+            transform: translateY(-5px);
+        }
+        .benefit-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c5282;
+            margin-bottom: 0.75rem;
+        }
+        .benefit-card p {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 0; /* Remove bottom margin from last p in card */
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="url"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box; /* Ensure padding doesn't increase width */
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal; /* Override bold for checkboxes */
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #4a5568;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: auto; /* Allow checkbox to be its natural size */
+            accent-color: #007bff; /* Style checkbox color */
+        }
+        button {
+            background-color: #007bff; /* Primary blue */
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* New styles for the features table */
+        .features-table-section {
+            padding: 3rem;
+            background-color: #f0f4ff; /* Light background for this section */
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .features-table-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 2rem;
+        }
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden; /* Ensures rounded corners apply to table */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .features-table th, .features-table td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .features-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .features-table td {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .features-table td.text-left-col {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+        .features-table .check-icon {
+            color: #22c55e; /* Green checkmark */
+            font-size: 1.2em;
+        }
+        .features-table .cross-icon {
+            color: #ef4444; /* Red cross */
+            font-size: 1.2em;
+        }
+
+        /* Styles for Brand Visibility Section */
+        .brand-visibility-section {
+            padding: 3rem;
+            background-color: #f0f4ff;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .brand-visibility-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+        }
+        .brand-visibility-section p {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            color: #4a5568;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .add-ons-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .add-ons-table th, .add-ons-table td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .add-ons-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .add-ons-table td {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .add-ons-table td.text-left-col {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Styles for DIY Cost Section */
+        .diy-cost-section {
+            padding: 3rem;
+            background-color: #f0f4ff;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .diy-cost-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+        }
+        .diy-cost-section p {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            color: #4a5568;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .diy-cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .diy-cost-table th, .diy-cost-table td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .diy-cost-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .diy-cost-table td {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .diy-cost-table td.text-left-col {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+        .diy-cost-table tfoot td {
+            font-weight: 700;
+            background-color: #e5e7eb;
+            color: #2d3748;
+        }
+
+        /* New styles for the features overview section with alternating layout */
+        .features-overview-section-new {
+            padding: 4rem 1.5rem; /* More vertical padding */
+            background-color: #f0f4ff;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .features-overview-section-new h2 {
+            font-size: 2.5rem; /* Larger headline */
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 3rem;
+        }
+        .feature-block {
+            background-color: #f8fafc; /* Light background for each block */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            margin-bottom: 3rem; /* Space between blocks */
+            overflow: hidden; /* Ensure rounded corners clip content */
+            padding: 2rem; /* Inner padding for the block */
+        }
+        .feature-block:last-child {
+            margin-bottom: 0; /* No margin after the last block */
+        }
+        .feature-block .visual-placeholder {
+            height: 20rem; /* Fixed height for visuals */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0f2fe; /* Light blue background for image area */
+            border-radius: 1rem; /* Rounded corners for image area */
+            overflow: hidden;
+            /* Remove padding here as icons don't need it */
+        }
+        .feature-block .visual-placeholder .visual-icon { /* New style for the icon within visual-placeholder */
+            font-size: 8rem; /* Very large icon size for visual impact */
+            color: #007bff; /* Blue color for icons */
+        }
+        .feature-block .content-block {
+            padding: 1rem 0; /* Padding for text content */
+            text-align: left;
+        }
+        .feature-block .content-block .sub-heading {
+            font-size: 1.75rem; /* Larger sub-heading */
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .feature-block .content-block .feature-icon {
+            font-size: 2.5rem; /* Large icon size */
+            color: #007bff; /* Blue color for icons */
+            margin-right: 1rem;
+        }
+        .feature-block .content-block .list-disc {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        .feature-block .content-block .list-disc li {
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+        .feature-block .content-block .list-disc li strong {
+            color: #333;
+        }
+
+        /* New styles for Membership Tiers & Pricing section */
+        .membership-tiers-section {
+            padding: 3rem;
+            background-color: #f0f4ff;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .membership-tiers-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+        }
+        .membership-tiers-section p {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            color: #4a5568;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .membership-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .membership-table th, .membership-table td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .membership-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .membership-table td {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .membership-table td.text-left-col {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+
+ 
+         /* Custom gradient for a premium look */
+        .pro-max-gradient {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Darker, sophisticated gradient */
+        }
+        /* Custom shadow for depth */
+        .pro-max-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); /* Larger, softer shadow */
+        }
+
+       
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-bg py-4 sticky top-0 z-50">
+        <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <!-- Allpree Logo -->
+                <img src="https://www.allpree.com/img/allpree.com.logo.ja.png" alt="Allpree Logo" class="h-14 w-auto">
+            </div>
+
+            <!-- Desktop Navigation - Hidden on mobile -->
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6 text-gray-700 font-medium">
+                    <li><a href="#" class="btn-primary py-2 px-6 text-base shadow-md">Register Now</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    
+        <section class="bg-gradient-to-br from-blue-950 to-blue-900 text-white py-24 px-6 text-center rounded-b-[4rem] shadow-2xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wLDM1Mi41QzAsNDQyLDc1LDQ4My41LDE1MCw1MjVDMjI1LDU2Ni41LDMwMCw2MDgsMzc1LDYxMkM0NTAsNjE2LDUyNSw1ODQsNjAwLDU2MEM2NzUsNTM2LDc1MCw1MjQsODI1LDUzNCA5MDAsNTQ0LDk3NSw1NTEsMTA1MCw1NDJDMTExMi41LDUzMywxMTY4LjUsNTE5LjUsMTIwMCw1MDZWMEMwLDBWMzUyLjVaIiB0cmFuc2Zvcm09InJvdGF0ZSgxMCkiLz48L3N2Zz4=');  background-size: cover; background-position: center;"></div>
+            <div class="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+                <h1 class="text-6xl text-white md:text-6xl font-extrabold leading-tight mb-6 drop-shadow-lg">
+                    Get Your <span class="text-yellow-300">Free White-Label</span> Deal Platform
+                </h1>
+                <p class="text-2xl text-white md:text-2xl font-light mb-6 opacity-90">
+                   No code. No setup. Upload your first 4 deals today. We handle the rest. Upgrade anytime for more deal slots.
+                </p>
+
+            </div>
+        </section>
+   
+       
+        <!-- New Section: Simple, Smart & Scalable -->
+        <section class="features-overview-section-new">
+            <h2>It Simple, It Smart & It Scalable</h2>
+            <div class="max-w-5xl mx-auto">
+                <!-- Block 1: Update Deals Instantly (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-sync-alt visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Update Deals Instantly</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Just edit your Google Sheet and press one button; your deals go live in seconds.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>⚡ <strong>Real-time Changes:</strong> Push updates live instantly.</li>
+                            <li>✨ <strong>Effortless Management:</strong> Simple Google Sheet integration.</li>
+                            <li>⏱️ <strong>Save Time:</strong> No complex systems to navigate.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Block 2: Smart Deal Targeting (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Smart Deal Targeting</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Use timers, and bold visuals to command attention.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>⏳ <strong>Time-sensitive Offers:</strong> Create urgency with countdowns.</li>
+                            <li>🎨 <strong>Eye-catching Visuals:</strong> Highlight your best deals.</li>
+                            <li>🎯 <strong>Targeted Engagement:</strong> Capture customer interest effectively.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-bullseye visual-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Block 3: Full Shopping Experience (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-shopping-basket visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Full Shopping Experience</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Customers can browse, like, add to cart, and save a full shopping list.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🛍️ <strong>Seamless Browsing:</strong> Easy discovery of deals.</li>
+                            <li>❤️ <strong>Wishlist Functionality:</strong> Customers can save favorites.</li>
+                            <li>🛒 <strong>Convenient Planning:</strong> Build and manage shopping lists.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Block 4: Built-in Navigation (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Built-in Navigation</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Get people straight to your storefront with location buttons inside your brand zone.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>📍 <strong>Direct to Store:</strong> One-tap navigation.</li>
+                            <li>🗺️ <strong>Integrated Maps:</strong> Powered by Google Maps.</li>
+                            <li>⭐ <strong>Enhanced Convenience:</strong> For your customers.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-map-marker-alt visual-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Block 5: Fast Local Discovery (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-rocket visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Fast Local Discovery</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            You're instantly visible to nearby shoppers, no ads, just results.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🚀 <strong>Rapid Visibility:</strong> Connect with local customers.</li>
+                            <li>📈 <strong>Organic Reach:</strong> No need for paid ads.</li>
+                            <li>✅ <strong>Results-driven:</strong> Focus on real customer engagement.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- New Block 6: Strategic Cross-Discovery (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <h3 class="sub-heading">Strategic Cross-Discovery</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            1-hour guest window: where users may explore the wider Allpree ecosystem. After the hour, the app refocuses on your brand, keeping your visibility high and user loyalty strong.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🧭 <strong>Curated Exploration:</strong> Users can discover new brands briefly.</li>
+                            <li>🔄 <strong>Brand Focus Return:</strong> App re-centers on your brand after the window.</li>
+                            <li>🔒 <strong>Sustained Visibility:</strong> Ensures your brand remains prominent.</li>
+                            <li>🤝 <strong>Enhanced Loyalty:</strong> Builds strong, long-term customer relationships.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-compass visual-icon"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: What Does Every Brand Get? -->
+        <section class="features-table-section ">
+            <h2>What Does Every Brand Get?</h2>
+            
+                <table class="features-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Feature</th>
+                            <th>Starter - Basic - Advanced - Pro</th>
+                            <th>Pro Max </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">White-label branded deal zone inside app</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Shareable branded link</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Appear on main Allpree Deals website</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Appear in Allpree app’s 1-hour guest mode</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Add to Cart & Shopping List functionality</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Deal countdown timers and badges</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Auto-expiring and reshuffling deals</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Built-in Google Maps store navigation</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Unlimited deals & full platform control</td>
+                            <td><i class="fas fa-times cross-icon"></i> (limited by tier)</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Dedicated custom deal website</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Priority support & advanced analytics</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            
+        </section>
+
+
+        <!-- New Section: Dedicated Deal Website (For Pro Max) -->
+    <section class="dedicated-website-section
+                    pro-max-gradient
+                    pro-max-shadow
+                    text-white
+                    max-w-5xl
+                    p-8 md:p-12 lg:p-16
+                    rounded-none md:rounded-3xl /* Rounded on larger screens, full width on small */
+                    w-full /* Ensures it takes full width */
+                    mx-auto /* Keeps content centered within the full width */
+                    flex flex-col /* Main section now stacks its immediate children vertically */
+                    items-center /* Center items horizontally */
+                    space-y-8 /* Space between the H2, paragraph, and the content below it */
+                    transform hover:scale-105 transition-transform duration-300 ease-in-out">
+
+        <!-- H2 Heading (now at the top, full width) -->
+        <h2 class="w-full text-center text-white text-2xl md:text-3xl lg:text-4xl font-extrabold leading-normal">
+            🌐 Dedicated Deal Website <span class="text-teal-400">(Pro Max Exclusive)</span>
+        </h2>
+
+        <!-- First Paragraph (now above the side-by-side content) -->
+        <p class="w-full text-center text-lg md:text-xl text-gray-300 mt-4 mb-6">
+           Your custom-branded deal page, a shareable storefront that drives new customers and app installs.
+        </p>
+
+        <!-- Container for the rest of the content (detailed text and image) -->
+        <div class="flex flex-col md:flex-row items-center justify-between
+                    w-full /* This container takes full width */
+                    space-y-8 md:space-y-0 md:space-x-12">
+
+            <!-- Left Content Area (Flex-1 to take available space) -->
+            <div class="flex-1 text-center md:text-left">
+                <div class="space-y-6 mb-8">
+                    <!-- Unrivaled Control -->
+                    <div>
+                        <h3 class="text-1xl font-bold text-teal-400 mb-2 flex items-center justify-center md:justify-start">
+                            <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.92 12c0 3.072 1.887 5.862 4.72 7.356M12 20.001V12"></path></svg>
+                            Unrivaled Control:
+                        </h3>
+                        <p class="text-1xl text-gray-200 text-base md:text-lg ml-9">
+                            Your deals only – no competing brands to distract your customers.
+                        </p>
+                    </div>
+
+                    <!-- Shareable, branded link -->
+                    <div>
+                        <h3 class="text-1xl font-bold text-teal-400 mb-2 flex items-center justify-center md:justify-start">
+                            <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101"></path></svg>
+                            A shareable, branded link, perfect for:
+                        </h3>
+                        <ul class="text-left text-gray-200 space-y-2 ml-9 text-base md:text-lg">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                Instagram bio
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                Facebook
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                TikTok
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                WhatsApp Channels
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                In-store QR codes
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                Google Business profile
+                            </li>
+                        </ul>
+                        <p class="text-1xl text-teal-300 text-base md:text-lg mt-4 ml-9 font-semibold">
+                            🔗 Example: <span class="underline">allpree.com/yourbrand</span>
+                        </p>
+                    </div>
+
+                    <!-- Always Current -->
+                    <div>
+                        <h3 class="text-1xl font-bold text-teal-400 mb-2 flex items-center justify-center md:justify-start">
+                            <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Always Current:
+                        </h3>
+                        <p class="text-1xl text-gray-200 text-base md:text-lg ml-9">
+                            Deals update instantly, ensuring your promotions are always live and accurate.
+                        </p>
+                    </div>
+
+                    <!-- Optimized for Impact -->
+                    <div>
+                        <h3 class="text-1xl font-bold text-teal-400 mb-2 flex items-center justify-center md:justify-start">
+                            <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            Optimized for Impact:
+                        </h3>
+                        <p class="text-1xl text-gray-200 text-base md:text-lg ml-9">
+                            Flawlessly mobile-optimized for a seamless experience on any device, maximizing engagement.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Right Image/Mockup Area -->
+            <div class="flex justify-center md:justify-end">
+                <img src="https://www.allpree.com/img/Promaxwebsite.jpg"
+                     alt="Pro Max Website Mockup"
+                     class="w-full max-w-sm rounded-xl pro-max-shadow border-4 border-gray-700
+                            transform rotate-3 hover:rotate-0 transition-transform duration-300 ease-in-out">
+            </div>
+
+        </div> <!-- End of content and image container -->
+
+    </section>
+
+        <!-- Updated Section: Visibility & Monetization Opportunities -->
+        <section class="brand-visibility-section">
+            <h2>Visibility & Monetization Opportunities</h2>
+            <p>All deals from all brands appear on the main Allpree Deals Website homepage and inside the app’s 1-hour guest discovery window for free, helping attract new customers.</p>
+            <p>Brands can purchase visibility Add-Ons to boost their deals to Top 5 Spots or Featured Brand Spots on both the website and app:</p>
+            <div class="overflow-x-auto">
+                <table class="add-ons-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Add-On Type</th>
+                            <th>24 Hours</th>
+                            <th>7 Days</th>
+                            <th>14 Days</th>
+                            <th>30 Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">Top 5 Spot</td>
+                            <td><span id="jmd-premium-24"></span></td>
+                            <td><span id="jmd-premium-7"></span></td>
+                            <td><span id="jmd-premium-14"></span></td>
+                            <td><span id="jmd-premium-30"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Featured Brand Spot</td>
+                            <td><span id="jmd-featured-24"></span></td>
+                            <td><span id="jmd-featured-7"></span></td>
+                            <td><span id="jmd-featured-14"></span></td>
+                            <td><span id="jmd-featured-30"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- New Section: Build It Yourself? Here's What It Would Cost -->
+        <section class="diy-cost-section">
+            <h2>Build It Yourself? Here's What It Would Cost</h2>
+            <p>Considering building your own loyalty and deal platform? While it offers full control, the upfront and ongoing costs can be substantial. Here's a breakdown of typical expenses you might encounter:</p>
+            <div class="overflow-x-auto">
+                <table class="diy-cost-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Feature / Benefit Plan</th>
+                            <th>DIY Cost</th>
+                            <th>Plan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">Loyalty App Development</td>
+                            <td>J$1,570,000+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">App Ongoing Maintenance</td>
+                            <td>J$600,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Development</td>
+                            <td>J$250,000+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Hosting</td>
+                            <td>J$50,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Maintenance</td>
+                            <td>J$600,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Marketing & CAC Tools</td>
+                            <td>J$300,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Ongoing Feature Updates & Development</td>
+                            <td>J$400,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Dedicated Account & Project Management</td>
+                            <td>J$100,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-left-col">Total DIY Cost</td>
+                            <td>J$1.8M+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col"></td>
+                            <td>J$2M+</td>
+                            <td>Yearly</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- New Section: Membership Tiers & Pricing -->
+        <section class="membership-tiers-section">
+            <h2>Membership Tiers & Pricing</h2>
+            <p>Choose the plan that best fits your brand's needs and scale your deal offerings with flexibility.</p>
+            <div class="overflow-x-auto">
+                <table class="membership-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Price Per Year</th>
+                            <th>Deal Slots</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Starter</td>
+                            <td>Free<br></td> 
+                            <td>4</td>
+                            <td>24 hrs</td>
+                        </tr>
+                        <tr>
+                            <td>Basic</td>
+                            <td><span id="jmd-starter"></span></td>
+                            <td>10</td>
+                            <td>7 days</td>
+                        </tr>
+                        <tr>
+                            <td>Advanced</td>
+                            <td><span id="jmd-diamond"></span></td>
+                            <td>50</td>
+                            <td>14 days</td>
+                        </tr>
+                        <tr>
+                            <td>Pro</td>
+                            <td><span id="jmd-crown"></span></td>
+                            <td>150</td>
+                            <td>Flexible</td>
+                        </tr>
+                        <tr>
+                            <td>Pro Max</td>
+                            <td><span id="jmd-elite"></span></td>
+                            <td>Unlimited</td>
+                            <td>Flexible</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+     <!-- New Section: Affiliate Fee -->
+    <section class="affiliate-fee-section
+                    pro-max-gradient
+                    pro-max-shadow
+                    text-white
+                    mb-10
+                    p-8 md:p-12 lg:p-16
+                    rounded-none md:rounded-3xl /* Rounded on larger screens, full width on small */
+                    w-full max-w-4xl /* Ensures it takes full width up to a max-width */
+                    mx-auto /* Keeps content centered within the full width */
+                    flex flex-col
+                    items-center
+                    text-center
+                    space-y-6
+                    transition-transform duration-300 ease-in-out"> <!-- Removed hover:scale-105 -->
+
+        <h2 class="text-2xl md:text-3xl lg:text-4xl  leading-normal text-teal-400">
+            💰 Affiliate Fee
+        </h2>
+
+        <p class="text-1xl text-lg md:text-xl text-gray-300">
+            You only pay <span class="font-bold text-white">J$200</span> per successful in-store purchase made with an Allpree Gift Card.
+        </p>
+
+        <p class="text-1xl text-base md:text-lg text-gray-400 italic">
+            * This fee only applies to GiftMe-powered merchants.
+        </p>
+
+    </section>
+
+    <!--
+ <div class="form-container max-w-3xl mx-auto">
+            <h1>Partner with Us!</h1>
+            <p>Join our rapidly growing deal platform and connect with thousands of eager customers looking for amazing offers. Expand your reach, boost sales, and build lasting customer relationships.</p>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>Expand Your Reach</h3>
+                    <p>Access a wide audience of active shoppers ready to discover new brands and great deals.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Drive Sales</h3>
+                    <p>Attract new customers and encourage repeat business with compelling offers and promotions.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Brand Visibility</h3>
+                    <p>Increase your brand's presence and recognition among a targeted and engaged community.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Simple Integration</h3>
+                    <p>Our platform is designed for easy deal creation and management, saving you time and effort.</p>
+                </div>
+            </div>
+
+            <h2>Ready to Partner? Tell Us About Your Brand!</h2>
+            <p>Fill out the form below, and our partnership team will get in touch to discuss how we can help your business thrive.</p>
+
+            <form id="brandJoinForm" class="mt-8">
+                <div class="form-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" id="companyName" name="companyName" placeholder="Your Company Name" required class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label for="contactPerson">Contact Person:</label>
+                    <input type="text" id="contactPerson" name="contactPerson" placeholder="Full Name" required class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" placeholder="contact@yourcompany.com" required class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890" class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Website (Optional):</label>
+                    <input type="url" id="website" name="website" placeholder="https://www.yourcompany.com" class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label>Type of Deals You Offer:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="dealType" value="Discounts"> Discounts
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="BOGO"> Buy One Get One (BOGO)
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Freebies"> Freebies / Giveaways
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Bundles"> Product Bundles
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Loyalty"> Loyalty Programs
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Exclusive"> Exclusive Offers
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Other"> Other
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessDescription">Tell Us About Your Business & Deals:</label>
+                    <textarea id="businessDescription" name="businessDescription" rows="4" placeholder="Briefly describe your business, what kind of deals you're interested in running, and what makes your brand unique." class="rounded-lg"></textarea>
+                </div>
+
+                <button type="submit" class="rounded-lg">Submit Partnership Inquiry</button>
+            </form>
+
+            <div id="responseMessage" class="mt-6 p-4 rounded-lg text-center hidden"></div>
+        </div>
+
+-->
+
+
+   <!-- Footer -->
+    <footer class="footer-section mt-auto">
+        <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
+            <!-- About Allpree Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">About Allpree</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Allpree shows you the best local deals. From groceries to fashion and many more. We help you save every day. We search high and low to bring you unbeatable local prices on the products you love, so you can spend less and enjoy more
+                </p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="https://www.facebook.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-tiktok fa-lg"></i>
+                    </a>
+                    <a href="https://twitter.com/allpreedotcom" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+             <!-- Company Information Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">COMPANY</h3>
+                <ul>
+                  <li><a href="https://www.allpree.com/about-us" class="text-gray-300 hover:text-white transition-colors duration-200">About Us</a></li>
+                   <li><a href="https://www.allpree.com/who-we-are" class="text-gray-300 hover:text-white transition-colors duration-200">Who We Are</a></li>
+                  <li><a href="https://www.allpree.com/what-we-do" class="text-gray-300 hover:text-white transition-colors duration-200">What We Do</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Our Team</a></li>
+                   <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Work With Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Let Us Help Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">LET US HELP</h3>
+                <ul>
+                   <li><a href="https://www.allpree.com/for-business" class="text-gray-300 hover:text-white transition-colors duration-200">For Business</a></li>
+                   <li><a href="https://www.allpree.com/for-shoppers" class="text-gray-300 hover:text-white transition-colors duration-200">For Shoppers</a></li>
+                    <li><a href="https://www.allpree.com/all-stores" class="text-gray-300 hover:text-white transition-colors duration-200">View All Stores</a></li>
+                   <li><a href="https://www.allpree.com/install" class="text-gray-300 hover:text-white transition-colors duration-200">Install App</a></li>
+                   <li><a href="https://www.allpree.com/join" class="text-gray-300 hover:text-white transition-colors duration-200">Register Now</a></li>
+                </ul>
+            </div>
+
+            <!-- My Account Column -->
+            <div class="col-span-1">
+                <h3 class="text-white mb-4">LEARN MORE</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How Gift Card Work</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How CashBack Work</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How Customer Care Work</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How Local Deals Work</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How In-House Fund Work</a></li>
+                </ul>
+            </div> 
+
+        </div>
+        <div class="max-w-7xl-custom mx-auto px-6 pt-4 border-t border-gray-700 text-center text-gray-400 text-xs">
+            <p class="mb-2"><strong>Your Privacy is Guaranteed.</strong> We will never give, lease, or sell your personal information. Period!</p>
+            <p class="mb-2">&copy; Copyright 2024 - <span id="current-year"></span>&nbsp;Allpree Local Deals operates under the management of Allpree Group Holding Ltd. All Rights Reserved.</p>
+            <p>By using our services, you agree to our <a href="/legal" class="text-blue-400 hover:underline">Terms & Conditions</a> and <a href="/legal" class="text-blue-400 hover:underline">Privacy Policy</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('brandJoinForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                if (key === 'dealType') {
+                    if (!data[key]) {
+                        data[key] = [];
+                    }
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            const responseMessageDiv = document.getElementById('responseMessage');
+            responseMessageDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            responseMessageDiv.classList.add('bg-blue-100', 'text-blue-700');
+            responseMessageDiv.textContent = 'Submitting your inquiry...';
+
+            // Simulate API call (replace with actual backend submission)
+            setTimeout(() => {
+                const success = Math.random() > 0.1; // 90% chance of success
+
+                if (success) {
+                    responseMessageDiv.classList.remove('bg-blue-100', 'text-blue-700', 'bg-red-100', 'text-red-700');
+                    responseMessageDiv.classList.add('bg-green-100', 'text-green-700');
+                    responseMessageDiv.textContent = 'Thank you for your inquiry! Our team will review your submission and get back to you shortly.';
+                    form.reset(); // Clear the form on success
+                } else {
+                    responseMessageDiv.classList.remove('bg-blue-100', 'text-blue-700', 'bg-green-100', 'text-green-700');
+                    responseMessageDiv.classList.add('bg-red-100', 'text-red-700');
+                    responseMessageDiv.textContent = 'Oops! Something went wrong with your submission. Please try again later or contact us directly.';
+                }
+                responseMessageDiv.classList.remove('hidden');
+            }, 1500); // Simulate network delay
+        });
+
+        // Set the current year dynamically
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+    </script>
+    <script>
+        function zeroOutAfterFirstComma(n) {
+            const num = Math.floor(n); // Ensure integer
+            const parts = num.toLocaleString().split(',');
+            if (parts.length === 1) return num; // No comma, return as-is
+            const firstPart = parts[0];
+            const zeroed = firstPart + ','.padEnd(parts.slice(1).join('').length + 1, '0');
+            return parseInt(zeroed.replace(/,/g, ''), 10);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4')
+                .then(res => res.json())
+                .then(data => {
+                    const rate = parseFloat(data[0]['USD Rate']);
+                    if (isNaN(rate)) return;
+
+                    // Plan pricing
+                    const plans = ['starter', 'diamond', 'crown', 'elite', 'license'];
+                    plans.forEach(plan => {
+                        const usdVal = parseFloat(data[0][`jmd-${plan}`]);
+                        if (!isNaN(usdVal)) {
+                            const rawJmd = usdVal * rate;
+                            const roundedJmd = zeroOutAfterFirstComma(rawJmd).toLocaleString();
+
+                            const usdEl = document.getElementById(`usd-${plan}`);
+                            const jmdEl = document.getElementById(`jmd-${plan}`);
+                            if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()}${plan === 'license' ? ' / 3 year' : ' '}`;
+                            if (jmdEl) jmdEl.textContent = `J$${roundedJmd.toLocaleString()}${plan === 'license' ? ' / 3 year' : ''}`;
+                        }
+                    });
+
+                    // Add-on pricing (Featured Brand & Premium Spot)
+                    const durations = ['24', '7', '14', '30']; // in days
+                    durations.forEach((d, i) => {
+                        const featuredUSD = parseFloat(data[i]['featured brand']);
+                        const premiumUSD = parseFloat(data[i]['premium spots']);
+
+                        if (!isNaN(featuredUSD)) {
+                            const jmd = zeroOutAfterFirstComma(featuredUSD * rate).toLocaleString();
+                            const usdEl = document.getElementById(`usd-featured-${d}`);
+                            const jmdEl = document.getElementById(`jmd-featured-${d}`);
+                            if (usdEl) usdEl.textContent = `USD $${featuredUSD}`;
+                            if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+                        }
+
+                        if (!isNaN(premiumUSD)) {
+                            const jmd = zeroOutAfterFirstComma(premiumUSD * rate).toLocaleString();
+                            const usdEl = document.getElementById(`usd-premium-${d}`);
+                            const jmdEl = document.getElementById(`jmd-premium-${d}`);
+                            if (usdEl) usdEl.textContent = `USD $${premiumUSD}`;
+                            if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+                        }
+                    });
+                })
+                .catch(err => console.error('Fetch error:', err));
+        });
+    </script>
+</body>
+</html>
