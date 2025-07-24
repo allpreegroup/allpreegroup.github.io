@@ -12,14 +12,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Base styles */
-       body {
+        body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff; /* Light background */
+            background-color:#f0f4ff; /* Light gray background */
             color: #333;
-            overflow-x: hidden;
+            min-height: 10vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            /* Removed align-items and justify-content from body, as main content wrapper now handles centering */
+            padding: 0; /* Remove body padding, header/footer/main sections will handle their own padding */
+            overflow-x: hidden; /* Prevent horizontal scrollbar */
         }
 
         /* Custom CSS for header */
@@ -27,8 +29,14 @@
             background-color: #ffffff; /* White background for the header */
             border-bottom: 1px solid #e5e7eb; /* Light gray border at the bottom */
         }
+        .content-paragraph {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+        }
 
-       /* Custom CSS for footer */
+        /* Custom CSS for footer */
         .footer-section {
             background-color: #2C3E50; /* Dark blue background */
             color: white;
@@ -93,7 +101,17 @@
             align-items: center;
         }
 
-        
+        /* Main content wrapper for form section */
+        .container-wrapper {
+            background-color: #ffffff; /* Background for the wrapper */
+            border-radius: 1.5rem; /* Rounded corners for the main container */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Shadow for the wrapper */
+            padding: 0; /* Remove padding here, it's inside sections */
+            margin: 2rem auto; /* Center horizontally and add vertical margin */
+            max-width: 900px; /* Max width for content, adjusted to fit form */
+            width: 95%; /* Responsive width */
+            overflow: hidden; /* Ensure rounded corners clip content */
+        }
 
         /* Original container styles, now applied to a div inside container-wrapper */
         .form-container {
@@ -386,60 +404,71 @@
             color: #2d3748;
         }
 
-        /* Styles for the new "Simple, Smart & Scalable" section */
-        .features-overview-section {
-            padding: 3rem;
-            background-color: #ffffff;
+        /* New styles for the features overview section with alternating layout */
+        .features-overview-section-new {
+            padding: 4rem 1.5rem; /* More vertical padding */
+            background-color: #f0f4ff;
             border-top: 1px solid #e5e7eb;
             text-align: center;
         }
-        .features-overview-section h2 {
-            font-size: 2.5rem; /* Larger headline for this section */
+        .features-overview-section-new h2 {
+            font-size: 2.5rem; /* Larger headline */
             font-weight: 800;
             color: #1a202c;
             margin-bottom: 3rem;
         }
-        .feature-item {
+        .feature-block {
+            background-color: #f8fafc; /* Light background for each block */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            margin-bottom: 3rem; /* Space between blocks */
+            overflow: hidden; /* Ensure rounded corners clip content */
+            padding: 2rem; /* Inner padding for the block */
+        }
+        .feature-block:last-child {
+            margin-bottom: 0; /* No margin after the last block */
+        }
+        .feature-block .visual-placeholder {
+            height: 20rem; /* Fixed height for visuals */
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            background-color: #f8fafc;
-            border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
+            background-color: #e0f2fe; /* Light blue background for image area */
+            border-radius: 1rem; /* Rounded corners for image area */
+            overflow: hidden;
+            /* Remove padding here as icons don't need it */
+        }
+        .feature-block .visual-placeholder .visual-icon { /* New style for the icon within visual-placeholder */
+            font-size: 8rem; /* Very large icon size for visual impact */
+            color: #007bff; /* Blue color for icons */
+        }
+        .feature-block .content-block {
+            padding: 1rem 0; /* Padding for text content */
             text-align: left;
         }
-        .feature-item.reverse {
-            flex-direction: row-reverse; /* Reverse order for alternating layout */
-            text-align: right;
-        }
-        .feature-item .icon-wrapper {
-            flex-shrink: 0; /* Prevent icon from shrinking */
-            font-size: 3rem; /* Large icon size */
-            color: #007bff; /* Blue color for icons */
-            padding: 0.5rem;
-        }
-        .feature-item h3 {
-            font-size: 1.5rem;
+        .feature-block .content-block .sub-heading {
+            font-size: 1.75rem; /* Larger sub-heading */
             font-weight: 700;
             color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .feature-block .content-block .feature-icon {
+            font-size: 2.5rem; /* Large icon size */
+            color: #007bff; /* Blue color for icons */
+            margin-right: 1rem;
+        }
+        .feature-block .content-block .list-disc {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+        .feature-block .content-block .list-disc li {
             margin-bottom: 0.5rem;
-        }
-        .feature-item p {
-            font-size: 1rem;
-            line-height: 1.6;
             color: #4a5568;
-            margin-bottom: 0; /* Remove default paragraph margin */
+            font-size: 0.95rem;
         }
-        .feature-item.reverse .icon-wrapper {
-            margin-left: 1.5rem; /* Space on the left when reversed */
-            margin-right: 0;
+        .feature-block .content-block .list-disc li strong {
+            color: #333;
         }
-        .feature-item .content-text {
-            flex-grow: 1;
-        }
-
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -477,7 +506,7 @@
             .features-table-section,
             .brand-visibility-section,
             .diy-cost-section,
-            .features-overview-section { /* Apply responsive padding to new section too */
+            .features-overview-section-new { /* Apply responsive padding to new section too */
                 padding: 1.5rem;
             }
             .features-table,
@@ -495,33 +524,42 @@
             .diy-cost-table td.text-left-col {
                 text-align: left; /* Keep left alignment for first column */
             }
-            .features-overview-section h2 {
+            .features-overview-section-new h2 {
                 font-size: 2rem; /* Smaller headline on mobile */
             }
-            .feature-item {
-                flex-direction: column; /* Stack icon and text vertically on mobile */
-                text-align: center;
+            .feature-block {
+                padding: 1.5rem; /* Smaller padding for blocks on mobile */
             }
-            .feature-item.reverse {
-                flex-direction: column; /* Still stack on mobile, ignore reverse */
-                text-align: center;
+            .feature-block .visual-placeholder {
+                height: 15rem; /* Smaller height for visuals on mobile */
+                margin-bottom: 1.5rem; /* Space between visual and text on mobile */
             }
-            .feature-item .icon-wrapper {
-                margin-bottom: 0.5rem; /* Space between icon and text when stacked */
-                margin-right: 0; /* Remove right margin when stacked */
-                margin-left: 0; /* Remove left margin when stacked */
+            .feature-block .visual-placeholder .visual-icon { /* Smaller icon size on mobile */
+                font-size: 6rem;
             }
-            .feature-item h3 {
-                font-size: 1.25rem; /* Smaller heading for features on mobile */
+            .feature-block .content-block {
+                text-align: center; /* Center text on mobile */
             }
-            .feature-item p {
-                font-size: 0.9rem; /* Smaller paragraph text on mobile */
+            .feature-block .content-block .sub-heading {
+                font-size: 1.5rem; /* Smaller sub-heading on mobile */
+            }
+            .feature-block .content-block .feature-icon {
+                font-size: 2rem; /* Smaller icon size on mobile */
+                margin-right: 0;
+                margin-bottom: 0.5rem; /* Space between icon and heading */
+            }
+            .feature-block .content-block .flex {
+                justify-content: center; /* Center icon and heading on mobile */
+            }
+            .feature-block .content-block .list-disc {
+                text-align: left; /* Keep list left aligned even if text is centered */
+                padding-left: 1rem;
             }
         }
     </style>
 </head>
 <body>
-  <!-- Header -->
+    <!-- Header -->
     <header class="header-bg py-4 sticky top-0 z-50">
         <div class="max-w-7xl-custom mx-auto px-6 flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -642,56 +680,111 @@
             </div>
 
             <!-- New Section: Simple, Smart & Scalable -->
-            <section class="features-overview-section">
+            <section class="features-overview-section-new">
                 <h2>⚙️ Simple, Smart & Scalable</h2>
-                <div class="max-w-3xl mx-auto">
-                    <div class="feature-item">
-                        <div class="content-text">
-                            <h3>Update Deals Instantly</h3>
-                            <p>Just edit your Google Sheet and press one button — your deals go live in seconds.</p>
+                <div class="max-w-5xl mx-auto">
+                    <!-- Block 1: Update Deals Instantly (Visual Left, Text Right) -->
+                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                        <div class="visual-placeholder">
+                            <i class="fas fa-sync-alt visual-icon"></i>
                         </div>
-                        <div class="icon-wrapper">
-                            <i class="fas fa-sync-alt"></i>
-                        </div>
-                    </div>
-
-                    <div class="feature-item reverse">
-                        <div class="icon-wrapper">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <div class="content-text">
-                            <h3>Smart Deal Targeting</h3>
-                            <p>Use timers, and bold visuals to command attention.</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="content-text">
-                            <h3>Full Shopping Experience</h3>
-                            <p>Customers can browse, like, add to cart, and save a full shopping list.</p>
-                        </div>
-                        <div class="icon-wrapper">
-                            <i class="fas fa-shopping-basket"></i>
+                        <div class="content-block">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <i class="fas fa-sync-alt feature-icon"></i>
+                                <h3 class="sub-heading">Update Deals Instantly</h3>
+                            </div>
+                            <p class="content-paragraph">
+                                Just edit your Google Sheet and press one button — your deals go live in seconds.
+                            </p>
+                            <ul class="list-disc list-inside mt-4 space-y-2">
+                                <li>⚡ <strong>Real-time Changes:</strong> Push updates live instantly.</li>
+                                <li>✨ <strong>Effortless Management:</strong> Simple Google Sheet integration.</li>
+                                <li>⏱️ <strong>Save Time:</strong> No complex systems to navigate.</li>
+                            </ul>
                         </div>
                     </div>
 
-                    <div class="feature-item reverse">
-                        <div class="icon-wrapper">
-                            <i class="fas fa-map-marker-alt"></i>
+                    <!-- Block 2: Smart Deal Targeting (Visual Right, Text Left) -->
+                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                        <div class="content-block order-2 md:order-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <i class="fas fa-bullseye feature-icon"></i>
+                                <h3 class="sub-heading">Smart Deal Targeting</h3>
+                            </div>
+                            <p class="content-paragraph">
+                                Use timers, and bold visuals to command attention.
+                            </p>
+                            <ul class="list-disc list-inside mt-4 space-y-2">
+                                <li>⏳ <strong>Time-sensitive Offers:</strong> Create urgency with countdowns.</li>
+                                <li>🎨 <strong>Eye-catching Visuals:</strong> Highlight your best deals.</li>
+                                <li>🎯 <strong>Targeted Engagement:</strong> Capture customer interest effectively.</li>
+                            </ul>
                         </div>
-                        <div class="content-text">
-                            <h3>Built-in Navigation</h3>
-                            <p>Get people straight to your storefront with location buttons inside your brand zone.</p>
+                        <div class="visual-placeholder order-1 md:order-2">
+                            <i class="fas fa-bullseye visual-icon"></i>
                         </div>
                     </div>
 
-                    <div class="feature-item">
-                        <div class="content-text">
-                            <h3>Fast Local Discovery</h3>
-                            <p>You're instantly visible to nearby shoppers — no ads, just results.</p>
+                    <!-- Block 3: Full Shopping Experience (Visual Left, Text Right) -->
+                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                        <div class="visual-placeholder">
+                            <i class="fas fa-shopping-basket visual-icon"></i>
                         </div>
-                        <div class="icon-wrapper">
-                            <i class="fas fa-rocket"></i>
+                        <div class="content-block">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <i class="fas fa-shopping-basket feature-icon"></i>
+                                <h3 class="sub-heading">Full Shopping Experience</h3>
+                            </div>
+                            <p class="content-paragraph">
+                                Customers can browse, like, add to cart, and save a full shopping list.
+                            </p>
+                            <ul class="list-disc list-inside mt-4 space-y-2">
+                                <li>🛍️ <strong>Seamless Browsing:</strong> Easy discovery of deals.</li>
+                                <li>❤️ <strong>Wishlist Functionality:</strong> Customers can save favorites.</li>
+                                <li>🛒 <strong>Convenient Planning:</strong> Build and manage shopping lists.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Block 4: Built-in Navigation (Visual Right, Text Left) -->
+                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                        <div class="content-block order-2 md:order-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <i class="fas fa-map-marker-alt feature-icon"></i>
+                                <h3 class="sub-heading">Built-in Navigation</h3>
+                            </div>
+                            <p class="content-paragraph">
+                                Get people straight to your storefront with location buttons inside your brand zone.
+                            </p>
+                            <ul class="list-disc list-inside mt-4 space-y-2">
+                                <li>📍 <strong>Direct to Store:</strong> One-tap navigation.</li>
+                                <li>🗺️ <strong>Integrated Maps:</strong> Powered by Google Maps.</li>
+                                <li>⭐ <strong>Enhanced Convenience:</strong> For your customers.</li>
+                            </ul>
+                        </div>
+                        <div class="visual-placeholder order-1 md:order-2">
+                            <i class="fas fa-map-marker-alt visual-icon"></i>
+                        </div>
+                    </div>
+
+                    <!-- Block 5: Fast Local Discovery (Visual Left, Text Right) -->
+                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                        <div class="visual-placeholder">
+                            <i class="fas fa-rocket visual-icon"></i>
+                        </div>
+                        <div class="content-block">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <i class="fas fa-rocket feature-icon"></i>
+                                <h3 class="sub-heading">Fast Local Discovery</h3>
+                            </div>
+                            <p class="content-paragraph">
+                                You're instantly visible to nearby shoppers — no ads, just results.
+                            </p>
+                            <ul class="list-disc list-inside mt-4 space-y-2">
+                                <li>🚀 <strong>Rapid Visibility:</strong> Connect with local customers.</li>
+                                <li>📈 <strong>Organic Reach:</strong> No need for paid ads.</li>
+                                <li>✅ <strong>Results-driven:</strong> Focus on real customer engagement.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -879,7 +972,7 @@
         
     </main>
 
-    <!-- Footer -->
+      <!-- Footer -->
     <footer class="footer-section mt-auto">
         <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
             <!-- About Allpree Column -->
