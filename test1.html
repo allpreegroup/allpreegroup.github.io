@@ -16,10 +16,9 @@
             font-family: 'Inter', sans-serif;
             background-color:#f0f4ff; /* Light gray background */
             color: #333;
-            min-height: 10vh;
+            min-height: 100vh; /* Ensure body takes full viewport height */
             display: flex;
             flex-direction: column;
-            /* Removed align-items and justify-content from body, as main content wrapper now handles centering */
             padding: 0; /* Remove body padding, header/footer/main sections will handle their own padding */
             overflow-x: hidden; /* Prevent horizontal scrollbar */
         }
@@ -94,7 +93,7 @@
         }
 
         /* Main content area styling */
-        .main-content {
+        main { /* Changed from .main-content to main tag */
             flex-grow: 1; /* Allows content to expand and push footer down */
             display: flex;
             flex-direction: column;
@@ -470,6 +469,60 @@
             color: #333;
         }
 
+        /* New styles for Membership Tiers & Pricing section */
+        .membership-tiers-section {
+            padding: 3rem;
+            background-color: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .membership-tiers-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+        }
+        .membership-tiers-section p {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            color: #4a5568;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .membership-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        .membership-table th, .membership-table td {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .membership-table th {
+            background-color: #e0f2fe;
+            color: #2c5282;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .membership-table td {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+        .membership-table td.text-left-col {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             body {
@@ -506,22 +559,26 @@
             .features-table-section,
             .brand-visibility-section,
             .diy-cost-section,
-            .features-overview-section-new { /* Apply responsive padding to new section too */
+            .features-overview-section-new,
+            .membership-tiers-section { /* Apply responsive padding to new section too */
                 padding: 1.5rem;
             }
             .features-table,
             .add-ons-table,
-            .diy-cost-table {
+            .diy-cost-table,
+            .membership-table {
                 font-size: 0.8rem; /* Smaller font for table on mobile */
             }
             .features-table th, .features-table td,
             .add-ons-table th, .add-ons-table td,
-            .diy-cost-table th, .diy-cost-table td {
+            .diy-cost-table th, .diy-cost-table td,
+            .membership-table th, .membership-table td {
                 padding: 0.75rem; /* Reduced padding for mobile table */
             }
             .features-table td.text-left-col,
             .add-ons-table td.text-left-col,
-            .diy-cost-table td.text-left-col {
+            .diy-cost-table td.text-left-col,
+            .membership-table td.text-left-col {
                 text-align: left; /* Keep left alignment for first column */
             }
             .features-overview-section-new h2 {
@@ -576,6 +633,7 @@
         </div>
     </header>
 
+    <main> <!-- Main content area -->
         <section class="bg-gradient-to-br from-blue-950 to-blue-900 text-white py-24 px-6 text-center rounded-b-[4rem] shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wLDM1Mi41QzAsNDQyLDc1LDQ4My41LDE1MCw1MjVDMjI1LDU2Ni41LDMwMCw2MDgsMzc1LDYxMkM0NTAsNjE2LDUyNSw1ODQsNjAwLDU2MEM2NzUsNTM2LDc1MCw1MjQsODI1LDUzNCA5MDAsNTQ0LDk3NSw1NTEsMTA1MCw1NDJDMTExMi41LDUzMywxMTY4LjUsNTE5LjUsMTIwMCw1MDZWMEMwLDBWMzUyLjVaIiB0cmFuc2Zvcm09InJvdGF0ZSgxMCkiLz48L3N2Zz4=');  background-size: cover; background-position: center;"></div>
             <div class="w-full px-4 sm:px-6 lg:px-8 relative z-10">
@@ -589,413 +647,462 @@
             </div>
         </section>
    
-            <div class="form-container">
-                <h1>Partner with Us!</h1>
-                <p>Join our rapidly growing deal platform and connect with thousands of eager customers looking for amazing offers. Expand your reach, boost sales, and build lasting customer relationships.</p>
+        <div class="form-container">
+            <h1>Partner with Us!</h1>
+            <p>Join our rapidly growing deal platform and connect with thousands of eager customers looking for amazing offers. Expand your reach, boost sales, and build lasting customer relationships.</p>
 
-                <div class="benefits-grid">
-                    <div class="benefit-card">
-                        <h3>Expand Your Reach</h3>
-                        <p>Access a wide audience of active shoppers ready to discover new brands and great deals.</p>
-                    </div>
-                    <div class="benefit-card">
-                        <h3>Drive Sales</h3>
-                        <p>Attract new customers and encourage repeat business with compelling offers and promotions.</p>
-                    </div>
-                    <div class="benefit-card">
-                        <h3>Brand Visibility</h3>
-                        <p>Increase your brand's presence and recognition among a targeted and engaged community.</p>
-                    </div>
-                    <div class="benefit-card">
-                        <h3>Simple Integration</h3>
-                        <p>Our platform is designed for easy deal creation and management, saving you time and effort.</p>
-                    </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>Expand Your Reach</h3>
+                    <p>Access a wide audience of active shoppers ready to discover new brands and great deals.</p>
                 </div>
-
-                <h2>Ready to Partner? Tell Us About Your Brand!</h2>
-                <p>Fill out the form below, and our partnership team will get in touch to discuss how we can help your business thrive.</p>
-
-                <form id="brandJoinForm" class="mt-8">
-                    <div class="form-group">
-                        <label for="companyName">Company Name:</label>
-                        <input type="text" id="companyName" name="companyName" placeholder="Your Company Name" required class="rounded-lg">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contactPerson">Contact Person:</label>
-                        <input type="text" id="contactPerson" name="contactPerson" placeholder="Full Name" required class="rounded-lg">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email Address:</label>
-                        <input type="email" id="email" name="email" placeholder="contact@yourcompany.com" required class="rounded-lg">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Phone Number:</label>
-                        <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890" class="rounded-lg">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="website">Website (Optional):</label>
-                        <input type="url" id="website" name="website" placeholder="https://www.yourcompany.com" class="rounded-lg">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Type of Deals You Offer:</label>
-                        <div class="checkbox-group">
-                            <label>
-                                <input type="checkbox" name="dealType" value="Discounts"> Discounts
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="BOGO"> Buy One Get One (BOGO)
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="Freebies"> Freebies / Giveaways
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="Bundles"> Product Bundles
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="Loyalty"> Loyalty Programs
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="Exclusive"> Exclusive Offers
-                            </label>
-                            <label>
-                                <input type="checkbox" name="dealType" value="Other"> Other
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="businessDescription">Tell Us About Your Business & Deals:</label>
-                        <textarea id="businessDescription" name="businessDescription" rows="4" placeholder="Briefly describe your business, what kind of deals you're interested in running, and what makes your brand unique." class="rounded-lg"></textarea>
-                    </div>
-
-                    <button type="submit" class="rounded-lg">Submit Partnership Inquiry</button>
-                </form>
-
-                <div id="responseMessage" class="mt-6 p-4 rounded-lg text-center hidden"></div>
+                <div class="benefit-card">
+                    <h3>Drive Sales</h3>
+                    <p>Attract new customers and encourage repeat business with compelling offers and promotions.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Brand Visibility</h3>
+                    <p>Increase your brand's presence and recognition among a targeted and engaged community.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Simple Integration</h3>
+                    <p>Our platform is designed for easy deal creation and management, saving you time and effort.</p>
+                </div>
             </div>
 
-            <!-- New Section: Simple, Smart & Scalable -->
-            <section class="features-overview-section-new">
-                <h2>⚙️ Simple, Smart & Scalable</h2>
-                <div class="max-w-5xl mx-auto">
-                    <!-- Block 1: Update Deals Instantly (Visual Left, Text Right) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="visual-placeholder">
-                            <i class="fas fa-sync-alt visual-icon"></i>
-                        </div>
-                        <div class="content-block">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-sync-alt feature-icon"></i>
-                                <h3 class="sub-heading">Update Deals Instantly</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                Just edit your Google Sheet and press one button — your deals go live in seconds.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>⚡ <strong>Real-time Changes:</strong> Push updates live instantly.</li>
-                                <li>✨ <strong>Effortless Management:</strong> Simple Google Sheet integration.</li>
-                                <li>⏱️ <strong>Save Time:</strong> No complex systems to navigate.</li>
-                            </ul>
-                        </div>
-                    </div>
+            <h2>Ready to Partner? Tell Us About Your Brand!</h2>
+            <p>Fill out the form below, and our partnership team will get in touch to discuss how we can help your business thrive.</p>
 
-                    <!-- Block 2: Smart Deal Targeting (Visual Right, Text Left) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="content-block order-2 md:order-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-bullseye feature-icon"></i>
-                                <h3 class="sub-heading">Smart Deal Targeting</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                Use timers, and bold visuals to command attention.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>⏳ <strong>Time-sensitive Offers:</strong> Create urgency with countdowns.</li>
-                                <li>🎨 <strong>Eye-catching Visuals:</strong> Highlight your best deals.</li>
-                                <li>🎯 <strong>Targeted Engagement:</strong> Capture customer interest effectively.</li>
-                            </ul>
-                        </div>
-                        <div class="visual-placeholder order-1 md:order-2">
-                            <i class="fas fa-bullseye visual-icon"></i>
-                        </div>
-                    </div>
-
-                    <!-- Block 3: Full Shopping Experience (Visual Left, Text Right) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="visual-placeholder">
-                            <i class="fas fa-shopping-basket visual-icon"></i>
-                        </div>
-                        <div class="content-block">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-shopping-basket feature-icon"></i>
-                                <h3 class="sub-heading">Full Shopping Experience</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                Customers can browse, like, add to cart, and save a full shopping list.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>🛍️ <strong>Seamless Browsing:</strong> Easy discovery of deals.</li>
-                                <li>❤️ <strong>Wishlist Functionality:</strong> Customers can save favorites.</li>
-                                <li>🛒 <strong>Convenient Planning:</strong> Build and manage shopping lists.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Block 4: Built-in Navigation (Visual Right, Text Left) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="content-block order-2 md:order-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-map-marker-alt feature-icon"></i>
-                                <h3 class="sub-heading">Built-in Navigation</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                Get people straight to your storefront with location buttons inside your brand zone.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>📍 <strong>Direct to Store:</strong> One-tap navigation.</li>
-                                <li>🗺️ <strong>Integrated Maps:</strong> Powered by Google Maps.</li>
-                                <li>⭐ <strong>Enhanced Convenience:</strong> For your customers.</li>
-                            </ul>
-                        </div>
-                        <div class="visual-placeholder order-1 md:order-2">
-                            <i class="fas fa-map-marker-alt visual-icon"></i>
-                        </div>
-                    </div>
-
-                    <!-- Block 5: Fast Local Discovery (Visual Left, Text Right) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="visual-placeholder">
-                            <i class="fas fa-rocket visual-icon"></i>
-                        </div>
-                        <div class="content-block">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-rocket feature-icon"></i>
-                                <h3 class="sub-heading">Fast Local Discovery</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                You're instantly visible to nearby shoppers — no ads, just results.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>🚀 <strong>Rapid Visibility:</strong> Connect with local customers.</li>
-                                <li>📈 <strong>Organic Reach:</strong> No need for paid ads.</li>
-                                <li>✅ <strong>Results-driven:</strong> Focus on real customer engagement.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- New Block 6: Strategic Cross-Discovery (Visual Right, Text Left) -->
-                    <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
-                        <div class="content-block order-2 md:order-1">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <i class="fas fa-compass feature-icon"></i>
-                                <h3 class="sub-heading">Strategic Cross-Discovery</h3>
-                            </div>
-                            <p class="content-paragraph">
-                                Enable a “1-hour guest window” where users may explore the wider Allpree ecosystem. After the hour, the app refocuses on your brand — keeping your visibility high and user loyalty strong.
-                            </p>
-                            <ul class="list-disc list-inside mt-4 space-y-2">
-                                <li>🧭 <strong>Curated Exploration:</strong> Users can discover new brands briefly.</li>
-                                <li>🔄 <strong>Brand Focus Return:</strong> App re-centers on your brand after the window.</li>
-                                <li>🔒 <strong>Sustained Visibility:</strong> Ensures your brand remains prominent.</li>
-                                <li>🤝 <strong>Enhanced Loyalty:</strong> Builds strong, long-term customer relationships.</li>
-                            </ul>
-                        </div>
-                        <div class="visual-placeholder order-1 md:order-2">
-                            <i class="fas fa-compass visual-icon"></i>
-                        </div>
-                    </div>
-
+            <form id="brandJoinForm" class="mt-8">
+                <div class="form-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" id="companyName" name="companyName" placeholder="Your Company Name" required class="rounded-lg">
                 </div>
-            </section>
 
-            <!-- Section: What Does Every Brand Get? -->
-            <section class="features-table-section">
-                <h2>What Does Every Brand Get?</h2>
-                <div class="overflow-x-auto">
-                    <table class="features-table">
-                        <thead>
-                            <tr>
-                                <th class="text-left-col">Feature</th>
-                                <th>All Brands (GiftMe & Non-GiftMe)</th>
-                                <th>Exclusivity Plan Only</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-left-col">White-label branded deal zone inside app</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Shareable branded deal landing page</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Appear on main Allpree Deals website</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Appear in Allpree app’s 1-hour guest mode</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Add to Cart & Shopping List functionality</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Deal countdown timers and badges</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Auto-expiring and reshuffling deals</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Built-in Google Maps store navigation</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Unlimited deals & full platform control</td>
-                                <td><i class="fas fa-times cross-icon"></i> (limited by tier)</td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Dedicated custom deal website (white-label domain)</td>
-                                <td><i class="fas fa-times cross-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Priority support & advanced analytics</td>
-                                <td><i class="fas fa-times cross-icon"></i></td>
-                                <td><i class="fas fa-check check-icon"></i></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label for="contactPerson">Contact Person:</label>
+                    <input type="text" id="contactPerson" name="contactPerson" placeholder="Full Name" required class="rounded-lg">
                 </div>
-            </section>
 
-            <!-- Updated Section: Visibility & Monetization Opportunities -->
-            <section class="brand-visibility-section">
-                <h2>Visibility & Monetization Opportunities</h2>
-                <p>All deals from all brands appear on the main Allpree Deals Website homepage and inside the app’s 1-hour guest discovery window for free, helping attract new customers.</p>
-                <p>Brands can purchase visibility Add-Ons to boost their deals to Top 5 Spots or Featured Brand Spots on both the website and app:</p>
-                <div class="overflow-x-auto">
-                    <table class="add-ons-table">
-                        <thead>
-                            <tr>
-                                <th class="text-left-col">Add-On Type</th>
-                                <th>24 Hours</th>
-                                <th>7 Days</th>
-                                <th>14 Days</th>
-                                <th>30 Days</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-left-col">Top 5 Spot</td>
-                                <td>1,000</td>
-                                <td>6,000</td>
-                                <td>11,000</td>
-                                <td>19,000</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Featured Brand Spot</td>
-                                <td>3,000</td>
-                                <td>14,000</td>
-                                <td>23,000</td>
-                                <td>39,000</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" placeholder="contact@yourcompany.com" required class="rounded-lg">
                 </div>
-            </section>
 
-            <!-- New Section: Build It Yourself? Here's What It Would Cost -->
-            <section class="diy-cost-section">
-                <h2>Build It Yourself? Here's What It Would Cost</h2>
-                <p>Considering building your own loyalty and deal platform? While it offers full control, the upfront and ongoing costs can be substantial. Here's a breakdown of typical expenses you might encounter:</p>
-                <div class="overflow-x-auto">
-                    <table class="diy-cost-table max-w-4xl mx-auto">
-                        <thead>
-                            <tr>
-                                <th class="text-left-col">Feature / Benefit Plan</th>
-                                <th>DIY Cost</th>
-                                <th>Plan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-left-col">Loyalty App Development</td>
-                                <td>J$1,570,000+</td>
-                                <td>Upfront</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">App Ongoing Maintenance</td>
-                                <td>J$600,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Website Development</td>
-                                <td>J$250,000+</td>
-                                <td>Upfront</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Website Hosting</td>
-                                <td>J$50,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Website Maintenance</td>
-                                <td>J$600,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Marketing & CAC Tools</td>
-                                <td>J$300,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Ongoing Feature Updates & Development</td>
-                                <td>J$400,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col">Dedicated Account & Project Management</td>
-                                <td>J$100,000+</td>
-                                <td>yearly</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td class="text-left-col">Total DIY Cost</td>
-                                <td>J$1.8M+</td>
-                                <td>Upfront</td>
-                            </tr>
-                            <tr>
-                                <td class="text-left-col"></td>
-                                <td>J$2M+</td>
-                                <td>Yearly</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890" class="rounded-lg">
                 </div>
-            </section>
-        
+
+                <div class="form-group">
+                    <label for="website">Website (Optional):</label>
+                    <input type="url" id="website" name="website" placeholder="https://www.yourcompany.com" class="rounded-lg">
+                </div>
+
+                <div class="form-group">
+                    <label>Type of Deals You Offer:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="dealType" value="Discounts"> Discounts
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="BOGO"> Buy One Get One (BOGO)
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Freebies"> Freebies / Giveaways
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Bundles"> Product Bundles
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Loyalty"> Loyalty Programs
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Exclusive"> Exclusive Offers
+                        </label>
+                        <label>
+                            <input type="checkbox" name="dealType" value="Other"> Other
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessDescription">Tell Us About Your Business & Deals:</label>
+                    <textarea id="businessDescription" name="businessDescription" rows="4" placeholder="Briefly describe your business, what kind of deals you're interested in running, and what makes your brand unique." class="rounded-lg"></textarea>
+                </div>
+
+                <button type="submit" class="rounded-lg">Submit Partnership Inquiry</button>
+            </form>
+
+            <div id="responseMessage" class="mt-6 p-4 rounded-lg text-center hidden"></div>
+        </div>
+
+        <!-- New Section: Simple, Smart & Scalable -->
+        <section class="features-overview-section-new">
+            <h2>⚙️ Simple, Smart & Scalable</h2>
+            <div class="max-w-5xl mx-auto">
+                <!-- Block 1: Update Deals Instantly (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-sync-alt visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-sync-alt feature-icon"></i>
+                            <h3 class="sub-heading">Update Deals Instantly</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Just edit your Google Sheet and press one button — your deals go live in seconds.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>⚡ <strong>Real-time Changes:</strong> Push updates live instantly.</li>
+                            <li>✨ <strong>Effortless Management:</strong> Simple Google Sheet integration.</li>
+                            <li>⏱️ <strong>Save Time:</strong> No complex systems to navigate.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Block 2: Smart Deal Targeting (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-bullseye feature-icon"></i>
+                            <h3 class="sub-heading">Smart Deal Targeting</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Use timers, and bold visuals to command attention.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>⏳ <strong>Time-sensitive Offers:</strong> Create urgency with countdowns.</li>
+                            <li>🎨 <strong>Eye-catching Visuals:</strong> Highlight your best deals.</li>
+                            <li>🎯 <strong>Targeted Engagement:</strong> Capture customer interest effectively.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-bullseye visual-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Block 3: Full Shopping Experience (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-shopping-basket visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-shopping-basket feature-icon"></i>
+                            <h3 class="sub-heading">Full Shopping Experience</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Customers can browse, like, add to cart, and save a full shopping list.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🛍️ <strong>Seamless Browsing:</strong> Easy discovery of deals.</li>
+                            <li>❤️ <strong>Wishlist Functionality:</strong> Customers can save favorites.</li>
+                            <li>🛒 <strong>Convenient Planning:</strong> Build and manage shopping lists.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Block 4: Built-in Navigation (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-map-marker-alt feature-icon"></i>
+                            <h3 class="sub-heading">Built-in Navigation</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Get people straight to your storefront with location buttons inside your brand zone.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>📍 <strong>Direct to Store:</strong> One-tap navigation.</li>
+                            <li>🗺️ <strong>Integrated Maps:</strong> Powered by Google Maps.</li>
+                            <li>⭐ <strong>Enhanced Convenience:</strong> For your customers.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-map-marker-alt visual-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Block 5: Fast Local Discovery (Visual Left, Text Right) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="visual-placeholder">
+                        <i class="fas fa-rocket visual-icon"></i>
+                    </div>
+                    <div class="content-block">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-rocket feature-icon"></i>
+                            <h3 class="sub-heading">Fast Local Discovery</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            You're instantly visible to nearby shoppers — no ads, just results.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🚀 <strong>Rapid Visibility:</strong> Connect with local customers.</li>
+                            <li>📈 <strong>Organic Reach:</strong> No need for paid ads.</li>
+                            <li>✅ <strong>Results-driven:</strong> Focus on real customer engagement.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- New Block 6: Strategic Cross-Discovery (Visual Right, Text Left) -->
+                <div class="feature-block md:grid md:grid-cols-2 gap-12 items-center">
+                    <div class="content-block order-2 md:order-1">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <i class="fas fa-compass feature-icon"></i>
+                            <h3 class="sub-heading">Strategic Cross-Discovery</h3>
+                        </div>
+                        <p class="content-paragraph">
+                            Enable a “1-hour guest window” where users may explore the wider Allpree ecosystem. After the hour, the app refocuses on your brand — keeping your visibility high and user loyalty strong.
+                        </p>
+                        <ul class="list-disc list-inside mt-4 space-y-2">
+                            <li>🧭 <strong>Curated Exploration:</strong> Users can discover new brands briefly.</li>
+                            <li>🔄 <strong>Brand Focus Return:</strong> App re-centers on your brand after the window.</li>
+                            <li>🔒 <strong>Sustained Visibility:</strong> Ensures your brand remains prominent.</li>
+                            <li>🤝 <strong>Enhanced Loyalty:</strong> Builds strong, long-term customer relationships.</li>
+                        </ul>
+                    </div>
+                    <div class="visual-placeholder order-1 md:order-2">
+                        <i class="fas fa-compass visual-icon"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: What Does Every Brand Get? -->
+        <section class="features-table-section">
+            <h2>What Does Every Brand Get?</h2>
+            <div class="overflow-x-auto">
+                <table class="features-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Feature</th>
+                            <th>All Brands (GiftMe & Non-GiftMe)</th>
+                            <th>Exclusivity Plan Only</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">White-label branded deal zone inside app</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Shareable branded deal landing page</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Appear on main Allpree Deals website</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Appear in Allpree app’s 1-hour guest mode</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Add to Cart & Shopping List functionality</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Deal countdown timers and badges</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Auto-expiring and reshuffling deals</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Built-in Google Maps store navigation</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Unlimited deals & full platform control</td>
+                            <td><i class="fas fa-times cross-icon"></i> (limited by tier)</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Dedicated custom deal website (white-label domain)</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Priority support & advanced analytics</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Updated Section: Visibility & Monetization Opportunities -->
+        <section class="brand-visibility-section">
+            <h2>Visibility & Monetization Opportunities</h2>
+            <p>All deals from all brands appear on the main Allpree Deals Website homepage and inside the app’s 1-hour guest discovery window for free, helping attract new customers.</p>
+            <p>Brands can purchase visibility Add-Ons to boost their deals to Top 5 Spots or Featured Brand Spots on both the website and app:</p>
+            <div class="overflow-x-auto">
+                <table class="add-ons-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Add-On Type</th>
+                            <th>24 Hours</th>
+                            <th>7 Days</th>
+                            <th>14 Days</th>
+                            <th>30 Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">Top 5 Spot</td>
+                            <td><span id="jmd-premium-24"></span></td>
+                            <td><span id="jmd-premium-7"></span></td>
+                            <td><span id="jmd-premium-14"></span></td>
+                            <td><span id="jmd-premium-30"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Featured Brand Spot</td>
+                            <td><span id="jmd-featured-24"></span></td>
+                            <td><span id="jmd-featured-7"></span></td>
+                            <td><span id="jmd-featured-14"></span></td>
+                            <td><span id="jmd-featured-30"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- New Section: Build It Yourself? Here's What It Would Cost -->
+        <section class="diy-cost-section">
+            <h2>Build It Yourself? Here's What It Would Cost</h2>
+            <p>Considering building your own loyalty and deal platform? While it offers full control, the upfront and ongoing costs can be substantial. Here's a breakdown of typical expenses you might encounter:</p>
+            <div class="overflow-x-auto">
+                <table class="diy-cost-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th class="text-left-col">Feature / Benefit Plan</th>
+                            <th>DIY Cost</th>
+                            <th>Plan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left-col">Loyalty App Development</td>
+                            <td>J$1,570,000+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">App Ongoing Maintenance</td>
+                            <td>J$600,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Development</td>
+                            <td>J$250,000+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Hosting</td>
+                            <td>J$50,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Website Maintenance</td>
+                            <td>J$600,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Marketing & CAC Tools</td>
+                            <td>J$300,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Ongoing Feature Updates & Development</td>
+                            <td>J$400,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col">Dedicated Account & Project Management</td>
+                            <td>J$100,000+</td>
+                            <td>yearly</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-left-col">Total DIY Cost</td>
+                            <td>J$1.8M+</td>
+                            <td>Upfront</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left-col"></td>
+                            <td>J$2M+</td>
+                            <td>Yearly</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- New Section: Membership Tiers & Pricing -->
+        <section class="membership-tiers-section">
+            <h2>Membership Tiers & Pricing</h2>
+            <p>Choose the plan that best fits your brand's needs and scale your deal offerings with flexibility.</p>
+            <div class="overflow-x-auto">
+                <table class="membership-table max-w-4xl mx-auto">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Price Per Year</th>
+                            <th>Deal Slots</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Starter</td>
+                            <td>Free<br></td> 
+                            <td>4</td>
+                            <td>24 hrs</td>
+                        </tr>
+                        <tr>
+                            <td>Basic</td>
+                            <td><span id="jmd-starter"></span></td>
+                            <td>10</td>
+                            <td>7 days</td>
+                        </tr>
+                        <tr>
+                            <td>Advanced</td>
+                            <td><span id="jmd-diamond"></span></td>
+                            <td>50</td>
+                            <td>14 days</td>
+                        </tr>
+                        <tr>
+                            <td>Pro</td>
+                            <td><span id="jmd-crown"></span></td>
+                            <td>150</td>
+                            <td>Flexible</td>
+                        </tr>
+                        <tr>
+                            <td>Pro Max</td>
+                            <td><span id="jmd-elite"></span></td>
+                            <td>Unlimited</td>
+                            <td>Flexible</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
-      <!-- Footer -->
+    <!-- Footer -->
     <footer class="footer-section mt-auto">
         <div class="max-w-7xl-custom mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left">
             <!-- About Allpree Column -->
@@ -1109,6 +1216,64 @@
         // Set the current year dynamically
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+    </script>
+    <script>
+        function zeroOutAfterFirstComma(n) {
+            const num = Math.floor(n); // Ensure integer
+            const parts = num.toLocaleString().split(',');
+            if (parts.length === 1) return num; // No comma, return as-is
+            const firstPart = parts[0];
+            const zeroed = firstPart + ','.padEnd(parts.slice(1).join('').length + 1, '0');
+            return parseInt(zeroed.replace(/,/g, ''), 10);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet4')
+                .then(res => res.json())
+                .then(data => {
+                    const rate = parseFloat(data[0]['USD Rate']);
+                    if (isNaN(rate)) return;
+
+                    // Plan pricing
+                    const plans = ['starter', 'diamond', 'crown', 'elite', 'license'];
+                    plans.forEach(plan => {
+                        const usdVal = parseFloat(data[0][`jmd-${plan}`]);
+                        if (!isNaN(usdVal)) {
+                            const rawJmd = usdVal * rate;
+                            const roundedJmd = zeroOutAfterFirstComma(rawJmd).toLocaleString();
+
+                            const usdEl = document.getElementById(`usd-${plan}`);
+                            const jmdEl = document.getElementById(`jmd-${plan}`);
+                            if (usdEl) usdEl.textContent = `USD $${usdVal.toLocaleString()}${plan === 'license' ? ' / 3 year' : ' '}`;
+                            if (jmdEl) jmdEl.textContent = `J$${roundedJmd.toLocaleString()}${plan === 'license' ? ' / 3 year' : ''}`;
+                        }
+                    });
+
+                    // Add-on pricing (Featured Brand & Premium Spot)
+                    const durations = ['24', '7', '14', '30']; // in days
+                    durations.forEach((d, i) => {
+                        const featuredUSD = parseFloat(data[i]['featured brand']);
+                        const premiumUSD = parseFloat(data[i]['premium spots']);
+
+                        if (!isNaN(featuredUSD)) {
+                            const jmd = zeroOutAfterFirstComma(featuredUSD * rate).toLocaleString();
+                            const usdEl = document.getElementById(`usd-featured-${d}`);
+                            const jmdEl = document.getElementById(`jmd-featured-${d}`);
+                            if (usdEl) usdEl.textContent = `USD $${featuredUSD}`;
+                            if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+                        }
+
+                        if (!isNaN(premiumUSD)) {
+                            const jmd = zeroOutAfterFirstComma(premiumUSD * rate).toLocaleString();
+                            const usdEl = document.getElementById(`usd-premium-${d}`);
+                            const jmdEl = document.getElementById(`jmd-premium-${d}`);
+                            if (usdEl) usdEl.textContent = `USD $${premiumUSD}`;
+                            if (jmdEl) jmdEl.textContent = `J$${jmd}`;
+                        }
+                    });
+                })
+                .catch(err => console.error('Fetch error:', err));
         });
     </script>
 </body>
