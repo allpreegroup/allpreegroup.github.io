@@ -1385,46 +1385,6 @@ Remove friction, boost foot traffic, and turn digital interest into real-world s
     </footer>
 
     <script>
-        document.getElementById('brandJoinForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            const form = event.target;
-            const formData = new FormData(form);
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                if (key === 'dealType') {
-                    if (!data[key]) {
-                        data[key] = [];
-                    }
-                    data[key].push(value);
-                } else {
-                    data[key] = value;
-                }
-            }
-
-            const responseMessageDiv = document.getElementById('responseMessage');
-            responseMessageDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
-            responseMessageDiv.classList.add('bg-blue-100', 'text-blue-700');
-            responseMessageDiv.textContent = 'Submitting your inquiry...';
-
-            // Simulate API call (replace with actual backend submission)
-            setTimeout(() => {
-                const success = Math.random() > 0.1; // 90% chance of success
-
-                if (success) {
-                    responseMessageDiv.classList.remove('bg-blue-100', 'text-blue-700', 'bg-red-100', 'text-red-700');
-                    responseMessageDiv.classList.add('bg-green-100', 'text-green-700');
-                    responseMessageDiv.textContent = 'Thank you for your inquiry! Our team will review your submission and get back to you shortly.';
-                    form.reset(); // Clear the form on success
-                } else {
-                    responseMessageDiv.classList.remove('bg-blue-100', 'text-blue-700', 'bg-green-100', 'text-green-700');
-                    responseMessageDiv.classList.add('bg-red-100', 'text-red-700');
-                    responseMessageDiv.textContent = 'Oops! Something went wrong with your submission. Please try again later or contact us directly.';
-                }
-                responseMessageDiv.classList.remove('hidden');
-            }, 1500); // Simulate network delay
-        });
-
         // Set the current year dynamically
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('current-year').textContent = new Date().getFullYear();
