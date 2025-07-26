@@ -2,11 +2,14 @@ function init_marketing() {
   console.log("✅ init_marketing() called");
 
   // Check for required elements before proceeding
-  const elements = [
-    "referralForm", "referralCode",
-    "flyer1", "flyer2", "flyer3",
-    "referralText", "referralTextLink", "referralBtn"
-  ];
+ const elements = [
+  "referralForm", "referralCode",
+  "flyer1", "flyer2", "flyer3",
+  "referralText", "referralTextLink", "referralBtn",
+  ...Array.from({ length: 10 }, (_, i) => i + 1).flatMap(n => [
+    `referralText${n}`, `referralTextLink${n}`, `referralBtn${n}`
+  ])
+];
 
   for (const id of elements) {
     if (!document.getElementById(id)) {
