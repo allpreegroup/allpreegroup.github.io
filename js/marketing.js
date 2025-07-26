@@ -1,21 +1,11 @@
 function init_marketing() {
   console.log("✅ init_marketing() called");
 
-  const form = document.getElementById("referralForm");
-  const codeInput = document.getElementById("referralCode");
-
-  // ✅ Always show the form on load
-  if (form) form.style.display = "block";
-
-  // Check for all required elements
+  const flyerIds = ["flyer1", "flyer2", "flyer3"];
   const elements = [
     "referralForm", "referralCode",
-    "flyer1", "flyer2", "flyer3",
-    "referralText", "referralTextLink", "referralBtn",
-    ...Array.from({ length: 10 }, (_, i) => {
-      const n = i + 1;
-      return [`referralText${n}`, `referralTextLink${n}`, `referralBtn${n}`];
-    }).flat()
+    ...flyerIds,
+    "flyer1Code", "flyer2Code", "flyer3Code"
   ];
 
   for (const id of elements) {
@@ -46,36 +36,30 @@ function init_marketing() {
 
     const formatted = formatReferralCode(code);
     localStorage.setItem('generatedReferralCode', formatted);
-    const expiresIn7Days = Date.now() + 7 * 24 * 60 * 60 * 1000;
-    localStorage.setItem('referralCodeExpiration', expiresIn7Days);
+    localStorage.setItem('referralCodeExpiration', Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // ✅ Update flyer codes
+    // Update flyer codes
     ["flyer1Code", "flyer2Code", "flyer3Code"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = formatted;
     });
 
-    // ✅ Show download buttons
-    document.querySelectorAll(".download-btn").forEach(btn => {
-      btn.style.display = "inline-block";
-    });
+    // Show flyers and buttons
+    document.querySelectorAll(".download-btn").forEach(btn => btn.style.display = "inline-block");
 
-    // ✅ Show flyer containers
-    ["flyer1", "flyer2", "flyer3"].forEach(id => {
+    flyerIds.forEach(id => {
       const flyer = document.getElementById(id);
       if (flyer) flyer.style.display = "inline-block";
     });
 
-    // ✅ Hide form
+    const form = document.getElementById("referralForm");
     if (form) form.style.display = "none";
 
-    // ✅ Update all referral texts, links, buttons (0 to 10)
-    for (let i = 0; i <= 10; i++) {
-      const suffix = i === 0 ? "" : i.toString();
-
-      const text = document.getElementById(`referralText${suffix}`);
-      const link = document.getElementById(`referralTextLink${suffix}`);
-      const btn = document.getElementById(`referralBtn${suffix}`);
+    // Dynamically update referral text/link/button up to 10
+    for (let i = 1; i <= 10; i++) {
+      const text = document.getElementById(`referralText${i}`);
+      const link = document.getElementById(`referralTextLink${i}`);
+      const btn = document.getElementById(`referralBtn${i}`);
 
       if (text) {
         text.innerHTML = text.innerHTML.replace('${savedReferralCode}', formatted);
@@ -89,10 +73,8 @@ function init_marketing() {
 
       if (btn) {
         const rawUrl = btn.getAttribute('data-url');
-        if (rawUrl) {
-          const finalUrl = rawUrl.replace('${encodeURIComponent(formattedCode)}', encodeURIComponent(formatted));
-          btn.onclick = () => window.open(finalUrl, '_blank');
-        }
+        const finalUrl = rawUrl.replace('${encodeURIComponent(formattedCode)}', encodeURIComponent(formatted));
+        btn.onclick = () => window.open(finalUrl, '_blank');
         btn.style.display = "inline-block";
       }
     }
@@ -101,7 +83,9 @@ function init_marketing() {
   function downloadFlyer(flyerId) {
     const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
     if (!flyer) return;
+
     loadHtml2Canvas();
+
     html2canvas(flyer, { scale: 2 }).then(canvas => {
       const link = document.createElement("a");
       link.download = `${flyerId}-flyer.png`;
@@ -110,28 +94,27 @@ function init_marketing() {
     });
   }
 
-  // ✅ Form submission
+  const form = document.getElementById("referralForm");
   if (form) {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
+      const codeInput = document.getElementById("referralCode");
       if (codeInput && codeInput.value.trim()) {
         updateFlyersWithCode(codeInput.value.trim());
       }
     });
   }
 
-  // ✅ Load saved code if still valid
   const saved = localStorage.getItem('generatedReferralCode');
   if (saved && !isCodeExpired()) {
     updateFlyersWithCode(saved);
   } else {
     if (form) form.style.display = "block";
-    ["flyer1", "flyer2", "flyer3"].forEach(id => {
+    flyerIds.forEach(id => {
       const flyer = document.getElementById(id);
       if (flyer) flyer.style.display = "none";
     });
   }
 
-  // Optional: expose globally
   window.downloadFlyer = downloadFlyer;
 }
