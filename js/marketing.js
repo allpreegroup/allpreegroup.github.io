@@ -6,16 +6,22 @@ function init_marketing() {
   "referralForm", "referralCode",
   "flyer1", "flyer2", "flyer3",
   "referralText", "referralTextLink", "referralBtn",
-  ...Array.from({ length: 10 }, (_, i) => i + 1).flatMap(n => [
-    `referralText${n}`, `referralTextLink${n}`, `referralBtn${n}`
-  ])
+  ...Array.from({ length: 10 }, (_, i) => {
+    const n = i + 1;
+    return [
+      `referralText${n}`,
+      `referralTextLink${n}`,
+      `referralBtn${n}`
+    ];
+  }).flat()
 ];
 
-  for (const id of elements) {
-    if (!document.getElementById(id)) {
-      console.warn(`⚠️ Missing element with ID: ${id}`);
-    }
+for (const id of elements) {
+  if (!document.getElementById(id)) {
+    console.warn(`⚠️ Missing element with ID: ${id}`);
   }
+}
+
 
   function formatReferralCode(code) {
     return code.replace(/\s+/g, '');
