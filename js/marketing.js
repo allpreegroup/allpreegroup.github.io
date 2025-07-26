@@ -63,27 +63,34 @@ function init_marketing() {
     const form = document.getElementById("referralForm");
     if (form) form.style.display = "none";
 
-    const text = document.getElementById("referralText");
-    const link = document.getElementById("referralTextLink");
-    const btn = document.getElementById("referralBtn");
+    // Handle referralText, referralTextLink, referralBtn (original + 1-10 versions)
+  for (let i = 0; i <= 10; i++) {
+  const suffix = i === 0 ? "" : i.toString();
 
-    if (text) {
-      text.innerHTML = text.innerHTML.replace('${savedReferralCode}', formatted);
-      text.style.display = "block";
-    }
+  const text = document.getElementById(`referralText${suffix}`);
+  const link = document.getElementById(`referralTextLink${suffix}`);
+  const btn = document.getElementById(`referralBtn${suffix}`);
 
-    if (link) {
-      link.href = link.href.replace('${savedReferralCode}', encodeURIComponent(formatted));
-      link.style.display = "block";
-    }
+  if (text) {
+    text.innerHTML = text.innerHTML.replace('${savedReferralCode}', formatted);
+    text.style.display = "block";
+  }
 
-    if (btn) {
-      const rawUrl = btn.getAttribute('data-url');
+  if (link) {
+    link.href = link.href.replace('${savedReferralCode}', encodeURIComponent(formatted));
+    link.style.display = "block";
+  }
+
+  if (btn) {
+    const rawUrl = btn.getAttribute('data-url');
+    if (rawUrl) {
       const finalUrl = rawUrl.replace('${encodeURIComponent(formattedCode)}', encodeURIComponent(formatted));
       btn.onclick = () => window.open(finalUrl, '_blank');
-      btn.style.display = "inline-block";
     }
+    btn.style.display = "inline-block";
   }
+}
+
 
   function downloadFlyer(flyerId) {
     const flyer = document.querySelector(`#${flyerId} .flyer-wrapper`);
