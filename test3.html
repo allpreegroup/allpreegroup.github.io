@@ -1252,7 +1252,7 @@
         // Function to generate month headers and display cells dynamically for Reserve Flow Sales Input
         const initializeReserveFlowInputs = () => {
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
-            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS); // Cap at 60 months for display
+            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS); // Cap at 60 months for display
 
             // Clear existing headers and rows
             rfMonthlySalesInputHeader.innerHTML = '<th class="px-6 py-3">Voucher Type</th>';
@@ -1295,7 +1295,7 @@
             updateRfVoucherDefinitionsTable(); // Moved this call here to ensure it's always up-to-date
 
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
-            const totalMonthsForRfCalculation = numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS; // Calculate for this many months
+            const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS; // Calculate for this many months
 
             // Get monthly sales inputs from the MAIN simulation table
             const monthlySales = Array.from({ length: totalMonthsForRfCalculation }, () => ({ '10k': 0, '15k': 0, '20k': 0 }));
@@ -1311,7 +1311,7 @@
 
             // Populate the Reserve Flow's Monthly Sales Input table with values from main simulation
             // Display only the months active in the main simulation, and 0 for others up to totalMonthsForRfCalculation.
-            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS); // Cap at 60 for display
+            const totalMonthsForRfDisplay = Math.min(60, totalMonthsForRfCalculation); // Cap at 60 for display
 
             for (let i = 0; i < totalMonthsForRfDisplay; i++) {
                 const sales10k = (i < numMonthsInMainSimulation) ? monthlySales[i]['10k'] : 0;
@@ -1331,9 +1331,31 @@
 
             const totalMarkupAdded = [];
             const totalCashbackOwed = [];
-            const actualCashbackPaidOut = [];
+            const actualCashbackPaidOut = Array(totalMonthsForRfCalculation).fill(0); // Initialize with zeros
 
-            // Calculate Monthly Financials
+            // Get the simulation start date to calculate month offsets for actual payouts
+            const simStartDate = new Date(simulationStartDateInput.value);
+            simStartDate.setHours(0, 0, 0, 0); // Normalize to local midnight
+
+            // Aggregate actual payouts from the main simulation's monthlyPurchaseData
+            // monthlyPurchaseData contains results from runSimulation and runCumulativeDailySimulation
+            monthlyPurchaseData.forEach(data => {
+                if (data.payoutMonthEnd && data.actualDeductionForThisPurchaseMonth > 0) {
+                    // Calculate the month index relative to the simulation start date
+                    // PayoutMonthEnd is the last day of the month, so we need to get the month index for that specific month.
+                    const payoutMonthEnd = new Date(data.payoutMonthEnd); // Use a new Date object to avoid modifying the original
+                    const monthDiff = (payoutMonthEnd.getFullYear() - simStartDate.getFullYear()) * 12 +
+                                     (payoutMonthEnd.getMonth() - simStartDate.getMonth());
+
+                    // Add to the corresponding month in actualCashbackPaidOut array
+                    if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
+                        actualCashbackPaidOut[monthDiff] += data.actualDeductionForThisPurchaseMonth;
+                    }
+                }
+            });
+
+
+            // Calculate Monthly Financials (Markup Added, Cashback Owed)
             for (let i = 0; i < totalMonthsForRfCalculation; i++) {
                 const sales = monthlySales[i]; // Use the sales data pulled from main simulation (which has 0s for inactive months)
                 const markup10k = rfVoucherDefinitions['J$10K Voucher'].markup;
@@ -1351,13 +1373,6 @@
                 // Total Cashback Owed (Liability Incurred)
                 const cashbackOwed = (sales['10k'] * cashback10k + sales['15k'] * cashback15k + sales['20k'] * cashback20k);
                 totalCashbackOwed.push(cashbackOwed);
-
-                // Actual Cashback Paid Out (121-day delay, approx 4 months)
-                if (i < RF_PAYOUT_DELAY_MONTHS) {
-                    actualCashbackPaidOut.push(0); // No payout for first 4 months from sales
-                } else {
-                    actualCashbackPaidOut.push(totalCashbackOwed[i - RF_PAYOUT_DELAY_MONTHS]);
-                }
             }
 
             // Update Monthly Financials tables - only for the months displayed
@@ -1385,7 +1400,7 @@
             for (let i = 0; i < totalMonthsForRfCalculation; i++) {
                 const reserveStart = currentReserve;
                 const addReserve = totalMarkupAdded[i];
-                const payCashback = actualCashbackPaidOut[i];
+                const payCashback = actualCashbackPaidOut[i]; // Use the actual payouts aggregated from daily sim
                 const reserveEnd = reserveStart + addReserve - payCashback;
                 const status = reserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE';
 
