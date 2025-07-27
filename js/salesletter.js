@@ -30,8 +30,8 @@ function init_salesletter() {
       nextStepBtn.style.display = "none";
       return;
     }
-    if (total > 8400) {
-      summary.textContent = "Total cannot exceed JMD 8,400.";
+    if (total > 10900) {
+      summary.textContent = "Total cannot exceed JMD 10,900.";
       nextStepBtn.style.display = "none";
       return;
     }
