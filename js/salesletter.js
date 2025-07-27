@@ -36,8 +36,8 @@ function init_salesletter() {
       return;
     }
 
-    const tax = total * 15;
-    const fee = total * 10;
+    const tax = total * 0.15;
+    const fee = total * 0.10;
     const grandTotal = Math.round(total + tax + fee);
 
     summary.innerHTML = `
