@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashback Payout + Trading Simulation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -175,6 +176,40 @@
             width: auto;
             min-width: 250px;
         }
+
+        /* New styles for Reserve Flow Calculator */
+        .reserve-flow-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .reserve-flow-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .reserve-flow-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .reserve-flow-table-container, .main-simulation-sales-table-container {
+            margin-top: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .reserve-flow-table-container h3, .main-simulation-sales-table-container h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -185,7 +220,7 @@
             h1 {
                 font-size: 2rem;
             }
-            .input-grid {
+            .input-grid, .reserve-flow-input-grid {
                 grid-template-columns: 1fr;
             }
             th, td {
@@ -196,7 +231,7 @@
                 font-size: 1rem;
                 padding: 1rem;
             }
-            .daily-log-section h2 {
+            .daily-log-section h2, .reserve-flow-section h2 {
                 font-size: 1.5rem;
             }
             .daily-log-controls {
@@ -232,29 +267,14 @@
                 <label for="numberOfPurchaseMonths"># Of Months:</label>
                 <input type="number" id="numberOfPurchaseMonths" value="1" min="1" max="60">
             </div>
-            <div class="input-field">
-                <label for="voucherValue">Voucher Value (J$):</label>
-                <select id="voucherValue">
-                    <option value="10000">10,000</option>
-                    <option value="15000">15,000</option>
-                    <option value="20000" selected>20,000</option>
-                </select>
-            </div>
-            <div class="input-field">
-                <label for="vouchersPerMonth">Vouchers per Month:</label>
-                <select id="vouchersPerMonth">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
-                </select>
-            </div>
+            <!-- Removed Voucher Value and Vouchers per Month dropdowns -->
             <div class="input-field">
                 <label for="markupRate">Markup Rate (%):</label>
                 <input type="number" id="markupRate" value="25" min="0" max="100" step="1">
             </div>
             <div class="input-field">
                 <label for="markupAllocationToTradingFund">Allocation to Fund (%):</label>
-                <input type="number" id="markupAllocationToTradingFund" value="13" min="0" max="100" step="1">
+                <input type="number" id="markupAllocationToTradingFund" value="17" min="0" max="100" step="1">
             </div>
             <div class="input-field">
                 <label for="initialTradingFund">Trading Fund (J$):</label>
@@ -282,6 +302,36 @@
             </div>
         </div>
 
+        <!-- NEW: Monthly Voucher Sales Input for Main Simulation -->
+        <div class="main-simulation-sales-table-container">
+            <h3>Monthly Voucher Sales Input (Quantities for Simulation)</h3>
+            <div class="overflow-x-auto">
+                <table id="mainSimulationMonthlySalesInputTable" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr id="mainSimulationMonthlySalesInputHeader">
+                            <th class="px-6 py-3">Voucher Type</th>
+                            <!-- Month headers will be generated here -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="mainSimulation10kVoucherRow">
+                            <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
+                            <!-- Input fields for months will be generated here -->
+                        </tr>
+                        <tr id="mainSimulation15kVoucherRow">
+                            <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
+                            <!-- Input fields for months will be generated here -->
+                        </tr>
+                        <tr id="mainSimulation20kVoucherRow">
+                            <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
+                            <!-- Input fields for months will be generated here -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- END NEW: Monthly Voucher Sales Input for Main Simulation -->
+
         <div class="summary">
             <h2 class="text-xl font-bold mb-4">Simulation Summary</h2>
             <p>Cumulative Voucher Purchases: <span id="cumulativeVoucherPurchases" class="font-bold">J$0</span></p>
@@ -299,13 +349,13 @@
                         <tr>
                             <th class="px-6 py-3">Month</th>
                             <th class="px-6 py-3">Purchase Date</th>
-                            <th class="px-6 py-3">Fund Contribution</th>
+                            <th class="px-6 py-3">Monthly Fund Contribution (J$)</th>
                             <th class="px-6 py-3">Cashback Due Date</th>
                             <th class="px-6 py-3">Payout Month-End</th>
-                            <th class="px-6 py-3">Payout Obligation</th>
-                            <th class="px-6 py-3">Payout Deducted</th>
-                            <th class="px-6 py-3">Fund After Payout</th>
-                            <th class="px-6 py-3">Payout Met</th>
+                            <th class="px-6 py-3">Net Payout Obligation (J$)</th>
+                            <th class="px-6 py-3">Payout Deducted (J$)</th>
+                            <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
+                            <th class="px-6 py-3">Payout Met?</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -314,6 +364,115 @@
                 </table>
             </div>
         </div>
+
+        <!-- NEW SECTION: Reserve Flow Calculator -->
+        <div class="reserve-flow-section">
+            <h2>Reserve Flow Calculator</h2>
+            <p class="text-center text-gray-600 mb-6">Model the reserve fund's ability to cover cashback payouts with a 121-day delay, based on monthly voucher sales.</p>
+
+            <div class="reserve-flow-input-grid">
+                <div class="input-field">
+                    <label for="rfUpfrontBuffer">Upfront Buffer (J$):</label>
+                    <input type="number" id="rfUpfrontBuffer" value="8400" min="0" step="100">
+                </div>
+            </div>
+
+            <div class="reserve-flow-table-container">
+                <h3>Voucher Type Definitions (Calculated)</h3>
+                <div class="overflow-x-auto">
+                    <table id="rfVoucherDefinitionsTable" class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3">Voucher Type</th>
+                                <th class="px-6 py-3">Markup per Voucher (J$)</th>
+                                <th class="px-6 py-3">Cashback per Voucher (J$)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rfVoucherDefinitionsTableBody">
+                            <!-- Dynamic rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="reserve-flow-table-container">
+                <h3>Monthly Voucher Sales Input (Quantities)</h3>
+                <div class="overflow-x-auto">
+                    <table id="rfMonthlySalesInputTable" class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr id="rfMonthlySalesInputHeader">
+                                <th class="px-6 py-3">Voucher Type</th>
+                                <!-- Month headers will be generated here -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="rf10kVoucherRow">
+                                <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
+                                <!-- Display fields for months will be generated here -->
+                            </tr>
+                            <tr id="rf15kVoucherRow">
+                                <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
+                                <!-- Display fields for months will be generated here -->
+                            </tr>
+                            <tr id="rf20kVoucherRow">
+                                <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
+                                <!-- Display fields for months will be generated here -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="reserve-flow-table-container">
+                <h3>Monthly Financials (Calculated)</h3>
+                <div class="overflow-x-auto">
+                    <table id="rfMonthlyFinancialsTable" class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr id="rfMonthlyFinancialsHeader">
+                                <th class="px-6 py-3">Financial Metric</th>
+                                <!-- Month headers will be generated here -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="rfTotalMarkupAddedRow">
+                                <td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>
+                                <!-- Calculated values for months will be generated here -->
+                            </tr>
+                            <tr id="rfTotalCashbackOwedRow">
+                                <td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>
+                                <!-- Calculated values for months will be generated here -->
+                            </tr>
+                            <tr id="rfActualCashbackPaidOutRow">
+                                <td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>
+                                <!-- Calculated values for months will be generated here -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="reserve-flow-table-container">
+                <h3>Reserve Flow</h3>
+                <div class="overflow-x-auto">
+                    <table id="rfReserveFlowTable" class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3">Month</th>
+                                <th class="px-6 py-3">Reserve Start (J$)</th>
+                                <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
+                                <th class="px-6 py-3">Pay Cashback (– Owed) (J$)</th>
+                                <th class="px-6 py-3">Reserve End (J$)</th>
+                                <th class="px-6 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Reserve flow rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- END NEW SECTION: 12-Month Reserve Flow Calculator -->
 
         <div class="daily-log-section">
             <h2>Cumulative Daily Trading Log</h2>
@@ -335,12 +494,14 @@
                 <tbody>
                     <!-- Daily log rows will be generated here -->
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
+
     </div>
 
     <script>
-        // --- Constants and Configuration ---
+        // --- Constants and Configuration (Existing Simulation) ---
         const PAYOUT_DELAY_DAYS = 121;
         const TRADING_WEEKS_PER_MONTH = 8;
         const MAX_TRADES_PER_WEEK = 2;
@@ -361,12 +522,17 @@
             }
         };
 
-        // --- DOM Elements ---
+        // Define fixed voucher values for calculations
+        const VOUCHER_VALUES = {
+            '10k': 10000,
+            '15k': 15000,
+            '20k': 20000
+        };
+
+        // --- DOM Elements (Existing Simulation) ---
         const membershipTierInput = document.getElementById('membershipTier');
         const simulationStartDateInput = document.getElementById('simulationStartDate');
         const numberOfPurchaseMonthsInput = document.getElementById('numberOfPurchaseMonths');
-        const voucherValueInput = document.getElementById('voucherValue');
-        const vouchersPerMonthInput = document.getElementById('vouchersPerMonth');
         const markupRateInput = document.getElementById('markupRate');
         const markupAllocationToTradingFundInput = document.getElementById('markupAllocationToTradingFund');
         const initialTradingFundInput = document.getElementById('initialTradingFund');
@@ -384,6 +550,13 @@
 
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
         const dailyLogTableBody = document.querySelector('#dailyLogTable tbody');
+
+        // New DOM elements for main simulation monthly sales input
+        const mainSimulationMonthlySalesInputHeader = document.getElementById('mainSimulationMonthlySalesInputHeader');
+        const mainSimulation10kVoucherRow = document.getElementById('mainSimulation10kVoucherRow');
+        const mainSimulation15kVoucherRow = document.getElementById('mainSimulation15kVoucherRow');
+        const mainSimulation20kVoucherRow = document.getElementById('mainSimulation20kVoucherRow');
+
 
         let monthlySimulationResults = []; // Stores results for daily log selection (includes extended months)
         let monthlyPurchaseData = []; // Stores only the purchase data for display in combinedPayoutTable
@@ -478,8 +651,6 @@
             const selectedTier = membershipTierInput.value;
             const simulationStartDateString = simulationStartDateInput.value;
             const numberOfPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
-            const voucherValue = parseInt(voucherValueInput.value);
-            const vouchersPerMonth = parseInt(vouchersPerMonthInput.value);
             const markupRate = parseFloat(markupRateInput.value) / 100;
             const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100;
             let avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
@@ -496,16 +667,59 @@
 
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
             const membershipFee = tierConfig.fee;
-            const cashbackRate = tierConfig.cashbackRates[voucherValue];
 
-            const monthlyVoucherSpend = voucherValue * vouchersPerMonth;
-            const markupPerMonth = monthlyVoucherSpend * markupRate;
-            const monthlyTradingFundContribution = markupPerMonth * markupAllocationToTradingFund;
+            // Get monthly sales inputs for main simulation
+            const mainSimMonthlySales = Array.from({ length: numberOfPurchaseMonths }, () => ({ '10k': 0, '15k': 0, '20k': 0 }));
+            document.querySelectorAll('#mainSimulationMonthlySalesInputTable .main-sim-sales-input').forEach(input => {
+                const voucherType = input.dataset.voucher;
+                const monthIndex = parseInt(input.dataset.month);
+                if (monthIndex < numberOfPurchaseMonths) { // Ensure we only read for active months
+                    mainSimMonthlySales[monthIndex][voucherType] = parseInt(input.value) || 0;
+                }
+            });
+
+            const monthlyVoucherSpends = [];
+            const monthlyMarkupAmounts = [];
+            const monthlyTradingFundContributions = [];
+            const monthlyCashbackOwedAmounts = [];
+
+            let cumulativeVoucherPurchases = 0;
+            let totalCashbackOwedAccrued = 0;
+
+            for (let i = 0; i < numberOfPurchaseMonths; i++) {
+                const sales = mainSimMonthlySales[i];
+                let currentMonthVoucherSpend = 0;
+                let currentMonthMarkup = 0;
+                let currentMonthCashbackOwed = 0;
+
+                for (const key in VOUCHER_VALUES) {
+                    const voucherValue = VOUCHER_VALUES[key];
+                    const quantity = sales[key];
+                    currentMonthVoucherSpend += voucherValue * quantity;
+                    currentMonthMarkup += (voucherValue * quantity) * markupRate;
+                    currentMonthCashbackOwed += (voucherValue * quantity) * tierConfig.cashbackRates[voucherValue];
+                }
+
+                monthlyVoucherSpends.push(currentMonthVoucherSpend);
+                monthlyMarkupAmounts.push(currentMonthMarkup);
+                monthlyCashbackOwedAmounts.push(currentMonthCashbackOwed);
+
+                cumulativeVoucherPurchases += currentMonthVoucherSpend;
+                totalCashbackOwedAccrued += Math.max(0, currentMonthCashbackOwed - (currentMonthMarkup * (1 - markupAllocationToTradingFund)));
+            }
 
             const membershipAllocationToTradingFund = 0.50;
             const oneTimeMembershipFundAddition = membershipFee * membershipAllocationToTradingFund;
 
-            const calculatedMonth1BaseContribution = monthlyTradingFundContribution + oneTimeMembershipFundAddition;
+            // Calculate monthly trading fund contributions
+            for (let i = 0; i < numberOfPurchaseMonths; i++) {
+                let contribution = monthlyMarkupAmounts[i] * markupAllocationToTradingFund;
+                if (i === 0) {
+                    contribution += oneTimeMembershipFundAddition;
+                }
+                monthlyTradingFundContributions.push(contribution);
+            }
+
 
             let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
 
@@ -521,15 +735,10 @@
             }
             initialDate.setHours(0, 0, 0, 0); // Normalize to local midnight
 
-            const markupAllocationToPayoutPercent = 1 - markupAllocationToTradingFund;
-            const amountCoveredByMarkup = monthlyVoucherSpend * markupRate * markupAllocationToPayoutPercent;
-
             monthlySimulationResults = [];
             monthlyPurchaseData = [];
-            let cumulativeVoucherPurchases = 0;
-            let totalCashbackOwedAccrued = 0;
-
-            const actualPurchaseMonths = isNaN(numberOfPurchaseMonths) || numberOfPurchaseMonths < 1 ? 12 : numberOfPurchaseMonths;
+            
+            const actualPurchaseMonths = numberOfPurchaseMonths; // Use the input value
             const currentTotalSimulationMonths = actualPurchaseMonths + EXTRA_MONTHS_FOR_PAYOUTS;
 
             // --- Monthly Simulation Loop (Extended to cover all payouts) ---
@@ -541,14 +750,15 @@
                     actualDeductionForThisPurchaseMonth: 0
                 };
 
+                // Only process purchase-related data for actual purchase months
                 if (monthIndex < actualPurchaseMonths) {
-                    // Create purchaseDate aligned to local timezone midnight
                     const purchaseDate = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, initialDate.getDate());
                     purchaseDate.setHours(0, 0, 0, 0); // Normalize to local midnight
                     monthData.purchaseDate = purchaseDate;
-                    monthData.totalCashbackOwed = monthlyVoucherSpend * cashbackRate;
+                    monthData.totalCashbackOwed = monthlyCashbackOwedAmounts[monthIndex];
                     monthData.cashbackAccruedThisMonth = monthData.totalCashbackOwed;
-                    monthData.accruedNetPayoutObligation = Math.max(0, monthData.totalCashbackOwed - amountCoveredByMarkup);
+                    // Net Payout Obligation is total owed minus markup not allocated to fund
+                    monthData.accruedNetPayoutObligation = Math.max(0, monthlyCashbackOwedAmounts[monthIndex] - (monthlyMarkupAmounts[monthIndex] * (1 - markupAllocationToTradingFund)));
                 } else {
                     monthData.purchaseDate = null;
                     monthData.cashbackAccruedThisMonth = 0;
@@ -561,14 +771,7 @@
                 monthData.cashbackDueDate = new Date(); // Placeholder
                 monthData.payoutMonthEnd = new Date(); // Placeholder
 
-                let monthlyContributionForCurrentMonth;
-                if (monthIndex === 0) {
-                    monthlyContributionForCurrentMonth = calculatedMonth1BaseContribution;
-                } else if (monthIndex < actualPurchaseMonths) {
-                    monthlyContributionForCurrentMonth = monthlyTradingFundContribution;
-                } else {
-                    monthlyContributionForCurrentMonth = 0;
-                }
+                let monthlyContributionForCurrentMonth = (monthIndex < actualPurchaseMonths) ? monthlyTradingFundContributions[monthIndex] : 0;
                 monthData.monthlyFundContribution = monthlyContributionForCurrentMonth;
 
                 monthData.startingTradingCapital = currentTradingFundAtStartOfMonth;
@@ -602,7 +805,7 @@
 
                         if (payoutMonthEndDateForPastPurchase.getTime() <= currentSimMonthEnd.getTime()) {
                             const owedFromPastFull = pastMonthData.cashbackAccruedThisMonth;
-                            const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - amountCoveredByMarkup);
+                            const netCashbackToCoverByTradingFund = Math.max(0, owedFromPastFull - (monthlyMarkupAmounts[pastMonthData.month -1] * (1 - markupAllocationToTradingFund))); // Use markup from original purchase month
                             
                             const deductionForMonthlyTable = netCashbackToCoverByTradingFund;
                             monthData.payoutDeductedInThisMonth += deductionForMonthlyTable;
@@ -610,7 +813,6 @@
                         }
                     }
                 }
-
                 monthData.endingTradingCapital = fundAfterTrades;
                 currentTradingFundAtStartOfMonth = monthData.endingTradingCapital;
 
@@ -623,8 +825,6 @@
                     monthData.payoutMonthEnd = getEndOfMonthLocal(monthData.cashbackDueDate);
 
                     monthlyPurchaseData.push(monthData);
-                    cumulativeVoucherPurchases += monthlyVoucherSpend;
-                    totalCashbackOwedAccrued += monthData.accruedNetPayoutObligation;
                 }
             }
 
@@ -777,28 +977,27 @@
 
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
-            const monthlyVoucherSpend = parseInt(voucherValueInput.value) * parseInt(vouchersPerMonthInput.value);
             const markupRate = parseFloat(markupRateInput.value) / 100;
             const markupAllocationToTradingFund = parseFloat(markupAllocationToTradingFundInput.value) / 100;
-            const monthlyTradingFundContribution = monthlyVoucherSpend * markupRate * markupAllocationToTradingFund;
-            const oneTimeMembershipFundAddition = tierConfig.fee * 0.50;
+            const membershipAllocationToTradingFund = 0.50;
+            const oneTimeMembershipFundAddition = tierConfig.fee * membershipAllocationToTradingFund;
 
-            if (monthlyPurchaseData.length > 0) {
-                const month1PurchaseDate = new Date(monthlyPurchaseData[0].purchaseDate);
-                monthlyContributionsMap.set(month1PurchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }), monthlyTradingFundContribution + oneTimeMembershipFundAddition);
-
-                for (let i = 1; i < monthlyPurchaseData.length; i++) {
-                    const purchaseDate = new Date(monthlyPurchaseData[i].purchaseDate);
-                    monthlyContributionsMap.set(purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }), monthlyTradingFundContribution);
+            // Collect monthly contributions and payouts from the main simulation's calculated data
+            // This assumes runSimulation has already populated monthlyPurchaseData accurately
+            monthlyPurchaseData.forEach((data, index) => {
+                const purchaseDate = data.purchaseDate;
+                if (purchaseDate) {
+                    const monthKey = purchaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    monthlyContributionsMap.set(monthKey, data.monthlyFundContribution);
                 }
 
-                for (let i = 0; i < monthlyPurchaseData.length; i++) {
-                    const payoutDate = new Date(monthlyPurchaseData[i].payoutMonthEnd);
+                const payoutDate = data.payoutMonthEnd;
+                if (payoutDate) {
                     const payoutDateString = payoutDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                     const payoutInfo = {
-                        monthlyDataRef: monthlyPurchaseData[i],
-                        netObligation: monthlyPurchaseData[i].accruedNetPayoutObligation,
-                        actualDeduction: monthlyPurchaseData[i].actualDeductionForThisPurchaseMonth
+                        monthlyDataRef: data,
+                        netObligation: data.accruedNetPayoutObligation,
+                        actualDeduction: data.actualDeductionForThisPurchaseMonth
                     };
                     if (monthlyPayoutsMap.has(payoutDateString)) {
                         monthlyPayoutsMap.get(payoutDateString).push(payoutInfo);
@@ -806,7 +1005,8 @@
                         monthlyPayoutsMap.set(payoutDateString, [payoutInfo]);
                     }
                 }
-            }
+            });
+
 
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -908,14 +1108,26 @@
             }
         }
 
-        // --- Event Listeners and Initial Setup ---
+        // --- Event Listeners and Initial Setup (Existing Simulation) ---
 
-        membershipTierInput.addEventListener('change', runSimulation);
+        // Update main simulation inputs and re-run both simulations when # Of Months changes
+        numberOfPurchaseMonthsInput.addEventListener('input', () => {
+            initializeMainSimulationInputs(); // Re-initialize main simulation sales inputs
+            initializeReserveFlowInputs(); // Re-initialize reserve flow inputs to match new month count
+            runSimulation();
+            runReserveFlowSimulation();
+        });
+
+        // Other main simulation inputs
+        membershipTierInput.addEventListener('change', () => {
+            runSimulation();
+            runReserveFlowSimulation(); // Also update reserve flow when tier changes
+        });
         simulationStartDateInput.addEventListener('change', runSimulation);
-        numberOfPurchaseMonthsInput.addEventListener('input', runSimulation);
-        voucherValueInput.addEventListener('change', runSimulation);
-        vouchersPerMonthInput.addEventListener('input', runSimulation); // Changed to 'input' for live updates
-        markupRateInput.addEventListener('input', runSimulation);
+        markupRateInput.addEventListener('input', () => {
+            runSimulation();
+            runReserveFlowSimulation(); // Also update reserve flow when markup rate changes
+        });
         markupAllocationToTradingFundInput.addEventListener('input', runSimulation);
         initialTradingFundInput.addEventListener('input', runSimulation);
         avgWeeklyWinInput.addEventListener('input', runSimulation);
@@ -923,6 +1135,36 @@
         winRateInput.addEventListener('input', runSimulation);
         simulationSeedInput.addEventListener('input', runSimulation);
         stressTestModeCheckbox.addEventListener('change', runSimulation);
+
+        // Function to initialize main simulation monthly sales input fields
+        const initializeMainSimulationInputs = () => {
+            const numMonths = parseInt(numberOfPurchaseMonthsInput.value);
+            if (isNaN(numMonths) || numMonths < 1) return;
+
+            // Clear existing headers and inputs
+            mainSimulationMonthlySalesInputHeader.innerHTML = '<th class="px-6 py-3">Voucher Type</th>';
+            mainSimulation10kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>';
+            mainSimulation15kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>';
+            mainSimulation20kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>';
+
+            for (let i = 0; i < numMonths; i++) {
+                const monthName = `Month ${i + 1}`;
+                mainSimulationMonthlySalesInputHeader.insertAdjacentHTML('beforeend', `<th class="px-6 py-3">${monthName}</th>`);
+
+                mainSimulation10kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="10k" data-month="${i}" value="0" min="0"></td>`);
+                mainSimulation15kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="15k" data-month="${i}" value="0" min="0"></td>`);
+                mainSimulation20kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="20k" data-month="${i}" value="0" min="0"></td>`);
+            }
+
+            // Add event listeners to new input fields
+            document.querySelectorAll('.main-sim-sales-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    runSimulation();
+                    runReserveFlowSimulation(); // Also update reserve flow when main sim sales change
+                });
+            });
+        };
+
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
@@ -933,8 +1175,271 @@
             simulationStartDateInput.value = `${year}-${month}-${day}`;
 
             updateInitialTradingFundDefault();
+            initializeMainSimulationInputs(); // Initialize main simulation sales inputs first
             runSimulation();
+            initializeReserveFlowInputs(); // Initialize reserve flow inputs
+            runReserveFlowSimulation(); // Run the new simulation on load
         });
+
+
+        // --- NEW SECTION: Reserve Flow Calculator Logic ---
+
+        // Constants for Reserve Flow Calculator
+        const RF_PAYOUT_DELAY_MONTHS = 4; // Approx 121 days / 30.4375 days/month
+
+        const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83; // 1 - 0.17 from Google Script (Markup allocated to reserve)
+
+        // DOM Elements for Reserve Flow Calculator
+        const rfUpfrontBufferInput = document.getElementById('rfUpfrontBuffer');
+        const rfVoucherDefinitionsTableBody = document.getElementById('rfVoucherDefinitionsTableBody'); // New tbody ID
+        const rfMonthlySalesInputHeader = document.getElementById('rfMonthlySalesInputHeader');
+        const rf10kVoucherRow = document.getElementById('rf10kVoucherRow');
+        const rf15kVoucherRow = document.getElementById('rf15kVoucherRow');
+        const rf20kVoucherRow = document.getElementById('rf20kVoucherRow');
+        const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader');
+        const rfTotalMarkupAddedRow = document.getElementById('rfTotalMarkupAddedRow');
+        const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow');
+        const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
+        const rfReserveFlowTableBody = document.querySelector('#rfReserveFlowTable tbody');
+
+        // Function to dynamically get voucher definitions based on current inputs
+        const getRfVoucherDefinitions = () => {
+            const currentMarkupRate = parseFloat(markupRateInput.value) / 100;
+            const selectedTier = membershipTierInput.value;
+            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
+
+            return {
+                'J$10K Voucher': {
+                    value: 10000,
+                    markup: 10000 * currentMarkupRate,
+                    cashback: 10000 * tierConfig.cashbackRates[10000]
+                },
+                'J$15K Voucher': {
+                    value: 15000,
+                    markup: 15000 * currentMarkupRate,
+                    cashback: 15000 * tierConfig.cashbackRates[15000]
+                },
+                'J$20K Voucher': {
+                    value: 20000,
+                    markup: 20000 * currentMarkupRate,
+                    cashback: 20000 * tierConfig.cashbackRates[20000]
+                }
+            };
+        };
+
+        // Function to update the RF Voucher Definitions table
+        const updateRfVoucherDefinitionsTable = () => {
+            const rfVoucherDefinitions = getRfVoucherDefinitions();
+            rfVoucherDefinitionsTableBody.innerHTML = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$10K Voucher'].markup)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$10K Voucher'].cashback)}</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$15K Voucher'].markup)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$15K Voucher'].cashback)}</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$20K Voucher'].markup)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$20K Voucher'].cashback)}</td>
+                </tr>
+            `;
+        };
+
+        // Function to generate month headers and display cells dynamically for Reserve Flow Sales Input
+        const initializeReserveFlowInputs = () => {
+            const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
+            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS); // Cap at 60 months for display
+
+            // Clear existing headers and rows
+            rfMonthlySalesInputHeader.innerHTML = '<th class="px-6 py-3">Voucher Type</th>';
+            rf10kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>';
+            rf15kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>';
+            rf20kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>';
+
+            rfMonthlyFinancialsHeader.innerHTML = '<th class="px-6 py-3">Financial Metric</th>';
+            rfTotalMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>';
+            rfTotalCashbackOwedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>';
+            rfActualCashbackPaidOutRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>';
+
+
+            for (let i = 0; i < totalMonthsForRfDisplay; i++) {
+                const monthName = `Month ${i + 1}`;
+                // Add month headers
+                rfMonthlySalesInputHeader.insertAdjacentHTML('beforeend', `<th class="px-6 py-3">${monthName}</th>`);
+                rfMonthlyFinancialsHeader.insertAdjacentHTML('beforeend', `<th class="px-6 py-3">${monthName}</th>`);
+
+                // Add empty cells for each voucher type, to be filled by runReserveFlowSimulation
+                rf10kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-10k-month-${i}"></td>`);
+                rf15kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-15k-month-${i}"></td>`);
+                rf20kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-20k-month-${i}"></td>`);
+            }
+
+            // Call this function to update the calculated voucher definitions table
+            updateRfVoucherDefinitionsTable();
+        };
+
+        /**
+         * Runs the Reserve Flow simulation.
+         */
+        const runReserveFlowSimulation = () => {
+            rfReserveFlowTableBody.innerHTML = ''; // Clear previous results
+
+            const upfrontBuffer = parseFloat(rfUpfrontBufferInput.value) || 0;
+            const rfVoucherDefinitions = getRfVoucherDefinitions(); // Get dynamic definitions
+
+            // Update the Voucher Type Definitions table (ensure this is called here)
+            updateRfVoucherDefinitionsTable(); // Moved this call here to ensure it's always up-to-date
+
+            const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
+            const totalMonthsForRfCalculation = numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS; // Calculate for this many months
+
+            // Get monthly sales inputs from the MAIN simulation table
+            const monthlySales = Array.from({ length: totalMonthsForRfCalculation }, () => ({ '10k': 0, '15k': 0, '20k': 0 }));
+
+            document.querySelectorAll('#mainSimulationMonthlySalesInputTable .main-sim-sales-input').forEach(input => {
+                const voucherType = input.dataset.voucher;
+                const monthIndex = parseInt(input.dataset.month);
+                // Only pull data for months that are actually part of the main simulation's # Of Months
+                if (monthIndex < numMonthsInMainSimulation) {
+                    monthlySales[monthIndex][voucherType] = parseInt(input.value) || 0;
+                }
+            });
+
+            // Populate the Reserve Flow's Monthly Sales Input table with values from main simulation
+            // Display only the months active in the main simulation, and 0 for others up to totalMonthsForRfCalculation.
+            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + RF_PAYOUT_DELAY_MONTHS); // Cap at 60 for display
+
+            for (let i = 0; i < totalMonthsForRfDisplay; i++) {
+                const sales10k = (i < numMonthsInMainSimulation) ? monthlySales[i]['10k'] : 0;
+                const sales15k = (i < numMonthsInMainSimulation) ? monthlySales[i]['15k'] : 0;
+                const sales20k = (i < numMonthsInMainSimulation) ? monthlySales[i]['20k'] : 0;
+
+                // Ensure the elements exist before trying to set textContent
+                const elem10k = document.getElementById(`rf-10k-month-${i}`);
+                if (elem10k) elem10k.textContent = sales10k;
+                
+                const elem15k = document.getElementById(`rf-15k-month-${i}`);
+                if (elem15k) elem15k.textContent = sales15k;
+
+                const elem20k = document.getElementById(`rf-20k-month-${i}`);
+                if (elem20k) elem20k.textContent = sales20k;
+            }
+
+            const totalMarkupAdded = [];
+            const totalCashbackOwed = [];
+            const actualCashbackPaidOut = [];
+
+            // Calculate Monthly Financials
+            for (let i = 0; i < totalMonthsForRfCalculation; i++) {
+                const sales = monthlySales[i]; // Use the sales data pulled from main simulation (which has 0s for inactive months)
+                const markup10k = rfVoucherDefinitions['J$10K Voucher'].markup;
+                const markup15k = rfVoucherDefinitions['J$15K Voucher'].markup;
+                const markup20k = rfVoucherDefinitions['J$20K Voucher'].markup;
+
+                const cashback10k = rfVoucherDefinitions['J$10K Voucher'].cashback;
+                const cashback15k = rfVoucherDefinitions['J$15K Voucher'].cashback;
+                const cashback20k = rfVoucherDefinitions['J$20K Voucher'].cashback;
+
+                // Total Markup Added (17% deduction means 83% allocation)
+                const markupAdded = (sales['10k'] * markup10k + sales['15k'] * markup15k + sales['20k'] * markup20k) * RF_MARKUP_ALLOCATION_TO_RESERVE;
+                totalMarkupAdded.push(markupAdded);
+
+                // Total Cashback Owed (Liability Incurred)
+                const cashbackOwed = (sales['10k'] * cashback10k + sales['15k'] * cashback15k + sales['20k'] * cashback20k);
+                totalCashbackOwed.push(cashbackOwed);
+
+                // Actual Cashback Paid Out (121-day delay, approx 4 months)
+                if (i < RF_PAYOUT_DELAY_MONTHS) {
+                    actualCashbackPaidOut.push(0); // No payout for first 4 months from sales
+                } else {
+                    actualCashbackPaidOut.push(totalCashbackOwed[i - RF_PAYOUT_DELAY_MONTHS]);
+                }
+            }
+
+            // Update Monthly Financials tables - only for the months displayed
+            rfTotalMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>' + totalMarkupAdded.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
+            rfTotalCashbackOwedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>' + totalCashbackOwed.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
+            rfActualCashbackPaidOutRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>' + actualCashbackPaidOut.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
+
+
+            // Calculate Reserve Flow
+            let currentReserve = 0;
+            const reserveFlowResults = [];
+
+            // Month 0 (Upfront)
+            let month0ReserveEnd = upfrontBuffer;
+            reserveFlowResults.push({
+                month: '0 (Upfront)',
+                reserveStart: 0,
+                addReserve: upfrontBuffer,
+                payCashback: 0,
+                reserveEnd: month0ReserveEnd,
+                status: month0ReserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE'
+            });
+            currentReserve = month0ReserveEnd;
+
+            for (let i = 0; i < totalMonthsForRfCalculation; i++) {
+                const reserveStart = currentReserve;
+                const addReserve = totalMarkupAdded[i];
+                const payCashback = actualCashbackPaidOut[i];
+                const reserveEnd = reserveStart + addReserve - payCashback;
+                const status = reserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE';
+
+                reserveFlowResults.push({
+                    month: i + 1,
+                    reserveStart: reserveStart,
+                    addReserve: addReserve,
+                    payCashback: payCashback,
+                    reserveEnd: reserveEnd,
+                    status: status
+                });
+                currentReserve = reserveEnd;
+            }
+
+            // Populate Reserve Flow Table - only for the months displayed
+            reserveFlowResults.slice(0, totalMonthsForRfDisplay + 1).forEach(data => { // +1 to include Month 0
+                const statusClass = data.status === 'POSITIVE' ? 'text-green-600' : 'text-red-600';
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${data.reserveEnd >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(data.reserveEnd)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="${statusClass}">
+                                ${data.status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                rfReserveFlowTableBody.insertAdjacentHTML('beforeend', row);
+            });
+        };
+
+        // Event Listeners for Reserve Flow Calculator
+        rfUpfrontBufferInput.addEventListener('input', runReserveFlowSimulation);
+
+        // Initial setup for the new section
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to local midnight
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            simulationStartDateInput.value = `${year}-${month}-${day}`;
+
+            updateInitialTradingFundDefault();
+            initializeMainSimulationInputs(); // Initialize main simulation sales inputs first
+            runSimulation();
+            initializeReserveFlowInputs(); // Initialize reserve flow inputs
+            runReserveFlowSimulation(); // Run the new simulation on load
+        });
+
     </script>
 </body>
 </html>
