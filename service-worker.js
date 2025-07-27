@@ -1,4 +1,4 @@
-const CACHE_NAME = "offline-v112";
+const CACHE_NAME = "offline-v113";
 
 const urlsToCache = [
     "/",
