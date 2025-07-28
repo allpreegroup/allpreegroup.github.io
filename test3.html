@@ -461,7 +461,6 @@
                             <tr>
                                 <th class="px-6 py-3">Day</th>
                                 <th class="px-6 py-3">Date</th>
-                                <th class="px-6 py-3">Day of Week</th>
                                 <th class="px-6 py-3">Reserve Start (J$)</th>
                                 <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
                                 <th class="px-6 py-3">Pay Cashback (– Owed) (J$)</th>
@@ -1518,7 +1517,7 @@
                 if (grossMarkupCell) grossMarkupCell.textContent = formatCurrency(totalGrossMarkupMonthly[i]);
 
                 const allocatedMarkupCell = document.querySelector(`#rfAllocatedMarkupAddedRow td:nth-child(${i + 2})`);
-                if (allocatedMarkupCell) allocatedMarkupCell.textContent = formatCurrency(_monthlyMarkupForReserve[i] || 0); // Use _monthlyMarkupForReserve
+                if (allocatedMarkupCell) allocatedMarkupMarkupCell.textContent = formatCurrency(_monthlyMarkupForReserve[i] || 0); // Use _monthlyMarkupForReserve
 
                 const cashbackOwedCell = document.querySelector(`#rfTotalCashbackOwedRow td:nth-child(${i + 2})`);
                 if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
@@ -1571,9 +1570,10 @@
 
 
                 // Status column (conditional display based on whether it's a payout month-end)
-                if (data.isPayoutDateForDisplay) { // This flag is true if a payout is due on this specific date
-                    statusClass = data.netReserveCoverageCumulative >= 0 ? 'text-green-600' : 'text-red-600';
-                    displayedStatus = data.netReserveCoverageCumulative >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                if (data.isPayoutDateForDisplay && data.grossCashbackLiability !== null) { // This flag is true if a payout is due on this specific date
+                    const statusCalculation = (data.reserveStart + data.payCashback) - data.grossCashbackLiability;
+                    statusClass = statusCalculation >= 0 ? 'text-green-600' : 'text-red-600';
+                    displayedStatus = statusCalculation >= 0 ? 'POSITIVE' : 'NEGATIVE';
                 } else {
                     displayedStatus = 'N/A';
                     statusClass = 'text-gray-500'; // Neutral color for N/A
@@ -1584,7 +1584,6 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback, true)}</td>
