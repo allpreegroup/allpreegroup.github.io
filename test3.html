@@ -1526,28 +1526,19 @@
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily)
             dailyReserveFlowLog.forEach(data => {
-                let displayedTotalReserve = 'N/A';
-                let displayedTotalOwedLiability = 'N/A';
-                let displayedNetReserveCoverage = 'N/A';
-                let displayedStatus = 'N/A';
-                let netReserveCoverageClass = 'text-gray-500';
-                let statusClass = 'text-gray-500';
-                let totalOwedLiabilityClass = 'text-gray-500'; // New class for liability
-
-                if (data.isPayoutDateForDisplay) {
-                    // Display actual end-of-day reserve and liability
-                    displayedTotalReserve = formatCurrency(data.totalReserveEndOfDay, true);
-                    displayedTotalOwedLiability = formatCurrency(Math.abs(data.totalOwedLiabilityEndOfDay), true); // Display absolute value
-                    totalOwedLiabilityClass = 'text-red-600'; // Always red for liability
-
-                    // Net Reserve Coverage is the direct subtraction of the *actual* end-of-day balances
-                    const netReserveCoverageForDisplay = data.totalReserveEndOfDay - data.totalOwedLiabilityEndOfDay; // Actual subtraction
-                    displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
-                    
-                    displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
-                    netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
-                    statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
-                }
+                let totalOwedLiabilityClass = 'text-red-600'; // Default to red for liability
+                
+                // Display actual end-of-day reserve and liability for all days
+                const displayedTotalReserve = formatCurrency(data.totalReserveEndOfDay, true);
+                const displayedTotalOwedLiability = formatCurrency(Math.abs(data.totalOwedLiabilityEndOfDay), true); // Display absolute value
+                
+                // Net Reserve Coverage is the direct subtraction of the *actual* end-of-day balances
+                const netReserveCoverageForDisplay = data.totalReserveEndOfDay - data.totalOwedLiabilityEndOfDay; // Actual subtraction
+                const displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
+                
+                const displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                const netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                const statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
 
                 const row = `
                     <tr>
