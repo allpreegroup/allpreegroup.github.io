@@ -465,7 +465,7 @@
                                 <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
                                 <th class="px-6 py-3">Pay Cashback (– Owed) (J$)</th>
                                 <th class="px-6 py-3">Total Reserve (J$)</th>
-                                <th class="px-6 py-3">Total Owed Liability (J$)</th>
+                                <th class="px-6 py-3">Gross Cashback Liability (J$)</th> <!-- Updated Header -->
                                 <th class="px-6 py-3">Reserve Payout (J$)</th>
                                 <th class="px-6 py-3">Status</th>
                             </tr>
@@ -1000,6 +1000,9 @@
             const dailyMarkupAdditionsMap = new Map(); // Map for daily markup additions to reserve
             const dailyLiabilityAdditionsMap = new Map(); // Map for daily liability additions
 
+            // New map to store the first purchase liability due on a specific payout date
+            const firstPurchaseLiabilityOnPayoutDate = new Map();
+
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
             const markupRate = parseFloat(markupRateInput.value) / 100;
@@ -1028,6 +1031,11 @@
                         monthlyPayoutsMap.get(payoutDateString).push(payoutInfo);
                     } else {
                         monthlyPayoutsMap.set(payoutDateString, [payoutInfo]);
+                    }
+
+                    // Store the first purchase's *gross cashback owed* for this payout date
+                    if (!firstPurchaseLiabilityOnPayoutDate.has(payoutDateString)) {
+                        firstPurchaseLiabilityOnPayoutDate.set(payoutDateString, data.totalCashbackOwed); // Changed to totalCashbackOwed
                     }
                 }
             });
@@ -1179,6 +1187,12 @@
                     isTradingDayForDisplay = true;
                 }
 
+                // Determine the first purchase liability for display on payout dates
+                let firstPurchaseGrossLiabilityForDisplay = null;
+                if (isSpecificPayoutMonthEndDate) {
+                    firstPurchaseGrossLiabilityForDisplay = firstPurchaseLiabilityOnPayoutDate.get(currentDateString);
+                }
+
                 // Record daily Reserve Flow - conditionally store values for display
                 dailyReserveFlowLog.push({
                     day: dayCounter,
@@ -1187,11 +1201,7 @@
                     addReserve: dailyReserveAdd,
                     payCashback: dailyReservePayout, // Stored as positive amount for user's sum
                     
-                    // Values specifically for display on payout dates as per user's sum request for Total Reserve and Total Owed Liability
-                    calculatedTotalReserveOnPayout: isSpecificPayoutMonthEndDate ? (reserveStartOfDay + dailyReservePayout) : null,
-                    calculatedTotalOwedLiabilityOnPayout: isSpecificPayoutMonthEndDate ? -(reserveStartOfDay + dailyReservePayout) : null,
-                    
-                    // Actual cumulative values for Net Reserve Coverage and internal logic
+                    grossCashbackLiability: firstPurchaseGrossLiabilityForDisplay, // Store the first purchase gross liability for display
                     netReserveCoverageCumulative: currentDailyReserve - cumulativeAccruedCashbackLiability, // The actual running total
                     statusCumulative: (currentDailyReserve - cumulativeAccruedCashbackLiability) >= 0 ? 'POSITIVE' : 'NEGATIVE',
 
@@ -1502,40 +1512,38 @@
                 if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
 
                 const cashbackPaidCell = document.querySelector(`#rfActualCashbackPaidOutRow td:nth-child(${i + 2})`);
-                if (cashbackPaidCell) cashbackPaidCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
+                if (cashbackPaidCell) cashbackCashbackPaidOutMonthly[i].textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
             }
 
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily)
             dailyReserveFlowLog.forEach(data => {
                 let displayedTotalReserve = 'N/A';
-                let displayedTotalOwedLiability = 'N/A';
-                let displayedNetReserveCoverage = 'N/A';
+                let displayedGrossCashbackLiability = 'N/A'; // Renamed variable
                 let displayedStatus = 'N/A';
                 let netReserveCoverageClass = 'text-gray-500';
                 let statusClass = 'text-gray-500';
-                let totalOwedLiabilityClass = 'text-gray-500'; // New class for liability
+                let grossCashbackLiabilityClass = 'text-gray-500'; // New class for liability
 
+                // Total Reserve (J$) is still conditional on payout date for display
                 if (data.isPayoutDateForDisplay) {
-                    // Calculate Total Reserve and Total Owed Liability as per user's specific request
-                    const calculatedTotalReserve = data.reserveStart + data.payCashback; // Using payCashback as positive
-                    const calculatedTotalOwedLiabilityRaw = -calculatedTotalReserve; // Keep raw for Net Reserve calculation
-                    
-                    // For display, use absolute value for Total Owed Liability and apply red color
-                    const calculatedTotalOwedLiabilityDisplay = Math.abs(calculatedTotalOwedLiabilityRaw);
-                    totalOwedLiabilityClass = 'text-red-600'; // Always red for liability
-
-                    // Net Reserve Coverage should be the direct subtraction of the two *displayed* values
-                    const netReserveCoverageForDisplay = calculatedTotalReserve - calculatedTotalOwedLiabilityDisplay;
-                    displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
-                    
-                    displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
-                    netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
-                    statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
-
-                    displayedTotalReserve = formatCurrency(calculatedTotalReserve, true);
-                    displayedTotalOwedLiability = formatCurrency(calculatedTotalOwedLiabilityDisplay, true);
+                    displayedTotalReserve = formatCurrency(data.reserveStart + data.payCashback, true);
                 }
+
+                // Gross Cashback Liability (J$) now shows only the first purchase gross liability on payout dates
+                if (data.isPayoutDateForDisplay && data.grossCashbackLiability !== null) {
+                    displayedGrossCashbackLiability = formatCurrency(data.grossCashbackLiability, true);
+                    grossCashbackLiabilityClass = data.grossCashbackLiability > 0 ? 'text-red-600' : 'text-gray-600';
+                } else {
+                    displayedGrossCashbackLiability = 'N/A';
+                    grossCashbackLiabilityClass = 'text-gray-500'; // Neutral color for N/A
+                }
+
+                // Reserve Payout (J$) (previously Net Reserve Coverage)
+                const displayedReservePayout = formatCurrency(data.netReserveCoverageCumulative, true);
+                statusClass = data.netReserveCoverageCumulative >= 0 ? 'text-green-600' : 'text-red-600';
+                displayedStatus = data.netReserveCoverageCumulative >= 0 ? 'POSITIVE' : 'NEGATIVE';
+
 
                 const row = `
                     <tr>
@@ -1545,8 +1553,8 @@
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${displayedTotalReserve}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${totalOwedLiabilityClass}">${displayedTotalOwedLiability}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${displayedNetReserveCoverage}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${grossCashbackLiabilityClass}">${displayedGrossCashbackLiability}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedReservePayout}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${statusClass}">
                                 ${displayedStatus}
