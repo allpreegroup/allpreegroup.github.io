@@ -931,7 +931,6 @@
             cumulativeVoucherPurchasesSpan.textContent = formatCurrency(cumulativeVoucherPurchases);
             totalCashbackOwedAccruedSpan.textContent = formatCurrency(totalCashbackOwedAccrued);
             totalCashbackPaidSpan.textContent = formatCurrency(totalCashbackPaid);
-            netFundPerformanceSpan.textContent = formatCurrency(finalTradingFund);
             netFundPerformanceSpan.classList.toggle('text-green-600', finalTradingFund >= 0);
             netFundPerformanceSpan.classList.toggle('text-red-600', finalTradingFund < 0);
 
@@ -1155,30 +1154,31 @@
                         currentDailyCapital -= payout.actualDeduction;
                         dailyNetChange -= payout.actualDeduction;
 
-                        // *** START OF USER'S REQUESTED CHANGE FOR RESERVE FUND ***
-                        // 1. Add Pay Cashback (payout.actualDeduction) to currentDailyReserve
-                        currentDailyReserve += payout.actualDeduction;
-                        // 2. Deduct Gross Cashback Liability (payout.monthlyDataRef.totalCashbackOwed) from currentDailyReserve
-                        const grossLiabilityToDeduct = payout.monthlyDataRef.totalCashbackOwed;
-                        currentDailyReserve -= grossLiabilityToDeduct;
+                        // Original logic: currentDailyReserve is reduced by payout.actualDeduction
+                        currentDailyReserve -= payout.actualDeduction;
+                        dailyReservePayout += payout.actualDeduction; // Accumulate absolute value for display
 
-                        // dailyReservePayout should now reflect the gross liability if that's what's being deducted
-                        dailyReservePayout += grossLiabilityToDeduct; // Accumulate the gross liability for display
-
-                        // Reduce cumulative liability by the gross liability if that's what's being paid out
-                        cumulativeAccruedCashbackLiability -= grossLiabilityToDeduct;
-                        // *** END OF USER'S REQUESTED CHANGE FOR RESERVE FUND ***
+                        // Reduce cumulative liability when cashback is paid
+                        cumulativeAccruedCashbackLiability -= payout.actualDeduction;
 
                         const originalMonthlyData = payout.monthlyDataRef;
                         originalMonthlyData.actualPayoutSurplusDeficit = currentDailyCapital;
                         originalMonthlyData.actualPayoutMetStatus = (currentDailyCapital >= 0 || (currentDailyCapital < 0 && originalMonthlyData.accruedNetPayoutObligation === 0));
+
+                        // Add payout.actualDeduction to currentDailyReserve ONLY IF Payout Met
+                        if (originalMonthlyData.actualPayoutMetStatus === true) {
+                            currentDailyReserve += payout.actualDeduction;
+                        }
+                        // *** START OF REVERTED CHANGE ***
+                        // Add payout.actualDeduction to dailyReserveAdd for display on ALL payout dates
+                        dailyReserveAdd += payout.actualDeduction;
+                        // *** END OF REVERTED CHANGE ***
                     });
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
 
-                    // This also needs to be updated to reflect the new reserve calculation
-                    reserveBalanceAfterPayout = currentDailyReserve; // Capture the new balance after the requested calculation
+                    reserveBalanceAfterPayout = currentDailyReserve;
                 }
                 // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
                 cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
