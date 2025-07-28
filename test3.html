@@ -452,7 +452,7 @@
                     </table>
                 </div>
             </div>
-
+ 
             <div class="reserve-flow-table-container">
                 <h3>Reserve Flow (Daily)</h3>
                 <div class="overflow-x-auto">
@@ -1135,29 +1135,20 @@
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
                 if (isPayoutDay) {
-                    let totalPaidThisDay = 0;
                     payoutsDueToday.forEach(payout => {
-                        const amountToPay = payout.actualDeduction;
-                        if (currentDailyCapital >= amountToPay) { // Check if trading fund can cover this specific payout
-                            currentDailyCapital -= amountToPay;
-                            dailyNetChange -= amountToPay; // Net change reflects actual deduction
-                            currentDailyReserve -= amountToPay; // Actual deduction from reserve
-                            totalPaidThisDay += amountToPay; // Accumulate amount actually paid for this day
-                            cumulativeAccruedCashbackLiability -= amountToPay; // Only reduce liability if paid
-                            payout.monthlyDataRef.actualPayoutMetStatus = true; // Mark as met for this specific payout
-                        } else {
-                            // Trading fund cannot cover this payout.
-                            // The liability remains. The reserve is not reduced by this amount.
-                            payout.monthlyDataRef.actualPayoutMetStatus = false; // Mark as not met
-                            // No change to currentDailyCapital for this specific payout, as it couldn't be made.
-                            // No change to currentDailyReserve for this specific payout.
-                            // No reduction in cumulativeAccruedCashbackLiability for this specific payout.
-                            // We still need to reflect the negative capital in the trading log.
-                        }
-                        // Update the monthly data's surplus/deficit based on the trading fund's state
-                        payout.monthlyDataRef.actualPayoutSurplusDeficit = currentDailyCapital;
+                        currentDailyCapital -= payout.actualDeduction;
+                        dailyNetChange -= payout.actualDeduction;
+
+                        currentDailyReserve -= payout.actualDeduction;
+                        dailyReservePayout += payout.actualDeduction; // Accumulate absolute value for display
+
+                        // Reduce cumulative liability when cashback is paid
+                        cumulativeAccruedCashbackLiability -= payout.actualDeduction;
+
+                        const originalMonthlyData = payout.monthlyDataRef;
+                        originalMonthlyData.actualPayoutSurplusDeficit = currentDailyCapital;
+                        originalMonthlyData.actualPayoutMetStatus = (currentDailyCapital >= 0 || (currentDailyCapital < 0 && originalMonthlyData.accruedNetPayoutObligation === 0));
                     });
-                    dailyReservePayout = totalPaidThisDay; // Set dailyReservePayout to the total amount actually paid
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
@@ -1189,27 +1180,21 @@
                     isTradingDayForDisplay = true;
                 }
 
-                // Calculate Net Reserve Coverage using the *current* (updated) cumulative values
-                // These are the true running balances
-                const netReserveCoverageActual = currentDailyReserve - cumulativeAccruedCashbackLiability;
-                const statusActual = netReserveCoverageActual >= 0 ? 'POSITIVE' : 'NEGATIVE';
-
-                // Record daily Reserve Flow
+                // Record daily Reserve Flow - conditionally store values for display
                 dailyReserveFlowLog.push({
                     day: dayCounter,
                     date: new Date(currentDate),
-                    reserveStart: reserveStartOfDay, // Reserve at start of day
-                    addReserve: dailyReserveAdd, // Markup added
-                    payCashback: dailyReservePayout, // Actual amount paid out from reserve
+                    reserveStart: reserveStartOfDay, // Value from start of the day
+                    addReserve: dailyReserveAdd,
+                    payCashback: dailyReservePayout, // Stored as positive amount for user's sum
                     
-                    // Display values for Total Reserve and Total Owed Liability on payout dates
-                    // These will now be the actual end-of-day balances
-                    totalReserveEndOfDay: currentDailyReserve, // Actual reserve balance after all daily events
-                    totalOwedLiabilityEndOfDay: cumulativeAccruedCashbackLiability, // Actual outstanding liability after all daily events
-
-                    // Net Reserve Coverage and Status will always reflect the true current state
-                    netReserveCoverage: netReserveCoverageActual,
-                    status: statusActual,
+                    // Values specifically for display on payout dates as per user's sum request for Total Reserve and Total Owed Liability
+                    calculatedTotalReserveOnPayout: isSpecificPayoutMonthEndDate ? (reserveStartOfDay + dailyReservePayout) : null,
+                    calculatedTotalOwedLiabilityOnPayout: isSpecificPayoutMonthEndDate ? -(reserveStartOfDay + dailyReservePayout) : null,
+                    
+                    // Actual cumulative values for Net Reserve Coverage and internal logic
+                    netReserveCoverageCumulative: currentDailyReserve - cumulativeAccruedCashbackLiability, // The actual running total
+                    statusCumulative: (currentDailyReserve - cumulativeAccruedCashbackLiability) >= 0 ? 'POSITIVE' : 'NEGATIVE',
 
                     isPayoutDateForDisplay: isSpecificPayoutMonthEndDate // Flag for conditional display
                 });
@@ -1526,19 +1511,34 @@
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily)
             dailyReserveFlowLog.forEach(data => {
-                let totalOwedLiabilityClass = 'text-red-600'; // Default to red for liability
-                
-                // Display actual end-of-day reserve and liability for all days
-                const displayedTotalReserve = formatCurrency(data.totalReserveEndOfDay, true);
-                const displayedTotalOwedLiability = formatCurrency(Math.abs(data.totalOwedLiabilityEndOfDay), true); // Display absolute value
-                
-                // Net Reserve Coverage is the direct subtraction of the *actual* end-of-day balances
-                const netReserveCoverageForDisplay = data.totalReserveEndOfDay - data.totalOwedLiabilityEndOfDay; // Actual subtraction
-                const displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
-                
-                const displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
-                const netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
-                const statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                let displayedTotalReserve = 'N/A';
+                let displayedTotalOwedLiability = 'N/A';
+                let displayedNetReserveCoverage = 'N/A';
+                let displayedStatus = 'N/A';
+                let netReserveCoverageClass = 'text-gray-500';
+                let statusClass = 'text-gray-500';
+                let totalOwedLiabilityClass = 'text-gray-500'; // New class for liability
+
+                if (data.isPayoutDateForDisplay) {
+                    // Calculate Total Reserve and Total Owed Liability as per user's specific request
+                    const calculatedTotalReserve = data.reserveStart + data.payCashback; // Using payCashback as positive
+                    const calculatedTotalOwedLiabilityRaw = -calculatedTotalReserve; // Keep raw for Net Reserve calculation
+                    
+                    // For display, use absolute value for Total Owed Liability and apply red color
+                    const calculatedTotalOwedLiabilityDisplay = Math.abs(calculatedTotalOwedLiabilityRaw);
+                    totalOwedLiabilityClass = 'text-red-600'; // Always red for liability
+
+                    // Net Reserve Coverage should be the direct subtraction of the two *displayed* values
+                    const netReserveCoverageForDisplay = calculatedTotalReserve - calculatedTotalOwedLiabilityDisplay;
+                    displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
+                    
+                    displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                    netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                    statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+
+                    displayedTotalReserve = formatCurrency(calculatedTotalReserve, true);
+                    displayedTotalOwedLiability = formatCurrency(calculatedTotalOwedLiabilityDisplay, true);
+                }
 
                 const row = `
                     <tr>
