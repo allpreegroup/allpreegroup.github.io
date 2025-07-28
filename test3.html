@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashback Payout + Trading Simulation</title>
@@ -461,12 +461,13 @@
                             <tr>
                                 <th class="px-6 py-3">Day</th>
                                 <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">Day of Week</th>
                                 <th class="px-6 py-3">Reserve Start (J$)</th>
                                 <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
                                 <th class="px-6 py-3">Pay Cashback (– Owed) (J$)</th>
                                 <th class="px-6 py-3">Total Reserve (J$)</th>
                                 <th class="px-6 py-3">Gross Cashback Liability (J$)</th> <!-- Updated Header -->
-                                <th class="px-6 py-3">Reserve Payout (J$)</th>
+                                <th class="px-6 py-3">Reserve Balance After Payout (J$)</th> <!-- Updated Header -->
                                 <th class="px-6 py-3">Status</th>
                             </tr>
                         </thead>
@@ -504,7 +505,6 @@
         </div>
 
     </div>
-
     <script>
         // --- Constants and Configuration (Existing Simulation) ---
         const PAYOUT_DELAY_DAYS = 121;
@@ -920,7 +920,6 @@
                 combinedPayoutTableBody.insertAdjacentHTML('beforeend', row);
             });
         };
-
         /**
          * Updates the summary section.
          * @param {number} cumulativeVoucherPurchases - Total voucher purchases.
@@ -973,6 +972,15 @@
             tempEndDate = getEndOfMonthLocal(addDays(tempEndDate, PAYOUT_DELAY_DAYS)); // End of month of last payout
             
             const endDate = tempEndDate; // Use this calculated end date
+
+            // Calculate the date when the first payout liability begins (simulationStartDate + PAYOUT_DELAY_DAYS)
+            // This is the date when the first *payment* is due, not when the liability is incurred.
+            // The status should only become active after the month-end of this date.
+            let firstPayoutMonthEndForStatus = null;
+            if (monthlyPurchaseData.length > 0 && monthlyPurchaseData[0].payoutMonthEnd) {
+                firstPayoutMonthEndForStatus = monthlyPurchaseData[0].payoutMonthEnd;
+            }
+
 
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
             let currentDailyReserve = 0; // Start at 0 as per user request
@@ -1141,6 +1149,8 @@
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
+                let reserveBalanceAfterPayout = null; // Initialize for this day
+
                 if (isPayoutDay) {
                     payoutsDueToday.forEach(payout => {
                         currentDailyCapital -= payout.actualDeduction;
@@ -1159,6 +1169,8 @@
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
+
+                    reserveBalanceAfterPayout = currentDailyReserve; // Capture balance after deduction
                 }
                 // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
                 cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
@@ -1192,7 +1204,6 @@
                 if (isSpecificPayoutMonthEndDate) {
                     firstPurchaseGrossLiabilityForDisplay = firstPurchaseLiabilityOnPayoutDate.get(currentDateString);
                 }
-
                 // Record daily Reserve Flow - conditionally store values for display
                 dailyReserveFlowLog.push({
                     day: dayCounter,
@@ -1202,10 +1213,12 @@
                     payCashback: dailyReservePayout, // Stored as positive amount for user's sum
                     
                     grossCashbackLiability: firstPurchaseGrossLiabilityForDisplay, // Store the first purchase gross liability for display
+                    reserveBalanceAfterPayoutEvent: reserveBalanceAfterPayout, // Store the balance after payout for this day
                     netReserveCoverageCumulative: currentDailyReserve - cumulativeAccruedCashbackLiability, // The actual running total
                     statusCumulative: (currentDailyReserve - cumulativeAccruedCashbackLiability) >= 0 ? 'POSITIVE' : 'NEGATIVE',
 
-                    isPayoutDateForDisplay: isSpecificPayoutMonthEndDate // Flag for conditional display
+                    isPayoutDateForDisplay: isSpecificPayoutMonthEndDate, // Flag for conditional display
+                    firstPayoutMonthEndForStatus: firstPayoutMonthEndForStatus // Pass this date for conditional status display
                 });
                 // RESTORED: Cumulative Daily Trading Log row generation
                 const tradingLog_row = `
@@ -1288,9 +1301,9 @@
                 const monthName = `Month ${i + 1}`;
                 mainSimulationMonthlySalesInputHeader.insertAdjacentHTML('beforeend', `<th class="px-6 py-3">${monthName}</th>`);
 
-                mainSimulation10kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="10k" data-month="${i}" value="0" min="0"></td>`);
-                mainSimulation15kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="15k" data-month="${i}" value="0" min="0"></td>`);
-                mainSimulation20kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="20k" data-month="${i}" value="0" min="0"></td>`);
+                mainSimulation10kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="10k" value="0" min="0" data-month="${i}"></td>`);
+                mainSimulation15kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="15k" value="0" min="0" data-month="${i}"></td>`);
+                mainSimulation20kVoucherRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap"><input type="number" class="w-full p-2 border rounded main-sim-sales-input" data-voucher="20k" value="0" min="0" data-month="${i}"></td>`);
             }
 
             // Add event listeners to new input fields
@@ -1301,8 +1314,7 @@
                 });
             });
         };
-
-
+        // Initial setup for the new section
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Normalize to local midnight
@@ -1512,23 +1524,30 @@
                 if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
 
                 const cashbackPaidCell = document.querySelector(`#rfActualCashbackPaidOutRow td:nth-child(${i + 2})`);
-                if (cashbackPaidCell) cashbackCashbackPaidOutMonthly[i].textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
+                if (cashbackPaidCell) cashbackPaidOutCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
             }
 
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily)
             dailyReserveFlowLog.forEach(data => {
-                let displayedTotalReserve = 'N/A';
-                let displayedGrossCashbackLiability = 'N/A'; // Renamed variable
+                let displayedTotalReserve; 
+                let displayedGrossCashbackLiability = 'N/A'; 
+                let displayedReserveBalanceAfterPayout = 'N/A'; 
                 let displayedStatus = 'N/A';
-                let netReserveCoverageClass = 'text-gray-500';
+                let totalReserveClass; 
+                let grossCashbackLiabilityClass = 'text-gray-500'; 
+                let reserveBalanceAfterPayoutClass = 'text-gray-500'; 
                 let statusClass = 'text-gray-500';
-                let grossCashbackLiabilityClass = 'text-gray-500'; // New class for liability
+
 
                 // Total Reserve (J$) is still conditional on payout date for display
                 if (data.isPayoutDateForDisplay) {
                     displayedTotalReserve = formatCurrency(data.reserveStart + data.payCashback, true);
+                } else {
+                    displayedTotalReserve = 'N/A'; 
                 }
+                totalReserveClass = (data.reserveStart + data.payCashback) >= 0 ? 'text-green-600' : 'text-red-600';
+
 
                 // Gross Cashback Liability (J$) now shows only the first purchase gross liability on payout dates
                 if (data.isPayoutDateForDisplay && data.grossCashbackLiability !== null) {
@@ -1539,22 +1558,39 @@
                     grossCashbackLiabilityClass = 'text-gray-500'; // Neutral color for N/A
                 }
 
-                // Reserve Payout (J$) (previously Net Reserve Coverage)
-                const displayedReservePayout = formatCurrency(data.netReserveCoverageCumulative, true);
-                statusClass = data.netReserveCoverageCumulative >= 0 ? 'text-green-600' : 'text-red-600';
-                displayedStatus = data.netReserveCoverageCumulative >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                // Reserve Balance After Payout (J$) - APPLYING THE USER'S EXACT FORMULA HERE
+                if (data.isPayoutDateForDisplay && data.grossCashbackLiability !== null) {
+                    // User's requested formula: (Reserve Start (J$) + Pay Cashback (– Owed) (J$)) - Gross Cashback Liability (J$)
+                    const calculatedBalance = (data.reserveStart + data.payCashback) - data.grossCashbackLiability;
+                    displayedReserveBalanceAfterPayout = formatCurrency(calculatedBalance, true);
+                    reserveBalanceAfterPayoutClass = calculatedBalance >= 0 ? 'text-green-600' : 'text-red-600';
+                } else {
+                    displayedReserveBalanceAfterPayout = 'N/A';
+                    reserveBalanceAfterPayoutClass = 'text-gray-500';
+                }
+
+
+                // Status column (conditional display based on whether it's a payout month-end)
+                if (data.isPayoutDateForDisplay) { // This flag is true if a payout is due on this specific date
+                    statusClass = data.netReserveCoverageCumulative >= 0 ? 'text-green-600' : 'text-red-600';
+                    displayedStatus = data.netReserveCoverageCumulative >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                } else {
+                    displayedStatus = 'N/A';
+                    statusClass = 'text-gray-500'; // Neutral color for N/A
+                }
 
 
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback, true)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${displayedTotalReserve}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${totalReserveClass}">${displayedTotalReserve}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${grossCashbackLiabilityClass}">${displayedGrossCashbackLiability}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedReservePayout}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${reserveBalanceAfterPayoutClass}">${displayedReserveBalanceAfterPayout}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${statusClass}">
                                 ${displayedStatus}
