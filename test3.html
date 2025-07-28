@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
+ 
+    <style> 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff;
@@ -368,13 +368,11 @@
         <!-- NEW SECTION: Reserve Flow Calculator -->
         <div class="reserve-flow-section">
             <h2>Reserve Flow Calculator</h2>
-            <p class="text-center text-gray-600 mb-6">Model the reserve fund's ability to cover cashback payouts with a 121-day delay, based on monthly voucher sales.</p>
+            <p class="text-center text-gray-600 mb-6">Model the reserve fund's ability to cover cashback payouts with a 121-day delay, based on daily financial movements.</p>
 
+            <!-- Removed Upfront Buffer Input -->
             <div class="reserve-flow-input-grid">
-                <div class="input-field">
-                    <label for="rfUpfrontBuffer">Upfront Buffer (J$):</label>
-                    <input type="number" id="rfUpfrontBuffer" value="8400" min="0" step="100">
-                </div>
+                <!-- This grid will now be empty or contain other future inputs -->
             </div>
 
             <div class="reserve-flow-table-container">
@@ -434,8 +432,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr id="rfTotalMarkupAddedRow">
-                                <td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>
+                            <tr id="rfTotalGrossMarkupRow">
+                                <td class="px-6 py-4 whitespace-nowrap">Gross Markup from Sales (J$)</td>
+                                <!-- Calculated values for months will be generated here -->
+                            </tr>
+                            <tr id="rfAllocatedMarkupAddedRow">
+                                <td class="px-6 py-4 whitespace-nowrap">Allocated Markup Added to Reserve (J$)</td>
                                 <!-- Calculated values for months will be generated here -->
                             </tr>
                             <tr id="rfTotalCashbackOwedRow">
@@ -452,21 +454,24 @@
             </div>
 
             <div class="reserve-flow-table-container">
-                <h3>Reserve Flow</h3>
+                <h3>Reserve Flow (Daily)</h3>
                 <div class="overflow-x-auto">
                     <table id="rfReserveFlowTable" class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
-                                <th class="px-6 py-3">Month</th>
+                                <th class="px-6 py-3">Day</th>
+                                <th class="px-6 py-3">Date</th>
                                 <th class="px-6 py-3">Reserve Start (J$)</th>
                                 <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
                                 <th class="px-6 py-3">Pay Cashback (– Owed) (J$)</th>
-                                <th class="px-6 py-3">Reserve End (J$)</th>
+                                <th class="px-6 py-3">Total Reserve (J$)</th>
+                                <th class="px-6 py-3">Total Owed Liability (J$)</th>
+                                <th class="px-6 py-3">Net Reserve Coverage (J$)</th>
                                 <th class="px-6 py-3">Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Reserve flow rows will be generated here -->
+                            <!-- Daily Reserve flow rows will be generated here -->
                         </tbody>
                     </table>
                 </div>
@@ -560,6 +565,8 @@
 
         let monthlySimulationResults = []; // Stores results for daily log selection (includes extended months)
         let monthlyPurchaseData = []; // Stores only the purchase data for display in combinedPayoutTable
+        let dailyReserveFlowLog = []; // New: Stores daily reserve flow entries
+        let _monthlyMarkupForReserve = []; // Global variable to store monthly allocated markup for reserve
 
         // --- Seeded Random Number Generator ---
         class SeededRandom {
@@ -581,15 +588,21 @@
         /**
          * Formats a number as Jamaican Dollar currency.
          * @param {number} amount - The amount to format.
+         * @param {boolean} forDailyReserve - Whether to format for the daily reserve table (more decimals).
          * @returns {string} The formatted currency string.
          */
-        const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('en-JM', {
+        const formatCurrency = (amount, forDailyReserve = false) => {
+            const options = {
                 style: 'currency',
                 currency: 'JMD',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-            }).format(amount);
+            };
+            if (forDailyReserve) {
+                options.minimumFractionDigits = 2;
+                options.maximumFractionDigits = 2;
+            }
+            return new Intl.NumberFormat('en-JM', options).format(amount);
         };
 
         /**
@@ -720,6 +733,9 @@
                 monthlyTradingFundContributions.push(contribution);
             }
 
+            // Calculate monthly markup allocated to reserve for the Reserve Flow
+            _monthlyMarkupForReserve = monthlyMarkupAmounts.map(markup => markup * RF_MARKUP_ALLOCATION_TO_RESERVE);
+
 
             let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
 
@@ -769,7 +785,7 @@
                 currentMonthDate.setHours(0, 0, 0, 0); // Normalize to local midnight
                 monthData.month = monthIndex + 1;
                 monthData.cashbackDueDate = new Date(); // Placeholder
-                monthData.payoutMonthEnd = new Date(); // Placeholder
+                monthData.payoutMonthEnd = getEndOfMonthLocal(currentMonthDate); // Set payoutMonthEnd for all months in sim
 
                 let monthlyContributionForCurrentMonth = (monthIndex < actualPurchaseMonths) ? monthlyTradingFundContributions[monthIndex] : 0;
                 monthData.monthlyFundContribution = monthlyContributionForCurrentMonth;
@@ -828,7 +844,7 @@
                 }
             }
 
-            const finalNetFundPerformance = runCumulativeDailySimulation();
+            const finalNetFundPerformance = runCumulativeDailySimulation(_monthlyMarkupForReserve); // Pass monthly markup for reserve
 
             let totalCashbackPaid = 0;
             let overallPayoutSuccess = true;
@@ -936,24 +952,31 @@
          * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
          * This function also updates the `actualPayoutSurplusDeficit` and `actualPayoutMetStatus`
          * for each relevant monthly purchase data object based on the daily fund balance.
+         * It also calculates the daily Reserve Flow.
+         * @param {Array<number>} monthlyMarkupForReserve - Monthly markup amounts allocated to the reserve.
          * @returns {number} The final capital after all daily events.
          */
-        const runCumulativeDailySimulation = () => {
+        const runCumulativeDailySimulation = (monthlyMarkupForReserve) => {
             dailyLogTableBody.innerHTML = '';
+            dailyReserveFlowLog = []; // Clear previous daily reserve log
 
             const actualPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
-            if (isNaN(actualPurchaseMonths) || actualPurchaseMonths < 1 || monthlyPurchaseData.length === 0) {
-                return parseFloat(initialTradingFundInput.value);
-            }
+            const validPurchaseMonths = isNaN(actualPurchaseMonths) || actualPurchaseMonths < 1 ? 1 : actualPurchaseMonths;
+
 
             const startDate = new Date(simulationStartDateInput.value);
             startDate.setHours(0, 0, 0, 0);
 
-            const lastPurchaseMonthData = monthlyPurchaseData[monthlyPurchaseData.length - 1]; 
-            const endDate = new Date(lastPurchaseMonthData.payoutMonthEnd);
-            endDate.setHours(0, 0, 0, 0);
+            // Determine the true end date for the daily log, covering all purchase months + payout delay
+            let tempEndDate = new Date(startDate);
+            tempEndDate.setMonth(tempEndDate.getMonth() + validPurchaseMonths -1);
+            tempEndDate = getEndOfMonthLocal(addDays(tempEndDate, PAYOUT_DELAY_DAYS)); // End of month of last payout
+            
+            const endDate = tempEndDate; // Use this calculated end date
 
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
+            let currentDailyReserve = 0; // Start at 0 as per user request
+            let cumulativeAccruedCashbackLiability = 0; // Start at 0 as per user request
 
             const avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
             const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
@@ -974,6 +997,8 @@
 
             const monthlyContributionsMap = new Map();
             const monthlyPayoutsMap = new Map();
+            const dailyMarkupAdditionsMap = new Map(); // Map for daily markup additions to reserve
+            const dailyLiabilityAdditionsMap = new Map(); // Map for daily liability additions
 
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
@@ -983,7 +1008,6 @@
             const oneTimeMembershipFundAddition = tierConfig.fee * membershipAllocationToTradingFund;
 
             // Collect monthly contributions and payouts from the main simulation's calculated data
-            // This assumes runSimulation has already populated monthlyPurchaseData accurately
             monthlyPurchaseData.forEach((data, index) => {
                 const purchaseDate = data.purchaseDate;
                 if (purchaseDate) {
@@ -999,6 +1023,7 @@
                         netObligation: data.accruedNetPayoutObligation,
                         actualDeduction: data.actualDeductionForThisPurchaseMonth
                     };
+                    // Group payouts by date, as multiple purchase months might have payouts due on the same day
                     if (monthlyPayoutsMap.has(payoutDateString)) {
                         monthlyPayoutsMap.get(payoutDateString).push(payoutInfo);
                     } else {
@@ -1007,11 +1032,61 @@
                 }
             });
 
+            // Pre-process monthly markup and liability to daily event maps
+            const rfVoucherDefinitions = getRfVoucherDefinitions();
+            const mainSimMonthlySales = Array.from({ length: validPurchaseMonths }, () => ({ '10k': 0, '15k': 0, '20k': 0 }));
+            document.querySelectorAll('#mainSimulationMonthlySalesInputTable .main-sim-sales-input').forEach(input => {
+                const voucherType = input.dataset.voucher;
+                const monthIndex = parseInt(input.dataset.month);
+                if (monthIndex < validPurchaseMonths) {
+                    mainSimMonthlySales[monthIndex][voucherType] = parseInt(input.value) || 0;
+                }
+            });
+
+            for (let i = 0; i < validPurchaseMonths; i++) {
+                const sales = mainSimMonthlySales[i] || { '10k': 0, '15k': 0, '20k': 0 };
+                const cashback10k = rfVoucherDefinitions['J$10K Voucher'].cashback;
+                const cashback15k = rfVoucherDefinitions['J$15K Voucher'].cashback;
+                const cashback20k = rfVoucherDefinitions['J$20K Voucher'].cashback;
+                const grossCashbackOwedThisMonth = (sales['10k'] * cashback10k + sales['15k'] * cashback15k + sales['20k'] * cashback20k);
+
+                const markupForThisMonth = monthlyMarkupForReserve[i];
+
+                let applicationDate;
+                if (i === 0) {
+                    applicationDate = new Date(startDate); // First month's sales apply on sim start date
+                } else {
+                    applicationDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1); // Subsequent months apply on 1st
+                }
+                applicationDate.setHours(0, 0, 0, 0); // Normalize to local midnight
+
+                if (markupForThisMonth > 0) {
+                    const dateKey = applicationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    dailyMarkupAdditionsMap.set(dateKey, (dailyMarkupAdditionsMap.get(dateKey) || 0) + markupForThisMonth);
+                }
+                if (grossCashbackOwedThisMonth > 0) {
+                    const dateKey = applicationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    dailyLiabilityAdditionsMap.set(dateKey, (dailyLiabilityAdditionsMap.get(dateKey) || 0) + grossCashbackOwedThisMonth);
+                }
+            }
+
+            // Create a set of all specific payout month-end dates for quick lookup
+            const specificPayoutMonthEnds = new Set();
+            monthlyPurchaseData.forEach(data => {
+                if (data.payoutMonthEnd) {
+                    specificPayoutMonthEnds.add(data.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+                }
+            });
+
 
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
                 const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5);
+
+                // Check if it's a specific payout month-end date
+                const isSpecificPayoutMonthEndDate = specificPayoutMonthEnds.has(currentDateString);
+
 
                 if (dayOfWeek === 1 || dayCounter === 1) {
                     tradesThisWeek = 0;
@@ -1022,7 +1097,14 @@
                 let dailyNetChange = 0;
 
                 let capitalBeforeEvent = currentDailyCapital;
+                let reserveStartOfDay = currentDailyReserve; // Reserve balance at start of day for this row
+                let liabilityStartOfDay = cumulativeAccruedCashbackLiability; // Liability balance at start of day for this row
 
+                let dailyReserveAdd = 0;
+                let dailyReservePayout = 0; // This will store the absolute value of the payout for display
+                let dailyLiabilityAccrual = 0; // Renamed for clarity, this is the daily amount of new liability incurred
+
+                // Trading Fund Contribution (from markup allocation to trading fund)
                 const contributionForToday = monthlyContributionsMap.get(currentDateString);
                 if (contributionForToday) {
                     currentDailyCapital += contributionForToday;
@@ -1031,22 +1113,57 @@
                     eventType = 'Contribution';
                 }
 
+                // Apply Add Reserve (+ Markup)
+                const markupToAdd = dailyMarkupAdditionsMap.get(currentDateString); // Use consistent date string
+                if (markupToAdd !== undefined && markupToAdd > 0) {
+                    currentDailyReserve += markupToAdd;
+                    dailyReserveAdd = markupToAdd;
+                    if (eventType === 'No Event') eventType = 'Reserve Add (Markup)';
+                    else eventType += ' & Reserve Add (Markup)';
+                }
+
+                // Apply new Liability accrual
+                const liabilityToAdd = dailyLiabilityAdditionsMap.get(currentDateString); // Use consistent date string
+                if (liabilityToAdd !== undefined && liabilityToAdd > 0) {
+                    cumulativeAccruedCashbackLiability += liabilityToAdd;
+                    dailyLiabilityAccrual = liabilityToAdd; // Track for internal use
+                }
+
+
+                // Payouts Due Today (for both Trading Fund and Reserve Fund)
                 const payoutsDueToday = monthlyPayoutsMap.get(currentDateString);
                 const isPayoutDay = payoutsDueToday && payoutsDueToday.length > 0;
 
                 if (isPayoutDay) {
+                    let totalPaidThisDay = 0;
                     payoutsDueToday.forEach(payout => {
-                        currentDailyCapital -= payout.actualDeduction;
-                        dailyNetChange -= payout.actualDeduction;
-
-                        const originalMonthlyData = payout.monthlyDataRef;
-                        originalMonthlyData.actualPayoutSurplusDeficit = currentDailyCapital;
-                        originalMonthlyData.actualPayoutMetStatus = (currentDailyCapital >= 0 || (currentDailyCapital < 0 && originalMonthlyData.accruedNetPayoutObligation === 0));
+                        const amountToPay = payout.actualDeduction;
+                        if (currentDailyCapital >= amountToPay) { // Check if trading fund can cover this specific payout
+                            currentDailyCapital -= amountToPay;
+                            dailyNetChange -= amountToPay; // Net change reflects actual deduction
+                            currentDailyReserve -= amountToPay; // Actual deduction from reserve
+                            totalPaidThisDay += amountToPay; // Accumulate amount actually paid for this day
+                            cumulativeAccruedCashbackLiability -= amountToPay; // Only reduce liability if paid
+                            payout.monthlyDataRef.actualPayoutMetStatus = true; // Mark as met for this specific payout
+                        } else {
+                            // Trading fund cannot cover this payout.
+                            // The liability remains. The reserve is not reduced by this amount.
+                            payout.monthlyDataRef.actualPayoutMetStatus = false; // Mark as not met
+                            // No change to currentDailyCapital for this specific payout, as it couldn't be made.
+                            // No change to currentDailyReserve for this specific payout.
+                            // No reduction in cumulativeAccruedCashbackLiability for this specific payout.
+                            // We still need to reflect the negative capital in the trading log.
+                        }
+                        // Update the monthly data's surplus/deficit based on the trading fund's state
+                        payout.monthlyDataRef.actualPayoutSurplusDeficit = currentDailyCapital;
                     });
+                    dailyReservePayout = totalPaidThisDay; // Set dailyReservePayout to the total amount actually paid
                     eventOccurred = true;
                     if (eventType === 'No Event') eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
                 }
+                // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
+                cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
 
                 let isTradingDayForDisplay = false;
                 const canTradeOnThisDay = isWeekday && !contributionForToday && !isPayoutDay && tradesThisWeek < MAX_TRADES_PER_WEEK && currentDailyCapital > 0;
@@ -1072,7 +1189,34 @@
                     isTradingDayForDisplay = true;
                 }
 
-                const row = `
+                // Calculate Net Reserve Coverage using the *current* (updated) cumulative values
+                // These are the true running balances
+                const netReserveCoverageActual = currentDailyReserve - cumulativeAccruedCashbackLiability;
+                const statusActual = netReserveCoverageActual >= 0 ? 'POSITIVE' : 'NEGATIVE';
+
+                // Record daily Reserve Flow
+                dailyReserveFlowLog.push({
+                    day: dayCounter,
+                    date: new Date(currentDate),
+                    reserveStart: reserveStartOfDay, // Reserve at start of day
+                    addReserve: dailyReserveAdd, // Markup added
+                    payCashback: dailyReservePayout, // Actual amount paid out from reserve
+                    
+                    // Display values for Total Reserve and Total Owed Liability on payout dates
+                    // These will now be the actual end-of-day balances
+                    totalReserveEndOfDay: currentDailyReserve, // Actual reserve balance after all daily events
+                    totalOwedLiabilityEndOfDay: cumulativeAccruedCashbackLiability, // Actual outstanding liability after all daily events
+
+                    // Net Reserve Coverage and Status will always reflect the true current state
+                    netReserveCoverage: netReserveCoverageActual,
+                    status: statusActual,
+
+                    isPayoutDateForDisplay: isSpecificPayoutMonthEndDate // Flag for conditional display
+                });
+
+
+                // RESTORED: Cumulative Daily Trading Log row generation
+                const tradingLog_row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -1093,11 +1237,12 @@
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
                     </tr>
                 `;
-                dailyLogTableBody.insertAdjacentHTML('beforeend', row);
+                dailyLogTableBody.insertAdjacentHTML('beforeend', tradingLog_row);
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
+            console.log("dailyReserveFlowLog after daily simulation:", dailyReserveFlowLog); // Debug log
             return currentDailyCapital;
         };
 
@@ -1190,14 +1335,14 @@
         const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83; // 1 - 0.17 from Google Script (Markup allocated to reserve)
 
         // DOM Elements for Reserve Flow Calculator
-        const rfUpfrontBufferInput = document.getElementById('rfUpfrontBuffer');
         const rfVoucherDefinitionsTableBody = document.getElementById('rfVoucherDefinitionsTableBody'); // New tbody ID
         const rfMonthlySalesInputHeader = document.getElementById('rfMonthlySalesInputHeader');
         const rf10kVoucherRow = document.getElementById('rf10kVoucherRow');
         const rf15kVoucherRow = document.getElementById('rf15kVoucherRow');
         const rf20kVoucherRow = document.getElementById('rf20kVoucherRow');
         const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader');
-        const rfTotalMarkupAddedRow = document.getElementById('rfTotalMarkupAddedRow');
+        const rfTotalGrossMarkupRow = document.getElementById('rfTotalGrossMarkupRow'); // New row for gross markup
+        const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow'); // Renamed
         const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow');
         const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
         const rfReserveFlowTableBody = document.querySelector('#rfReserveFlowTable tbody');
@@ -1261,7 +1406,8 @@
             rf20kVoucherRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>';
 
             rfMonthlyFinancialsHeader.innerHTML = '<th class="px-6 py-3">Financial Metric</th>';
-            rfTotalMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>';
+            rfTotalGrossMarkupRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Gross Markup from Sales (J$)</td>'; // New row
+            rfAllocatedMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Allocated Markup Added to Reserve (J$)</td>'; // Renamed
             rfTotalCashbackOwedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>';
             rfActualCashbackPaidOutRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>';
 
@@ -1288,14 +1434,13 @@
         const runReserveFlowSimulation = () => {
             rfReserveFlowTableBody.innerHTML = ''; // Clear previous results
 
-            const upfrontBuffer = parseFloat(rfUpfrontBufferInput.value) || 0;
             const rfVoucherDefinitions = getRfVoucherDefinitions(); // Get dynamic definitions
 
             // Update the Voucher Type Definitions table (ensure this is called here)
-            updateRfVoucherDefinitionsTable(); // Moved this call here to ensure it's always up-to-date
+            updateRfVoucherDefinitionsTable();
 
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
-            const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS; // Calculate for this many months
+            const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS;
 
             // Get monthly sales inputs from the MAIN simulation table
             const monthlySales = Array.from({ length: totalMonthsForRfCalculation }, () => ({ '10k': 0, '15k': 0, '20k': 0 }));
@@ -1303,22 +1448,19 @@
             document.querySelectorAll('#mainSimulationMonthlySalesInputTable .main-sim-sales-input').forEach(input => {
                 const voucherType = input.dataset.voucher;
                 const monthIndex = parseInt(input.dataset.month);
-                // Only pull data for months that are actually part of the main simulation's # Of Months
                 if (monthIndex < numMonthsInMainSimulation) {
                     monthlySales[monthIndex][voucherType] = parseInt(input.value) || 0;
                 }
             });
 
             // Populate the Reserve Flow's Monthly Sales Input table with values from main simulation
-            // Display only the months active in the main simulation, and 0 for others up to totalMonthsForRfCalculation.
-            const totalMonthsForRfDisplay = Math.min(60, totalMonthsForRfCalculation); // Cap at 60 for display
+            const totalMonthsForRfDisplay = Math.min(60, totalMonthsForRfCalculation);
 
             for (let i = 0; i < totalMonthsForRfDisplay; i++) {
                 const sales10k = (i < numMonthsInMainSimulation) ? monthlySales[i]['10k'] : 0;
                 const sales15k = (i < numMonthsInMainSimulation) ? monthlySales[i]['15k'] : 0;
                 const sales20k = (i < numMonthsInMainSimulation) ? monthlySales[i]['20k'] : 0;
 
-                // Ensure the elements exist before trying to set textContent
                 const elem10k = document.getElementById(`rf-10k-month-${i}`);
                 if (elem10k) elem10k.textContent = sales10k;
                 
@@ -1329,35 +1471,14 @@
                 if (elem20k) elem20k.textContent = sales20k;
             }
 
-            const totalMarkupAdded = [];
-            const totalCashbackOwed = [];
-            const actualCashbackPaidOut = Array(totalMonthsForRfCalculation).fill(0); // Initialize with zeros
+            const totalGrossMarkupMonthly = Array(totalMonthsForRfCalculation).fill(0); // New array for gross markup
+            // totalMarkupAddedMonthly will now directly use _monthlyMarkupForReserve
+            const totalCashbackOwedMonthly = Array(totalMonthsForRfCalculation).fill(0); // This is liability
+            const actualCashbackPaidOutMonthly = Array(totalMonthsForRfCalculation).fill(0); // This is from dailyReserveFlowLog
 
-            // Get the simulation start date to calculate month offsets for actual payouts
-            const simStartDate = new Date(simulationStartDateInput.value);
-            simStartDate.setHours(0, 0, 0, 0); // Normalize to local midnight
-
-            // Aggregate actual payouts from the main simulation's monthlyPurchaseData
-            // monthlyPurchaseData contains results from runSimulation and runCumulativeDailySimulation
-            monthlyPurchaseData.forEach(data => {
-                if (data.payoutMonthEnd && data.actualDeductionForThisPurchaseMonth > 0) {
-                    // Calculate the month index relative to the simulation start date
-                    // PayoutMonthEnd is the last day of the month, so we need to get the month index for that specific month.
-                    const payoutMonthEnd = new Date(data.payoutMonthEnd); // Use a new Date object to avoid modifying the original
-                    const monthDiff = (payoutMonthEnd.getFullYear() - simStartDate.getFullYear()) * 12 +
-                                     (payoutMonthEnd.getMonth() - simStartDate.getMonth());
-
-                    // Add to the corresponding month in actualCashbackPaidOut array
-                    if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                        actualCashbackPaidOut[monthDiff] += data.actualDeductionForThisPurchaseMonth;
-                    }
-                }
-            });
-
-
-            // Calculate Monthly Financials (Markup Added, Cashback Owed)
+            // Calculate Total Gross Markup and Total Cashback Owed (Liability) monthly
             for (let i = 0; i < totalMonthsForRfCalculation; i++) {
-                const sales = monthlySales[i]; // Use the sales data pulled from main simulation (which has 0s for inactive months)
+                const sales = monthlySales[i];
                 const markup10k = rfVoucherDefinitions['J$10K Voucher'].markup;
                 const markup15k = rfVoucherDefinitions['J$15K Voucher'].markup;
                 const markup20k = rfVoucherDefinitions['J$20K Voucher'].markup;
@@ -1366,68 +1487,81 @@
                 const cashback15k = rfVoucherDefinitions['J$15K Voucher'].cashback;
                 const cashback20k = rfVoucherDefinitions['J$20K Voucher'].cashback;
 
-                // Total Markup Added (17% deduction means 83% allocation)
-                const markupAdded = (sales['10k'] * markup10k + sales['15k'] * markup15k + sales['20k'] * markup20k) * RF_MARKUP_ALLOCATION_TO_RESERVE;
-                totalMarkupAdded.push(markupAdded);
+                // Gross Markup
+                totalGrossMarkupMonthly[i] = (sales['10k'] * markup10k + sales['15k'] * markup15k + sales['20k'] * markup20k);
 
                 // Total Cashback Owed (Liability Incurred)
-                const cashbackOwed = (sales['10k'] * cashback10k + sales['15k'] * cashback15k + sales['20k'] * cashback20k);
-                totalCashbackOwed.push(cashbackOwed);
+                totalCashbackOwedMonthly[i] = (sales['10k'] * cashback10k + sales['15k'] * cashback15k + sales['20k'] * cashback20k);
             }
 
-            // Update Monthly Financials tables - only for the months displayed
-            rfTotalMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Markup Added (J$)</td>' + totalMarkupAdded.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
-            rfTotalCashbackOwedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>' + totalCashbackOwed.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
-            rfActualCashbackPaidOutRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>' + actualCashbackPaidOut.slice(0, totalMonthsForRfDisplay).map(val => `<td class="px-6 py-4 whitespace-nowrap">${formatCurrency(val)}</td>`).join('');
+            // Aggregate data from dailyReserveFlowLog for actualCashbackPaidOutMonthly
+            const simStartDate = new Date(simulationStartDateInput.value);
+            simStartDate.setHours(0, 0, 0, 0);
 
+            dailyReserveFlowLog.forEach(dailyEntry => {
+                const date = dailyEntry.date;
+                const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
+                                 (date.getMonth() - simStartDate.getMonth());
 
-            // Calculate Reserve Flow
-            let currentReserve = 0;
-            const reserveFlowResults = [];
-
-            // Month 0 (Upfront)
-            let month0ReserveEnd = upfrontBuffer;
-            reserveFlowResults.push({
-                month: '0 (Upfront)',
-                reserveStart: 0,
-                addReserve: upfrontBuffer,
-                payCashback: 0,
-                reserveEnd: month0ReserveEnd,
-                status: month0ReserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE'
+                if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
+                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.payCashback; // payCashback is stored as positive
+                }
             });
-            currentReserve = month0ReserveEnd;
 
-            for (let i = 0; i < totalMonthsForRfCalculation; i++) {
-                const reserveStart = currentReserve;
-                const addReserve = totalMarkupAdded[i];
-                const payCashback = actualCashbackPaidOut[i]; // Use the actual payouts aggregated from daily sim
-                const reserveEnd = reserveStart + addReserve - payCashback;
-                const status = reserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE';
+            // Populate Monthly Financials Table
+            for (let i = 0; i < totalMonthsForRfDisplay; i++) {
+                const grossMarkupCell = document.querySelector(`#rfTotalGrossMarkupRow td:nth-child(${i + 2})`);
+                if (grossMarkupCell) grossMarkupCell.textContent = formatCurrency(totalGrossMarkupMonthly[i]);
 
-                reserveFlowResults.push({
-                    month: i + 1,
-                    reserveStart: reserveStart,
-                    addReserve: addReserve,
-                    payCashback: payCashback,
-                    reserveEnd: reserveEnd,
-                    status: status
-                });
-                currentReserve = reserveEnd;
+                const allocatedMarkupCell = document.querySelector(`#rfAllocatedMarkupAddedRow td:nth-child(${i + 2})`);
+                if (allocatedMarkupCell) allocatedMarkupCell.textContent = formatCurrency(_monthlyMarkupForReserve[i] || 0); // Use _monthlyMarkupForReserve
+
+                const cashbackOwedCell = document.querySelector(`#rfTotalCashbackOwedRow td:nth-child(${i + 2})`);
+                if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
+
+                const cashbackPaidCell = document.querySelector(`#rfActualCashbackPaidOutRow td:nth-child(${i + 2})`);
+                if (cashbackPaidCell) cashbackPaidOutCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
             }
 
-            // Populate Reserve Flow Table - only for the months displayed
-            reserveFlowResults.slice(0, totalMonthsForRfDisplay + 1).forEach(data => { // +1 to include Month 0
-                const statusClass = data.status === 'POSITIVE' ? 'text-green-600' : 'text-red-600';
+            console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
+            // Populate Reserve Flow Table (Daily)
+            dailyReserveFlowLog.forEach(data => {
+                let displayedTotalReserve = 'N/A';
+                let displayedTotalOwedLiability = 'N/A';
+                let displayedNetReserveCoverage = 'N/A';
+                let displayedStatus = 'N/A';
+                let netReserveCoverageClass = 'text-gray-500';
+                let statusClass = 'text-gray-500';
+                let totalOwedLiabilityClass = 'text-gray-500'; // New class for liability
+
+                if (data.isPayoutDateForDisplay) {
+                    // Display actual end-of-day reserve and liability
+                    displayedTotalReserve = formatCurrency(data.totalReserveEndOfDay, true);
+                    displayedTotalOwedLiability = formatCurrency(Math.abs(data.totalOwedLiabilityEndOfDay), true); // Display absolute value
+                    totalOwedLiabilityClass = 'text-red-600'; // Always red for liability
+
+                    // Net Reserve Coverage is the direct subtraction of the *actual* end-of-day balances
+                    const netReserveCoverageForDisplay = data.totalReserveEndOfDay - data.totalOwedLiabilityEndOfDay; // Actual subtraction
+                    displayedNetReserveCoverage = formatCurrency(netReserveCoverageForDisplay, true);
+                    
+                    displayedStatus = netReserveCoverageForDisplay >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                    netReserveCoverageClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                    statusClass = netReserveCoverageForDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                }
+
                 const row = `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${data.reserveEnd >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(data.reserveEnd)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.payCashback, true)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${displayedTotalReserve}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${totalOwedLiabilityClass}">${displayedTotalOwedLiability}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${netReserveCoverageClass}">${displayedNetReserveCoverage}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${statusClass}">
-                                ${data.status}
+                                ${displayedStatus}
                             </span>
                         </td>
                     </tr>
@@ -1437,7 +1571,7 @@
         };
 
         // Event Listeners for Reserve Flow Calculator
-        rfUpfrontBufferInput.addEventListener('input', runReserveFlowSimulation);
+        // No specific input for reserve flow needed as it's now driven by main simulation inputs
 
         // Initial setup for the new section
         document.addEventListener('DOMContentLoaded', () => {
