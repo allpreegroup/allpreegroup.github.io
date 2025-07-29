@@ -804,7 +804,7 @@
             // Shuffle the array (Fisher-Yates algorithm) using the seeded RNG
             for (let i = outcomes.length - 1; i > 0; i--) {
                 const j = Math.floor(rngInstance.next() * (i + 1));
-                [outcomes[i], outcomes[j]] = [outcomes[j], outcomes[i]];
+                [outcomes[i], outcomes[j]] = [outcomes[i], outcomes[j]];
             }
             return outcomes;
         };
@@ -1196,6 +1196,7 @@
                     monthlyFundContribution: 0,
                     actualPayoutSurplusDeficit: null, // Set in daily simulation
                     actualPayoutMetStatus: null, // Set in daily simulation
+                    payoutDeductedInThisMonth: 0,
                     actualDeductionForThisPurchaseMonth: 0 // This will now be directly from sheet's Paid Cashback
                 };
                 monthlyPurchaseDataMap.set(monthKey, monthData);
@@ -1275,6 +1276,7 @@
                         monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd; // Assuming net is same as gross if no markup offset
                         // Also update the purchaseDate if this is the earliest for the month
                         const currentParsedDate = parseSheetDate(currentDateString);
+                        // FIX: Changed `dailyFirstPurchaseDateMap.get(activationMonthKey)` to `monthDataForAggregation.purchaseDate`
                         if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < monthDataForAggregation.purchaseDate)) {
                             monthDataForAggregation.purchaseDate = currentParsedDate;
                         }
@@ -1321,8 +1323,8 @@
                         // Set actualPayoutSurplusDeficit and actualPayoutMetStatus for this monthDataForPayout
                         // This reflects the fund's state *after* this specific monthly payout
                         monthDataForPayout.actualPayoutSurplusDeficit = currentDailyCapital; // Fund balance after this payout
-                        // The payout is considered "Met" if the actual paid amount from the sheet is >= the owed amount
-                        monthDataForPayout.actualPayoutMetStatus = (paidCashbackForReserveFlow >= owedForThisMonth);
+                        // The payout is considered "Met" if the Fund Balance After Payout is >= 0
+                        monthDataForPayout.actualPayoutMetStatus = (monthDataForPayout.actualPayoutSurplusDeficit >= 0);
 
                         // Reserve fund logic (remains similar)
                         currentDailyReserve -= owedForThisMonth; // Gross deduction from reserve
