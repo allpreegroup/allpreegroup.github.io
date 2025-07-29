@@ -374,6 +374,34 @@
             <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
         </div>
 
+        <!-- NEW SECTION: Google Sheet Data Viewer -->
+        <div class="container gs-data-viewer-section">
+            <h2>Google Sheet Data Viewer</h2>
+            <p class="text-center text-gray-600 mb-6">Displaying data from the specified Google Sheet.</p>
+
+            <div id="gs-loading" class="gs-loading-indicator">Loading data...</div>
+            <div id="gs-error" class="gs-error-message hidden"></div>
+            
+            <div id="gs-dataTableContainer" class="overflow-x-auto hidden">
+                <table id="gs-dataTable" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3">Activation Date</th>
+                            <th class="px-6 py-3">Top-Up</th>
+                            <th class="px-6 py-3">% Cashback Owed</th>
+                            <th class="px-6 py-3">Cashback</th> <!-- Added Cashback column header -->
+                            <th class="px-6 py-3">Cashback Fund</th>
+                            <th class="px-6 py-3">Reserve Fund</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gs-dataTableBody">
+                        <!-- Data rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- END NEW SECTION: Google Sheet Data Viewer -->
+
         <div class="table-container">
             <h2>Payout Obligation & Fund Performance</h2>
             <div class="overflow-x-auto">
@@ -531,34 +559,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- NEW SECTION: Google Sheet Data Viewer -->
-        <div class="container gs-data-viewer-section">
-            <h2>Google Sheet Data Viewer</h2>
-            <p class="text-center text-gray-600 mb-6">Displaying data from the specified Google Sheet.</p>
-
-            <div id="gs-loading" class="gs-loading-indicator">Loading data...</div>
-            <div id="gs-error" class="gs-error-message hidden"></div>
-            
-            <div id="gs-dataTableContainer" class="overflow-x-auto hidden">
-                <table id="gs-dataTable" class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-6 py-3">Top-Up Date</th>
-                            <th class="px-6 py-3">Top-Up</th>
-                            <th class="px-6 py-3">% Cashback Owed</th>
-                            <th class="px-6 py-3">Cashback</th> <!-- Added Cashback column header -->
-                            <th class="px-6 py-3">Cashback Fund</th>
-                            <th class="px-6 py-3">Reserve Fund</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gs-dataTableBody">
-                        <!-- Data rows will be inserted here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- END NEW SECTION: Google Sheet Data Viewer -->
 
     </div>
     <script>
@@ -826,23 +826,16 @@
                 }
             }
 
-            // Attempt 4: General Date.parse and then normalize (less reliable for local)
-            // This is the problematic one due to potential UTC interpretation.
-            // Instead of direct new Date(string), we can try parsing as ISO string with local time.
+            // Fallback: Try general Date constructor and then normalize (less reliable for local)
             if (!parsedDate || isNaN(parsedDate.getTime())) {
-                // Try to construct a local ISO string if it's just a date without time/timezone
-                // This forces it to be interpreted as local.
                 let tempDate = new Date(cleanedDateString);
                 if (!isNaN(tempDate.getTime())) {
-                    // If it parses, ensure it's set to local midnight to avoid timezone shifts
                     tempDate.setHours(0, 0, 0, 0);
                     parsedDate = tempDate;
                 }
             }
 
-
             if (parsedDate && !isNaN(parsedDate.getTime())) {
-                // Normalize to local midnight to ensure consistency for all dates
                 parsedDate.setHours(0, 0, 0, 0);
                 console.log(`parseSheetDate: Successfully parsed "${dateString}" to local date ${parsedDate.toLocaleDateString()}`);
                 return parsedDate;
@@ -1689,7 +1682,7 @@
 
                     if (validDataRows.length > 0) {
                         // Determine Simulation Start Date
-                        const firstTopUpDateRaw = getColumnValue(validDataRows[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date']);
+                        const firstTopUpDateRaw = getColumnValue(validDataRows[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         const parsedStartDate = parseSheetDate(firstTopUpDateRaw);
 
                         if (parsedStartDate) {
@@ -1705,7 +1698,7 @@
                         // Determine # Of Months
                         const uniqueMonths = new Set();
                         validDataRows.forEach(row => {
-                            const dateStr = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date']);
+                            const dateStr = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                             const dateObj = parseSheetDate(dateStr); // Use the new helper here too
                             if (dateObj) {
                                 uniqueMonths.add(`${dateObj.getFullYear()}-${dateObj.getMonth()}`);
@@ -1761,8 +1754,8 @@
                         validDataRows.forEach(row => {
                             const tr = document.createElement('tr');
                             
-                            // Top-Up Date
-                            const topUpDateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date']);
+                            // Activation Date (formerly Top-Up Date)
+                            const topUpDateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                             const topUpDateTd = document.createElement('td');
                             const dateObj = parseSheetDate(topUpDateRaw); // Use the new helper here
 
