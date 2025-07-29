@@ -547,6 +547,7 @@
                             <th class="px-6 py-3">Top-Up Date</th>
                             <th class="px-6 py-3">Top-Up</th>
                             <th class="px-6 py-3">% Cashback Owed</th>
+                            <th class="px-6 py-3">Cashback</th> <!-- Added Cashback column header -->
                             <th class="px-6 py-3">Cashback Fund</th>
                             <th class="px-6 py-3">Reserve Fund</th>
                         </tr>
@@ -770,7 +771,10 @@
          * @returns {Date|null} A Date object representing the start of the day, or null if parsing fails.
          */
         const parseSheetDate = (dateString) => {
-            if (!dateString) return null;
+            if (!dateString) {
+                console.warn("parseSheetDate: Received empty date string.");
+                return null;
+            }
 
             // Handle "0224" year correction
             let correctedDateString = dateString;
@@ -786,6 +790,7 @@
             // If initial parsing results in an invalid date, or if it might have shifted due to timezone,
             // try to construct it explicitly from parts to ensure local interpretation.
             if (isNaN(date.getTime())) {
+                console.log(`parseSheetDate: Initial parse failed for "${correctedDateString}". Attempting manual parsing.`);
                 const parts = correctedDateString.replace(/,/g, '').split(' ');
                 let day, monthStr, year;
 
@@ -812,8 +817,10 @@
             // Normalize to local midnight to ensure consistency for all dates
             if (!isNaN(date.getTime())) {
                 date.setHours(0, 0, 0, 0);
+                console.log(`parseSheetDate: Successfully parsed "${dateString}" to ${date.toISOString()}`);
                 return date;
             }
+            console.error(`parseSheetDate: Failed to parse date string: "${dateString}"`);
             return null;
         };
 
@@ -821,6 +828,7 @@
         // --- Main Simulation Logic (Monthly) ---
 
         const runSimulation = () => {
+            console.log("runSimulation: Starting simulation.");
             // 1. Read Input Parameters
             // These now read from the hidden inputs, which are populated by Google Sheet data
             const selectedTier = membershipTierInput.value;
@@ -950,6 +958,7 @@
 
             updateCombinedPayoutTable(monthlyPurchaseData);
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
+            console.log("runSimulation: Simulation finished.");
         };
 
         /**
@@ -957,6 +966,7 @@
          * @param {Array<Object>} results - The array of monthly simulation data (actual purchase months).
          */
         const updateCombinedPayoutTable = (results) => {
+            console.log("updateCombinedPayoutTable: Updating combined payout table with results:", results);
             combinedPayoutTableBody.innerHTML = '';
 
             results.forEach(data => {
@@ -1022,6 +1032,7 @@
          * @param {boolean} overallPayoutSuccess - Whether all payouts were met.
          */
         const updateSummary = (cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalTradingFund, overallPayoutSuccess) => {
+            console.log("updateSummary: Updating summary with data:", { cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalTradingFund, overallPayoutSuccess });
             cumulativeVoucherPurchasesSpan.textContent = formatCurrency(cumulativeVoucherPurchases);
             totalCashbackOwedAccruedSpan.textContent = formatCurrency(totalCashbackOwedAccrued);
             totalCashbackPaidSpan.textContent = formatCurrency(totalCashbackPaid);
@@ -1053,6 +1064,7 @@
          * @returns {number} The final capital after all daily events.
          */
         const runCumulativeDailySimulation = () => {
+            console.log("runCumulativeDailySimulation: Starting daily simulation.");
             dailyLogTableBody.innerHTML = '';
             dailyReserveFlowLog = []; // Clear previous daily reserve log
 
@@ -1069,6 +1081,8 @@
             tempEndDate = getEndOfMonthLocal(addDays(tempEndDate, PAYOUT_DELAY_DAYS)); // End of month of last payout
             
             const endDate = tempEndDate; // Use this calculated end date
+            console.log(`Daily simulation period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`);
+
 
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
             let currentDailyReserve = 0; // Start at 0 as per user request
@@ -1304,6 +1318,7 @@
                 dayCounter++;
             }
             console.log("dailyReserveFlowLog after daily simulation:", dailyReserveFlowLog); // Debug log
+            console.log("runCumulativeDailySimulation: Daily simulation finished. Final Capital:", currentDailyCapital);
             return currentDailyCapital;
         };
 
@@ -1311,6 +1326,7 @@
             const currentInputValue = parseFloat(initialTradingFundInput.value);
             if (isNaN(currentInputValue) || currentInputValue === 0) {
                 initialTradingFundInput.value = '0';
+                console.log("updateInitialTradingFundDefault: Initial Trading Fund set to 0.");
             }
         }
 
@@ -1318,16 +1334,19 @@
 
         // Function to initialize main simulation monthly sales input fields (now just month headers)
         const initializeMainSimulationInputs = () => {
+            console.log("initializeMainSimulationInputs: Initializing main simulation inputs.");
             const numMonths = parseInt(numberOfPurchaseMonthsInput.value);
             if (isNaN(numMonths) || numMonths < 1) return;
 
             // This function is now mostly a placeholder as the main sales input table is removed.
             // If any other table relies on these month headers, they would be generated here.
             // For now, it does nothing as the table it used to populate is removed.
+            console.log("initializeMainSimulationInputs: Main simulation inputs initialized (placeholder).");
         };
 
         // Function to generate month headers and display cells dynamically for Reserve Flow Sales Input
         const initializeReserveFlowInputs = () => {
+            console.log("initializeReserveFlowInputs: Initializing reserve flow inputs.");
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
             const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS); // Cap at 60 months for display
 
@@ -1359,6 +1378,7 @@
 
             // Call this function to update the calculated voucher definitions table
             updateRfVoucherDefinitionsTable();
+            console.log("initializeReserveFlowInputs: Reserve flow inputs initialized.");
         };
 
 
@@ -1388,6 +1408,7 @@
             const currentMarkupRate = parseFloat(markupRateInput.value) / 100;
             const selectedTier = membershipTierInput.value;
             const tierConfig = MEMBERSHIP_TIERS[selectedTier];
+            console.log("getRfVoucherDefinitions: Current Markup Rate:", currentMarkupRate, "Selected Tier:", selectedTier);
 
             return {
                 'J$10K Voucher': {
@@ -1410,6 +1431,7 @@
 
         // Function to update the RF Voucher Definitions table
         const updateRfVoucherDefinitionsTable = () => {
+            console.log("updateRfVoucherDefinitionsTable: Updating RF Voucher Definitions table.");
             const rfVoucherDefinitions = getRfVoucherDefinitions();
             if (rfVoucherDefinitionsTableBody) {
                 rfVoucherDefinitionsTableBody.innerHTML = `
@@ -1430,12 +1452,14 @@
                     </tr>
                 `;
             }
+            console.log("updateRfVoucherDefinitionsTable: RF Voucher Definitions table updated.");
         };
 
         /**
          * Runs the Reserve Flow simulation.
          */
         const runReserveFlowSimulation = () => {
+            console.log("runReserveFlowSimulation: Starting Reserve Flow simulation.");
             if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = ''; // Clear previous results
 
             const rfVoucherDefinitions = getRfVoucherDefinitions(); // Get dynamic definitions
@@ -1566,17 +1590,20 @@
                 `;
                 if (rfReserveFlowTableBody) rfReserveFlowTableBody.insertAdjacentHTML('beforeend', row);
             });
+            console.log("runReserveFlowSimulation: Reserve Flow simulation finished.");
         };
 
         function updateInitialTradingFundDefault() {
             const currentInputValue = parseFloat(initialTradingFundInput.value);
             if (isNaN(currentInputValue) || currentInputValue === 0) {
                 initialTradingFundInput.value = '0';
+                console.log("updateInitialTradingFundDefault: Initial Trading Fund set to 0.");
             }
         }
 
         // --- Google Sheet Data Viewer Logic ---
         const loadGoogleSheetData = async () => {
+            console.log("loadGoogleSheetData: Starting data load from Google Sheet.");
             const dataUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet8';
             const gsLoadingIndicator = document.getElementById('gs-loading');
             const gsErrorMessage = document.getElementById('gs-error');
@@ -1590,11 +1617,13 @@
             if (gsLoadingIndicator) gsLoadingIndicator.classList.remove('hidden');
 
             try {
+                console.log("loadGoogleSheetData: Fetching data from:", dataUrl);
                 const response = await fetch(dataUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
+                console.log("loadGoogleSheetData: Data fetched successfully:", data);
 
                 if (gsLoadingIndicator) gsLoadingIndicator.classList.add('hidden'); // Hide loading
                 if (gsDataTableContainer) gsDataTableContainer.classList.remove('hidden'); // Show table container
@@ -1607,6 +1636,7 @@
 
 
                 if (data && Array.isArray(data) && data.length > 0) {
+                    console.log("loadGoogleSheetData: Processing valid data rows.");
                     const validDataRows = data.filter(row => {
                         const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
                         return topUp !== null && topUp !== '';
@@ -1620,9 +1650,11 @@
                         if (parsedStartDate) {
                             if (displaySimulationStartDate) displaySimulationStartDate.textContent = parsedStartDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
                             simulationStartDateInput.value = parsedStartDate.toISOString().split('T')[0]; // Set hidden input for simulation
+                            console.log("loadGoogleSheetData: Simulation Start Date set to:", simulationStartDateInput.value);
                         } else {
                             if (displaySimulationStartDate) displaySimulationStartDate.textContent = 'N/A';
                             simulationStartDateInput.value = '';
+                            console.warn("loadGoogleSheetData: Could not parse simulation start date.");
                         }
 
                         // Determine # Of Months
@@ -1637,11 +1669,13 @@
                         const numMonths = uniqueMonths.size;
                         if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = numMonths;
                         numberOfPurchaseMonthsInput.value = numMonths; // Set hidden input for simulation
+                        console.log("loadGoogleSheetData: Number of Purchase Months set to:", numMonths);
 
                         // Determine Membership Tier from first valid row's % Cashback Owed
                         const firstCashbackOwed = getColumnValue(validDataRows[0], ['%  Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
                         let inferredTier = 'N/A';
                         const cashbackRate = cleanAndParseFloat(firstCashbackOwed);
+                        console.log("loadGoogleSheetData: First Cashback Owed raw:", firstCashbackOwed, "Parsed:", cashbackRate);
 
                         if (!isNaN(cashbackRate)) {
                             // Normalize to decimal if it's a whole number percentage (e.g., 37 for 0.37)
@@ -1657,20 +1691,24 @@
                         }
                         if (displayMembershipTier) displayMembershipTier.textContent = inferredTier;
                         membershipTierInput.value = inferredTier; // Set hidden input for simulation
+                        console.log("loadGoogleSheetData: Inferred Membership Tier:", inferredTier);
 
                         // Update Max Win (%), Max Loss (%), Win Rate (%) inputs from the first row
                         const firstRow = validDataRows[0];
                         const maxWin = getColumnValue(firstRow, ['Max Win (%)', 'Max Win %', 'MaxWin']);
                         if (!isNaN(cleanAndParseFloat(maxWin))) {
                             avgWeeklyWinInput.value = cleanAndParseFloat(maxWin);
+                            console.log("loadGoogleSheetData: Max Win set to:", avgWeeklyWinInput.value);
                         }
                         const maxLoss = getColumnValue(firstRow, ['Max Loss (%)', 'Max Loss %', 'MaxLoss']);
                         if (!isNaN(cleanAndParseFloat(maxLoss))) {
                             maxWeeklyLossInput.value = cleanAndParseFloat(maxLoss);
+                            console.log("loadGoogleSheetData: Max Loss set to:", maxWeeklyLossInput.value);
                         }
                         const winRate = getColumnValue(firstRow, ['Win Rate (%)', 'Win Rate %', 'WinRate']);
                         if (!isNaN(cleanAndParseFloat(winRate))) {
                             winRateInput.value = cleanAndParseFloat(winRate);
+                            console.log("loadGoogleSheetData: Win Rate set to:", winRateInput.value);
                         }
 
 
@@ -1715,6 +1753,12 @@
                             cashbackOwedTd.textContent = formatPercentage(cashbackOwedPercent);
                             tr.appendChild(cashbackOwedTd);
 
+                            // Cashback (new column)
+                            const cashbackValue = getColumnValue(row, ['Cashback', 'Cashback Value']); // Assuming 'Cashback' or 'Cashback Value'
+                            const cashbackValueTd = document.createElement('td');
+                            cashbackValueTd.textContent = formatCurrency(cashbackValue);
+                            tr.appendChild(cashbackValueTd);
+
                             // Cashback Fund
                             const cashbackFund = getColumnValue(row, ['Cashback Fund', 'CashbackFund']);
                             const cashbackFundTd = document.createElement('td');
@@ -1729,14 +1773,17 @@
 
                             if (gsDataTableBody) gsDataTableBody.appendChild(tr);
                         });
+                        console.log("loadGoogleSheetData: Google Sheet data table populated.");
 
                         // After setting all inputs from sheet data, re-run simulations
                         initializeMainSimulationInputs(); // Re-initialize monthly sales input table structure (now empty)
                         initializeReserveFlowInputs(); // Re-initialize reserve flow inputs
                         runSimulation();
                         runReserveFlowSimulation();
+                        console.log("loadGoogleSheetData: Simulations triggered after data load.");
 
                     } else {
+                        console.warn("loadGoogleSheetData: No valid data rows found in the sheet.");
                         if (gsErrorMessage) gsErrorMessage.textContent = 'No valid data rows found in the sheet.';
                         if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
                         // Reset simulation inputs if no valid data
@@ -1750,6 +1797,7 @@
                     }
 
                 } else {
+                    console.warn("loadGoogleSheetData: No data found in the sheet or sheet is empty.");
                     if (gsErrorMessage) gsErrorMessage.textContent = 'No data found in the sheet or sheet is empty.';
                     if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
                     // Reset simulation inputs if no data
@@ -1763,7 +1811,7 @@
                 }
 
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('loadGoogleSheetData: Error fetching data:', error);
                 if (gsLoadingIndicator) gsLoadingIndicator.classList.add('hidden');
                 if (gsErrorMessage) gsErrorMessage.textContent = `Failed to load data: ${error.message}. Please ensure the Google Sheet is publicly viewable and the URL is correct.`;
                 if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
@@ -1780,19 +1828,30 @@
 
         // Initial setup on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOMContentLoaded: Event fired.");
             updateInitialTradingFundDefault();
             loadGoogleSheetData(); // Load Google Sheet data on page load, which then triggers simulations
         });
 
         // Event listeners for manual inputs that are still present
         markupRateInput.addEventListener('input', () => {
+            console.log("markupRateInput: Value changed. Re-running simulations.");
             runSimulation();
             runReserveFlowSimulation();
         });
         // Removed event listeners for avgWeeklyWinInput, maxWeeklyLossInput, winRateInput
-        initialTradingFundInput.addEventListener('input', runSimulation); // Keep this if it's still a manual input
-        simulationSeedInput.addEventListener('input', runSimulation);
-        stressTestModeCheckbox.addEventListener('change', runSimulation);
+        initialTradingFundInput.addEventListener('input', () => {
+            console.log("initialTradingFundInput: Value changed. Re-running simulation.");
+            runSimulation(); // Keep this if it's still a manual input
+        });
+        simulationSeedInput.addEventListener('input', () => {
+            console.log("simulationSeedInput: Value changed. Re-running simulation.");
+            runSimulation();
+        });
+        stressTestModeCheckbox.addEventListener('change', () => {
+            console.log("stressTestModeCheckbox: Value changed. Re-running simulation.");
+            runSimulation();
+        });
 
         // initializeMainSimulationInputs and initializeReserveFlowInputs are now called within loadGoogleSheetData
         // to ensure they are updated after numberOfPurchaseMonths is determined from the sheet.
