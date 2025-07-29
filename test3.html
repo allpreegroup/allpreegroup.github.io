@@ -765,7 +765,7 @@
         };
 
         /**
-         * Helper to parse date string like "11 Jan 2024" or "Aug 23, 0224" into a consistent Date object.
+         * Helper to parse date string from Google Sheet into a consistent local Date object.
          * Ensures the date is interpreted correctly and normalized to local midnight.
          * @param {string} dateString - The date string from the Google Sheet.
          * @returns {Date|null} A Date object representing the start of the day, or null if parsing fails.
@@ -776,51 +776,78 @@
                 return null;
             }
 
+            let cleanedDateString = dateString.trim();
+
             // Handle "0224" year correction
-            let correctedDateString = dateString;
-            if (dateString.includes('0224')) {
-                correctedDateString = dateString.replace('0224', '2024');
+            if (cleanedDateString.includes('0224')) {
+                cleanedDateString = cleanedDateString.replace('0224', '2024');
             }
 
-            // Attempt to create a Date object.
-            // For formats like "DD Mon YYYY" or "Mon DD, YYYY", Date constructor can be inconsistent with timezones.
-            // We aim to parse it as a local date.
-            let date = new Date(correctedDateString);
+            const monthMap = {
+                "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
+                "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
+            };
 
-            // If initial parsing results in an invalid date, or if it might have shifted due to timezone,
-            // try to construct it explicitly from parts to ensure local interpretation.
-            if (isNaN(date.getTime())) {
-                console.log(`parseSheetDate: Initial parse failed for "${correctedDateString}". Attempting manual parsing.`);
-                const parts = correctedDateString.replace(/,/g, '').split(' ');
-                let day, monthStr, year;
+            let day, monthIndex, year;
+            let parsedDate = null;
 
-                // Simple heuristic for common formats
-                if (parts.length === 3) { // e.g., "11 Jan 2024"
-                    day = parseInt(parts[0]);
-                    monthStr = parts[1];
-                    year = parseInt(parts[2]);
-                } else if (parts.length === 2 && correctedDateString.includes(' ')) { // e.g., "Jan 2024" (if only month/year)
-                    monthStr = parts[0];
-                    year = parseInt(parts[1]);
-                    day = 1; // Default to 1st if only month/year
-                } else {
-                    // Fallback to original Date constructor for other formats, then normalize
-                    date = new Date(correctedDateString);
-                }
+            // Attempt 1: YYYY-MM-DD format (e.g., "2024-01-01")
+            let match = cleanedDateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match) {
+                year = parseInt(match[1]);
+                monthIndex = parseInt(match[2]) - 1; // Month is 0-indexed
+                day = parseInt(match[3]);
+                parsedDate = new Date(year, monthIndex, day); // This creates a local date
+            }
 
-                if (day && monthStr && year) {
-                     const monthIndex = new Date(Date.parse(monthStr + " 1, 2000")).getMonth(); // Get 0-indexed month
-                     date = new Date(year, monthIndex, day);
+            // Attempt 2: DD Mon YYYY format (e.g., "11 Jan 2024")
+            if (!parsedDate || isNaN(parsedDate.getTime())) {
+                match = cleanedDateString.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+                if (match) {
+                    day = parseInt(match[1]);
+                    monthIndex = monthMap[match[2].substring(0, 3)];
+                    year = parseInt(match[3]);
+                    if (monthIndex !== undefined) {
+                        parsedDate = new Date(year, monthIndex, day); // This creates a local date
+                    }
                 }
             }
-            
-            // Normalize to local midnight to ensure consistency for all dates
-            if (!isNaN(date.getTime())) {
-                date.setHours(0, 0, 0, 0);
-                console.log(`parseSheetDate: Successfully parsed "${dateString}" to ${date.toISOString()}`);
-                return date;
+
+            // Attempt 3: Mon DD, YYYY format (e.g., "Jan 11, 2024")
+            if (!parsedDate || isNaN(parsedDate.getTime())) {
+                match = cleanedDateString.match(/^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})$/);
+                if (match) {
+                    monthIndex = monthMap[match[1].substring(0, 3)];
+                    day = parseInt(match[2]);
+                    year = parseInt(match[3]);
+                    if (monthIndex !== undefined) {
+                        parsedDate = new Date(year, monthIndex, day); // This creates a local date
+                    }
+                }
             }
-            console.error(`parseSheetDate: Failed to parse date string: "${dateString}"`);
+
+            // Attempt 4: General Date.parse and then normalize (less reliable for local)
+            // This is the problematic one due to potential UTC interpretation.
+            // Instead of direct new Date(string), we can try parsing as ISO string with local time.
+            if (!parsedDate || isNaN(parsedDate.getTime())) {
+                // Try to construct a local ISO string if it's just a date without time/timezone
+                // This forces it to be interpreted as local.
+                let tempDate = new Date(cleanedDateString);
+                if (!isNaN(tempDate.getTime())) {
+                    // If it parses, ensure it's set to local midnight to avoid timezone shifts
+                    tempDate.setHours(0, 0, 0, 0);
+                    parsedDate = tempDate;
+                }
+            }
+
+
+            if (parsedDate && !isNaN(parsedDate.getTime())) {
+                // Normalize to local midnight to ensure consistency for all dates
+                parsedDate.setHours(0, 0, 0, 0);
+                console.log(`parseSheetDate: Successfully parsed "${dateString}" to local date ${parsedDate.toLocaleDateString()}`);
+                return parsedDate;
+            }
+            console.error(`parseSheetDate: Failed to parse date string: "${dateString}" after all attempts.`);
             return null;
         };
 
@@ -877,9 +904,13 @@
             // Parse Start Date to be consistently at local midnight
             let initialDate;
             if (simulationStartDateString) {
-                initialDate = new Date(simulationStartDateString);
+                initialDate = parseSheetDate(simulationStartDateString); // Use parseSheetDate here
             } else {
                 initialDate = new Date(); // Default to today
+            }
+            if (!initialDate) {
+                console.error("runSimulation: Initial date could not be parsed. Using today's date.");
+                initialDate = new Date();
             }
             initialDate.setHours(0, 0, 0, 0); // Normalize to local midnight
 
@@ -1072,7 +1103,11 @@
             const validPurchaseMonths = isNaN(actualPurchaseMonths) || actualPurchaseMonths < 1 ? 1 : actualPurchaseMonths;
 
             const simulationStartDateString = simulationStartDateInput.value;
-            const startDate = new Date(simulationStartDateString);
+            const startDate = parseSheetDate(simulationStartDateString); // Use parseSheetDate here
+            if (!startDate) {
+                console.error("runCumulativeDailySimulation: Start date could not be parsed. Aborting simulation.");
+                return 0; // Abort or handle error
+            }
             startDate.setHours(0, 0, 0, 0); // Ensure start date is local midnight
 
             // Determine the true end date for the daily log, covering all purchase months + payout delay
@@ -1476,12 +1511,18 @@
             const totalCashbackOwedMonthly = Array(totalMonthsForRfCalculation).fill(0);
             const actualCashbackPaidOutMonthly = Array(totalMonthsForRfCalculation).fill(0);
 
-            const simStartDate = new Date(simulationStartDateInput.value);
+            const simStartDate = parseSheetDate(simulationStartDateInput.value); // Use parseSheetDate here
+            if (!simStartDate) {
+                console.error("runReserveFlowSimulation: Simulation start date could not be parsed. Aborting Reserve Flow simulation.");
+                return;
+            }
             simStartDate.setHours(0, 0, 0, 0);
 
             // Aggregate data from daily maps into monthly arrays
             dailyTopUpAmountsMap.forEach((amount, dateKey) => {
-                const date = new Date(dateKey);
+                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
+                if (!date) return;
+
                 const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
                                  (date.getMonth() - simStartDate.getMonth());
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
@@ -1493,7 +1534,9 @@
             });
 
             dailyReserveFundAdditionsMap.forEach((amount, dateKey) => {
-                const date = new Date(dateKey);
+                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
+                if (!date) return;
+
                 const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
                                  (date.getMonth() - simStartDate.getMonth());
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
@@ -1502,7 +1545,9 @@
             });
 
             dailyLiabilityAdditionsMap.forEach((amount, dateKey) => {
-                const date = new Date(dateKey);
+                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
+                if (!date) return;
+
                 const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
                                  (date.getMonth() - simStartDate.getMonth());
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
@@ -1512,7 +1557,7 @@
 
             // Aggregate data from dailyReserveFlowLog for actualCashbackPaidOutMonthly
             dailyReserveFlowLog.forEach(dailyEntry => {
-                const date = dailyEntry.date;
+                const date = dailyEntry.date; // This is already a Date object from runCumulativeDailySimulation
                 const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
                                  (date.getMonth() - simStartDate.getMonth());
 
@@ -1790,10 +1835,14 @@
                         if (displayMembershipTier) displayMembershipTier.textContent = 'N/A'; membershipTierInput.value = 'Premium'; // Default for simulation
                         if (displaySimulationStartDate) displaySimulationStartDate.textContent = 'N/A'; simulationStartDateInput.value = '';
                         if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '0'; numberOfPurchaseMonthsInput.value = '0';
-                        initializeMainSimulationInputs(); // Ensure tables are reset
+                        // Ensure tables are reset if no valid data
+                        if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
+                        if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
+                        if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                        initializeMainSimulationInputs(); 
                         initializeReserveFlowInputs();
-                        runSimulation();
-                        runReserveFlowSimulation();
+                        runSimulation(); // Run with default/reset values
+                        runReserveFlowSimulation(); // Run with default/reset values
                     }
 
                 } else {
@@ -1804,10 +1853,14 @@
                     if (displayMembershipTier) displayMembershipTier.textContent = 'N/A'; membershipTierInput.value = 'Premium'; // Default for simulation
                     if (displaySimulationStartDate) displaySimulationStartDate.textContent = 'N/A'; simulationStartDateInput.value = '';
                     if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '0'; numberOfPurchaseMonthsInput.value = '0';
-                    initializeMainSimulationInputs(); // Ensure tables are reset
+                    // Ensure tables are reset if no data
+                    if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
+                    if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
+                    if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                    initializeMainSimulationInputs(); 
                     initializeReserveFlowInputs();
-                    runSimulation();
-                    runReserveFlowSimulation();
+                    runSimulation(); // Run with default/reset values
+                    runReserveFlowSimulation(); // Run with default/reset values
                 }
 
             } catch (error) {
@@ -1819,10 +1872,14 @@
                 if (displayMembershipTier) displayMembershipTier.textContent = 'Error'; membershipTierInput.value = 'Premium'; // Default for simulation
                 if (displaySimulationStartDate) displaySimulationStartDate.textContent = 'Error'; simulationStartDateInput.value = '';
                 if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = 'Error'; numberOfPurchaseMonthsInput.value = '0';
-                initializeMainSimulationInputs(); // Ensure tables are reset
+                // Ensure tables are reset on error
+                if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
+                if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
+                if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                initializeMainSimulationInputs(); 
                 initializeReserveFlowInputs();
-                runSimulation();
-                runReserveFlowSimulation();
+                runSimulation(); // Run with default/reset values
+                runReserveFlowSimulation(); // Run with default/reset values
             }
         };
 
