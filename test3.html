@@ -469,7 +469,9 @@
                 <!-- This grid will now be empty or contain other future inputs -->
             </div>
 
-            <div class="reserve-flow-table-container">
+            <!-- Removed: Voucher Type Definitions (Calculated) -->
+            <!-- This table is no longer needed -->
+            <!-- <div class="reserve-flow-table-container">
                 <h3>Voucher Type Definitions (Calculated)</h3>
                 <div class="overflow-x-auto">
                     <table id="rfVoucherDefinitionsTable" class="min-w-full divide-y divide-gray-200">
@@ -481,11 +483,10 @@
                             </tr>
                         </thead>
                         <tbody id="rfVoucherDefinitionsTableBody">
-                            <!-- Dynamic rows will be generated here -->
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Removed: Monthly Voucher Sales Input (Quantities) -->
             <!-- This table is no longer needed as sales data comes directly from Google Sheet 'Top-Up' column -->
@@ -1420,20 +1421,16 @@
             }
         }
 
-        // --- Initialize Main Simulation Inputs (now a single declaration) ---
+        // --- Initialize Main Simulation Inputs ---
         // Function to initialize main simulation monthly sales input fields (now just month headers)
         const initializeMainSimulationInputs = () => {
-            console.log("initializeMainSimulationInputs: Initializing main simulation inputs.");
-            const numMonths = parseInt(numberOfPurchaseMonthsInput.value);
-            if (isNaN(numMonths) || numMonths < 1) return;
-
+            console.log("initializeMainSimulationInputs: Initializing main simulation inputs (placeholder).");
             // This function is now mostly a placeholder as the main sales input table is removed.
             // If any other table relies on these month headers, they would be generated here.
             // For now, it does nothing as the table it used to populate is removed.
-            console.log("initializeMainSimulationInputs: Main simulation inputs initialized (placeholder).");
         };
 
-        // --- Initialize Reserve Flow Inputs (now a single declaration) ---
+        // --- Initialize Reserve Flow Inputs ---
         // Function to generate month headers and display cells dynamically for Reserve Flow Sales Input
         const initializeReserveFlowInputs = () => {
             console.log("initializeReserveFlowInputs: Initializing reserve flow inputs.");
@@ -1466,8 +1463,6 @@
                 if (rfActualCashbackPaidOutRow) rfActualCashbackPaidOutRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-cashback-paid-month-${i}"></td>`);
             }
 
-            // Call this function to update the calculated voucher definitions table
-            updateRfVoucherDefinitionsTable();
             console.log("initializeReserveFlowInputs: Reserve flow inputs initialized.");
         };
 
@@ -1480,70 +1475,11 @@
         const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83; // 1 - 0.17 from Google Script (Markup allocated to reserve)
 
         // DOM Elements for Reserve Flow Calculator
-        const rfVoucherDefinitionsTableBody = document.getElementById('rfVoucherDefinitionsTableBody'); // New tbody ID
-        // Removed rfMonthlySalesInputHeader and rows
-        // const rfMonthlySalesInputHeader = document.getElementById('rfMonthlySalesInputHeader');
-        // const rf10kVoucherRow = document.getElementById('rf10kVoucherRow');
-        // const rf15kVoucherRow = document.getElementById('rf15kVoucherRow');
-        // const rf20kVoucherRow = document.getElementById('rf20kVoucherRow');
         const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader');
         const rfTotalGrossMarkupRow = document.getElementById('rfTotalGrossMarkupRow'); // New row for gross markup
         const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow'); // Renamed
         const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow');
         const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
-        // const rfReserveFlowTableBody = document.querySelector('#rfReserveFlowTable tbody'); // Old reference
-
-        // Function to dynamically get voucher definitions based on current inputs
-        const getRfVoucherDefinitions = () => {
-            const currentMarkupRate = parseFloat(markupRateInput.value) / 100;
-            const selectedTier = membershipTierInput.value;
-            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
-            console.log("getRfVoucherDefinitions: Current Markup Rate:", currentMarkupRate, "Selected Tier:", selectedTier);
-
-            return {
-                'J$10K Voucher': {
-                    value: 10000,
-                    markup: 10000 * currentMarkupRate,
-                    cashback: 10000 * tierConfig.cashbackRates[10000]
-                },
-                'J$15K Voucher': {
-                    value: 15000,
-                    markup: 15000 * currentMarkupRate,
-                    cashback: 15000 * tierConfig.cashbackRates[15000]
-                },
-                'J$20K Voucher': {
-                    value: 20000,
-                    markup: 20000 * currentMarkupRate,
-                    cashback: 20000 * tierConfig.cashbackRates[20000]
-                }
-            };
-        };
-
-        // Function to update the RF Voucher Definitions table
-        const updateRfVoucherDefinitionsTable = () => {
-            console.log("updateRfVoucherDefinitionsTable: Updating RF Voucher Definitions table.");
-            const rfVoucherDefinitions = getRfVoucherDefinitions();
-            if (rfVoucherDefinitionsTableBody) {
-                rfVoucherDefinitionsTableBody.innerHTML = `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$10K Voucher'].markup)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$10K Voucher'].cashback)}</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$15K Voucher'].markup)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$15K Voucher'].cashback)}</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$20K Voucher'].markup)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(rfVoucherDefinitions['J$20K Voucher'].cashback)}</td>
-                    </tr>
-                `;
-            }
-            console.log("updateRfVoucherDefinitionsTable: RF Voucher Definitions table updated.");
-        };
 
         /**
          * Runs the Reserve Flow simulation.
@@ -1552,11 +1488,6 @@
             console.log("runReserveFlowSimulation: Starting Reserve Flow simulation.");
             // Clear previous results by clearing the wrapper
             rfReserveFlowTableBodyWrapper.innerHTML = ''; 
-
-            const rfVoucherDefinitions = getRfVoucherDefinitions(); // Get dynamic definitions
-
-            // Update the Voucher Type Definitions table (ensure this is called here)
-            updateRfVoucherDefinitionsTable();
 
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
             const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS;
