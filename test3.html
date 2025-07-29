@@ -247,6 +247,37 @@
             min-height: 44px; /* Ensure consistent height with inputs */
         }
 
+        /* Styles for collapsible sections */
+        .collapsible-content {
+            display: none; /* Hidden by default */
+        }
+        .collapsible-content.active {
+            display: block; /* Shown when active */
+        }
+        .year-header {
+            cursor: pointer;
+            background-color: #f0f4ff;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .year-header:hover {
+            background-color: #e2e8f0;
+        }
+        .year-header .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.2s ease-in-out;
+            transform: rotate(0deg); /* Initial state: right arrow */
+        }
+        .year-header.active .toggle-icon {
+            transform: rotate(90deg); /* Rotate for expanded state */
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -394,10 +425,13 @@
                             <th class="px-6 py-3">Reserve Fund</th>
                         </tr>
                     </thead>
-                    <tbody id="gs-dataTableBody">
-                        <!-- Data rows will be inserted here -->
+                    <tbody id="gs-dataTableBodyWrapper">
+                        <!-- Yearly data sections will be inserted here -->
                     </tbody>
                 </table>
+                <div class="text-center mt-4">
+                    <button id="gs-loadMoreBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out hidden">Load More Years</button>
+                </div>
             </div>
         </div>
         <!-- END NEW SECTION: Google Sheet Data Viewer -->
@@ -527,10 +561,13 @@
                                 <th class="px-6 py-3">Status</th> <!-- New Column Header -->
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Daily Reserve flow rows will be generated here -->
+                        <tbody id="rfReserveFlowTableBodyWrapper">
+                            <!-- Yearly data sections will be inserted here -->
                         </tbody>
                     </table>
+                    <div class="text-center mt-4">
+                        <button id="rf-loadMoreBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out hidden">Load More Years</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -553,10 +590,13 @@
                             <th class="px-6 py-3">Capital After Event (J$)</th>
                         </tr>
                     </thead>
-                <tbody>
-                    <!-- Daily log rows will be generated here -->
-                </tbody>
+                    <tbody id="dailyLogTableBodyWrapper">
+                        <!-- Yearly data sections will be inserted here -->
+                    </tbody>
                 </table>
+                <div class="text-center mt-4">
+                    <button id="daily-loadMoreBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out hidden">Load More Years</button>
+                </div>
             </div>
         </div>
 
@@ -617,14 +657,9 @@
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
 
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
-        const dailyLogTableBody = document.querySelector('#dailyLogTable tbody');
-
-        // Removed mainSimulationMonthlySalesInputHeader and rows
-        // const mainSimulationMonthlySalesInputHeader = document.getElementById('mainSimulationMonthlySalesInputHeader');
-        // const mainSimulation10kVoucherRow = document.getElementById('mainSimulation10kVoucherRow');
-        // const mainSimulation15kVoucherRow = document.getElementById('mainSimulation15kVoucherRow');
-        // const mainSimulation20kVoucherRow = document.getElementById('mainSimulation20kVoucherRow');
-
+        // Updated to point to the new wrapper elements
+        const dailyLogTableBodyWrapper = document.querySelector('#dailyLogTableBodyWrapper');
+        const rfReserveFlowTableBodyWrapper = document.querySelector('#rfReserveFlowTableBodyWrapper');
 
         let monthlySimulationResults = []; // Stores results for daily log selection (includes extended months)
         let monthlyPurchaseData = []; // Stores only the purchase data for display in combinedPayoutTable
@@ -1089,7 +1124,8 @@
          */
         const runCumulativeDailySimulation = () => {
             console.log("runCumulativeDailySimulation: Starting daily simulation.");
-            dailyLogTableBody.innerHTML = '';
+            // Clear previous daily log by clearing the wrapper
+            dailyLogTableBodyWrapper.innerHTML = ''; 
             dailyReserveFlowLog = []; // Clear previous daily reserve log
 
             const actualPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
@@ -1170,6 +1206,8 @@
                 }
                 monthlyPayoutsMap.get(payoutDateString).push(monthData);
             }
+
+            const dailyLogEntries = []; // Collect all daily log entries here
 
             // Iterate through days
             while (currentDate <= endDate) {
@@ -1318,35 +1356,51 @@
                     grossCashbackOwed: grossCashbackOwedForDay, // Store the gross cashback owed for this day
                     reserveBalanceAfterPayoutProcessing: isPayoutDay ? reserveBalanceAfterPayoutProcessing : null // Store this for Status
                 });
-                // Cumulative Daily Trading Log row generation
-                const tradingLog_row = `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${dayCounter}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${currentDate.toLocaleDateString('en-JM', { weekday: 'short' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${isTradingDayForDisplay ? 'Yes' : 'No'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${eventOccurred ? 'Yes' : 'No'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="${eventType.includes('Win') ? 'text-green-600' : (eventType.includes('Loss') || eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">
-                                ${eventType}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap ${dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(dailyNetChange)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(capitalBeforeEvent)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(currentDailyCapital)}</td>
-                    </tr>
-                `;
-                dailyLogTableBody.insertAdjacentHTML('beforeend', tradingLog_row);
+                
+                // Collect daily log entry for later rendering
+                dailyLogEntries.push({
+                    day: dayCounter,
+                    date: new Date(currentDate),
+                    dayOfWeek: currentDate.toLocaleDateString('en-JM', { weekday: 'short' }),
+                    isTradingDay: isTradingDayForDisplay,
+                    eventOccurred: eventOccurred,
+                    eventType: eventType,
+                    dailyNetChange: dailyNetChange,
+                    capitalBeforeEvent: capitalBeforeEvent,
+                    capitalAfterEvent: currentDailyCapital
+                });
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
             console.log("dailyReserveFlowLog after daily simulation:", dailyReserveFlowLog); // Debug log
             console.log("runCumulativeDailySimulation: Daily simulation finished. Final Capital:", currentDailyCapital);
+            
+            // Render daily log with collapsible years
+            createCollapsibleYearlyTable(dailyLogTableBodyWrapper, dailyLogEntries, (data) => {
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.dayOfWeek}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${data.isTradingDay ? 'Yes' : 'No'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${data.eventOccurred ? 'Yes' : 'No'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="${data.eventType.includes('Win') ? 'text-green-600' : (data.eventType.includes('Loss') || data.eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">
+                                ${data.eventType}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap ${data.dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(data.dailyNetChange)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.capitalBeforeEvent)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.capitalAfterEvent)}</td>
+                    </tr>
+                `;
+            }, 'date', 'daily');
+
             return currentDailyCapital;
         };
 
@@ -1429,7 +1483,7 @@
         const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow'); // Renamed
         const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow');
         const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
-        const rfReserveFlowTableBody = document.querySelector('#rfReserveFlowTable tbody');
+        // const rfReserveFlowTableBody = document.querySelector('#rfReserveFlowTable tbody'); // Old reference
 
         // Function to dynamically get voucher definitions based on current inputs
         const getRfVoucherDefinitions = () => {
@@ -1488,7 +1542,8 @@
          */
         const runReserveFlowSimulation = () => {
             console.log("runReserveFlowSimulation: Starting Reserve Flow simulation.");
-            if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = ''; // Clear previous results
+            // Clear previous results by clearing the wrapper
+            rfReserveFlowTableBodyWrapper.innerHTML = ''; 
 
             const rfVoucherDefinitions = getRfVoucherDefinitions(); // Get dynamic definitions
 
@@ -1577,21 +1632,19 @@
             }
 
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
-            // Populate Reserve Flow Table (Daily)
-            dailyReserveFlowLog.forEach(data => {
+            // Populate Reserve Flow Table (Daily) using collapsible years
+            createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
                 let displayedDeposit;
                 let depositClass = 'text-gray-500'; // Default for N/A
 
-                // Deposit (J$) column logic: show the deposit amount if payout was met, otherwise N/A
                 if (data.isPayoutDateForDisplay && data.payoutMetStatusForDeposit) {
                     displayedDeposit = formatCurrency(data.deposit, true);
-                    depositClass = 'text-green-600'; // Deposits are positive, so green
+                    depositClass = 'text-green-600';
                 } else {
                     displayedDeposit = 'N/A';
                     depositClass = 'text-gray-500';
                 }
 
-                // Gross Cashback Owed column logic
                 let displayedGrossCashbackOwed;
                 if (data.isPayoutDateForDisplay && data.grossCashbackOwed > 0) {
                     displayedGrossCashbackOwed = formatCurrency(data.grossCashbackOwed, true);
@@ -1599,7 +1652,6 @@
                     displayedGrossCashbackOwed = 'N/A';
                 }
 
-                // Status column logic: Based on reserveBalanceAfterPayoutProcessing
                 let displayedStatus;
                 let statusClass;
                 if (data.isPayoutDateForDisplay && data.reserveBalanceAfterPayoutProcessing !== null) {
@@ -1615,7 +1667,7 @@
                     statusClass = 'text-gray-500';
                 }
 
-                const row = `
+                return `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -1623,11 +1675,11 @@
                         <td class="px-6 py-4 whitespace-nowrap ${depositClass}">${displayedDeposit}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${displayedGrossCashbackOwed}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td> <!-- New Status Column Data -->
+                        <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td>
                     </tr>
                 `;
-                if (rfReserveFlowTableBody) rfReserveFlowTableBody.insertAdjacentHTML('beforeend', row);
-            });
+            }, 'date', 'rf');
+
             console.log("runReserveFlowSimulation: Reserve Flow simulation finished.");
         };
 
@@ -1646,10 +1698,10 @@
             const gsLoadingIndicator = document.getElementById('gs-loading');
             const gsErrorMessage = document.getElementById('gs-error');
             const gsDataTableContainer = document.getElementById('gs-dataTableContainer');
-            const gsDataTableBody = document.getElementById('gs-dataTableBody');
+            const gsDataTableBodyWrapper = document.getElementById('gs-dataTableBodyWrapper'); // Updated reference
 
             // Clear previous data and reset visibility
-            if (gsDataTableBody) gsDataTableBody.innerHTML = '';
+            if (gsDataTableBodyWrapper) gsDataTableBodyWrapper.innerHTML = '';
             if (gsErrorMessage) gsErrorMessage.classList.add('hidden');
             if (gsDataTableContainer) gsDataTableContainer.classList.add('hidden');
             if (gsLoadingIndicator) gsLoadingIndicator.classList.remove('hidden');
@@ -1675,6 +1727,8 @@
 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("loadGoogleSheetData: Processing valid data rows.");
+                    const processedDataRows = []; // Store rows with parsed dates for yearly grouping
+
                     const validDataRows = data.filter(row => {
                         const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
                         return topUp !== null && topUp !== '';
@@ -1752,15 +1806,14 @@
 
                         // Populate the Google Sheet data table and daily maps
                         validDataRows.forEach(row => {
-                            const tr = document.createElement('tr');
-                            
-                            // Activation Date (formerly Top-Up Date)
-                            const topUpDateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
-                            const topUpDateTd = document.createElement('td');
-                            const dateObj = parseSheetDate(topUpDateRaw); // Use the new helper here
+                            const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
+                            const dateObj = parseSheetDate(dateRaw);
+
+                            // Add parsedDate to the row object for consistent yearly grouping
+                            const processedRow = { ...row, parsedDate: dateObj };
+                            processedDataRows.push(processedRow);
 
                             if (dateObj) {
-                                topUpDateTd.textContent = dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
                                 const dateKey = dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                                 // Populate daily maps
@@ -1773,45 +1826,31 @@
                                 dailyReserveFundAdditionsMap.set(dateKey, (dailyReserveFundAdditionsMap.get(dateKey) || 0) + reserveFund);
                                 dailyLiabilityAdditionsMap.set(dateKey, (dailyLiabilityAdditionsMap.get(dateKey) || 0) + cashbackOwed);
                                 dailyTopUpAmountsMap.set(dateKey, (dailyTopUpAmountsMap.get(dateKey) || 0) + topUpAmount);
-
-                            } else {
-                                topUpDateTd.textContent = topUpDateRaw || 'N/A';
                             }
-                            tr.appendChild(topUpDateTd);
-
-                            // Top-Up
-                            const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
-                            const topUpTd = document.createElement('td');
-                            topUpTd.textContent = formatCurrency(topUp);
-                            tr.appendChild(topUpTd);
-
-                            // % Cashback Owed
-                            const cashbackOwedPercent = getColumnValue(row, ['%  Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
-                            const cashbackOwedTd = document.createElement('td');
-                            cashbackOwedTd.textContent = formatPercentage(cashbackOwedPercent);
-                            tr.appendChild(cashbackOwedTd);
-
-                            // Cashback (new column)
-                            const cashbackValue = getColumnValue(row, ['Cashback', 'Cashback Value']); // Assuming 'Cashback' or 'Cashback Value'
-                            const cashbackValueTd = document.createElement('td');
-                            cashbackValueTd.textContent = formatCurrency(cashbackValue);
-                            tr.appendChild(cashbackValueTd);
-
-                            // Cashback Fund
-                            const cashbackFund = getColumnValue(row, ['Cashback Fund', 'CashbackFund']);
-                            const cashbackFundTd = document.createElement('td');
-                            cashbackFundTd.textContent = formatCurrency(cashbackFund);
-                            tr.appendChild(cashbackFundTd);
-
-                            // Reserve Fund
-                            const reserveFund = getColumnValue(row, ['Reserve Fund', 'ReserveFund']);
-                            const reserveFundTd = document.createElement('td');
-                            reserveFundTd.textContent = formatCurrency(reserveFund);
-                            tr.appendChild(reserveFundTd);
-
-                            if (gsDataTableBody) gsDataTableBody.appendChild(tr);
                         });
                         console.log("loadGoogleSheetData: Google Sheet data table populated.");
+
+                        // Render Google Sheet data with collapsible years
+                        createCollapsibleYearlyTable(gsDataTableBodyWrapper, processedDataRows, (row) => {
+                            const dateObj = row.parsedDate;
+                            const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
+                            const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
+                            const cashbackOwedPercent = getColumnValue(row, ['%  Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
+                            const cashbackValue = getColumnValue(row, ['Cashback', 'Cashback Value']);
+                            const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
+                            const reserveFund = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
+
+                            return `
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">${topUpDateDisplay}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(topUp)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatPercentage(cashbackOwedPercent)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackValue)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackFund)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(reserveFund)}</td>
+                                </tr>
+                            `;
+                        }, 'parsedDate', 'gs');
 
                         // After setting all inputs from sheet data, re-run simulations
                         initializeMainSimulationInputs(); // Re-initialize monthly sales input table structure (now empty)
@@ -1830,8 +1869,8 @@
                         if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '0'; numberOfPurchaseMonthsInput.value = '0';
                         // Ensure tables are reset if no valid data
                         if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                        if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
-                        if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                        if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
+                        if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                         initializeMainSimulationInputs(); 
                         initializeReserveFlowInputs();
                         runSimulation(); // Run with default/reset values
@@ -1848,8 +1887,8 @@
                     if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '0'; numberOfPurchaseMonthsInput.value = '0';
                     // Ensure tables are reset if no data
                     if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                    if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
-                    if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                    if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
+                    if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                     initializeMainSimulationInputs(); 
                     initializeReserveFlowInputs();
                     runSimulation(); // Run with default/reset values
@@ -1867,14 +1906,104 @@
                 if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = 'Error'; numberOfPurchaseMonthsInput.value = '0';
                 // Ensure tables are reset on error
                 if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                if (dailyLogTableBody) dailyLogTableBody.innerHTML = '';
-                if (rfReserveFlowTableBody) rfReserveFlowTableBody.innerHTML = '';
+                if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
+                if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                 initializeMainSimulationInputs(); 
                 initializeReserveFlowInputs();
                 runSimulation(); // Run with default/reset values
                 runReserveFlowSimulation(); // Run with default/reset values
             }
         };
+
+        /**
+         * Generates and manages collapsible yearly sections for a table.
+         * @param {HTMLElement} wrapperElement - The tbody or div where yearly sections will be appended.
+         * @param {Array<Object>} data - The array of daily data objects.
+         * @param {Function} rowGenerator - A function that takes a data row and returns its HTML <tr> string.
+         * @param {string} dateKeyProperty - The property name in the data object that holds the Date object.
+         * @param {string} tableIdPrefix - A unique prefix for IDs (e.g., 'gs', 'rf', 'daily').
+         */
+        const createCollapsibleYearlyTable = (wrapperElement, data, rowGenerator, dateKeyProperty, tableIdPrefix) => {
+            wrapperElement.innerHTML = ''; // Clear existing content
+            const yearsData = new Map(); // Map to store rows grouped by year
+
+            data.forEach(item => {
+                const date = item[dateKeyProperty];
+                if (date && date instanceof Date && !isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    if (!yearsData.has(year)) {
+                        yearsData.set(year, []);
+                    }
+                    yearsData.get(year).push(item);
+                }
+            });
+
+            const sortedYears = Array.from(yearsData.keys()).sort((a, b) => a - b);
+            
+            sortedYears.forEach((year, index) => {
+                const yearHeader = document.createElement('div');
+                yearHeader.className = `year-header flex justify-between items-center bg-gray-100 p-3 rounded-lg cursor-pointer transition duration-200 ease-in-out hover:bg-gray-200`;
+                yearHeader.innerHTML = `
+                    <span>Year ${year} (${yearsData.get(year).length} entries)</span>
+                    <span class="toggle-icon text-gray-600">&#9658;</span> <!-- Right arrow -->
+                `;
+                wrapperElement.appendChild(yearHeader);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'collapsible-content overflow-x-auto';
+                
+                const innerTbody = document.createElement('tbody');
+                yearsData.get(year).forEach(item => {
+                    innerTbody.insertAdjacentHTML('beforeend', rowGenerator(item));
+                });
+                contentDiv.appendChild(innerTbody);
+
+                wrapperElement.appendChild(contentDiv);
+
+                // Initial visibility: only the first year is active
+                if (index === 0) {
+                    contentDiv.classList.add('active');
+                    yearHeader.classList.add('active');
+                    yearHeader.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
+                }
+
+                yearHeader.addEventListener('click', () => {
+                    contentDiv.classList.toggle('active');
+                    yearHeader.classList.toggle('active');
+                    const icon = yearHeader.querySelector('.toggle-icon');
+                    if (contentDiv.classList.contains('active')) {
+                        icon.innerHTML = '&#9660;'; // Down arrow
+                    } else {
+                        icon.innerHTML = '&#9658;'; // Right arrow
+                    }
+                });
+            });
+
+            // Handle "Load More Years" button (if applicable)
+            const loadMoreBtn = document.getElementById(`${tableIdPrefix}-loadMoreBtn`);
+            if (loadMoreBtn) {
+                if (sortedYears.length > 1) {
+                    loadMoreBtn.classList.remove('hidden');
+                    loadMoreBtn.textContent = 'Load All Years'; // Default to loading all
+                    loadMoreBtn.onclick = () => {
+                        const hiddenContents = wrapperElement.querySelectorAll('.collapsible-content:not(.active)');
+                        const hiddenHeaders = wrapperElement.querySelectorAll('.year-header:not(.active)');
+                        
+                        hiddenContents.forEach(content => {
+                            content.classList.add('active');
+                        });
+                        hiddenHeaders.forEach(header => {
+                            header.classList.add('active');
+                            header.querySelector('.toggle-icon').innerHTML = '&#9660;';
+                        });
+                        loadMoreBtn.classList.add('hidden'); // Hide button after loading all
+                    };
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            }
+        };
+
 
         // Initial setup on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
