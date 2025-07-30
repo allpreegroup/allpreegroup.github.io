@@ -438,7 +438,7 @@
                     <thead>
                         <tr>
                             <th class="px-6 py-3">Payout Month-End</th>
-                            <th class="px-6 py-3">Payout Obligation (J$)</th>
+                            <th class="px-6 py-3">Cashback (J$)</th>
                             <th class="px-6 py-3">Payout Deducted (J$)</th>
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
@@ -966,15 +966,15 @@
             console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
             const aggregatedPayoutData = new Map(); // Key: Payout Month-End string (YYYY-MM-DD)
 
-            // First pass: Aggregate totalPayoutObligation and determine fund balance/status
+            // First pass: Aggregate data for each unique Payout Month-End
             monthlyPurchaseDataMap.forEach(monthData => {
                 const payoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                 if (!aggregatedPayoutData.has(payoutMonthEndKey)) {
                     aggregatedPayoutData.set(payoutMonthEndKey, {
                         payoutMonthEnd: monthData.payoutMonthEnd,
-                        totalPayoutObligation: 0,
-                        totalPayoutDeducted: 0, // Initialize to 0, will be set in second pass
+                        totalCashbackByReleaseDate: 0, // This will be filled from monthlyCashbackByReleaseMonthEndMap
+                        totalPayoutDeducted: 0, 
                         fundBalanceAfterPayout: null, 
                         overallPayoutMet: true 
                     });
@@ -982,19 +982,15 @@
                 }
 
                 const aggregatedEntry = aggregatedPayoutData.get(payoutMonthEndKey);
-                const currentObligationForThisMonth = monthData.accruedNetPayoutObligation;
                 
-                console.log(`  Processing purchase month data for month ${monthData.month} (Key: ${monthData.purchaseDate ? monthData.purchaseDate.toLocaleDateString() : 'N/A'}).`);
-                console.log(`    Cashback accrued in this purchase month: ${formatCurrency(currentObligationForThisMonth)}`);
-                console.log(`    Mapping to Payout Month-End: ${payoutMonthEndKey}`);
-                console.log(`    Aggregated Payout Obligation BEFORE addition for ${payoutMonthEndKey}: ${formatCurrency(aggregatedEntry.totalPayoutObligation)}`);
-
-                aggregatedEntry.totalPayoutObligation += currentObligationForThisMonth;
-                
-                console.log(`    Aggregated Payout Obligation AFTER addition for ${payoutMonthEndKey}: ${formatCurrency(aggregatedEntry.totalPayoutObligation)}`);
-
-                // Update fund balance and payout met status. If any payout for this month-end is not met,
-                // the overall status for this aggregated month-end becomes 'Shortfall'.
+                // For `fundBalanceAfterPayout` and `overallPayoutMet`, we need to combine if multiple purchase months
+                // map to the same payout month-end.
+                // The `actualPayoutSurplusDeficit` and `actualPayoutMetStatus` are set per `monthData` object
+                // in `runCumulativeDailySimulation`. If multiple `monthData` objects share a `payoutMonthEnd`,
+                // the `fundBalanceAfterPayout` and `overallPayoutMet` for the aggregated entry should reflect
+                // the *latest* or *most critical* status. For simplicity, let's just use the value from the last `monthData` processed for that `payoutMonthEnd`.
+                // A more robust solution might involve taking the minimum `fundBalanceAfterPayout` or checking if *any* `actualPayoutMetStatus` is false.
+                // For now, let's assume the last one processed is sufficient for this display.
                 if (monthData.actualPayoutSurplusDeficit !== null) {
                     aggregatedEntry.fundBalanceAfterPayout = monthData.actualPayoutSurplusDeficit;
                 }
@@ -1004,9 +1000,12 @@
             });
             console.log("runSimulation: Finished first pass of aggregation.");
 
-            // Second pass: Set totalPayoutDeducted using the pre-aggregated monthlyPaidCashbackByPayoutMonthEndMap
-            // This ensures the value is taken directly from the sheet's sum for that payout month, not re-summed.
+            // Second pass: Populate `totalCashbackByReleaseDate` and `totalPayoutDeducted`
             aggregatedPayoutData.forEach((aggregatedEntry, payoutMonthEndKey) => {
+                // Set the "Cashback (J$)" column value from the map keyed by Release Date
+                aggregatedEntry.totalCashbackByReleaseDate = cleanAndParseFloat(monthlyCashbackByReleaseMonthEndMap.get(payoutMonthEndKey) || 0);
+                
+                // Set totalPayoutDeducted using the pre-aggregated monthlyPaidCashbackByPayoutMonthEndMap
                 aggregatedEntry.totalPayoutDeducted = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0);
             });
 
@@ -1022,7 +1021,7 @@
                 return item.payoutMonthEnd && item.payoutMonthEnd.getFullYear() === 2025 && item.payoutMonthEnd.getMonth() === 10 && item.payoutMonthEnd.getDate() === 30;
             });
             if (nov2025Payout) {
-                console.log(`  30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalPayoutObligation)}`);
+                console.log(`  30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`); // Changed to totalCashbackByReleaseDate
                 console.log(`  30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
             } else {
                 console.log("  No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
@@ -1102,7 +1101,7 @@
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd ? data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalPayoutObligation)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackByReleaseDate)}</td> <!-- NEW CASHBACK COLUMN, using totalCashbackByReleaseDate -->
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -1150,6 +1149,7 @@
         const dailyPaidCashbackMap = new Map(); // NEW: For Paid Cashback from sheet (keyed by activation date)
         const monthlyPaidCashbackByPayoutMonthEndMap = new Map(); // NEW: Aggregated Paid Cashback by payout month-end date
         const dailyFirstPurchaseDateMap = new Map(); // New: To store the earliest purchase date for each month
+        const monthlyCashbackByReleaseMonthEndMap = new Map(); // NEW: Aggregated Cashback by Release Month-End Date
 
         // NEW Global Map for Payout Obligations by their calculated Payout Month-End Date
         const monthlyPayoutObligationsByPayoutDateMap = new Map(); // Map<dateKey (payoutMonthEnd), Array<monthData>>
@@ -1839,6 +1839,8 @@
                 monthlyPaidCashbackByPayoutMonthEndMap.clear(); // Clear new map for aggregated Paid Cashback
                 dailyFirstPurchaseDateMap.clear(); // Clear new map
                 monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
+                monthlyCashbackByReleaseMonthEndMap.clear(); // Clear NEW map for Release Date Cashback
+
 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("loadGoogleSheetData: Processing valid data rows.");
@@ -1930,6 +1932,7 @@
                         // Populate the daily maps using the sorted data
                         processedDataRows.forEach(row => {
                             const parsedActivationDate = row.parsedDate; // Already parsed and attached
+                            const parsedReleaseDate = row.parsedReleaseDate; // Already parsed and attached
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
@@ -1953,6 +1956,14 @@
                                 const payoutMonthEndKey = payoutMonthEndForThisRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 monthlyPaidCashbackByPayoutMonthEndMap.set(payoutMonthEndKey, (monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0) + paidCashback);
 
+                                // NEW: Aggregate Cashback by Release Date's Month-End for the new column
+                                if (parsedReleaseDate && cashbackOwed > 0) { // Use cashbackOwed for this, as it's the 'Cashback' value
+                                    const releaseMonthEnd = getEndOfMonthLocal(parsedReleaseDate);
+                                    const releaseMonthEndKey = releaseMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                                    monthlyCashbackByReleaseMonthEndMap.set(releaseMonthEndKey, (monthlyCashbackByReleaseMonthEndMap.get(releaseMonthEndKey) || 0) + cashbackOwed);
+                                }
+
+
                                 // Store the earliest purchase date for each month
                                 if (!dailyFirstPurchaseDateMap.has(activationMonthKey) || parsedActivationDate < dailyFirstPurchaseDateMap.get(activationMonthKey)) {
                                     dailyFirstPurchaseDateMap.set(activationMonthKey, parsedActivationDate);
@@ -1966,6 +1977,7 @@
                         console.log("loadGoogleSheetData: dailyTopUpAmountsMap:", Array.from(dailyTopUpAmountsMap.entries()));
                         console.log("loadGoogleSheetData: dailyPaidCashbackMap:", Array.from(dailyPaidCashbackMap.entries())); // Log new map
                         console.log("loadGoogleSheetData: monthlyPaidCashbackByPayoutMonthEndMap (Aggregated by Payout Month-End):", Array.from(monthlyPaidCashbackByPayoutMonthEndMap.entries())); // ADDED LOG HERE
+                        console.log("loadGoogleSheetData: monthlyCashbackByReleaseMonthEndMap (Aggregated by Release Month-End):", Array.from(monthlyCashbackByReleaseMonthEndMap.entries())); // NEW LOG HERE
 
 
                         // Render Google Sheet data with collapsible years
