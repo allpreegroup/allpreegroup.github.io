@@ -964,8 +964,6 @@
             let cumulativeVoucherPurchases = 0;
             let totalCashbackOwedAccrued = 0;
 
-            let currentTradingFundAtStartOfMonth = parseFloat(initialTradingFundInput.value);
-
             const seedValue = parseInt(simulationSeedInput.value);
             rng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
 
@@ -1013,7 +1011,6 @@
                         accruedNetPayoutObligation: 0,
                         monthlyFundContribution: 0,
                         fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
-                        actualPayoutSurplusDeficit: null, // Set in daily simulation
                         payoutDeductedInThisMonth: 0,
                         actualPayoutMetStatus: null
                     });
@@ -1024,82 +1021,44 @@
 
             const finalNetFundPerformance = runCumulativeDailySimulation(); // No longer passes _monthlyMarkupForReserve directly here
 
-            // --- Aggregate monthlyPurchaseDataMap by Payout Month-End for display ---
+            // --- Aggregate sheetDataAggregatedBySimulatedPayoutMonthEnd for display ---
             console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
-            const aggregatedPayoutData = new Map(); // Key: Payout Month-End string (YYYY-MM-DD)
+            const aggregatedPayoutArray = []; // Will be an array of objects for display
 
-            // First pass: Aggregate data for each unique Payout Month-End
-            monthlyPurchaseDataMap.forEach(monthData => {
-                const payoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            // Iterate directly over sheetDataAggregatedBySimulatedPayoutMonthEnd
+            sheetDataAggregatedBySimulatedPayoutMonthEnd.forEach((sheetAggregatedData, payoutMonthEndKey) => {
+                const payoutMonthEnd = parseSheetDate(payoutMonthEndKey); // Re-parse the date string key
 
-                if (!aggregatedPayoutData.has(payoutMonthEndKey)) {
-                    aggregatedPayoutData.set(payoutMonthEndKey, { 
-                        payoutMonthEnd: monthData.payoutMonthEnd,
-                        totalCashbackByReleaseDate: 0, // This will be filled from sheetDataAggregatedBySimulatedPayoutMonthEnd
-                        totalPayoutDeducted: 0, 
-                        fundBalanceBeforePayout: null, // NEW: Initialize here
-                        fundBalanceAfterPayout: null, 
-                        overallPayoutMet: true 
-                    });
-                    console.log(`    Initialized aggregated entry for Payout Month-End: ${payoutMonthEndKey}`);
+                // Ensure payoutMonthEnd is valid
+                if (!payoutMonthEnd) {
+                    console.warn(`runSimulation: Skipping invalid payoutMonthEndKey: ${payoutMonthEndKey}`);
+                    return;
                 }
 
-                const aggregatedEntry = aggregatedPayoutData.get(payoutMonthEndKey);
-                
-                // For `fundBalanceAfterPayout` and `overallPayoutMet`, we need to combine if multiple purchase months
-                // map to the same payout month-end.
-                // The `actualPayoutSurplusDeficit` and `actualPayoutMetStatus` are set per `monthData` object
-                // in `runCumulativeDailySimulation`. If multiple `monthData` objects share a `payoutMonthEnd`,
-                // the `fundBalanceAfterPayout` and `overallPayoutMet` for the aggregated entry should reflect
-                // the *latest* or *most critical* status. For simplicity, let's just use the value from the last `monthData` processed for that `payoutMonthEnd`.
-                // A more robust solution might involve taking the minimum `fundBalanceAfterPayout` or checking if *any* `actualPayoutMetStatus` is false.
-                // For now, let's assume the last one processed is sufficient for this display.
-                if (monthData.actualPayoutSurplusDeficit !== null) {
-                    aggregatedEntry.fundBalanceAfterPayout = monthData.actualPayoutSurplusDeficit;
-                }
-                if (monthData.actualPayoutMetStatus === false) {
-                    aggregatedEntry.overallPayoutMet = false;
-                }
-                // NEW: Transfer fundBalanceBeforePayoutForThisMonth
-                if (monthData.fundBalanceBeforePayoutForThisMonth !== null) {
-                    aggregatedEntry.fundBalanceBeforePayout = monthData.fundBalanceBeforePayoutForThisMonth;
-                }
-            });
-            console.log("runSimulation: Finished first pass of aggregation.");
+                // Find the corresponding fundBalanceBeforePayout from monthlyPurchaseDataMap
+                // This will take the fund balance before the first payout for that specific date.
+                let fundBalanceBeforePayoutForDisplay = null;
+                let foundMonthDataForBeforePayout = false;
+                monthlyPurchaseDataMap.forEach(monthData => {
+                    const monthDataPayoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    if (monthDataPayoutMonthEndKey === payoutMonthEndKey && monthData.fundBalanceBeforePayoutForThisMonth !== null && !foundMonthDataForBeforePayout) {
+                        fundBalanceBeforePayoutForDisplay = monthData.fundBalanceBeforePayoutForThisMonth;
+                        foundMonthDataForBeforePayout = true; 
+                    }
+                });
 
-            // Second pass: Populate `totalCashbackByReleaseDate` and `totalPayoutDeducted` from the new aggregated sheet data map
-            aggregatedPayoutData.forEach((aggregatedEntry, payoutMonthEndKey) => {
-                const sheetAggregatedData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(payoutMonthEndKey);
-                if (sheetAggregatedData) {
-                    // Set the "Cashback (J$)" column value from the map keyed by Simulated Payout Month-End
-                    aggregatedEntry.totalCashbackByReleaseDate = cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed);
-                    
-                    // Set totalPayoutDeducted using the new sheetDataAggregatedBySimulatedPayoutMonthEnd map
-                    aggregatedEntry.totalPayoutDeducted = cleanAndParseFloat(sheetAggregatedData.totalPaidCashback);
-                } else {
-                    // If no sheet data for this simulated payout month, default to 0
-                    aggregatedEntry.totalCashbackByReleaseDate = 0;
-                    aggregatedEntry.totalPayoutDeducted = 0;
-                }
+                aggregatedPayoutArray.push({
+                    payoutMonthEnd: payoutMonthEnd,
+                    totalCashbackByReleaseDate: cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed),
+                    totalPayoutDeducted: cleanAndParseFloat(sheetAggregatedData.totalPaidCashback),
+                    fundBalanceBeforePayout: fundBalanceBeforePayoutForDisplay, 
+                    fundBalanceAfterPayout: sheetAggregatedData.fundBalanceAfterPayout, 
+                    actualPayoutMetStatus: sheetAggregatedData.overallPayoutMet 
+                });
             });
 
-
-            // Convert aggregatedPayoutData Map to a sorted array for display
-            let aggregatedPayoutArray = Array.from(aggregatedPayoutData.values()).sort((a, b) => {
-                return a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime();
-            });
-
-            // Added logging here for specific date
-            console.log("runSimulation: Aggregated Payout Array before display (checking 30 Nov 2025):");
-            const nov2025Payout = aggregatedPayoutArray.find(item => {
-                return item.payoutMonthEnd && item.payoutMonthEnd.getFullYear() === 2025 && item.payoutMonthEnd.getMonth() === 10 && item.payoutMonthEnd.getDate() === 30;
-            });
-            if (nov2025Payout) {
-                console.log(`    30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`);
-                console.log(`    30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
-            } else {
-                console.log("    No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
-            }
+            // Sort the array by payoutMonthEnd
+            aggregatedPayoutArray.sort((a, b) => a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime());
 
             // Aggregate results from daily simulation for summary
             cumulativeVoucherPurchases = 0; // Will be summed from dailyTopUpAmountsMap
@@ -1107,13 +1066,11 @@
             let totalCashbackPaid = 0;
             let overallPayoutSuccess = true;
 
-            // Re-aggregate monthly data from dailyReserveFlowLog and monthlyPurchaseDataMap
-            // This ensures summary and combined payout table reflect daily sim results
             // Now iterate through the aggregatedPayoutArray for summary
             aggregatedPayoutArray.forEach(data => {
                 totalCashbackPaid += data.totalPayoutDeducted;
                 // The overallPayoutSuccess should still be based on the actualPayoutMetStatus from the simulation
-                if (data.overallPayoutMet === false) { // This `overallPayoutMet` is set based on `actualPayoutMetStatus` in the first aggregation pass
+                if (data.actualPayoutMetStatus === false) { 
                     overallPayoutSuccess = false;
                 }
             });
@@ -1142,8 +1099,8 @@
                 let fundBalanceClass;
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
-                let balanceBeforePayoutDisplay; // NEW
-                let balanceBeforePayoutClass; // NEW
+                let balanceBeforePayoutDisplay; 
+                let balanceBeforePayoutClass; 
 
                 // These values are now populated directly by the daily simulation
                 if (data.fundBalanceAfterPayout !== null) {
@@ -1174,7 +1131,6 @@
                     balanceBeforePayoutClass = 'text-orange-600';
                 }
 
-                // REVERTED LOGIC: Payout Met? is now tied to actualPayoutMetStatus from simulation
                 let payoutMetDisplay;
                 let payoutMetClass;
 
@@ -1322,7 +1278,6 @@
                     accruedNetPayoutObligation: 0,
                     monthlyFundContribution: 0,
                     fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
-                    actualPayoutSurplusDeficit: null, // Set in daily simulation
                     payoutDeductedInThisMonth: 0,
                     actualPayoutMetStatus: null
                 };
@@ -1429,7 +1384,7 @@
                     console.log(`    Payout Day! Obligations due: ${obligationsDueToday.length}`);
                     
                     // Get the total paid cashback for THIS simulated payout month-end from the aggregated sheet data
-                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString)?.totalPaidCashback || 0); // Corrected variable name
+                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString)?.totalPaidCashback || 0); 
 
                     paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
                     dailyReserveDeposit = totalCashbackActuallyPaidToday; // Set deposit for the day
@@ -1448,18 +1403,11 @@
                         const owedForThisMonth = monthDataForPayout.accruedNetPayoutObligation;
                         console.log(`      Processing payout for month ${monthDataForPayout.month}. Owed: ${formatCurrency(owedForThisMonth)}`);
                         
-                        // NEW LOGIC: Reserve is no longer directly reduced by owedForThisMonth.
-                        // It will only be affected by the deposit and paid cashback which cancel out.
-                        // The actual payout deduction from the trading fund remains.
-
                         // NEW: Capture balance before payout for this specific month's payout
                         monthDataForPayout.fundBalanceBeforePayoutForThisMonth = capitalBeforeEvent;
 
-                        // Set actualPayoutSurplusDeficit and actualPayoutMetStatus for this monthDataForPayout
-                        // This reflects the fund's state *after* this specific monthly payout
-                        monthDataForPayout.actualPayoutSurplusDeficit = currentDailyCapital - totalCashbackActuallyPaidToday; // Fund balance after this payout
-                        // The payout is considered "Met" if the Fund Balance After Payout is >= 0
-                        monthDataForPayout.actualPayoutMetStatus = (monthDataForPayout.actualPayoutSurplusDeficit >= 0);
+                        // NEW LOGIC FOR "PAYOUT MET?": Check if fund could cover the *owed* amount
+                        monthDataForPayout.actualPayoutMetStatus = (capitalBeforeEvent - owedForThisMonth >= 0);
                     });
                     
                     // Add the total paid cashback to the reserve fund (as a deposit)
@@ -1483,6 +1431,23 @@
                     if (eventType === 'No Event' || eventType.includes('Add')) eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
                     console.log(`    Trading Fund: Paid ${formatCurrency(totalCashbackActuallyPaidToday)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
+
+                    // NEW: Update the aggregated sheet data map with the final fund balance and overall payout status for this day
+                    const payoutMonthEndKeyForToday = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    if (sheetDataAggregatedBySimulatedPayoutMonthEnd.has(payoutMonthEndKeyForToday)) {
+                        const aggregatedDataForToday = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(payoutMonthEndKeyForToday);
+                        aggregatedDataForToday.fundBalanceAfterPayout = currentDailyCapital; // Fund balance after actual deduction for the day
+                        
+                        // Determine overall payout met status for this payout day
+                        let overallMetStatusForToday = true;
+                        for (const monthDataForPayout of obligationsDueToday) {
+                            if (monthDataForPayout.actualPayoutMetStatus === false) { // If any individual month's owed amount was not met
+                                overallMetStatusForToday = false;
+                                break;
+                            }
+                        }
+                        aggregatedDataForToday.overallPayoutMet = overallMetStatusForToday;
+                    }
                 }
                 // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
                 cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
@@ -2023,7 +1988,6 @@
                         // Populate the daily maps using the sorted data
                         processedGoogleSheetData.forEach(row => {
                             const parsedActivationDate = row.parsedDate; // Already parsed and attached
-                            const parsedReleaseDate = row.parsedDate; // Use Activation Date for release date logic
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
@@ -2061,10 +2025,10 @@
                                 const simulatedPayoutMonthEndKeyForRow = simulatedPayoutMonthEndForRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                                 // Aggregate sheet data (cashback owed and paid cashback) by the simulated payout month-end
-                                if (!sheetDataAggregatedBySimulatedPayoutMonthEnd.has(simulatedPayoutMonthEndKeyForRow)) { // Corrected variable name
-                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0 }); // Corrected variable name
+                                if (!sheetDataAggregatedBySimulatedPayoutMonthEnd.has(simulatedPayoutMonthEndKeyForRow)) { 
+                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0, fundBalanceAfterPayout: null, overallPayoutMet: true }); 
                                 }
-                                const aggregatedSheetData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(simulatedPayoutMonthEndKeyForRow); // Corrected variable name
+                                const aggregatedSheetData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(simulatedPayoutMonthEndKeyForRow); 
                                 aggregatedSheetData.totalCashbackOwed += cashbackOwed;
                                 aggregatedSheetData.totalPaidCashback += paidCashback;
                                 
