@@ -963,6 +963,7 @@
             const finalNetFundPerformance = runCumulativeDailySimulation(); // No longer passes _monthlyMarkupForReserve directly here
 
             // --- Aggregate monthlyPurchaseDataMap by Payout Month-End for display ---
+            console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
             const aggregatedPayoutData = new Map(); // Key: Payout Month-End string (YYYY-MM-DD)
 
             // First pass: Aggregate totalPayoutObligation and determine fund balance/status
@@ -977,11 +978,21 @@
                         fundBalanceAfterPayout: null, 
                         overallPayoutMet: true 
                     });
+                    console.log(`  Initialized aggregated entry for Payout Month-End: ${payoutMonthEndKey}`);
                 }
 
                 const aggregatedEntry = aggregatedPayoutData.get(payoutMonthEndKey);
-                aggregatedEntry.totalPayoutObligation += monthData.accruedNetPayoutObligation;
+                const currentObligationForThisMonth = monthData.accruedNetPayoutObligation;
                 
+                console.log(`  Processing purchase month data for month ${monthData.month} (Key: ${monthData.purchaseDate ? monthData.purchaseDate.toLocaleDateString() : 'N/A'}).`);
+                console.log(`    Cashback accrued in this purchase month: ${formatCurrency(currentObligationForThisMonth)}`);
+                console.log(`    Mapping to Payout Month-End: ${payoutMonthEndKey}`);
+                console.log(`    Aggregated Payout Obligation BEFORE addition for ${payoutMonthEndKey}: ${formatCurrency(aggregatedEntry.totalPayoutObligation)}`);
+
+                aggregatedEntry.totalPayoutObligation += currentObligationForThisMonth;
+                
+                console.log(`    Aggregated Payout Obligation AFTER addition for ${payoutMonthEndKey}: ${formatCurrency(aggregatedEntry.totalPayoutObligation)}`);
+
                 // Update fund balance and payout met status. If any payout for this month-end is not met,
                 // the overall status for this aggregated month-end becomes 'Shortfall'.
                 if (monthData.actualPayoutSurplusDeficit !== null) {
@@ -991,6 +1002,7 @@
                     aggregatedEntry.overallPayoutMet = false;
                 }
             });
+            console.log("runSimulation: Finished first pass of aggregation.");
 
             // Second pass: Set totalPayoutDeducted using the pre-aggregated monthlyPaidCashbackByPayoutMonthEndMap
             // This ensures the value is taken directly from the sheet's sum for that payout month, not re-summed.
@@ -1004,14 +1016,18 @@
                 return a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime();
             });
 
-            // Added logging here
-            console.log("runSimulation: aggregatedPayoutArray before updateCombinedPayoutTable:", aggregatedPayoutArray.map(m => ({
-                payoutMonthEnd: m.payoutMonthEnd ? m.payoutMonthEnd.toLocaleDateString() : 'N/A',
-                totalPayoutObligation: m.totalPayoutObligation,
-                totalPayoutDeducted: m.totalPayoutDeducted,
-                fundBalanceAfterPayout: m.fundBalanceAfterPayout,
-                overallPayoutMet: m.overallPayoutMet
-            })));
+            // Added logging here for specific date
+            console.log("runSimulation: Aggregated Payout Array before display (checking 30 Nov 2025):");
+            const nov2025Payout = aggregatedPayoutArray.find(item => {
+                return item.payoutMonthEnd && item.payoutMonthEnd.getFullYear() === 2025 && item.payoutMonthEnd.getMonth() === 10 && item.payoutMonthEnd.getDate() === 30;
+            });
+            if (nov2025Payout) {
+                console.log(`  30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalPayoutObligation)}`);
+                console.log(`  30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
+            } else {
+                console.log("  No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
+            }
+
 
             // Aggregate results from daily simulation for summary
             cumulativeVoucherPurchases = 0; // Will be summed from dailyTopUpAmountsMap
@@ -1203,7 +1219,7 @@
                 
                 const monthData = {
                     month: i + 1, // Ordinal month number
-                    purchaseDate: null, // Will be updated with earliest actual purchase date
+                    purchaseDate: null, // Will be updated with earliest actual purchase date later
                     cashbackDueDate: addDays(monthStart, PAYOUT_DELAY_DAYS), // Always 121 days from month start
                     payoutMonthEnd: getEndOfMonthLocal(addDays(monthStart, PAYOUT_DELAY_DAYS)), // Always end of month after 121 days
                     totalCashbackOwed: 0,
@@ -1224,6 +1240,13 @@
                 }
                 monthlyPayoutObligationsByPayoutDateMap.get(payoutDateString).push(monthData);
             }
+
+            // Log the initial state of monthlyPayoutObligationsByPayoutDateMap
+            console.log("runCumulativeDailySimulation: Initial monthlyPayoutObligationsByPayoutDateMap content:");
+            monthlyPayoutObligationsByPayoutDateMap.forEach((obligations, dateKey) => {
+                console.log(`  Payout Date: ${dateKey}, Obligations Count: ${obligations.length}`);
+                obligations.forEach(o => console.log(`    - Month: ${o.month}, Purchase Date: ${o.purchaseDate ? o.purchaseDate.toLocaleDateString() : 'N/A'}, Accrued: ${formatCurrency(o.accruedNetPayoutObligation)}`));
+            });
 
 
             const dailyLogEntries = []; // Collect all daily log entries here
@@ -1254,6 +1277,9 @@
                 let paidCashbackForReserveFlow = 0; // This will hold the aggregated paid cashback for the payout date
                 let reserveBalanceAfterPayoutProcessing = null; 
 
+                console.log(`--- Day ${dayCounter} (${currentDate.toLocaleDateString()}) ---`);
+                console.log(`  Reserve Start of Day: ${formatCurrency(reserveStartOfDay, true)}`);
+
                 // --- Apply daily additions from Google Sheet data ---
                 // Add to Trading Fund from 'Cashback Fund' column
                 const cashbackFundAddition = cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0);
@@ -1262,7 +1288,7 @@
                     dailyNetChange += cashbackFundAddition;
                     eventOccurred = true;
                     eventType = 'Trading Fund Add (Sheet)';
-                    console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`  Trading Fund: Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
                     
                     // Aggregate to the correct monthly object in monthlyPurchaseDataMap
                     const monthDataForAggregation = monthlyPurchaseDataMap.get(currentMonthKey);
@@ -1278,6 +1304,7 @@
                     dailyReserveAdd += reserveFundAddition;
                     if (eventType === 'No Event') eventType = 'Reserve Fund Add (Sheet)';
                     else eventType += ' & Reserve Fund Add (Sheet)';
+                    console.log(`  Reserve Fund: Added ${formatCurrency(reserveFundAddition)} from Reserve Fund. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
                 }
 
                 // Apply new Liability accrual from 'Cashback' column
@@ -1290,7 +1317,7 @@
                     if (monthDataForAggregation) {
                         monthDataForAggregation.totalCashbackOwed += liabilityToAdd;
                         monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd; // This is the line in question
-                        console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): Added liability ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
+                        console.log(`  Liability: Added ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
                         // Also update the purchaseDate if this is the earliest for the month
                         const currentParsedDate = parseSheetDate(currentDateString);
                         if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < monthDataForAggregation.purchaseDate)) {
@@ -1306,6 +1333,7 @@
                 let isPayoutDay = false;
                 if (obligationsDueToday && obligationsDueToday.length > 0) {
                     isPayoutDay = true;
+                    console.log(`  Payout Day! Obligations due: ${obligationsDueToday.length}`);
                     // totalCashbackActuallyPaidToday will now be the single, aggregated value for this payout date
                     let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(currentDateString) || 0);
 
@@ -1324,34 +1352,25 @@
                     // Process each individual month's obligation due today
                     obligationsDueToday.forEach(monthDataForPayout => {
                         const owedForThisMonth = monthDataForPayout.accruedNetPayoutObligation;
+                        console.log(`    Processing payout for month ${monthDataForPayout.month}. Owed: ${formatCurrency(owedForThisMonth)}`);
                         
-                        // We no longer set actualDeductionForThisPurchaseMonth on individual monthDataForPayout objects
-                        // as the total for the payout month is handled by monthlyPaidCashbackByPayoutMonthEndMap.
-                        // totalCashbackActuallyPaidToday is used for dailyNetChange.
-                        // The individual monthDataForPayout objects will still have their 'payoutDeductedInThisMonth'
-                        // updated in the runSimulation aggregation step.
+                        // Deduct gross owed from reserve
+                        currentDailyReserve -= owedForThisMonth;
+                        console.log(`    Reserve after deducting owed: ${formatCurrency(currentDailyReserve, true)}`);
 
-                        // Deduct from currentDailyCapital based on the actual paid cashback from sheet
-                        // This deduction should only happen once per payout date, not for each monthDataForPayout object
-                        // that happens to have a payout due on this day.
-                        // We'll deduct the `paidCashbackForReserveFlow` (which is the aggregated value) once.
-                        // The loop over `obligationsDueToday` is primarily to update the `actualPayoutSurplusDeficit`
-                        // and `actualPayoutMetStatus` for each *individual* month's record that contributes to this payout.
-                        // The actual deduction from the fund happens once per payout date.
-                        
                         // Set actualPayoutSurplusDeficit and actualPayoutMetStatus for this monthDataForPayout
                         // This reflects the fund's state *after* this specific monthly payout
                         monthDataForPayout.actualPayoutSurplusDeficit = currentDailyCapital - totalCashbackActuallyPaidToday; // Fund balance after this payout
                         // The payout is considered "Met" if the Fund Balance After Payout is >= 0
                         monthDataForPayout.actualPayoutMetStatus = (monthDataForPayout.actualPayoutSurplusDeficit >= 0);
-
-                        // Reserve fund logic (remains similar)
-                        currentDailyReserve -= owedForThisMonth; // Gross deduction from reserve
-                        if (paidCashbackForReserveFlow > 0) { // Only deposit if some amount was actually paid
-                            currentDailyReserve += paidCashbackForReserveFlow;
-                        }
                     });
                     
+                    // Add the total paid cashback back to the reserve fund once for the day
+                    if (paidCashbackForReserveFlow > 0) {
+                        currentDailyReserve += paidCashbackForReserveFlow;
+                        console.log(`  Reserve after adding paid cashback (${formatCurrency(paidCashbackForReserveFlow, true)}): ${formatCurrency(currentDailyReserve, true)}`);
+                    }
+
                     // Deduct the total paid cashback from the trading fund once for the day
                     currentDailyCapital -= totalCashbackActuallyPaidToday;
                     dailyNetChange -= totalCashbackActuallyPaidToday; // Reflect actual cash movement for the day
@@ -1361,7 +1380,7 @@
                     eventOccurred = true;
                     if (eventType === 'No Event' || eventType.includes('Add')) eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
-                    console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): Processed payouts. Paid ${formatCurrency(totalCashbackActuallyPaidToday)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`  Trading Fund: Paid ${formatCurrency(totalCashbackActuallyPaidToday)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
                 }
                 // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
                 cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
@@ -1389,7 +1408,7 @@
                     eventOccurred = true;
                     tradesThisWeek++;
                     isTradingDayForDisplay = true;
-                    console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): Trade occurred (${isWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`  Trade: Occurred (${isWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
                 }
 
                 // Record daily Reserve Flow - conditionally store values for display
@@ -1423,7 +1442,8 @@
                     sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
                 });
 
-                console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): End of day capital: ${formatCurrency(currentDailyCapital)}`);
+                console.log(`  End of Day Reserve: ${formatCurrency(currentDailyReserve, true)}`);
+                console.log(`  End of Day Trading Capital: ${formatCurrency(currentDailyCapital)}`);
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
@@ -1436,6 +1456,12 @@
                 console.log("Daily Log Entries - First 5:", dailyLogEntries.slice(0, 5).map(e => ({ date: e.date.toLocaleDateString(), capitalAfter: formatCurrency(e.capitalAfterEvent) })));
                 console.log("Daily Log Entries - Last 5:", dailyLogEntries.slice(-5).map(e => ({ date: e.date.toLocaleDateString(), capitalAfter: formatCurrency(e.capitalAfterEvent) })));
             }
+
+            // Log the final monthlyPurchaseDataMap content for detailed inspection
+            console.log("runCumulativeDailySimulation: Final monthlyPurchaseDataMap content:");
+            monthlyPurchaseDataMap.forEach((data, key) => {
+                console.log(`  Month Key: ${key}, Payout Month End: ${data.payoutMonthEnd.toLocaleDateString()}, Accrued Payout Obligation: ${formatCurrency(data.accruedNetPayoutObligation)}`);
+            });
 
 
             // Render daily log with collapsible years
@@ -1716,7 +1742,7 @@
                 wrapperElement.appendChild(yearHeader);
 
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'collapsible-content overflow-x-auto';
+                contentDiv.className = 'collapsible-content overflow-x-auto'; // Starts hidden
                 
                 // Create a new table inside the contentDiv for each year
                 const innerTable = document.createElement('table');
@@ -1731,12 +1757,14 @@
 
                 wrapperElement.appendChild(contentDiv);
 
-                // Initial visibility: only the first year is active
+                // REMOVED: Initial visibility for index === 0 to make all collapsed by default
+                /*
                 if (index === 0) {
                     contentDiv.classList.add('active');
                     yearHeader.classList.add('active');
                     yearHeader.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
                 }
+                */
 
                 yearHeader.addEventListener('click', () => {
                     contentDiv.classList.toggle('active');
@@ -1753,7 +1781,7 @@
             // Handle "Load More Years" button (if applicable)
             const loadMoreBtn = document.getElementById(`${tableIdPrefix}-loadMoreBtn`);
             if (loadMoreBtn) {
-                if (sortedYears.length > 1) {
+                if (sortedYears.length > 0) { // Show button if there's any data
                     loadMoreBtn.classList.remove('hidden');
                     loadMoreBtn.textContent = 'Load All Years'; // Default to loading all
                     loadMoreBtn.onclick = () => {
@@ -1837,6 +1865,16 @@
                         if (!b.parsedDate) return -1; // Null dates go to the end
                         return a.parsedDate.getTime() - b.parsedDate.getTime();
                     });
+
+                    // Log the first 10 sorted rows to verify data and dates
+                    console.log("loadGoogleSheetData: Sorted and processed data rows (first 10):");
+                    processedDataRows.slice(0, 10).forEach(row => {
+                        const activationDate = row.parsedDate ? row.parsedDate.toLocaleDateString('en-JM') : 'N/A';
+                        const releaseDate = row.parsedReleaseDate ? row.parsedReleaseDate.toLocaleDateString('en-JM') : 'N/A';
+                        const cashback = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Owed']));
+                        console.log(`  Activation: ${activationDate}, Release: ${releaseDate}, Cashback: ${cashback}`);
+                    });
+
 
                     if (processedDataRows.length > 0) {
                         // Determine Simulation Start Date from the first sorted entry
