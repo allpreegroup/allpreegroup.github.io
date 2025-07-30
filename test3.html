@@ -440,6 +440,7 @@
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Cashback (J$)</th>
                             <th class="px-6 py-3">Payout Deducted (J$)</th>
+                            <th class="px-6 py-3">Balance before Payout (J$)</th> <!-- NEW COLUMN -->
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
@@ -950,6 +951,7 @@
                         cashbackAccruedThisMonth: 0,
                         accruedNetPayoutObligation: 0,
                         monthlyFundContribution: 0,
+                        fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
                         actualPayoutSurplusDeficit: null, // Set in daily simulation
                         payoutDeductedInThisMonth: 0,
                         // actualDeductionForThisPurchaseMonth removed as it was causing double counting
@@ -975,6 +977,7 @@
                         payoutMonthEnd: monthData.payoutMonthEnd,
                         totalCashbackByReleaseDate: 0, // This will be filled from monthlyCashbackByReleaseMonthEndMap
                         totalPayoutDeducted: 0, 
+                        fundBalanceBeforePayout: null, // NEW: Initialize here
                         fundBalanceAfterPayout: null, 
                         overallPayoutMet: true 
                     });
@@ -996,6 +999,10 @@
                 }
                 if (monthData.actualPayoutMetStatus === false) {
                     aggregatedEntry.overallPayoutMet = false;
+                }
+                // NEW: Transfer fundBalanceBeforePayoutForThisMonth
+                if (monthData.fundBalanceBeforePayoutForThisMonth !== null) {
+                    aggregatedEntry.fundBalanceBeforePayout = monthData.fundBalanceBeforePayoutForThisMonth;
                 }
             });
             console.log("runSimulation: Finished first pass of aggregation.");
@@ -1069,6 +1076,8 @@
                 let payoutMetClass;
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
+                let balanceBeforePayoutDisplay; // NEW
+                let balanceBeforePayoutClass; // NEW
 
                 // These values are now populated directly by the daily simulation
                 if (data.fundBalanceAfterPayout !== null) {
@@ -1098,11 +1107,21 @@
                     payoutDeductedClass = 'text-gray-500';
                 }
 
+                // NEW: Balance before Payout
+                if (data.fundBalanceBeforePayout !== null) {
+                    balanceBeforePayoutDisplay = formatCurrency(data.fundBalanceBeforePayout);
+                    balanceBeforePayoutClass = data.fundBalanceBeforePayout >= 0 ? 'text-green-600' : 'text-red-600';
+                } else {
+                    balanceBeforePayoutDisplay = 'Pending';
+                    balanceBeforePayoutClass = 'text-orange-600';
+                }
+
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd ? data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackByReleaseDate)}</td> <!-- NEW CASHBACK COLUMN, using totalCashbackByReleaseDate -->
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${balanceBeforePayoutClass}">${balanceBeforePayoutDisplay}</td> <!-- NEW COLUMN -->
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
@@ -1226,6 +1245,7 @@
                     cashbackAccruedThisMonth: 0,
                     accruedNetPayoutObligation: 0,
                     monthlyFundContribution: 0,
+                    fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
                     actualPayoutSurplusDeficit: null, // Set in daily simulation
                     payoutDeductedInThisMonth: 0,
                     // actualDeductionForThisPurchaseMonth removed as it was causing double counting
@@ -1320,7 +1340,8 @@
                         console.log(`  Liability: Added ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
                         // Also update the purchaseDate if this is the earliest for the month
                         const currentParsedDate = parseSheetDate(currentDateString);
-                        if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < monthDataForAggregation.purchaseDate)) {
+                        // FIX: Changed activationMonthKey to currentMonthKey
+                        if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < dailyFirstPurchaseDateMap.get(currentMonthKey))) {
                             monthDataForAggregation.purchaseDate = currentParsedDate;
                         }
                     }
@@ -1357,6 +1378,9 @@
                         // Deduct gross owed from reserve
                         currentDailyReserve -= owedForThisMonth;
                         console.log(`    Reserve after deducting owed: ${formatCurrency(currentDailyReserve, true)}`);
+
+                        // NEW: Capture balance before payout for this specific month's payout
+                        monthDataForPayout.fundBalanceBeforePayoutForThisMonth = capitalBeforeEvent;
 
                         // Set actualPayoutSurplusDeficit and actualPayoutMetStatus for this monthDataForPayout
                         // This reflects the fund's state *after* this specific monthly payout
