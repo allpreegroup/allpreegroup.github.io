@@ -1033,7 +1033,7 @@
                 const payoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                 if (!aggregatedPayoutData.has(payoutMonthEndKey)) {
-                    aggregatedPayoutData.set(payoutMonthEndKey, {
+                    aggregatedPayoutData.set(payoutMonthEndKey, { 
                         payoutMonthEnd: monthData.payoutMonthEnd,
                         totalCashbackByReleaseDate: 0, // This will be filled from sheetDataAggregatedBySimulatedPayoutMonthEnd
                         totalPayoutDeducted: 0, 
@@ -1256,11 +1256,26 @@
             }
             startDate.setHours(0, 0, 0, 0); // Ensure start date is local midnight
 
-            // Determine the true end date for the daily log, covering all purchase months + payout delay
-            let tempEndDate = new Date(); // Use current date as the end date for displaying current balances
-            tempEndDate.setHours(0,0,0,0); // Normalize to local midnight
+            // Determine the true end date for the daily log
+            let simulationEndDate = new Date(); // Default to today's date
+            simulationEndDate.setHours(0,0,0,0); // Normalize to local midnight
+
+            // Find the maximum release date from the processed Google Sheet data
+            let maxSheetReleaseDate = new Date(0); // Initialize with a very old date
+            processedGoogleSheetData.forEach(row => {
+                if (row.parsedReleaseDate && row.parsedReleaseDate.getTime() > maxSheetReleaseDate.getTime()) {
+                    maxSheetReleaseDate = row.parsedReleaseDate;
+                }
+            });
+
+            // If the latest release date from the sheet is in the future, use that as the end date
+            // Otherwise, stick with today's date.
+            if (maxSheetReleaseDate.getTime() > simulationEndDate.getTime()) {
+                simulationEndDate = maxSheetReleaseDate;
+            }
             
-            const endDate = tempEndDate; // Use this calculated end date
+            // FIX: Ensure simulationEndDate is the last day of the month
+            const endDate = getEndOfMonthLocal(simulationEndDate); // Apply getEndOfMonthLocal here
             console.log(`Daily simulation period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`);
 
 
@@ -1414,7 +1429,7 @@
                     console.log(`    Payout Day! Obligations due: ${obligationsDueToday.length}`);
                     
                     // Get the total paid cashback for THIS simulated payout month-end from the aggregated sheet data
-                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString)?.totalPaidCashback || 0);
+                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString)?.totalPaidCashback || 0); // Corrected variable name
 
                     paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
                     dailyReserveDeposit = totalCashbackActuallyPaidToday; // Set deposit for the day
@@ -1916,7 +1931,7 @@
                 dailyFirstPurchaseDateMap.clear(); // Clear new map
                 monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
                 // monthlyCashbackByReleaseMonthEndMap.clear(); // Removed
-                sheetDataAggregatedBySimulatedPayoutMonthEnd.clear(); // Clear new map
+                sheetDataAggregatedBySimulatedPayoutMonthEnd.clear(); // Corrected variable name
 
 
                 if (data && Array.isArray(data) && data.length > 0) {
@@ -2046,10 +2061,10 @@
                                 const simulatedPayoutMonthEndKeyForRow = simulatedPayoutMonthEndForRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                                 // Aggregate sheet data (cashback owed and paid cashback) by the simulated payout month-end
-                                if (!sheetDataAggregatedBySimulatedPayoutMonthEnd.has(simulatedPayoutMonthEndKeyForRow)) {
-                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0 });
+                                if (!sheetDataAggregatedBySimulatedPayoutMonthEnd.has(simulatedPayoutMonthEndKeyForRow)) { // Corrected variable name
+                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0 }); // Corrected variable name
                                 }
-                                const aggregatedSheetData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(simulatedPayoutMonthEndKeyForRow);
+                                const aggregatedSheetData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(simulatedPayoutMonthEndKeyForRow); // Corrected variable name
                                 aggregatedSheetData.totalCashbackOwed += cashbackOwed;
                                 aggregatedSheetData.totalPaidCashback += paidCashback;
                                 
