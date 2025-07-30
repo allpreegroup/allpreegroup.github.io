@@ -332,8 +332,7 @@
         <p class="text-center text-gray-600 mb-6">Model the growth of a trading fund and its ability to cover delayed cashback payouts.</p>
 
         <div class="input-grid">
-            <!-- Hidden input for membershipTier, used internally by simulation logic -->
-            <input type="hidden" id="membershipTier" value="Premium"> 
+            <!-- Removed: Hidden input for membershipTier -->
 
             <div class="input-field">
                 <label for="simulationStartDate">Simulation Start Date (from Sheet):</label>
@@ -438,9 +437,8 @@
                 <table id="combinedPayoutTable" class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
-                            <th class="px-6 py-3">Month</th>
                             <th class="px-6 py-3">Payout Month-End</th>
-                            <th class="px-6 py-3">Net Payout Obligation (J$)</th>
+                            <th class="px-6 py-3">Payout Obligation (J$)</th>
                             <th class="px-6 py-3">Payout Deducted (J$)</th>
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
@@ -575,20 +573,8 @@
         const MAX_TRADES_PER_WEEK = 2;
         const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
 
-        const MEMBERSHIP_TIERS = {
-            'Free': {
-                fee: 0,
-                cashbackRates: { 10000: 0.30, 15000: 0.30, 20000: 0.30 }
-            },
-            'Standard': {
-                fee: 4200,
-                cashbackRates: { 10000: 0.33, 15000: 0.34, 20000: 0.36 }
-            },
-            'Premium': {
-                fee: 8400,
-                cashbackRates: { 10000: 0.37, 15000: 0.41, 20000: 0.49 }
-            }
-        };
+        // Removed MEMBERSHIP_TIERS as it's no longer directly used for calculations
+        // since Cashback is pulled directly from the sheet.
 
         // Define fixed voucher values for calculations
         const VOUCHER_VALUES = {
@@ -632,20 +618,19 @@
                 <th class="px-6 py-3">Net Change (J$)</th>
                 <th class="px-6 py-3">Capital Before Event (J$)</th>
                 <th class="px-6 py-3">Capital After Event (J$)</th>
-                <th class="px-6 py-3">Top-Up (Sheet) (J$)</th>
-                <th class="px-6 py-3">Cashback Owed (Sheet) (J$)</th>
-                <th class="px-6 py-3">Cashback Fund (Sheet) (J$)</th>
-                <th class="px-6 py-3">Reserve Fund (Sheet) (J$)</th>
+                <th class="px-6 py-4">Top-Up (Sheet) (J$)</th>
+                <th class="px-6 py-4">Cashback Owed (Sheet) (J$)</th>
+                <th class="px-6 py-4">Cashback Fund (Sheet) (J$)</th>
+                <th class="px-6 py-4">Reserve Fund (Sheet) (J$)</th>
             </tr>
         `;
 
         // --- DOM Elements (Existing Simulation) ---
-        // Removed displayMembershipTier
         const displaySimulationStartDate = document.getElementById('displaySimulationStartDate');
         const displayNumberOfPurchaseMonths = document.getElementById('displayNumberOfPurchaseMonths');
 
         // Hidden inputs to feed simulation logic
-        const membershipTierInput = document.getElementById('membershipTier'); // Hidden
+        // Removed membershipTierInput
         const simulationStartDateInput = document.getElementById('simulationStartDate'); // Hidden
         const numberOfPurchaseMonthsInput = document.getElementById('numberOfPurchaseMonths'); // Hidden
 
@@ -895,9 +880,7 @@
         const runSimulation = () => {
             console.log("runSimulation: Starting simulation.");
             // 1. Read Input Parameters
-            // These now read from the hidden inputs, which are populated by Google Sheet data
-            // The membershipTierInput is now a hidden input, so it should always exist.
-            const selectedTier = membershipTierInput.value; 
+            // Removed selectedTier and tierConfig as they are no longer needed.
             const simulationStartDateString = simulationStartDateInput.value;
             const numberOfPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
             
@@ -914,8 +897,7 @@
                 winRate = Math.max(0, winRate - 10);
             }
 
-            const tierConfig = MEMBERSHIP_TIERS[selectedTier];
-            const membershipFee = tierConfig.fee;
+            // Removed membershipFee as it's no longer needed.
 
             let cumulativeVoucherPurchases = 0;
             let totalCashbackOwedAccrued = 0;
@@ -969,9 +951,9 @@
                         accruedNetPayoutObligation: 0,
                         monthlyFundContribution: 0,
                         actualPayoutSurplusDeficit: null, // Set in daily simulation
-                        actualPayoutMetStatus: null, // Set in daily simulation
                         payoutDeductedInThisMonth: 0,
-                        actualDeductionForThisPurchaseMonth: 0
+                        // actualDeductionForThisPurchaseMonth removed as it was causing double counting
+                        actualPayoutMetStatus: null
                     });
                 }
                 // Push a reference to the map's object into monthlySimulationResults for overall tracking
@@ -980,22 +962,56 @@
 
             const finalNetFundPerformance = runCumulativeDailySimulation(); // No longer passes _monthlyMarkupForReserve directly here
 
-            // Convert monthlyPurchaseDataMap to a sorted array for display in the combined payout table
-            // Filter to only include months that had actual purchases (up to numberOfPurchaseMonths)
-            let monthlyPurchaseDataArray = Array.from(monthlyPurchaseDataMap.values())
-                                            .filter(data => data.monthlyFundContribution > 0 || data.totalCashbackOwed > 0) // Only include months with activity
-                                            .sort((a, b) => {
-                                                if (!a.purchaseDate && !b.purchaseDate) return 0;
-                                                if (!a.purchaseDate) return 1;
-                                                if (!b.purchaseDate) return -1;
-                                                return a.purchaseDate.getTime() - b.purchaseDate.getTime();
-                                            });
-            
-            // Re-number the 'month' property to be sequential based on filtered data
-            monthlyPurchaseDataArray.forEach((data, index) => {
-                data.month = index + 1;
+            // --- Aggregate monthlyPurchaseDataMap by Payout Month-End for display ---
+            const aggregatedPayoutData = new Map(); // Key: Payout Month-End string (YYYY-MM-DD)
+
+            // First pass: Aggregate totalPayoutObligation and determine fund balance/status
+            monthlyPurchaseDataMap.forEach(monthData => {
+                const payoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+                if (!aggregatedPayoutData.has(payoutMonthEndKey)) {
+                    aggregatedPayoutData.set(payoutMonthEndKey, {
+                        payoutMonthEnd: monthData.payoutMonthEnd,
+                        totalPayoutObligation: 0,
+                        totalPayoutDeducted: 0, // Initialize to 0, will be set in second pass
+                        fundBalanceAfterPayout: null, 
+                        overallPayoutMet: true 
+                    });
+                }
+
+                const aggregatedEntry = aggregatedPayoutData.get(payoutMonthEndKey);
+                aggregatedEntry.totalPayoutObligation += monthData.accruedNetPayoutObligation;
+                
+                // Update fund balance and payout met status. If any payout for this month-end is not met,
+                // the overall status for this aggregated month-end becomes 'Shortfall'.
+                if (monthData.actualPayoutSurplusDeficit !== null) {
+                    aggregatedEntry.fundBalanceAfterPayout = monthData.actualPayoutSurplusDeficit;
+                }
+                if (monthData.actualPayoutMetStatus === false) {
+                    aggregatedEntry.overallPayoutMet = false;
+                }
             });
 
+            // Second pass: Set totalPayoutDeducted using the pre-aggregated monthlyPaidCashbackByPayoutMonthEndMap
+            // This ensures the value is taken directly from the sheet's sum for that payout month, not re-summed.
+            aggregatedPayoutData.forEach((aggregatedEntry, payoutMonthEndKey) => {
+                aggregatedEntry.totalPayoutDeducted = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0);
+            });
+
+
+            // Convert aggregatedPayoutData Map to a sorted array for display
+            let aggregatedPayoutArray = Array.from(aggregatedPayoutData.values()).sort((a, b) => {
+                return a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime();
+            });
+
+            // Added logging here
+            console.log("runSimulation: aggregatedPayoutArray before updateCombinedPayoutTable:", aggregatedPayoutArray.map(m => ({
+                payoutMonthEnd: m.payoutMonthEnd ? m.payoutMonthEnd.toLocaleDateString() : 'N/A',
+                totalPayoutObligation: m.totalPayoutObligation,
+                totalPayoutDeducted: m.totalPayoutDeducted,
+                fundBalanceAfterPayout: m.fundBalanceAfterPayout,
+                overallPayoutMet: m.overallPayoutMet
+            })));
 
             // Aggregate results from daily simulation for summary
             cumulativeVoucherPurchases = 0; // Will be summed from dailyTopUpAmountsMap
@@ -1005,10 +1021,10 @@
 
             // Re-aggregate monthly data from dailyReserveFlowLog and monthlyPurchaseDataMap
             // This ensures summary and combined payout table reflect daily sim results
-            monthlyPurchaseDataArray.forEach(data => {
-                totalCashbackPaid += data.actualDeductionForThisPurchaseMonth;
-                // Check overall payout success based on the status set in the daily simulation
-                if (data.actualPayoutMetStatus === false) {
+            // Now iterate through the aggregatedPayoutArray for summary
+            aggregatedPayoutArray.forEach(data => {
+                totalCashbackPaid += data.totalPayoutDeducted;
+                if (data.overallPayoutMet === false) {
                     overallPayoutSuccess = false;
                 }
             });
@@ -1018,14 +1034,14 @@
             dailyLiabilityAdditionsMap.forEach(amount => totalCashbackOwedAccrued += amount);
 
 
-            updateCombinedPayoutTable(monthlyPurchaseDataArray); // Pass the array
+            updateCombinedPayoutTable(aggregatedPayoutArray); // Pass the aggregated array
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
             console.log("runSimulation: Simulation finished.");
         };
 
         /**
          * Updates the combined Net Payout Obligation and Fund Balance After Payout table.
-         * @param {Array<Object>} results - The array of monthly simulation data (actual purchase months).
+         * @param {Array<Object>} results - The array of aggregated monthly simulation data.
          */
         const updateCombinedPayoutTable = (results) => {
             console.log("updateCombinedPayoutTable: Updating combined payout table with results:", results);
@@ -1040,28 +1056,28 @@
                 let payoutDeductedClass;
 
                 // These values are now populated directly by the daily simulation
-                if (data.actualPayoutSurplusDeficit !== null) {
-                    fundBalanceDisplay = formatCurrency(data.actualPayoutSurplusDeficit);
-                    fundBalanceClass = data.actualPayoutSurplusDeficit >= 0 ? 'text-green-600' : 'text-red-600';
+                if (data.fundBalanceAfterPayout !== null) {
+                    fundBalanceDisplay = formatCurrency(data.fundBalanceAfterPayout);
+                    fundBalanceClass = data.fundBalanceAfterPayout >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
                     // If daily simulation didn't process this month's payout yet (e.g., month is in the future)
                     fundBalanceDisplay = 'Pending';
                     fundBalanceClass = 'text-orange-600';
                 }
 
-                if (data.actualPayoutMetStatus !== null) {
-                    payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
-                    payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
+                if (data.overallPayoutMet !== null) {
+                    payoutMetDisplay = data.overallPayoutMet ? 'Met' : 'Shortfall';
+                    payoutMetClass = data.overallPayoutMet ? 'text-green-600' : 'text-red-600';
                 } else {
                     payoutMetDisplay = 'Pending';
                     payoutMetClass = 'text-orange-600';
                 }
 
-                // Use the actualDeductionForThisPurchaseMonth which is now sourced from sheet's Paid Cashback
-                if (data.actualDeductionForThisPurchaseMonth !== undefined) {
-                    payoutDeductedDisplay = formatCurrency(data.actualDeductionForThisPurchaseMonth);
+                // Use the totalPayoutDeducted which is now sourced from sheet's Paid Cashback
+                if (data.totalPayoutDeducted !== undefined) {
+                    payoutDeductedDisplay = formatCurrency(data.totalPayoutDeducted);
                     // Color based on whether a deduction occurred (red if > 0, gray if 0)
-                    payoutDeductedClass = data.actualDeductionForThisPurchaseMonth > 0 ? 'text-red-600' : 'text-gray-600';
+                    payoutDeductedClass = data.totalPayoutDeducted > 0 ? 'text-red-600' : 'text-gray-600';
                 } else {
                     payoutDeductedDisplay = 'N/A';
                     payoutDeductedClass = 'text-gray-500';
@@ -1069,9 +1085,8 @@
 
                 const row = `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.month}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd ? data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.accruedNetPayoutObligation)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalPayoutObligation)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -1192,12 +1207,13 @@
                     cashbackDueDate: addDays(monthStart, PAYOUT_DELAY_DAYS), // Always 121 days from month start
                     payoutMonthEnd: getEndOfMonthLocal(addDays(monthStart, PAYOUT_DELAY_DAYS)), // Always end of month after 121 days
                     totalCashbackOwed: 0,
+                    cashbackAccruedThisMonth: 0,
                     accruedNetPayoutObligation: 0,
                     monthlyFundContribution: 0,
                     actualPayoutSurplusDeficit: null, // Set in daily simulation
-                    actualPayoutMetStatus: null, // Set in daily simulation
                     payoutDeductedInThisMonth: 0,
-                    actualDeductionForThisPurchaseMonth: 0 // This will now be directly from sheet's Paid Cashback
+                    // actualDeductionForThisPurchaseMonth removed as it was causing double counting
+                    actualPayoutMetStatus: null
                 };
                 monthlyPurchaseDataMap.set(monthKey, monthData);
 
@@ -1273,10 +1289,10 @@
                     const monthDataForAggregation = monthlyPurchaseDataMap.get(currentMonthKey);
                     if (monthDataForAggregation) {
                         monthDataForAggregation.totalCashbackOwed += liabilityToAdd;
-                        monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd; // Assuming net is same as gross if no markup offset
+                        monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd; // This is the line in question
+                        console.log(`Day ${dayCounter} (${currentDate.toLocaleDateString()}): Added liability ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
                         // Also update the purchaseDate if this is the earliest for the month
                         const currentParsedDate = parseSheetDate(currentDateString);
-                        // FIX: Changed `dailyFirstPurchaseDateMap.get(activationMonthKey)` to `monthDataForAggregation.purchaseDate`
                         if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < monthDataForAggregation.purchaseDate)) {
                             monthDataForAggregation.purchaseDate = currentParsedDate;
                         }
@@ -1290,11 +1306,11 @@
                 let isPayoutDay = false;
                 if (obligationsDueToday && obligationsDueToday.length > 0) {
                     isPayoutDay = true;
-                    let totalCashbackAttemptedToPayToday = 0; // Sum of all obligations due today
-                    let totalCashbackActuallyPaidToday = 0; // Sum of what was actually paid today
+                    // totalCashbackActuallyPaidToday will now be the single, aggregated value for this payout date
+                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(currentDateString) || 0);
 
                     // Retrieve the aggregated Paid Cashback from the sheet for this payout date
-                    paidCashbackForReserveFlow = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(currentDateString) || 0);
+                    paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
 
                     // Sort obligations by their original purchaseDate to ensure consistent processing order
                     // if multiple payouts are due on the same day.
@@ -1309,20 +1325,23 @@
                     obligationsDueToday.forEach(monthDataForPayout => {
                         const owedForThisMonth = monthDataForPayout.accruedNetPayoutObligation;
                         
-                        // Set actualDeductionForThisPurchaseMonth directly from the sheet's Paid Cashback
-                        // This value is shared across all monthDataForPayout objects due on the same day
-                        // if they were part of the same original monthly aggregation for paid cashback.
-                        // For simplicity, we'll assign the total paid for the day to each monthData object
-                        // that is due on this day.
-                        monthDataForPayout.actualDeductionForThisPurchaseMonth = paidCashbackForReserveFlow;
-                        totalCashbackActuallyPaidToday += paidCashbackForReserveFlow; // Sum for daily net change
+                        // We no longer set actualDeductionForThisPurchaseMonth on individual monthDataForPayout objects
+                        // as the total for the payout month is handled by monthlyPaidCashbackByPayoutMonthEndMap.
+                        // totalCashbackActuallyPaidToday is used for dailyNetChange.
+                        // The individual monthDataForPayout objects will still have their 'payoutDeductedInThisMonth'
+                        // updated in the runSimulation aggregation step.
 
                         // Deduct from currentDailyCapital based on the actual paid cashback from sheet
-                        currentDailyCapital -= paidCashbackForReserveFlow;
+                        // This deduction should only happen once per payout date, not for each monthDataForPayout object
+                        // that happens to have a payout due on this day.
+                        // We'll deduct the `paidCashbackForReserveFlow` (which is the aggregated value) once.
+                        // The loop over `obligationsDueToday` is primarily to update the `actualPayoutSurplusDeficit`
+                        // and `actualPayoutMetStatus` for each *individual* month's record that contributes to this payout.
+                        // The actual deduction from the fund happens once per payout date.
                         
                         // Set actualPayoutSurplusDeficit and actualPayoutMetStatus for this monthDataForPayout
                         // This reflects the fund's state *after* this specific monthly payout
-                        monthDataForPayout.actualPayoutSurplusDeficit = currentDailyCapital; // Fund balance after this payout
+                        monthDataForPayout.actualPayoutSurplusDeficit = currentDailyCapital - totalCashbackActuallyPaidToday; // Fund balance after this payout
                         // The payout is considered "Met" if the Fund Balance After Payout is >= 0
                         monthDataForPayout.actualPayoutMetStatus = (monthDataForPayout.actualPayoutSurplusDeficit >= 0);
 
@@ -1332,7 +1351,9 @@
                             currentDailyReserve += paidCashbackForReserveFlow;
                         }
                     });
-
+                    
+                    // Deduct the total paid cashback from the trading fund once for the day
+                    currentDailyCapital -= totalCashbackActuallyPaidToday;
                     dailyNetChange -= totalCashbackActuallyPaidToday; // Reflect actual cash movement for the day
                     dailyReserveDeposit = totalCashbackActuallyPaidToday; // Total deposit for display
 
@@ -1793,16 +1814,33 @@
 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("loadGoogleSheetData: Processing valid data rows.");
-                    const processedDataRows = []; // Store rows with parsed dates for yearly grouping
+                    let processedDataRows = []; // Use 'let' because we will reassign after sorting
 
-                    const validDataRows = data.filter(row => {
+                    const validDataRowsUnsorted = data.filter(row => {
                         const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
                         return topUp !== null && topUp !== '';
                     });
 
-                    if (validDataRows.length > 0) {
-                        // Determine Simulation Start Date
-                        const firstTopUpDateRaw = getColumnValue(validDataRows[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
+                    // Add parsedDate to each row for sorting
+                    validDataRowsUnsorted.forEach(row => {
+                        const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
+                        const parsedActivationDate = parseSheetDate(dateRaw);
+                        const releaseDateRaw = getColumnValue(row, ['Release Date', 'ReleaseDate']);
+                        const parsedReleaseDate = parseSheetDate(releaseDateRaw);
+                        processedDataRows.push({ ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate });
+                    });
+
+                    // Sort processedDataRows by Activation Date (parsedDate)
+                    processedDataRows.sort((a, b) => {
+                        if (!a.parsedDate && !b.parsedDate) return 0;
+                        if (!a.parsedDate) return 1; // Null dates go to the end
+                        if (!b.parsedDate) return -1; // Null dates go to the end
+                        return a.parsedDate.getTime() - b.parsedDate.getTime();
+                    });
+
+                    if (processedDataRows.length > 0) {
+                        // Determine Simulation Start Date from the first sorted entry
+                        const firstTopUpDateRaw = getColumnValue(processedDataRows[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         let parsedStartDate = parseSheetDate(firstTopUpDateRaw);
 
                         // If parsing fails, default to today's date
@@ -1818,9 +1856,8 @@
 
                         // Determine # Of Months
                         const uniqueMonths = new Set();
-                        validDataRows.forEach(row => {
-                            const dateStr = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
-                            const dateObj = parseSheetDate(dateStr); // Use the new helper here too
+                        processedDataRows.forEach(row => { // Use sorted data
+                            const dateObj = row.parsedDate;
                             if (dateObj) {
                                 uniqueMonths.add(`${dateObj.getFullYear()}-${dateObj.getMonth()}`);
                             }
@@ -1830,34 +1867,11 @@
                         numberOfPurchaseMonthsInput.value = numMonths; // Set hidden input for simulation
                         console.log("loadGoogleSheetData: Number of Purchase Months set to:", numMonths);
 
-                        // Determine Membership Tier from first valid row's % Cashback Owed
-                        const firstCashbackOwed = getColumnValue(validDataRows[0], ['%  Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
-                        let inferredTier = 'N/A';
-                        const cashbackRate = cleanAndParseFloat(firstCashbackOwed);
-                        console.log("loadGoogleSheetData: First Cashback Owed raw:", firstCashbackOwed, "Parsed:", cashbackRate);
-
-                        if (!isNaN(cashbackRate)) {
-                            // Normalize to decimal if it's a whole number percentage (e.g., 37 for 0.37)
-                            const normalizedRate = cashbackRate > 1 ? cashbackRate / 100 : cashbackRate;
-
-                            if (normalizedRate === 0.30) {
-                                inferredTier = 'Free';
-                            } else if (normalizedRate === 0.37 || normalizedRate === 0.41 || normalizedRate === 0.49) {
-                                inferredTier = 'Premium';
-                            } else if (normalizedRate === 0.33 || normalizedRate === 0.34 || normalizedRate === 0.36) {
-                                inferredTier = 'Standard';
-                            }
-                        }
-                        // Ensure membershipTierInput exists before setting its value
-                        if (membershipTierInput) { 
-                            membershipTierInput.value = inferredTier; 
-                        } else {
-                            console.warn("loadGoogleSheetData: membershipTierInput not found, cannot set inferred tier.");
-                        }
-                        console.log("loadGoogleSheetData: Inferred Membership Tier:", inferredTier);
+                        // Removed membership tier inference as it's no longer needed.
+                        console.log("loadGoogleSheetData: Membership Tier inference removed as per user request.");
 
                         // Update Max Win (%), Max Loss (%), Win Rate (%) inputs from the first row
-                        const firstRow = validDataRows[0];
+                        const firstRow = processedDataRows[0]; // Use the first row of the sorted data
                         const maxWin = cleanAndParseFloat(getColumnValue(firstRow, ['Max Win (%)', 'Max Win %', 'MaxWin']));
                         if (!isNaN(maxWin)) {
                             avgWeeklyWinInput.value = maxWin;
@@ -1875,18 +1889,9 @@
                         }
 
 
-                        // Populate the Google Sheet data table and daily maps
-                        validDataRows.forEach(row => {
-                            const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
-                            const parsedActivationDate = parseSheetDate(dateRaw);
-
-                            const releaseDateRaw = getColumnValue(row, ['Release Date', 'ReleaseDate']);
-                            const parsedReleaseDate = parseSheetDate(releaseDateRaw);
-
-                            // Add parsedDate and parsedReleaseDate to the row object for consistent yearly grouping
-                            const processedRow = { ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate };
-                            processedDataRows.push(processedRow);
-
+                        // Populate the daily maps using the sorted data
+                        processedDataRows.forEach(row => {
+                            const parsedActivationDate = row.parsedDate; // Already parsed and attached
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
@@ -1922,7 +1927,7 @@
                         console.log("loadGoogleSheetData: dailyLiabilityAdditionsMap:", Array.from(dailyLiabilityAdditionsMap.entries()));
                         console.log("loadGoogleSheetData: dailyTopUpAmountsMap:", Array.from(dailyTopUpAmountsMap.entries()));
                         console.log("loadGoogleSheetData: dailyPaidCashbackMap:", Array.from(dailyPaidCashbackMap.entries())); // Log new map
-                        console.log("loadGoogleSheetData: monthlyPaidCashbackByPayoutMonthEndMap:", Array.from(monthlyPaidCashbackByPayoutMonthEndMap.entries())); // Log new map
+                        console.log("loadGoogleSheetData: monthlyPaidCashbackByPayoutMonthEndMap (Aggregated by Payout Month-End):", Array.from(monthlyPaidCashbackByPayoutMonthEndMap.entries())); // ADDED LOG HERE
 
 
                         // Render Google Sheet data with collapsible years
@@ -1968,7 +1973,7 @@
                         simulationStartDateInput.value = today.toISOString().split('T')[0];
                         if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                         if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                        if (membershipTierInput) membershipTierInput.value = 'Premium'; // Default for simulation
+                        // Removed membershipTierInput default setting
                         // Ensure tables are reset if no valid data
                         if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                         if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
@@ -1990,7 +1995,7 @@
                     simulationStartDateInput.value = today.toISOString().split('T')[0];
                     if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                     if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                    if (membershipTierInput) membershipTierInput.value = 'Premium'; // Default for simulation
+                    // Removed membershipTierInput default setting
                     // Ensure tables are reset if no data
                     if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                     if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
@@ -2013,7 +2018,7 @@
                 simulationStartDateInput.value = today.toISOString().split('T')[0];
                 if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                 if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                if (membershipTierInput) membershipTierInput.value = 'Premium'; // Default for simulation
+                // Removed membershipTierInput default setting
                 // Ensure tables are reset on error
                 if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                 if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
