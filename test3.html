@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      
-    <style> 
+    
+    <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4ff;
@@ -332,8 +332,6 @@
         <p class="text-center text-gray-600 mb-6">Model the growth of a trading fund and its ability to cover delayed cashback payouts.</p>
 
         <div class="input-grid">
-            <!-- Removed: Hidden input for membershipTier -->
-
             <div class="input-field">
                 <label for="simulationStartDate">Simulation Start Date (from Sheet):</label>
                 <span id="displaySimulationStartDate" class="data-driven-value">Loading...</span>
@@ -346,12 +344,10 @@
                 <!-- Hidden input to hold value for simulation logic -->
                 <input type="hidden" id="numberOfPurchaseMonths" value="1" min="1" max="60">
             </div>
-            <!-- Removed Voucher Value and Vouchers per Month dropdowns -->
             <div class="input-field">
                 <label for="markupRate">Markup Rate (%):</label>
                 <input type="number" id="markupRate" value="25" min="0" max="100" step="1">
             </div>
-            <!-- Removed markupAllocationToTradingFund input -->
             <div class="input-field">
                 <label for="initialTradingFund">Trading Fund (J$):</label>
                 <input type="number" id="initialTradingFund" value="0" min="0" step="100" title="This is the fund balance at the very start of the simulation, before any monthly contributions are added.">
@@ -377,33 +373,6 @@
                 <label for="stressTestMode" class="mb-0">Stress Test</label>
             </div>
         </div>
-
-        <!-- Removed: Monthly Voucher Sales Input for Main Simulation -->
-        <!-- This table is no longer needed as sales data comes directly from Google Sheet 'Top-Up' column -->
-        <!-- <div class="main-simulation-sales-table-container">
-            <h3>Monthly Voucher Sales Input (Quantities for Simulation)</h3>
-            <div class="overflow-x-auto">
-                <table id="mainSimulationMonthlySalesInputTable" class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr id="mainSimulationMonthlySalesInputHeader">
-                            <th class="px-6 py-3">Voucher Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="mainSimulation10kVoucherRow">
-                            <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
-                        </tr>
-                        <tr id="mainSimulation15kVoucherRow">
-                            <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
-                        </tr>
-                        <tr id="mainSimulation20kVoucherRow">
-                            <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div> -->
-        <!-- END Removed: Monthly Voucher Sales Input for Main Simulation -->
 
         <div class="summary">
             <h2 class="text-xl font-bold mb-4">Simulation Summary</h2>
@@ -457,55 +426,9 @@
             <h2>Reserve Flow Calculator</h2>
             <p class="text-center text-gray-600 mb-6">Model the reserve fund's ability to cover cashback payouts with a 121-day delay, based on daily financial movements.</p>
 
-            <!-- Removed Upfront Buffer Input -->
             <div class="reserve-flow-input-grid">
                 <!-- This grid will now be empty or contain other future inputs -->
             </div>
-
-            <!-- Removed: Voucher Type Definitions (Calculated) -->
-            <!-- This table is no longer needed -->
-            <!-- <div class="reserve-flow-table-container">
-                <h3>Voucher Type Definitions (Calculated)</h3>
-                <div class="overflow-x-auto">
-                    <table id="rfVoucherDefinitionsTable" class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3">Voucher Type</th>
-                                <th class="px-6 py-3">Markup per Voucher (J$)</th>
-                                <th class="px-6 py-3">Cashback per Voucher (J$)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rfVoucherDefinitionsTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div> -->
-
-            <!-- Removed: Monthly Voucher Sales Input (Quantities) -->
-            <!-- This table is no longer needed as sales data comes directly from Google Sheet 'Top-Up' column -->
-            <!-- <div class="reserve-flow-table-container">
-                <h3>Monthly Voucher Sales Input (Quantities)</h3>
-                <div class="overflow-x-auto">
-                    <table id="rfMonthlySalesInputTable" class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr id="rfMonthlySalesInputHeader">
-                                <th class="px-6 py-3">Voucher Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr id="rf10kVoucherRow">
-                                <td class="px-6 py-4 whitespace-nowrap">J$10K Voucher</td>
-                            </tr>
-                            <tr id="rf15kVoucherRow">
-                                <td class="px-6 py-4 whitespace-nowrap">J$15K Voucher</td>
-                            </tr>
-                            <tr id="rf20kVoucherRow">
-                                <td class="px-6 py-4 whitespace-nowrap">J$20K Voucher</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div> -->
 
             <div class="reserve-flow-table-container">
                 <h3>Monthly Financials (Calculated)</h3>
@@ -567,62 +490,56 @@
         </div>
 
     </div>
+
     <script>
-        // --- Constants and Configuration (Existing Simulation) ---
-        const PAYOUT_DELAY_DAYS = 121;
-        const TRADING_WEEKS_PER_MONTH = 8;
-        const MAX_TRADES_PER_WEEK = 2;
-        const EXTRA_MONTHS_FOR_PAYOUTS = Math.ceil(PAYOUT_DELAY_DAYS / 30.4375) + 1; // Approx 4 + 1 = 5 months
+        // --- Global Constants ---
+        const PAYOUT_DELAY_DAYS = 121; // 121-day delay for cashback payouts
+        const EXTRA_MONTHS_FOR_PAYOUTS = 5; // Additional months to simulate beyond purchase months to cover all payouts
+        const MAX_TRADES_PER_WEEK = 2; // Maximum number of trades allowed per week
 
-        // Removed MEMBERSHIP_TIERS as it's no longer directly used for calculations
-        // since Cashback is pulled directly from the sheet.
-
-        // Define fixed voucher values for calculations
-        const VOUCHER_VALUES = {
-            '10k': 10000,
-            '15k': 15000,
-            '20k': 20000
-        };
-
-        // Define headers as constants for collapsible tables
+        // Headers for the Google Sheet Data Viewer table
         const GS_HEADERS = `
             <tr>
                 <th class="px-6 py-3">Activation Date</th>
-                <th class="px-6 py-3">Top-Up</th>
-                <th class="px-6 py-3">% Cashback Owed</th>
-                <th class="px-6 py-3">Cashback</th>
-                <th class="px-6 py-3">Cashback Fund</th>
-                <th class="px-6 py-3">Reserve Fund</th>
+                <th class="px-6 py-3">Top-Up (J$)</th>
+                <th class="px-6 py-3">Cashback Owed (%)</th>
+                <th class="px-6 py-3">Cashback Value (J$)</th>
+                <th class="px-6 py-3">Cashback Fund (J$)</th>
+                <th class="px-6 py-3">Reserve Fund (J$)</th>
                 <th class="px-6 py-3">Release Date</th>
-                <th class="px-6 py-3">Paid Cashback</th>
+                <th class="px-6 py-3">Paid Cashback (J$)</th>
             </tr>
         `;
-        const RF_HEADERS = `
-            <tr>
-                <th class="px-6 py-3">Day</th>
-                <th class="px-6 py-3">Date</th>
-                <th class="px-6 py-3">Reserve Start (J$)</th>
-                <th class="px-6 py-3">Deposit (J$)</th>
-                <th class="px-6 py-3">Add Reserve (+ Markup) (J$)</th>
-                <th class="px-6 py-3">Paid Cashback (Sheet) (J$)</th> <!-- UPDATED HEADER -->
-                <th class="px-6 py-3">Status</th>
-            </tr>
-        `;
+
+        // Headers for the Cumulative Daily Trading Log table
         const DAILY_LOG_HEADERS = `
             <tr>
                 <th class="px-6 py-3">Day</th>
                 <th class="px-6 py-3">Date</th>
                 <th class="px-6 py-3">Day of Week</th>
                 <th class="px-6 py-3">Trading Day?</th>
-                <th class="px-6 py-3">Event Occurred?</th>
+                <th class="px-6 py-3">Event?</th>
                 <th class="px-6 py-3">Event Type</th>
-                <th class="px-6 py-3">Net Change (J$)</th>
+                <th class="px-6 py-3">Daily Net Change (J$)</th>
                 <th class="px-6 py-3">Capital Before Event (J$)</th>
                 <th class="px-6 py-3">Capital After Event (J$)</th>
-                <th class="px-6 py-4">Top-Up (Sheet) (J$)</th>
-                <th class="px-6 py-4">Cashback Owed (Sheet) (J$)</th>
-                <th class="px-6 py-4">Cashback Fund (Sheet) (J$)</th>
-                <th class="px-6 py-4">Reserve Fund (Sheet) (J$)</th>
+                <th class="px-6 py-3">Top-Up (Sheet) (J$)</th>
+                <th class="px-6 py-3">Cashback Owed (Sheet) (J$)</th>
+                <th class="px-6 py-3">Cashback Fund (Sheet) (J$)</th>
+                <th class="px-6 py-3">Reserve Fund (Sheet) (J$)</th>
+            </tr>
+        `;
+
+        // Headers for the Reserve Flow Daily table
+        const RF_HEADERS = `
+            <tr>
+                <th class="px-6 py-3">Day</th>
+                <th class="px-6 py-3">Date</th>
+                <th class="px-6 py-3">Reserve Start (J$)</th>
+                <th class="px-6 py-3">Deposit (J$)</th>
+                <th class="px-6 py-3">Markup Added to Reserve (J$)</th>
+                <th class="px-6 py-3">Paid Cashback (J$)</th>
+                <th class="px-6 py-3">Reserve Status</th>
             </tr>
         `;
 
@@ -631,12 +548,10 @@
         const displayNumberOfPurchaseMonths = document.getElementById('displayNumberOfPurchaseMonths');
 
         // Hidden inputs to feed simulation logic
-        // Removed membershipTierInput
         const simulationStartDateInput = document.getElementById('simulationStartDate'); // Hidden
         const numberOfPurchaseMonthsInput = document.getElementById('numberOfPurchaseMonths'); // Hidden
 
         const markupRateInput = document.getElementById('markupRate');
-        // Removed markupAllocationToTradingFundInput
         const initialTradingFundInput = document.getElementById('initialTradingFund');
         const avgWeeklyWinInput = document.getElementById('avgWeeklyWin');
         const maxWeeklyLossInput = document.getElementById('maxWeeklyLoss');
@@ -768,6 +683,95 @@
         };
 
         /**
+         * Generates and manages collapsible yearly sections for a table.
+         * @param {HTMLElement} wrapperElement - The div where yearly sections will be appended.
+         * @param {Array<Object>} data - The array of daily data objects.
+         * @param {Function} rowGenerator - A function that takes a data row and returns its HTML <tr> string.
+         * @param {string} dateKeyProperty - The property name in the data object that holds the Date object.
+         * @param {string} tableIdPrefix - A unique prefix for IDs (e.g., 'gs', 'rf', 'daily').
+         * @param {string} headersHTML - The HTML string for the table headers.
+         */
+        const createCollapsibleYearlyTable = (wrapperElement, data, rowGenerator, dateKeyProperty, tableIdPrefix, headersHTML) => {
+            wrapperElement.innerHTML = ''; // Clear existing content
+            const yearsData = new Map(); // Map to store rows grouped by year
+
+            data.forEach(item => {
+                const date = item[dateKeyProperty];
+                if (date && date instanceof Date && !isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    if (!yearsData.has(year)) {
+                        yearsData.set(year, []);
+                    }
+                    yearsData.get(year).push(item);
+                }
+            });
+
+            const sortedYears = Array.from(yearsData.keys()).sort((a, b) => a - b);
+            console.log(`createCollapsibleYearlyTable (${tableIdPrefix}): Found years:`, sortedYears);
+            
+            sortedYears.forEach((year, index) => {
+                const yearHeader = document.createElement('div');
+                yearHeader.className = `year-header flex justify-between items-center bg-gray-100 p-3 rounded-lg cursor-pointer transition duration-200 ease-in-out hover:bg-gray-200`;
+                yearHeader.innerHTML = `
+                    <span>Year ${year} (${yearsData.get(year).length} entries)</span>
+                    <span class="toggle-icon text-gray-600">&#9658;</span> <!-- Right arrow -->
+                `;
+                wrapperElement.appendChild(yearHeader);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'collapsible-content overflow-x-auto'; // Starts hidden
+                
+                // Create a new table inside the contentDiv for each year
+                const innerTable = document.createElement('table');
+                innerTable.className = 'min-w-full divide-y divide-gray-200';
+                innerTable.innerHTML = `<thead>${headersHTML}</thead><tbody></tbody>`; // Use passed headersHTML
+                
+                const innerTbody = innerTable.querySelector('tbody');
+                yearsData.get(year).forEach(item => {
+                    innerTbody.insertAdjacentHTML('beforeend', rowGenerator(item));
+                });
+                contentDiv.appendChild(innerTable);
+
+                wrapperElement.appendChild(contentDiv);
+
+                yearHeader.addEventListener('click', () => {
+                    contentDiv.classList.toggle('active');
+                    yearHeader.classList.toggle('active');
+                    const icon = yearHeader.querySelector('.toggle-icon');
+                    if (contentDiv.classList.contains('active')) {
+                        icon.innerHTML = '&#9660;'; // Down arrow
+                    } else {
+                        icon.innerHTML = '&#9658;'; // Right arrow
+                    }
+                });
+            });
+
+            // Handle "Load More Years" button (if applicable)
+            const loadMoreBtn = document.getElementById(`${tableIdPrefix}-loadMoreBtn`);
+            if (loadMoreBtn) {
+                if (sortedYears.length > 0) { // Show button if there's any data
+                    loadMoreBtn.classList.remove('hidden');
+                    loadMoreBtn.textContent = 'Load All Years'; // Default to loading all
+                    loadMoreBtn.onclick = () => {
+                        const hiddenContents = wrapperElement.querySelectorAll('.collapsible-content:not(.active)');
+                        const hiddenHeaders = wrapperElement.querySelectorAll('.year-header:not(.active)');
+                        
+                        hiddenContents.forEach(content => {
+                            content.classList.add('active');
+                        });
+                        hiddenHeaders.forEach(header => {
+                            header.classList.add('active');
+                            header.querySelector('.toggle-icon').innerHTML = '&#9660;';
+                        });
+                        loadMoreBtn.classList.add('hidden'); // Hide button after loading all
+                    };
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            }
+        };
+
+        /**
          * Generates a shuffled array of win/loss outcomes for a given number of trades.
          * Ensures the exact win rate is met.
          * @param {number} totalTrades - Total number of trades.
@@ -881,7 +885,6 @@
         const runSimulation = () => {
             console.log("runSimulation: Starting simulation.");
             // 1. Read Input Parameters
-            // Removed selectedTier and tierConfig as they are no longer needed.
             const simulationStartDateString = simulationStartDateInput.value;
             const numberOfPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
             
@@ -897,8 +900,6 @@
                 maxWeeklyLoss *= 1.2;
                 winRate = Math.max(0, winRate - 10);
             }
-
-            // Removed membershipFee as it's no longer needed.
 
             let cumulativeVoucherPurchases = 0;
             let totalCashbackOwedAccrued = 0;
@@ -954,7 +955,6 @@
                         fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
                         actualPayoutSurplusDeficit: null, // Set in daily simulation
                         payoutDeductedInThisMonth: 0,
-                        // actualDeductionForThisPurchaseMonth removed as it was causing double counting
                         actualPayoutMetStatus: null
                     });
                 }
@@ -981,7 +981,7 @@
                         fundBalanceAfterPayout: null, 
                         overallPayoutMet: true 
                     });
-                    console.log(`  Initialized aggregated entry for Payout Month-End: ${payoutMonthEndKey}`);
+                    console.log(`    Initialized aggregated entry for Payout Month-End: ${payoutMonthEndKey}`);
                 }
 
                 const aggregatedEntry = aggregatedPayoutData.get(payoutMonthEndKey);
@@ -1029,12 +1029,11 @@
                 return item.payoutMonthEnd && item.payoutMonthEnd.getFullYear() === 2025 && item.payoutMonthEnd.getMonth() === 10 && item.payoutMonthEnd.getDate() === 30;
             });
             if (nov2025Payout) {
-                console.log(`  30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`); // Changed to totalCashbackByReleaseDate
-                console.log(`  30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
+                console.log(`    30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`); // Changed to totalCashbackByReleaseDate
+                console.log(`    30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
             } else {
-                console.log("  No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
+                console.log("    No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
             }
-
 
             // Aggregate results from daily simulation for summary
             cumulativeVoucherPurchases = 0; // Will be summed from dailyTopUpAmountsMap
@@ -1249,7 +1248,6 @@
                     fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
                     actualPayoutSurplusDeficit: null, // Set in daily simulation
                     payoutDeductedInThisMonth: 0,
-                    // actualDeductionForThisPurchaseMonth removed as it was causing double counting
                     actualPayoutMetStatus: null
                 };
                 monthlyPurchaseDataMap.set(monthKey, monthData);
@@ -1265,8 +1263,8 @@
             // Log the initial state of monthlyPayoutObligationsByPayoutDateMap
             console.log("runCumulativeDailySimulation: Initial monthlyPayoutObligationsByPayoutDateMap content:");
             monthlyPayoutObligationsByPayoutDateMap.forEach((obligations, dateKey) => {
-                console.log(`  Payout Date: ${dateKey}, Obligations Count: ${obligations.length}`);
-                obligations.forEach(o => console.log(`    - Month: ${o.month}, Purchase Date: ${o.purchaseDate ? o.purchaseDate.toLocaleDateString() : 'N/A'}, Accrued: ${formatCurrency(o.accruedNetPayoutObligation)}`));
+                console.log(`    Payout Date: ${dateKey}, Obligations Count: ${obligations.length}`);
+                obligations.forEach(o => console.log(`      - Month: ${o.month}, Purchase Date: ${o.purchaseDate ? o.purchaseDate.toLocaleDateString() : 'N/A'}, Accrued: ${formatCurrency(o.accruedNetPayoutObligation)}`));
             });
 
 
@@ -1279,9 +1277,8 @@
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
                 const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-                const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5); // Corrected to <= 5 for Friday
 
-                if (dayOfWeek === 1 || dayCounter === 1) {
+                if (dayOfWeek === 1 || dayCounter === 1) { // Reset trades for the week on Monday or first day
                     tradesThisWeek = 0;
                 }
 
@@ -1299,7 +1296,7 @@
                 let reserveBalanceAfterPayoutProcessing = null; 
 
                 console.log(`--- Day ${dayCounter} (${currentDate.toLocaleDateString()}) ---`);
-                console.log(`  Reserve Start of Day: ${formatCurrency(reserveStartOfDay, true)}`);
+                console.log(`    Reserve Start of Day: ${formatCurrency(reserveStartOfDay, true)}`);
 
                 // --- Apply daily additions from Google Sheet data ---
                 // Add to Trading Fund from 'Cashback Fund' column
@@ -1309,7 +1306,7 @@
                     dailyNetChange += cashbackFundAddition;
                     eventOccurred = true;
                     eventType = 'Trading Fund Add (Sheet)';
-                    console.log(`  Trading Fund: Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`    Trading Fund: Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
                     
                     // Aggregate to the correct monthly object in monthlyPurchaseDataMap
                     const monthDataForAggregation = monthlyPurchaseDataMap.get(currentMonthKey);
@@ -1325,7 +1322,7 @@
                     dailyReserveAdd += reserveFundAddition;
                     if (eventType === 'No Event') eventType = 'Reserve Fund Add (Sheet)';
                     else eventType += ' & Reserve Fund Add (Sheet)';
-                    console.log(`  Reserve Fund: Added ${formatCurrency(reserveFundAddition)} from Reserve Fund. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
+                    console.log(`    Reserve Fund: Added ${formatCurrency(reserveFundAddition)} from Reserve Fund. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
                 }
 
                 // Apply new Liability accrual from 'Cashback' column
@@ -1338,7 +1335,7 @@
                     if (monthDataForAggregation) {
                         monthDataForAggregation.totalCashbackOwed += liabilityToAdd;
                         monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd; // This is the line in question
-                        console.log(`  Liability: Added ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
+                        console.log(`    Liability: Added ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
                         // Also update the purchaseDate if this is the earliest for the month
                         const currentParsedDate = parseSheetDate(currentDateString);
                         // FIX: Changed activationMonthKey to currentMonthKey
@@ -1349,18 +1346,15 @@
                 }
                 // --- End daily additions from Google Sheet data ---
 
-
                 // Payouts Due Today (driven by 121-day + end-of-month rule)
                 const obligationsDueToday = monthlyPayoutObligationsByPayoutDateMap.get(currentDateString);
                 let isPayoutDay = false;
                 if (obligationsDueToday && obligationsDueToday.length > 0) {
                     isPayoutDay = true;
-                    console.log(`  Payout Day! Obligations due: ${obligationsDueToday.length}`);
+                    console.log(`    Payout Day! Obligations due: ${obligationsDueToday.length}`);
                     // totalCashbackActuallyPaidToday will now be the single, aggregated value for this payout date
-                    // Reverted: Use monthlyCashbackByReleaseMonthEndMap for totalCashbackActuallyPaidToday
                     let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyCashbackByReleaseMonthEndMap.get(currentDateString) || 0);
 
-                    // Reverted: Use totalCashbackActuallyPaidToday for paidCashbackForReserveFlow
                     paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
 
                     // Sort obligations by their original purchaseDate to ensure consistent processing order
@@ -1375,11 +1369,11 @@
                     // Process each individual month's obligation due today
                     obligationsDueToday.forEach(monthDataForPayout => {
                         const owedForThisMonth = monthDataForPayout.accruedNetPayoutObligation;
-                        console.log(`    Processing payout for month ${monthDataForPayout.month}. Owed: ${formatCurrency(owedForThisMonth)}`);
+                        console.log(`      Processing payout for month ${monthDataForPayout.month}. Owed: ${formatCurrency(owedForThisMonth)}`);
                         
-                        // Deduct gross owed from reserve
-                        currentDailyReserve -= owedForThisMonth;
-                        console.log(`    Reserve after deducting owed: ${formatCurrency(currentDailyReserve, true)}`);
+                        // NEW LOGIC: Reserve is no longer directly reduced by owedForThisMonth.
+                        // It will only be affected by the deposit and paid cashback which cancel out.
+                        // The actual payout deduction from the trading fund remains.
 
                         // NEW: Capture balance before payout for this specific month's payout
                         monthDataForPayout.fundBalanceBeforePayoutForThisMonth = capitalBeforeEvent;
@@ -1391,28 +1385,35 @@
                         monthDataForPayout.actualPayoutMetStatus = (monthDataForPayout.actualPayoutSurplusDeficit >= 0);
                     });
                     
-                    // Add the total paid cashback back to the reserve fund once for the day
+                    // Add the total paid cashback to the reserve fund (as a deposit)
                     if (paidCashbackForReserveFlow > 0) {
                         currentDailyReserve += paidCashbackForReserveFlow;
-                        console.log(`  Reserve after adding paid cashback (${formatCurrency(paidCashbackForReserveFlow, true)}): ${formatCurrency(currentDailyReserve, true)}`);
+                        console.log(`    Reserve after adding paid cashback (Deposit) (${formatCurrency(paidCashbackForReserveFlow, true)}): ${formatCurrency(currentDailyReserve, true)}`);
+                    }
+
+                    // Deduct the total paid cashback from the reserve fund (as a payout)
+                    if (paidCashbackForReserveFlow > 0) {
+                        currentDailyReserve -= paidCashbackForReserveFlow;
+                        console.log(`    Reserve after deducting paid cashback (Payout) (${formatCurrency(paidCashbackForReserveFlow, true)}): ${formatCurrency(currentDailyReserve, true)}`);
                     }
 
                     // Deduct the total paid cashback from the trading fund once for the day
                     currentDailyCapital -= totalCashbackActuallyPaidToday;
                     dailyNetChange -= totalCashbackActuallyPaidToday; // Reflect actual cash movement for the day
-                    dailyReserveDeposit = totalCashbackActuallyPaidToday; // Total deposit for display
+                    dailyReserveDeposit = totalCashbackActuallyPaidToday; // Total deposit for display (for table column)
 
                     reserveBalanceAfterPayoutProcessing = currentDailyReserve;
                     eventOccurred = true;
                     if (eventType === 'No Event' || eventType.includes('Add')) eventType = 'Cashback Payout';
                     else eventType += ' & Payout';
-                    console.log(`  Trading Fund: Paid ${formatCurrency(totalCashbackActuallyPaidToday)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`    Trading Fund: Paid ${formatCurrency(totalCashbackActuallyPaidToday)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
                 }
                 // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
                 cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
 
                 let isTradingDayForDisplay = false;
                 // Trading only on weekdays, if no other major event (contribution/payout) and trades left for the week, and fund is positive
+                const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5); // Corrected to <= 5 for Friday
                 const canTradeOnThisDay = isWeekday && !cashbackFundAddition && !reserveFundAddition && !isPayoutDay && tradesThisWeek < MAX_TRADES_PER_WEEK && currentDailyCapital > 0;
 
                 if (canTradeOnThisDay && tradeOutcomes.length > 0) {
@@ -1434,7 +1435,7 @@
                     eventOccurred = true;
                     tradesThisWeek++;
                     isTradingDayForDisplay = true;
-                    console.log(`  Trade: Occurred (${isWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                    console.log(`    Trade: Occurred (${isWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}`);
                 }
 
                 // Record daily Reserve Flow - conditionally store values for display
@@ -1468,8 +1469,8 @@
                     sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
                 });
 
-                console.log(`  End of Day Reserve: ${formatCurrency(currentDailyReserve, true)}`);
-                console.log(`  End of Day Trading Capital: ${formatCurrency(currentDailyCapital)}`);
+                console.log(`    End of Day Reserve: ${formatCurrency(currentDailyReserve, true)}`);
+                console.log(`    End of Day Trading Capital: ${formatCurrency(currentDailyCapital)}`);
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
@@ -1486,7 +1487,7 @@
             // Log the final monthlyPurchaseDataMap content for detailed inspection
             console.log("runCumulativeDailySimulation: Final monthlyPurchaseDataMap content:");
             monthlyPurchaseDataMap.forEach((data, key) => {
-                console.log(`  Month Key: ${key}, Payout Month End: ${data.payoutMonthEnd.toLocaleDateString()}, Accrued Payout Obligation: ${formatCurrency(data.accruedNetPayoutObligation)}`);
+                console.log(`    Month Key: ${key}, Payout Month End: ${data.payoutMonthEnd.toLocaleDateString()}, Accrued Payout Obligation: ${formatCurrency(data.accruedNetPayoutObligation)}`);
             });
 
 
@@ -1724,112 +1725,6 @@
             console.log("runReserveFlowSimulation: Reserve Flow simulation finished.");
         };
 
-        function updateInitialTradingFundDefault() {
-            const currentInputValue = parseFloat(initialTradingFundInput.value);
-            if (isNaN(currentInputValue) || currentInputValue === 0) {
-                initialTradingFundInput.value = '0';
-                console.log("updateInitialTradingFundDefault: Initial Trading Fund set to 0.");
-            }
-        }
-
-        /**
-         * Generates and manages collapsible yearly sections for a table.
-         * @param {HTMLElement} wrapperElement - The div where yearly sections will be appended.
-         * @param {Array<Object>} data - The array of daily data objects.
-         * @param {Function} rowGenerator - A function that takes a data row and returns its HTML <tr> string.
-         * @param {string} dateKeyProperty - The property name in the data object that holds the Date object.
-         * @param {string} tableIdPrefix - A unique prefix for IDs (e.g., 'gs', 'rf', 'daily').
-         * @param {string} headersHTML - The HTML string for the table headers.
-         */
-        const createCollapsibleYearlyTable = (wrapperElement, data, rowGenerator, dateKeyProperty, tableIdPrefix, headersHTML) => {
-            wrapperElement.innerHTML = ''; // Clear existing content
-            const yearsData = new Map(); // Map to store rows grouped by year
-
-            data.forEach(item => {
-                const date = item[dateKeyProperty];
-                if (date && date instanceof Date && !isNaN(date.getTime())) {
-                    const year = date.getFullYear();
-                    if (!yearsData.has(year)) {
-                        yearsData.set(year, []);
-                    }
-                    yearsData.get(year).push(item);
-                }
-            });
-
-            const sortedYears = Array.from(yearsData.keys()).sort((a, b) => a - b);
-            console.log(`createCollapsibleYearlyTable (${tableIdPrefix}): Found years:`, sortedYears);
-            
-            sortedYears.forEach((year, index) => {
-                const yearHeader = document.createElement('div');
-                yearHeader.className = `year-header flex justify-between items-center bg-gray-100 p-3 rounded-lg cursor-pointer transition duration-200 ease-in-out hover:bg-gray-200`;
-                yearHeader.innerHTML = `
-                    <span>Year ${year} (${yearsData.get(year).length} entries)</span>
-                    <span class="toggle-icon text-gray-600">&#9658;</span> <!-- Right arrow -->
-                `;
-                wrapperElement.appendChild(yearHeader);
-
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'collapsible-content overflow-x-auto'; // Starts hidden
-                
-                // Create a new table inside the contentDiv for each year
-                const innerTable = document.createElement('table');
-                innerTable.className = 'min-w-full divide-y divide-gray-200';
-                innerTable.innerHTML = `<thead>${headersHTML}</thead><tbody></tbody>`; // Use passed headersHTML
-                
-                const innerTbody = innerTable.querySelector('tbody');
-                yearsData.get(year).forEach(item => {
-                    innerTbody.insertAdjacentHTML('beforeend', rowGenerator(item));
-                });
-                contentDiv.appendChild(innerTable);
-
-                wrapperElement.appendChild(contentDiv);
-
-                // REMOVED: Initial visibility for index === 0 to make all collapsed by default
-                /*
-                if (index === 0) {
-                    contentDiv.classList.add('active');
-                    yearHeader.classList.add('active');
-                    yearHeader.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
-                }
-                */
-
-                yearHeader.addEventListener('click', () => {
-                    contentDiv.classList.toggle('active');
-                    yearHeader.classList.toggle('active');
-                    const icon = yearHeader.querySelector('.toggle-icon');
-                    if (contentDiv.classList.contains('active')) {
-                        icon.innerHTML = '&#9660;'; // Down arrow
-                    } else {
-                        icon.innerHTML = '&#9658;'; // Right arrow
-                    }
-                });
-            });
-
-            // Handle "Load More Years" button (if applicable)
-            const loadMoreBtn = document.getElementById(`${tableIdPrefix}-loadMoreBtn`);
-            if (loadMoreBtn) {
-                if (sortedYears.length > 0) { // Show button if there's any data
-                    loadMoreBtn.classList.remove('hidden');
-                    loadMoreBtn.textContent = 'Load All Years'; // Default to loading all
-                    loadMoreBtn.onclick = () => {
-                        const hiddenContents = wrapperElement.querySelectorAll('.collapsible-content:not(.active)');
-                        const hiddenHeaders = wrapperElement.querySelectorAll('.year-header:not(.active)');
-                        
-                        hiddenContents.forEach(content => {
-                            content.classList.add('active');
-                        });
-                        hiddenHeaders.forEach(header => {
-                            header.classList.add('active');
-                            header.querySelector('.toggle-icon').innerHTML = '&#9660;';
-                        });
-                        loadMoreBtn.classList.add('hidden'); // Hide button after loading all
-                    };
-                } else {
-                    loadMoreBtn.classList.add('hidden');
-                }
-            }
-        };
-
 
         // --- Google Sheet Data Viewer Logic ---
         let processedGoogleSheetData = []; // Global variable to store processed sheet data
@@ -1903,7 +1798,7 @@
                         const activationDate = row.parsedDate ? row.parsedDate.toLocaleDateString('en-JM') : 'N/A';
                         const releaseDate = row.parsedReleaseDate ? row.parsedReleaseDate.toLocaleDateString('en-JM') : 'N/A';
                         const cashback = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Owed']));
-                        console.log(`  Activation: ${activationDate}, Release: ${releaseDate}, Cashback: ${cashback}`);
+                        console.log(`    Activation: ${activationDate}, Release: ${releaseDate}, Cashback: ${cashback}`);
                     });
 
 
@@ -1936,7 +1831,6 @@
                         numberOfPurchaseMonthsInput.value = numMonths; // Set hidden input for simulation
                         console.log("loadGoogleSheetData: Number of Purchase Months set to:", numMonths);
 
-                        // Removed membership tier inference as it's no longer needed.
                         console.log("loadGoogleSheetData: Membership Tier inference removed as per user request.");
 
                         // Update Max Win (%), Max Loss (%), Win Rate (%) inputs from the first row
@@ -2017,7 +1911,7 @@
                             const dateObj = row.parsedDate;
                             const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
-                            const cashbackOwedPercent = getColumnValue(row, ['%  Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
+                            const cashbackOwedPercent = getColumnValue(row, ['% Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
                             const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                             const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
                             const reserveFund = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
@@ -2055,7 +1949,6 @@
                         simulationStartDateInput.value = today.toISOString().split('T')[0];
                         if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                         if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                        // Removed membershipTierInput default setting
                         // Ensure tables are reset if no valid data
                         if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                         if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
@@ -2077,7 +1970,6 @@
                     simulationStartDateInput.value = today.toISOString().split('T')[0];
                     if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                     if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                    // Removed membershipTierInput default setting
                     // Ensure tables are reset if no data
                     if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                     if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
@@ -2100,7 +1992,6 @@
                 simulationStartDateInput.value = today.toISOString().split('T')[0];
                 if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
                 if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                // Removed membershipTierInput default setting
                 // Ensure tables are reset on error
                 if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
                 if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
@@ -2126,7 +2017,6 @@
             runSimulation();
             runReserveFlowSimulation();
         });
-        // Removed event listeners for avgWeeklyWinInput, maxWeeklyLossInput, winRateInput
         initialTradingFundInput.addEventListener('input', () => {
             console.log("initialTradingFundInput: Value changed. Re-running simulation.");
             runSimulation(); // Keep this if it's still a manual input
