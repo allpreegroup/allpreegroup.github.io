@@ -1,89 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
     <meta charset="UTF-8">
-   <meta name="viewport" content="width=1200, initial-scale=device-width/1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashback Payout + Trading Simulation</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN for utility-first styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
+    <!-- Inter Font from Google Fonts for a modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
+        /* Base body styling for consistent look and feel */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4ff;
-            color: #333;
+            background-color: #f0f4ff; /* Light blue background */
+            color: #333; /* Dark gray text */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 2rem;
         }
+        /* Main container for the application content */
         .container {
             background-color: #ffffff;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 1.5rem; /* Rounded corners for a softer look */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
             padding: 2.5rem;
             max-width: 1200px;
             width: 100%;
             margin-top: 2rem;
         }
+        /* Main heading style */
         h1 {
             font-size: 2.5rem;
-            font-weight: 800;
-            color: #1a202c;
+            font-weight: 800; /* Extra bold */
+            color: #1a202c; /* Dark charcoal */
             text-align: center;
             margin-bottom: 2rem;
         }
+        /* Grid layout for input fields for better organization */
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+        /* Styling for individual input field containers */
         .input-field {
             display: flex;
             flex-direction: column;
         }
+        /* Labels for input fields */
         label {
             display: block;
-            font-weight: 600;
+            font-weight: 600; /* Semi-bold */
             margin-bottom: 0.5rem;
-            color: #4a5568;
+            color: #4a5568; /* Muted gray */
         }
+        /* Styling for all input types (number, date, select) */
         input[type="number"], input[type="date"], select {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e2e8f0; /* Light border */
             border-radius: 0.5rem;
             font-size: 1rem;
             color: #333;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none;
+            transition: border-color 0.2s, box-shadow 0.2s; /* Smooth transitions for focus */
+            -webkit-appearance: none; /* Remove default browser styles */
             -moz-appearance: none;
             appearance: none;
+            /* Custom arrow for select dropdowns */
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-3.2-3.2-8.4-3.2-11.6%2C0L5.4%2C197.3c-3.2%2C3.2-3.2%2C8.4%2C0%2C11.6l11.6%2C11.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l124.6-124.6l124.6%2C124.6c3.2%2C3.2%2C8.4%2C3.2%2C11.6%2C0l11.6-11.6C290.2%2C205.7%2C290.2%2C200.5%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 0.8rem auto;
         }
+        /* Remove custom arrow for date inputs as they have their own picker */
         input[type="date"] {
             background-image: none;
         }
+        /* Hide spin buttons for number inputs */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
         input[type="number"] {
-            -moz-appearance: textfield;
+            -moz-appearance: textfield; /* Firefox specific */
         }
+        /* Focus styles for inputs */
         input[type="number"]:focus, input[type="date"]:focus, select:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            border-color: #007bff; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Blue shadow on focus */
         }
+        /* Table styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -96,19 +108,22 @@
             font-size: 0.875rem; /* Default font size for table cells */
         }
         th {
-            background-color: #e0f2fe;
-            color: #2c5282;
+            background-color: #e0f2fe; /* Light blue header background */
+            color: #2c5282; /* Darker blue text */
             font-weight: 700;
             text-transform: uppercase;
             font-size: 0.875rem;
         }
+        /* Zebra striping for table rows */
         tbody tr:nth-child(odd) {
             background-color: #f8fafc;
         }
+        /* Hover effect for table rows */
         tbody tr:hover {
             background-color: #eef7ff;
         }
-        .summary, .current-fund-balances { /* Apply consistent styling */
+        /* Styling for summary and current fund balances sections */
+        .summary, .current-fund-balances {
             margin-top: 2rem;
             padding: 1.5rem;
             background-color: #e0f2fe;
@@ -122,15 +137,17 @@
             color: #007bff;
             font-weight: 700;
         }
+        /* Color classes for status indicators */
         .text-green-600 {
-            color: #22c55e;
+            color: #22c55e; /* Green for positive/met */
         }
         .text-red-600 {
-            color: #ef4444;
+            color: #ef4444; /* Red for negative/shortfall */
         }
         .text-orange-600 {
-            color: #f97316;
+            color: #f97316; /* Orange for pending/N/A */
         }
+        /* Stress test checkbox alignment */
         .stress-test-checkbox {
             display: flex;
             align-items: center;
@@ -141,6 +158,7 @@
             width: auto;
             margin: 0;
         }
+        /* Container for tables with shadow and padding */
         .table-container {
             margin-top: 2rem;
             background-color: #ffffff;
@@ -155,6 +173,7 @@
             text-align: center;
             margin-bottom: 1.5rem;
         }
+        /* Styling for daily log section */
         .daily-log-section {
             margin-top: 3rem;
             padding-top: 2rem;
@@ -177,7 +196,7 @@
             min-width: 250px;
         }
 
-        /* New styles for Reserve Flow Calculator */
+        /* Styles for Reserve Flow Calculator */
         .reserve-flow-section {
             margin-top: 3rem;
             padding-top: 2rem;
@@ -235,6 +254,7 @@
             padding: 1rem;
             font-weight: 600;
         }
+        /* Style for data-driven values that are not editable inputs */
         .data-driven-value {
             padding: 0.75rem 1rem;
             border: 1px solid #e2e8f0;
@@ -290,7 +310,7 @@
             border-top: 1px solid #e2e8f0; /* Add top border for the first row of each inner table */
         }
 
-
+        /* Responsive adjustments for smaller screens */
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -302,7 +322,7 @@
                 font-size: 2rem;
             }
             .input-grid, .reserve-flow-input-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Stack inputs vertically on small screens */
             }
             th, td {
                 padding: 0.5rem 0.75rem;
@@ -383,10 +403,22 @@
             <p>Overall Payout Status: <span id="overallPayoutStatus" class="font-bold"></span></p>
         </div>
 
-        <!-- The "Current Fund Balances (As of Today)" section has been removed as requested -->
+        <!-- NEW SECTION: Current Fund Balances (From Sheet Data) -->
+        <div class="current-fund-balances" id="currentFundBalancesSection">
+            <h2 class="text-xl font-bold mb-4">Current Fund Balances (From Sheet Data)</h2>
+            <p>Cashback Fund (Since Last Paid Payout): <span id="cashbackFundSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Reserve Fund (Since Last Paid Payout): <span id="reserveFundSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Cashback Value (Since Last Paid Payout): <span id="cashbackValueSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Total Markup (Since Last Paid Payout): <span id="totalMarkupSinceLastPayoutSpan" class="font-bold">J$0</span></p> <!-- NEW SPAN FOR TOTAL MARKUP -->
+            <p>Last Paid Payout Release Date: <span id="lastPaidPayoutReleaseDateSpan" class="font-bold">N/A</span></p>
+        </div>
+        <!-- END NEW SECTION -->
 
         <!-- NEW SECTION: Google Sheet Data Viewer -->
         <div class="container gs-data-viewer-section">
+            <h2>Google Sheet Data Viewer</h2>
+            <p class="text-center text-gray-600 mb-6">Displaying data from the specified Google Sheet.</p>
+
             <div id="gs-loading" class="gs-loading-indicator">Loading data...</div>
             <div id="gs-error" class="gs-error-message hidden"></div>
             
@@ -400,7 +432,8 @@
         <!-- END NEW SECTION: Google Sheet Data Viewer -->
 
         <div class="table-container">
-           <div class="overflow-x-auto">
+            <h2>Payout Obligation & Fund Performance</h2>
+            <div class="overflow-x-auto">
                 <table id="combinedPayoutTable" class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -421,11 +454,15 @@
 
         <!-- NEW SECTION: Reserve Flow Calculator -->
         <div class="reserve-flow-section">
-         <div class="reserve-flow-input-grid">
+            <h2>Reserve Flow Calculator</h2>
+            <p class="text-center text-gray-600 mb-6">Model the reserve fund's ability to cover cashback payouts with a 121-day delay, based on daily financial movements.</p>
+
+            <div class="reserve-flow-input-grid">
                 <!-- This grid will now be empty or contain other future inputs -->
             </div>
 
             <div class="reserve-flow-table-container">
+                <h3>Monthly Financials (Calculated)</h3>
                 <div class="overflow-x-auto">
                     <table id="rfMonthlyFinancialsTable" class="min-w-full divide-y divide-gray-200">
                         <thead>
@@ -455,8 +492,9 @@
                     </table>
                 </div>
             </div>
-    
+        
             <div class="reserve-flow-table-container">
+                <h3>Reserve Flow (Daily)</h3>
                 <div class="overflow-x-auto">
                     <div id="rf-yearlyDataWrapper">
                         <!-- Yearly data sections will be inserted here -->
@@ -470,7 +508,9 @@
         <!-- END NEW SECTION: 12-Month Reserve Flow Calculator -->
 
         <div class="daily-log-section">
-         <div class="overflow-x-auto">
+            <h2>Cumulative Daily Trading Log</h2>
+            <p class="text-center text-gray-600 mb-4">Click on a year header or "Load All Years" to expand the daily log.</p>
+            <div class="overflow-x-auto">
                 <div id="daily-yearlyDataWrapper">
                     <!-- Yearly data sections will be inserted here -->
                 </div>
@@ -493,6 +533,7 @@
             <tr>
                 <th class="px-6 py-3">Activation Date</th>
                 <th class="px-6 py-3">Top-Up (J$)</th>
+                <th class="px-6 py-3">Markup (J$)</th> <!-- NEW COLUMN ADDED HERE -->
                 <th class="px-6 py-3">Cashback Owed (%)</th>
                 <th class="px-6 py-3">Cashback Value (J$)</th>
                 <th class="px-6 py-3">Cashback Fund (J$)</th>
@@ -556,10 +597,12 @@
         const netFundPerformanceSpan = document.getElementById('netFundPerformance');
         const overallPayoutStatusSpan = document.getElementById('overallPayoutStatus');
 
-        // Removed: Current Fund Balances display elements
-        // const totalFundsSinceLastPaidPayoutSpan = document.getElementById('totalFundsSinceLastPaidPayout');
-        // const cashbackFundSinceLastPayoutSpan = document.getElementById('cashbackFundSinceLastPayout');
-        // const reserveFundSinceLastPayoutSpan = document.getElementById('reserveFundSinceLastPayout');
+        // NEW: Current Fund Balances display elements
+        const cashbackFundSinceLastPayoutSpan = document.getElementById('cashbackFundSinceLastPayout');
+        const reserveFundSinceLastPayoutSpan = document.getElementById('reserveFundSinceLastPayout');
+        const cashbackValueSinceLastPayoutSpan = document.getElementById('cashbackValueSinceLastPayout'); // NEW SPAN
+        const totalMarkupSinceLastPayoutSpan = document.getElementById('totalMarkupSinceLastPayoutSpan'); // NEW SPAN
+        const lastPaidPayoutReleaseDateSpan = document.getElementById('lastPaidPayoutReleaseDateSpan');
 
 
         const combinedPayoutTableBody = document.querySelector('#combinedPayoutTable tbody');
@@ -574,10 +617,23 @@
         let dailyReserveFlowLog = []; // New: Stores daily reserve flow entries
         let _monthlyMarkupForReserve = []; // Global variable to store monthly allocated markup for reserve
 
-        // Removed: Global variables to hold the balances from the last payout found in the sheet
-        // let lastKnownTradingFundAfterPayout = null;
-        // let lastKnownReserveFundAfterPayout = null;
-        // let lastKnownPayoutDate = null;
+        // NEW: Global variables to hold the balances from the last payout found in the sheet
+        let lastKnownTradingFundAfterPayout = null;
+        let lastKnownReserveFundAfterPayout = null;
+        let lastKnownPayoutDate = null;
+
+        // Global maps to store daily data from Google Sheet
+        const dailyCashbackFundAdditionsMap = new Map(); // For Trading Fund additions
+        const dailyReserveFundAdditionsMap = new Map(); // For Reserve Fund additions
+        const dailyLiabilityAdditionsMap = new Map(); // For daily gross cashback owed (liability)
+        const dailyTopUpAmountsMap = new Map(); // For cumulative voucher purchases
+        const dailyPaidCashbackMap = new Map(); // NEW: For Paid Cashback from sheet (keyed by activation date)
+        const monthlyPaidCashbackByPayoutMonthEndMap = new Map(); // NEW: Aggregated Paid Cashback by payout month-end date
+        const dailyFirstPurchaseDateMap = new Map(); // New: To store the earliest purchase date for each month
+        const monthlyCashbackByReleaseMonthEndMap = new Map(); // NEW: Aggregated Cashback by Release Date's Month-End
+
+        // NEW Global Map for Payout Obligations by their calculated Payout Month-End Date
+        const monthlyPayoutObligationsByPayoutDateMap = new Map(); // Map<dateKey (payoutMonthEnd), Array<monthData>>
 
 
         // --- Seeded Random Number Generator ---
@@ -659,7 +715,7 @@
                 }
             }
             return null;
-        };
+            };
 
         /**
          * Adds a specified number of days to a Date object.
@@ -1032,7 +1088,7 @@
                 return item.payoutMonthEnd && item.payoutMonthEnd.getFullYear() === 2025 && item.payoutMonthEnd.getMonth() === 10 && item.payoutMonthEnd.getDate() === 30;
             });
             if (nov2025Payout) {
-                console.log(`    30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`); // Changed to totalCashbackByReleaseDate
+                console.log(`    30 Nov 2025 Payout Obligation (J$): ${formatCurrency(nov2025Payout.totalCashbackByReleaseDate)}`);
                 console.log(`    30 Nov 2025 Payout Deducted (J$): ${formatCurrency(nov2025Payout.totalPayoutDeducted)}`);
             } else {
                 console.log("    No entry found for 30 Nov 2025 in aggregatedPayoutArray.");
@@ -1061,7 +1117,7 @@
 
             updateCombinedPayoutTable(aggregatedPayoutArray); // Pass the aggregated array
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalNetFundPerformance, overallPayoutSuccess);
-            // Removed: calculateAndDisplayTotalFundsSinceLastPaidPayout();
+            // updateCurrentFundBalancesDisplay(); // No longer needed here as it's called after sheet data load
             console.log("runSimulation: Simulation finished.");
         };
 
@@ -1181,20 +1237,6 @@
             }
         };
 
-        // Global maps to store daily data from Google Sheet
-        const dailyCashbackFundAdditionsMap = new Map(); // For Trading Fund additions
-        const dailyReserveFundAdditionsMap = new Map(); // For Reserve Fund additions
-        const dailyLiabilityAdditionsMap = new Map(); // For daily gross cashback owed (liability)
-        const dailyTopUpAmountsMap = new Map(); // For cumulative voucher purchases
-        const dailyPaidCashbackMap = new Map(); // NEW: For Paid Cashback from sheet (keyed by activation date)
-        const monthlyPaidCashbackByPayoutMonthEndMap = new Map(); // NEW: Aggregated Paid Cashback by payout month-end date
-        const dailyFirstPurchaseDateMap = new Map(); // New: To store the earliest purchase date for each month
-        const monthlyCashbackByReleaseMonthEndMap = new Map(); // NEW: Aggregated Cashback by Release Month-End Date
-
-        // NEW Global Map for Payout Obligations by their calculated Payout Month-End Date
-        const monthlyPayoutObligationsByPayoutDateMap = new Map(); // Map<dateKey (payoutMonthEnd), Array<monthData>>
-
-
         /**
          * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
          * This function also updates the `actualPayoutSurplusDeficit` and `actualPayoutMetStatus`
@@ -1248,7 +1290,7 @@
 
             let tradesThisWeek = 0;
 
-            // Variables to store fund balances as of today (these are now internal to this function if not displayed)
+            // Variables to store fund balances as of today (these are now internal if not displayed)
             let tradingFundBalanceAsOfToday = currentDailyCapital;
             let reserveFundBalanceAsOfToday = currentDailyReserve;
 
@@ -1338,7 +1380,6 @@
                         monthDataForAggregation.monthlyFundContribution += cashbackFundAddition;
                     }
                 }
-
                 // Add to Reserve Fund from 'Reserve Fund' column
                 const reserveFundAddition = cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0);
                 if (reserveFundAddition > 0) {
@@ -1470,7 +1511,6 @@
                     deposit: dailyReserveDeposit, // Now stores the deposit amount (reverted)
                     addReserve: dailyReserveAdd,
                     isPayoutDateForDisplay: isPayoutDay, // Flag for conditional display
-                    payoutMetStatusForDeposit: (currentDailyCapital >= 0), // Use current fund status
                     paidCashbackForReserveFlow: paidCashbackForReserveFlow, // Now holds the aggregated Paid Cashback from sheet (reverted)
                     reserveBalanceAfterPayoutProcessing: isPayoutDay ? reserveBalanceAfterPayoutProcessing : null // Store this for Status
                 });
@@ -1520,9 +1560,6 @@
                 console.log(`    Month Key: ${key}, Payout Month End: ${data.payoutMonthEnd.toLocaleDateString()}, Accrued Payout Obligation: ${formatCurrency(data.accruedNetPayoutObligation)}`);
             });
 
-            // Removed: updateCurrentFundBalancesDisplay();
-
-
             // Render daily log with collapsible years
             createCollapsibleYearlyTable(dailyLogTableBodyWrapper, dailyLogEntries, (data) => {
                 return `
@@ -1563,114 +1600,112 @@
             }
         }
 
-        // Removed: updateCurrentFundBalancesDisplay function
-        // /**
-        //  * Updates the display of current fund balances.
-        //  * This function now sums the total additions from the Google Sheet data,
-        //  * considering only entries *after* the last known payout date.
-        //  */
-        // const updateCurrentFundBalancesDisplay = () => {
-        //     let totalCashbackFundFromSheet = 0;
-        //     let totalReserveFundFromSheet = 0;
+        /**
+         * Updates the display of current fund balances.
+         * This function now sums the total additions from the Google Sheet data,
+         * considering only entries *after* the last known payout date.
+         */
+        const updateCurrentFundBalancesDisplay = () => {
+            console.log("updateCurrentFundBalancesDisplay: Starting update.");
+            console.log("updateCurrentFundBalancesDisplay: lastKnownPayoutDate:", lastKnownPayoutDate ? lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A');
 
-        //     // Iterate through dailyCashbackFundAdditionsMap
-        //     dailyCashbackFundAdditionsMap.forEach((amount, dateString) => {
-        //         const entryDate = parseSheetDate(dateString);
-        //         // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
-        //         if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
-        //             totalCashbackFundFromSheet += amount;
-        //         } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-        //             totalCashbackFundFromSheet += amount;
-        //         }
-        //     });
+            let totalCashbackFundFromSheet = 0;
+            let totalReserveFundFromSheet = 0;
+            let totalCashbackValueFromSheet = 0; // NEW variable for Cashback Value
+            let totalMarkupSinceLastPayout = 0; // NEW variable for Total Markup
 
-        //     // Iterate through dailyReserveFundAdditionsMap
-        //     dailyReserveFundAdditionsMap.forEach((amount, dateString) => {
-        //         const entryDate = parseSheetDate(dateString);
-        //         // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
-        //         if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
-        //             totalReserveFundFromSheet += amount;
-        //         } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-        //             totalReserveFundFromSheet += amount;
-        //         }
-        //     });
+            // Iterate through dailyCashbackFundAdditionsMap
+            dailyCashbackFundAdditionsMap.forEach((amount, dateString) => {
+                const entryDate = parseSheetDate(dateString);
+                // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
+                if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
+                    totalCashbackFundFromSheet += amount;
+                    console.log(`  Cashback Fund: Including ${formatCurrency(amount)} from ${dateString} (after payout date). Current sum: ${formatCurrency(totalCashbackFundFromSheet)}`);
+                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
+                    totalCashbackFundFromSheet += amount;
+                    console.log(`  Cashback Fund: Including ${formatCurrency(amount)} from ${dateString} (no payout date). Current sum: ${formatCurrency(totalCashbackFundFromSheet)}`);
+                } else {
+                    console.log(`  Cashback Fund: Skipping ${formatCurrency(amount)} from ${dateString} (on or before payout date).`);
+                }
+            });
 
-        //     const totalFundsFromSheet = totalCashbackFundFromSheet + totalReserveFundFromSheet;
+            // Iterate through dailyReserveFundAdditionsMap
+            dailyReserveFundAdditionsMap.forEach((amount, dateString) => {
+                const entryDate = parseSheetDate(dateString);
+                // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
+                if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
+                    totalReserveFundFromSheet += amount;
+                    console.log(`  Reserve Fund: Including ${formatCurrency(amount)} from ${dateString} (after payout date). Current sum: ${formatCurrency(totalReserveFundFromSheet)}`);
+                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
+                    totalReserveFundFromSheet += amount;
+                    console.log(`  Reserve Fund: Including ${formatCurrency(amount)} from ${dateString} (no payout date). Current sum: ${formatCurrency(totalReserveFundFromSheet)}`);
+                } else {
+                    console.log(`  Reserve Fund: Skipping ${formatCurrency(amount)} from ${dateString} (on or before payout date).`);
+                }
+            });
 
-        //     totalFundsSinceLastPaidPayoutSpan.textContent = formatCurrency(totalFundsFromSheet);
-        //     totalFundsSinceLastPaidPayoutSpan.classList.toggle('text-green-600', totalFundsFromSheet >= 0);
-        //     totalFundsSinceLastPaidPayoutSpan.classList.toggle('text-red-600', totalFundsFromSheet < 0);
+            // Calculate total Cashback Value from Last Paid Payout Release Date to present
+            processedGoogleSheetData.forEach(row => {
+                const releaseDate = row.parsedReleaseDate;
+                const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
 
-        //     cashbackFundSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackFundFromSheet);
-        //     cashbackFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalCashbackFundFromSheet >= 0);
-        //     cashbackFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalCashbackFundFromSheet < 0);
+                // Changed from >= to > to exclude the Last Paid Payout Release Date
+                if (releaseDate && lastKnownPayoutDate && releaseDate.getTime() > lastKnownPayoutDate.getTime()) {
+                    totalCashbackValueFromSheet += cashbackValue;
+                    console.log(`  Cashback Value: Including ${formatCurrency(cashbackValue)} from ${releaseDate.toLocaleDateString()} (after payout date). Current sum: ${formatCurrency(totalCashbackValueFromSheet)}`);
+                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
+                    totalCashbackValueFromSheet += cashbackValue;
+                    console.log(`  Cashback Value: Including ${formatCurrency(cashbackValue)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (no payout date). Current sum: ${formatCurrency(totalCashbackValueFromSheet)}`);
+                } else {
+                    console.log(`  Cashback Value: Skipping ${formatCurrency(cashbackValue)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (on or before payout date).`);
+                }
+            });
 
-        //     reserveFundSinceLastPayoutSpan.textContent = formatCurrency(totalReserveFundFromSheet);
-        //     reserveFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalReserveFundFromSheet >= 0);
-        //     reserveFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalReserveFundFromSheet < 0);
-        // };
+            // NEW: Iterate through processedGoogleSheetData for Total Markup
+            processedGoogleSheetData.forEach(row => {
+                const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup']));
+                const releaseDate = row.parsedReleaseDate;
 
-        // Removed: calculateAndDisplayReserveFundNet function
-        // --- NEW FUNCTION: Calculate and Display Reserve Fund Net ---
-        // /**
-        //  * Calculates and displays the Reserve Fund Net since the last "Payout Met?" date.
-        //  * @param {Array<Object>} aggregatedPayouts - The aggregated payout data.
-        //  * @param {Array<Object>} dailyReserveLog - The daily reserve flow log.
-        //  */
-        // const calculateAndDisplayReserveFundNet = (aggregatedPayouts, dailyReserveLog) => {
-        //     // This function is no longer needed as per user request to remove the display.
-        //     // let lastPayoutMetDate = null;
+                if (releaseDate && lastKnownPayoutDate && releaseDate.getTime() > lastKnownPayoutDate.getTime()) {
+                    if (!isNaN(markup) && markup > 0) { // Only add if it's a valid positive markup
+                        totalMarkupSinceLastPayout += markup;
+                        console.log(`  Markup: Including ${formatCurrency(markup)} from ${releaseDate.toLocaleDateString()} (after payout date). Current sum: ${formatCurrency(totalMarkupSinceLastPayout)}`);
+                    }
+                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
+                    if (!isNaN(markup) && markup > 0) {
+                        totalMarkupSinceLastPayout += markup;
+                        console.log(`  Markup: Including ${formatCurrency(markup)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (no payout date). Current sum: ${formatCurrency(totalMarkupSinceLastPayout)}`);
+                    }
+                } else {
+                    console.log(`  Markup: Skipping ${formatCurrency(markup)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (on or before payout date).`);
+                }
+            });
 
-        //     // // Find the latest "Payout Met" date from the aggregated payouts
-        //     // for (let i = aggregatedPayouts.length - 1; i >= 0; i--) {
-        //     //     const payoutEntry = aggregatedPayouts[i];
-        //     //     // Check if the payout was met and it's not a future payout
-        //     //     const today = new Date();
-        //     //     today.setHours(0,0,0,0);
-        //     //     if (payoutEntry.overallPayoutMet && payoutEntry.payoutMonthEnd <= today) {
-        //     //         lastPayoutMetDate = payoutEntry.payoutMonthEnd;
-        //     //         console.log(`calculateAndDisplayReserveFundNet: Found last 'Payout Met' date: ${lastPayoutMetDate.toLocaleDateString()}`);
-        //     //         break;
-        //     //     }
-        //     // }
 
-        //     // let reserveNetSum = 0;
-        //     // if (lastPayoutMetDate) {
-        //     //     // Sum 'Markup Added to Reserve (J$)' from dailyReserveLog starting from that date
-        //     //     dailyReserveLog.forEach(entry => {
-        //     //         if (entry.date >= lastPayoutMetDate) {
-        //     //             reserveNetSum += cleanAndParseFloat(entry.addReserve || 0);
-        //     //         }
-        //     //     });
-        //     //     console.log(`calculateAndDisplayReserveFundNet: Calculated Reserve Fund Net: ${reserveNetSum}`);
-        //     //     reserveFundNetSpan.textContent = formatCurrency(reserveNetSum);
-        //     //     reserveFundNetSpan.classList.toggle('text-green-600', reserveNetSum >= 0);
-        //     //     reserveFundNetSpan.classList.toggle('text-red-600', reserveNetSum < 0);
-        //     // } else {
-        //     //     reserveFundNetSpan.textContent = 'N/A (No "Payout Met" found)';
-        //     //     reserveFundNetSpan.className = 'font-bold text-gray-500';
-        //     //     console.log("calculateAndDisplayReserveFundNet: No 'Payout Met' date found. Reserve Fund Net is N/A.");
-        //     // }
-        // };
+            cashbackFundSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackFundFromSheet);
+            cashbackFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalCashbackFundFromSheet >= 0);
+            cashbackFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalCashbackFundFromSheet < 0);
 
-        // Removed: calculateAndDisplayTotalFundsSinceLastPaidPayout function
-        // --- NEW FUNCTION: Calculate and Display Total Funds (Cashback + Reserve) Since Last Paid Payout ---
-        // /**
-        //  * Calculates and displays the total sum of Cashback Fund (J$) and Reserve Fund (J$)
-        //  * from the Google Sheet data, starting from the date of the last paid cashback.
-        //  */
-        // const calculateAndDisplayTotalFundsSinceLastPaidPayout = () => {
-        //     // This function's role has been changed to simply trigger the updateCurrentFundBalancesDisplay
-        //     // with the final simulated values, as the user wants the "Current Fund Balances" to reflect
-        //     // the simulated state, not a sum of historical sheet data.
-        //     // The actual calculation of `tradingFundBalanceAsOfToday` and `reserveFundBalanceAsOfToday`
-        //     // happens within `runCumulativeDailySimulation`.
+            reserveFundSinceLastPayoutSpan.textContent = formatCurrency(totalReserveFundFromSheet);
+            reserveFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalReserveFundFromSheet >= 0);
+            reserveFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalReserveFundFromSheet < 0);
 
-        //     // No direct calculation here, just ensure the display function is called with the latest simulated values.
-        //     // The parameters passed to updateCurrentFundBalancesDisplay are already the final simulated values.
-        //     // This function now primarily serves as a trigger point after simulation.
-        //     // The actual values displayed are the result of the `runCumulativeDailySimulation`'s final state.
-        // };
+            cashbackValueSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackValueFromSheet); // Update new span
+            cashbackValueSinceLastPayoutSpan.classList.toggle('text-green-600', totalCashbackValueFromSheet >= 0);
+            cashbackValueSinceLastPayoutSpan.classList.toggle('text-red-600', totalCashbackValueFromSheet < 0);
+
+            totalMarkupSinceLastPayoutSpan.textContent = formatCurrency(totalMarkupSinceLastPayout); // Update new span
+            totalMarkupSinceLastPayoutSpan.classList.toggle('text-green-600', totalMarkupSinceLastPayout >= 0);
+            totalMarkupSinceLastPayoutSpan.classList.toggle('text-red-600', totalMarkupSinceLastPayout < 0);
+
+            // NEW: Display the last known payout date
+            if (lastKnownPayoutDate) {
+                lastPaidPayoutReleaseDateSpan.textContent = lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                lastPaidPayoutReleaseDateSpan.textContent = 'N/A';
+            }
+            console.log("updateCurrentFundBalancesDisplay: Finished update.");
+        };
 
 
         // --- NEW SECTION: Reserve Flow Calculator Logic ---
@@ -1813,7 +1848,6 @@
                 const cashbackPaidCell = document.getElementById(`rf-cashback-paid-month-${i}`);
                 if (cashbackPaidCell) cashbackPaidCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
             }
-
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily) using collapsible years
             createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
@@ -1914,7 +1948,7 @@
                 monthlyPaidCashbackByPayoutMonthEndMap.clear(); // Clear new map for aggregated Paid Cashback
                 dailyFirstPurchaseDateMap.clear(); // Clear new map
                 monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
-                monthlyCashbackByReleaseMonthEndMap.clear(); // Clear NEW map for Release Date Cashback
+                monthlyCashbackByReleaseMonthEndMap.clear(); // Clear NEW map for Release Date's Month-End
 
 
                 if (data && Array.isArray(data) && data.length > 0) {
@@ -2006,20 +2040,35 @@
                         // Populate the daily maps using the sorted data
                         processedGoogleSheetData.forEach(row => {
                             const parsedActivationDate = row.parsedDate; // Already parsed and attached
-                            const parsedReleaseDate = row.parsedReleaseDate; // Already parsed and attached
+                            const parsedReleaseDate = row.parsedDate; // Use Activation Date for release date logic
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
 
-                                // Populate daily maps (keyed by activation date)
-                                const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
-                                const reserveFund = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
-                                const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Owed'])); // Use 'Cashback' column for liability
+                                // Attempt to get Markup value first
+                                let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup'])); // Look for 'Markup' or 'markup'
+
+                                let cashbackFundToAdd = 0;
+                                let reserveFundToAdd = 0;
+
+                                if (!isNaN(markupAmount) && markupAmount > 0) {
+                                    // If Markup column exists and has a value, use it for calculation
+                                    cashbackFundToAdd = markupAmount * (1 - RF_MARKUP_ALLOCATION_TO_RESERVE);
+                                    reserveFundToAdd = markupAmount * RF_MARKUP_ALLOCATION_TO_RESERVE;
+                                    console.log(`    Using Markup for funding. Markup: ${formatCurrency(markupAmount)}. Cashback Fund Add: ${formatCurrency(cashbackFundToAdd)}. Reserve Fund Add: ${formatCurrency(reserveFundToAdd, true)}`);
+                                } else {
+                                    // Fallback to existing 'Cashback Fund' and 'Reserve Fund' columns if Markup is not found or invalid
+                                    cashbackFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
+                                    reserveFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
+                                    console.log(`    Using direct Sheet columns for funding. Cashback Fund Add: ${formatCurrency(cashbackFundToAdd)}. Reserve Fund Add: ${formatCurrency(reserveFundToAdd, true)}`);
+                                }
+                                
+                                const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value'])); // Use 'Cashback' column for liability
                                 const topUpAmount = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
                                 const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback'])); // Get Paid Cashback from sheet
 
-                                dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFund);
-                                dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFund);
+                                dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
+                                dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
                                 dailyLiabilityAdditionsMap.set(activationDateKey, (dailyLiabilityAdditionsMap.get(activationDateKey) || 0) + cashbackOwed);
                                 dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUpAmount);
                                 dailyPaidCashbackMap.set(activationDateKey, (dailyPaidCashbackMap.get(activationDateKey) || 0) + paidCashback); // Store Paid Cashback
@@ -2062,6 +2111,7 @@
                             const dateObj = row.parsedDate;
                             const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
+                            const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup'])); // Get Markup for display
                             const cashbackOwedPercent = getColumnValue(row, ['% Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
                             const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                             const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
@@ -2073,6 +2123,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">${topUpDateDisplay}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(topUp)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${markup !== null ? formatCurrency(markup) : 'N/A'}</td> <!-- Display Markup -->
                                     <td class="px-6 py-4 whitespace-nowrap">${formatPercentage(cashbackOwedPercent)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackValue)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackFund)}</td>
@@ -2083,12 +2134,55 @@
                             `;
                         }, 'parsedDate', 'gs', GS_HEADERS); // Pass headers HTML
 
-                        // Removed: Logic for finding last payout from Google Sheet data (lastKnownTradingFundAfterPayout, lastKnownReserveFundAfterPayout, lastKnownPayoutDate)
+                        // --- NEW LOGIC: Find last payout from Google Sheet data ---
+                        lastKnownTradingFundAfterPayout = null;
+                        lastKnownReserveFundAfterPayout = null;
+                        lastKnownPayoutDate = null;
+
+                        // Define the user-specified last payout date
+                        const userSpecifiedPayoutDate = parseSheetDate('30 Jun 2025'); // Parse the user's date
+
+                        // Search for the user-specified payout date first
+                        let foundUserSpecifiedPayout = false;
+                        for (let i = processedGoogleSheetData.length - 1; i >= 0; i--) {
+                            const row = processedGoogleSheetData[i];
+                            const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback']));
+                            const releaseDate = row.parsedReleaseDate;
+
+                            // Check if it's the user-specified payout date and a payout occurred
+                            if (releaseDate && userSpecifiedPayoutDate && releaseDate.getTime() === userSpecifiedPayoutDate.getTime() && paidCashback > 0) {
+                                lastKnownTradingFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
+                                lastKnownReserveFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
+                                lastKnownPayoutDate = new Date(releaseDate); // Use the parsed date from the row
+                                foundUserSpecifiedPayout = true;
+                                console.log(`loadGoogleSheetData: Found user-specified payout on ${lastKnownPayoutDate.toLocaleDateString()}. Trading Fund: ${lastKnownTradingFundAfterPayout}, Reserve Fund: ${lastKnownReserveFundAfterPayout}`);
+                                break; // Found the specific payout, stop searching
+                            }
+                        }
+
+                        // If user-specified payout not found, find the absolute latest payout in the sheet
+                        if (!foundUserSpecifiedPayout) {
+                            for (let i = processedGoogleSheetData.length - 1; i >= 0; i--) {
+                                const row = processedGoogleSheetData[i];
+                                const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback']));
+                                const releaseDate = row.parsedReleaseDate;
+
+                                if (releaseDate && paidCashback > 0) {
+                                    lastKnownTradingFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
+                                    lastKnownReserveFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
+                                    lastKnownPayoutDate = new Date(releaseDate);
+                                    console.log(`loadGoogleSheetData: User-specified payout not found. Found latest sheet payout on ${lastKnownPayoutDate.toLocaleDateString()}. Trading Fund: ${lastKnownTradingFundAfterPayout}, Reserve Fund: ${lastKnownReserveFundAfterPayout}`);
+                                    break; // Found the latest payout, stop searching
+                                }
+                            }
+                        }
+                        // --- END NEW LOGIC ---
 
                         // After setting all inputs from sheet data, re-run simulations
                         initializeReserveFlowInputs(); // Re-initialize reserve flow inputs
                         runSimulation();
                         runReserveFlowSimulation();
+                        updateCurrentFundBalancesDisplay(); // Call this to update the new span
                         console.log("loadGoogleSheetData: Simulations triggered after data load.");
 
                     } else {
@@ -2110,6 +2204,7 @@
                         initializeReserveFlowInputs();
                         runSimulation(); // Run with default/reset values
                         runReserveFlowSimulation(); // Run with default/reset values
+                        updateCurrentFundBalancesDisplay(); // Call this to update the new span
                     }
 
                 } else {
@@ -2131,6 +2226,7 @@
                     initializeReserveFlowInputs();
                     runSimulation(); // Run with default/reset values
                     runReserveFlowSimulation(); // Run with default/reset values
+                    updateCurrentFundBalancesDisplay(); // Call this to update the new span
                 }
 
             } catch (error) {
@@ -2153,6 +2249,7 @@
                 initializeReserveFlowInputs();
                 runSimulation(); // Run with default/reset values
                 runReserveFlowSimulation(); // Run with default/reset values
+                updateCurrentFundBalancesDisplay(); // Call this to update the new span
             }
         };
 
