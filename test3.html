@@ -406,10 +406,10 @@
         <!-- NEW SECTION: Current Fund Balances (From Sheet Data) -->
         <div class="current-fund-balances" id="currentFundBalancesSection">
             <h2 class="text-xl font-bold mb-4">Current Fund Balances (From Sheet Data)</h2>
-            <p>Cashback Fund (Since Last Paid Payout): <span id="cashbackFundSinceLastPayout" class="font-bold">J$0</span></p>
-            <p>Reserve Fund (Since Last Paid Payout): <span id="reserveFundSinceLastPayout" class="font-bold">J$0</span></p>
-            <p>Cashback Value (Since Last Paid Payout): <span id="cashbackValueSinceLastPayout" class="font-bold">J$0</span></p>
-            <p>Total Markup (Since Last Paid Payout): <span id="totalMarkupSinceLastPayoutSpan" class="font-bold">J$0</span></p> <!-- NEW SPAN FOR TOTAL MARKUP -->
+            <p>Cashback Fund: <span id="cashbackFundSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Reserve Fund: <span id="reserveFundSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Cashback Value: <span id="cashbackValueSinceLastPayout" class="font-bold">J$0</span></p>
+            <p>Total Markup: <span id="totalMarkupSinceLastPayoutSpan" class="font-bold">J$0</span></p> <!-- NEW SPAN FOR TOTAL MARKUP -->
             <p>Last Paid Payout Release Date: <span id="lastPaidPayoutReleaseDateSpan" class="font-bold">N/A</span></p>
         </div>
         <!-- END NEW SECTION -->
@@ -533,7 +533,7 @@
             <tr>
                 <th class="px-6 py-3">Activation Date</th>
                 <th class="px-6 py-3">Top-Up (J$)</th>
-                <th class="px-6 py-3">Markup (J$)</th> <!-- NEW COLUMN ADDED HERE -->
+                <th class="px-6 py-3">Markup (J$)</th>
                 <th class="px-6 py-3">Cashback Owed (%)</th>
                 <th class="px-6 py-3">Cashback Value (J$)</th>
                 <th class="px-6 py-3">Cashback Fund (J$)</th>
@@ -600,8 +600,8 @@
         // NEW: Current Fund Balances display elements
         const cashbackFundSinceLastPayoutSpan = document.getElementById('cashbackFundSinceLastPayout');
         const reserveFundSinceLastPayoutSpan = document.getElementById('reserveFundSinceLastPayout');
-        const cashbackValueSinceLastPayoutSpan = document.getElementById('cashbackValueSinceLastPayout'); // NEW SPAN
-        const totalMarkupSinceLastPayoutSpan = document.getElementById('totalMarkupSinceLastPayoutSpan'); // NEW SPAN
+        const cashbackValueSinceLastPayoutSpan = document.getElementById('cashbackValueSinceLastPayout');
+        const totalMarkupSinceLastPayoutSpan = document.getElementById('totalMarkupSinceLastPayoutSpan');
         const lastPaidPayoutReleaseDateSpan = document.getElementById('lastPaidPayoutReleaseDateSpan');
 
 
@@ -1196,9 +1196,9 @@
                 const row = `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd ? data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackByReleaseDate)}</td> <!-- NEW CASHBACK COLUMN, using totalCashbackByReleaseDate -->
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackByReleaseDate)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${balanceBeforePayoutClass}">${balanceBeforePayoutDisplay}</td> <!-- NEW COLUMN -->
+                        <td class="px-6 py-4 whitespace-nowrap ${balanceBeforePayoutClass}">${balanceBeforePayoutDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
@@ -1609,40 +1609,8 @@
             console.log("updateCurrentFundBalancesDisplay: Starting update.");
             console.log("updateCurrentFundBalancesDisplay: lastKnownPayoutDate:", lastKnownPayoutDate ? lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A');
 
-            let totalCashbackFundFromSheet = 0;
-            let totalReserveFundFromSheet = 0;
             let totalCashbackValueFromSheet = 0; // NEW variable for Cashback Value
             let totalMarkupSinceLastPayout = 0; // NEW variable for Total Markup
-
-            // Iterate through dailyCashbackFundAdditionsMap
-            dailyCashbackFundAdditionsMap.forEach((amount, dateString) => {
-                const entryDate = parseSheetDate(dateString);
-                // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
-                if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
-                    totalCashbackFundFromSheet += amount;
-                    console.log(`  Cashback Fund: Including ${formatCurrency(amount)} from ${dateString} (after payout date). Current sum: ${formatCurrency(totalCashbackFundFromSheet)}`);
-                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-                    totalCashbackFundFromSheet += amount;
-                    console.log(`  Cashback Fund: Including ${formatCurrency(amount)} from ${dateString} (no payout date). Current sum: ${formatCurrency(totalCashbackFundFromSheet)}`);
-                } else {
-                    console.log(`  Cashback Fund: Skipping ${formatCurrency(amount)} from ${dateString} (on or before payout date).`);
-                }
-            });
-
-            // Iterate through dailyReserveFundAdditionsMap
-            dailyReserveFundAdditionsMap.forEach((amount, dateString) => {
-                const entryDate = parseSheetDate(dateString);
-                // Only include if entryDate is strictly AFTER lastKnownPayoutDate, or if no lastKnownPayoutDate is set
-                if (entryDate && lastKnownPayoutDate && entryDate.getTime() > lastKnownPayoutDate.getTime()) {
-                    totalReserveFundFromSheet += amount;
-                    console.log(`  Reserve Fund: Including ${formatCurrency(amount)} from ${dateString} (after payout date). Current sum: ${formatCurrency(totalReserveFundFromSheet)}`);
-                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-                    totalReserveFundFromSheet += amount;
-                    console.log(`  Reserve Fund: Including ${formatCurrency(amount)} from ${dateString} (no payout date). Current sum: ${formatCurrency(totalReserveFundFromSheet)}`);
-                } else {
-                    console.log(`  Reserve Fund: Skipping ${formatCurrency(amount)} from ${dateString} (on or before payout date).`);
-                }
-            });
 
             // Calculate total Cashback Value from Last Paid Payout Release Date to present
             processedGoogleSheetData.forEach(row => {
@@ -1661,7 +1629,7 @@
                 }
             });
 
-            // NEW: Iterate through processedGoogleSheetData for Total Markup
+            // Iterate through processedGoogleSheetData for Total Markup
             processedGoogleSheetData.forEach(row => {
                 const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup']));
                 const releaseDate = row.parsedReleaseDate;
@@ -1681,24 +1649,27 @@
                 }
             });
 
+            // Apply the new allocation logic for display
+            const allocatedCashbackFund = totalMarkupSinceLastPayout * 0.17;
+            const allocatedReserveFund = totalMarkupSinceLastPayout * 0.83;
 
-            cashbackFundSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackFundFromSheet);
-            cashbackFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalCashbackFundFromSheet >= 0);
-            cashbackFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalCashbackFundFromSheet < 0);
+            cashbackFundSinceLastPayoutSpan.textContent = formatCurrency(allocatedCashbackFund);
+            cashbackFundSinceLastPayoutSpan.classList.toggle('text-green-600', allocatedCashbackFund >= 0);
+            cashbackFundSinceLastPayoutSpan.classList.toggle('text-red-600', allocatedCashbackFund < 0);
 
-            reserveFundSinceLastPayoutSpan.textContent = formatCurrency(totalReserveFundFromSheet);
-            reserveFundSinceLastPayoutSpan.classList.toggle('text-green-600', totalReserveFundFromSheet >= 0);
-            reserveFundSinceLastPayoutSpan.classList.toggle('text-red-600', totalReserveFundFromSheet < 0);
+            reserveFundSinceLastPayoutSpan.textContent = formatCurrency(allocatedReserveFund);
+            reserveFundSinceLastPayoutSpan.classList.toggle('text-green-600', allocatedReserveFund >= 0);
+            reserveFundSinceLastPayoutSpan.classList.toggle('text-red-600', allocatedReserveFund < 0);
 
-            cashbackValueSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackValueFromSheet); // Update new span
+            cashbackValueSinceLastPayoutSpan.textContent = formatCurrency(totalCashbackValueFromSheet);
             cashbackValueSinceLastPayoutSpan.classList.toggle('text-green-600', totalCashbackValueFromSheet >= 0);
             cashbackValueSinceLastPayoutSpan.classList.toggle('text-red-600', totalCashbackValueFromSheet < 0);
 
-            totalMarkupSinceLastPayoutSpan.textContent = formatCurrency(totalMarkupSinceLastPayout); // Update new span
+            totalMarkupSinceLastPayoutSpan.textContent = formatCurrency(totalMarkupSinceLastPayout);
             totalMarkupSinceLastPayoutSpan.classList.toggle('text-green-600', totalMarkupSinceLastPayout >= 0);
             totalMarkupSinceLastPayoutSpan.classList.toggle('text-red-600', totalMarkupSinceLastPayout < 0);
 
-            // NEW: Display the last known payout date
+            // Display the last known payout date
             if (lastKnownPayoutDate) {
                 lastPaidPayoutReleaseDateSpan.textContent = lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
             } else {
@@ -1828,7 +1799,7 @@
 
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
                     // FIX: Use cashbackPaidSheet from dailyReserveFlowLog, which is the actual Paid Cashback
-                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.paidCashbackForReserveFlow; // Reverted to previous property name
+                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.paidCashbackForReserveFlow;
                 }
             });
 
@@ -1901,7 +1872,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${depositClass}">${displayedDeposit}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.addReserve, true)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${displayedPaidCashbackFromSheet}</td> <!-- Display Paid Cashback from sheet -->
+                        <td class="px-6 py-4 whitespace-nowrap">${displayedPaidCashbackFromSheet}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td>
                     </tr>
                 `;
@@ -2123,13 +2094,13 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">${topUpDateDisplay}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(topUp)}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">${markup !== null ? formatCurrency(markup) : 'N/A'}</td> <!-- Display Markup -->
+                                    <td class="px-6 py-4 whitespace-nowrap">${markup !== null ? formatCurrency(markup) : 'N/A'}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatPercentage(cashbackOwedPercent)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackValue)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackFund)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(reserveFund)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${releaseDateDisplay}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(paidCashback)}</td> <!-- Display Paid Cashback from sheet -->
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(paidCashback)}</td>
                                 </tr>
                             `;
                         }, 'parsedDate', 'gs', GS_HEADERS); // Pass headers HTML
