@@ -1072,8 +1072,6 @@
             results.forEach(data => {
                 let fundBalanceDisplay;
                 let fundBalanceClass;
-                let payoutMetDisplay;
-                let payoutMetClass;
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
                 let balanceBeforePayoutDisplay; // NEW
@@ -1087,14 +1085,6 @@
                     // If daily simulation didn't process this month's payout yet (e.g., month is in the future)
                     fundBalanceDisplay = 'Pending';
                     fundBalanceClass = 'text-orange-600';
-                }
-
-                if (data.overallPayoutMet !== null) {
-                    payoutMetDisplay = data.overallPayoutMet ? 'Met' : 'Shortfall';
-                    payoutMetClass = data.overallPayoutMet ? 'text-green-600' : 'text-red-600';
-                } else {
-                    payoutMetDisplay = 'Pending';
-                    payoutMetClass = 'text-orange-600';
                 }
 
                 // Use the totalPayoutDeducted which is now sourced from sheet's Paid Cashback
@@ -1115,6 +1105,33 @@
                     balanceBeforePayoutDisplay = 'Pending';
                     balanceBeforePayoutClass = 'text-orange-600';
                 }
+
+                // NEW LOGIC based on user request: Payout Met? tied to Payout Deducted (J$) vs Cashback (J$)
+                let payoutMetDisplay;
+                let payoutMetClass;
+
+                const owedAmount = cleanAndParseFloat(data.totalCashbackByReleaseDate);
+                const paidAmount = cleanAndParseFloat(data.totalPayoutDeducted);
+
+                // Determine if it's a future payout (N/A)
+                const today = new Date();
+                today.setHours(0,0,0,0); // Normalize to local midnight
+                if (data.payoutMonthEnd && data.payoutMonthEnd > today) {
+                    payoutMetDisplay = 'N/A';
+                    payoutMetClass = 'text-orange-600';
+                } else if (isNaN(owedAmount) || isNaN(paidAmount)) {
+                    // Should not happen if data is parsed correctly, but as a fallback
+                    payoutMetDisplay = 'N/A';
+                    payoutMetClass = 'text-orange-600';
+                }
+                else if (paidAmount >= owedAmount) {
+                    payoutMetDisplay = 'Met';
+                    payoutMetClass = 'text-green-600';
+                } else {
+                    payoutMetDisplay = 'Shortfall';
+                    payoutMetClass = 'text-red-600';
+                }
+
 
                 const row = `
                     <tr>
@@ -1291,7 +1308,7 @@
                 let liabilityStartOfDay = cumulativeAccruedCashbackLiability; // Liability balance at start of day for this row
 
                 let dailyReserveAdd = 0;
-                let dailyReserveDeposit = 0; // Reverted: Back to Deposit (J$)
+                let dailyReserveDeposit = 0; // This will hold the aggregated paid cashback for the payout date
                 let paidCashbackForReserveFlow = 0; // This will hold the aggregated paid cashback for the payout date
                 let reserveBalanceAfterPayoutProcessing = null; 
 
@@ -1356,6 +1373,7 @@
                     let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyCashbackByReleaseMonthEndMap.get(currentDateString) || 0);
 
                     paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
+                    dailyReserveDeposit = totalCashbackActuallyPaidToday; // Set deposit for the day
 
                     // Sort obligations by their original purchaseDate to ensure consistent processing order
                     // if multiple payouts are due on the same day.
@@ -1400,7 +1418,6 @@
                     // Deduct the total paid cashback from the trading fund once for the day
                     currentDailyCapital -= totalCashbackActuallyPaidToday;
                     dailyNetChange -= totalCashbackActuallyPaidToday; // Reflect actual cash movement for the day
-                    dailyReserveDeposit = totalCashbackActuallyPaidToday; // Total deposit for display (for table column)
 
                     reserveBalanceAfterPayoutProcessing = currentDailyReserve;
                     eventOccurred = true;
@@ -1677,18 +1694,23 @@
             createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
                 let displayedDeposit;
                 let depositClass = 'text-gray-500'; // Default for N/A
+                let displayedPaidCashbackFromSheet;
+                
+                // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0,0,0,0); // Normalize to local midnight
 
-                if (data.isPayoutDateForDisplay && data.payoutMetStatusForDeposit) {
-                    displayedDeposit = formatCurrency(data.deposit, true);
+                // Logic for Deposit (J$) column
+                if (data.isPayoutDateForDisplay && data.paidCashbackForReserveFlow > 0 && data.date <= today) {
+                    displayedDeposit = formatCurrency(data.paidCashbackForReserveFlow, true);
                     depositClass = 'text-green-600';
                 } else {
                     displayedDeposit = 'N/A';
                     depositClass = 'text-gray-500';
                 }
 
-                // Directly display the `paidCashbackForReserveFlow` which now holds the 'Paid Cashback' from the sheet
-                let displayedPaidCashbackFromSheet;
-                if (data.isPayoutDateForDisplay && data.paidCashbackForReserveFlow > 0) {
+                // Logic for Paid Cashback (J$) column
+                if (data.isPayoutDateForDisplay && data.paidCashbackForReserveFlow > 0 && data.date <= today) {
                     displayedPaidCashbackFromSheet = formatCurrency(data.paidCashbackForReserveFlow, true);
                 } else {
                     displayedPaidCashbackFromSheet = 'N/A';
@@ -1696,8 +1718,12 @@
                 
                 let displayedStatus;
                 let statusClass;
-                if (data.isPayoutDateForDisplay && data.reserveBalanceAfterPayoutProcessing !== null) {
-                    if (data.reserveBalanceAfterPayoutProcessing >= 0) {
+                // The reserve status should reflect the reserve balance at the end of the day, after all transactions.
+                // If a payout occurred, use `reserveBalanceAfterPayoutProcessing`. Otherwise, use `reserveStart + addReserve`.
+                const finalReserveForDay = data.isPayoutDateForDisplay ? data.reserveBalanceAfterPayoutProcessing : (data.reserveStart + data.addReserve);
+
+                if (finalReserveForDay !== null) {
+                    if (finalReserveForDay >= 0) {
                         displayedStatus = 'POSITIVE';
                         statusClass = 'text-green-600';
                     } else {
