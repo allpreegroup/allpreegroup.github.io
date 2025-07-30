@@ -1013,6 +1013,7 @@
                 aggregatedEntry.totalCashbackByReleaseDate = cleanAndParseFloat(monthlyCashbackByReleaseMonthEndMap.get(payoutMonthEndKey) || 0);
                 
                 // Set totalPayoutDeducted using the pre-aggregated monthlyPaidCashbackByPayoutMonthEndMap
+                // FIX: Changed to use monthlyPaidCashbackByPayoutMonthEndMap for totalPayoutDeducted
                 aggregatedEntry.totalPayoutDeducted = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0);
             });
 
@@ -1293,7 +1294,7 @@
                 let liabilityStartOfDay = cumulativeAccruedCashbackLiability; // Liability balance at start of day for this row
 
                 let dailyReserveAdd = 0;
-                let dailyReserveDeposit = 0; 
+                let dailyReserveDeposit = 0; // Reverted: Back to Deposit (J$)
                 let paidCashbackForReserveFlow = 0; // This will hold the aggregated paid cashback for the payout date
                 let reserveBalanceAfterPayoutProcessing = null; 
 
@@ -1356,9 +1357,10 @@
                     isPayoutDay = true;
                     console.log(`  Payout Day! Obligations due: ${obligationsDueToday.length}`);
                     // totalCashbackActuallyPaidToday will now be the single, aggregated value for this payout date
-                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyPaidCashbackByPayoutMonthEndMap.get(currentDateString) || 0);
+                    // Reverted: Use monthlyCashbackByReleaseMonthEndMap for totalCashbackActuallyPaidToday
+                    let totalCashbackActuallyPaidToday = cleanAndParseFloat(monthlyCashbackByReleaseMonthEndMap.get(currentDateString) || 0);
 
-                    // Retrieve the aggregated Paid Cashback from the sheet for this payout date
+                    // Reverted: Use totalCashbackActuallyPaidToday for paidCashbackForReserveFlow
                     paidCashbackForReserveFlow = totalCashbackActuallyPaidToday;
 
                     // Sort obligations by their original purchaseDate to ensure consistent processing order
@@ -1440,11 +1442,11 @@
                     day: dayCounter,
                     date: new Date(currentDate),
                     reserveStart: reserveStartOfDay, // Value from start of the day
-                    deposit: dailyReserveDeposit, // Now stores the deposit amount
+                    deposit: dailyReserveDeposit, // Now stores the deposit amount (reverted)
                     addReserve: dailyReserveAdd,
                     isPayoutDateForDisplay: isPayoutDay, // Flag for conditional display
                     payoutMetStatusForDeposit: (currentDailyCapital >= 0), // Use current fund status
-                    paidCashbackForReserveFlow: paidCashbackForReserveFlow, // Now holds the aggregated Paid Cashback from sheet
+                    paidCashbackForReserveFlow: paidCashbackForReserveFlow, // Now holds the aggregated Paid Cashback from sheet (reverted)
                     reserveBalanceAfterPayoutProcessing: isPayoutDay ? reserveBalanceAfterPayoutProcessing : null // Store this for Status
                 });
                 
@@ -1647,7 +1649,8 @@
                                  (date.getMonth() - simStartDate.getMonth());
 
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.deposit;
+                    // FIX: Use cashbackPaidSheet from dailyReserveFlowLog, which is the actual Paid Cashback
+                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.paidCashbackForReserveFlow; // Reverted to previous property name
                 }
             });
 
@@ -1829,6 +1832,8 @@
 
 
         // --- Google Sheet Data Viewer Logic ---
+        let processedGoogleSheetData = []; // Global variable to store processed sheet data
+
         const loadGoogleSheetData = async () => {
             console.log("loadGoogleSheetData: Starting data load from Google Sheet.");
             const dataUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet8';
@@ -1868,24 +1873,24 @@
 
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("loadGoogleSheetData: Processing valid data rows.");
-                    let processedDataRows = []; // Use 'let' because we will reassign after sorting
+                    processedGoogleSheetData = []; // Reset the global variable
 
                     const validDataRowsUnsorted = data.filter(row => {
                         const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
                         return topUp !== null && topUp !== '';
                     });
 
-                    // Add parsedDate to each row for sorting
+                    // Add parsedDate and parsedReleaseDate to each row for sorting and processing
                     validDataRowsUnsorted.forEach(row => {
                         const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         const parsedActivationDate = parseSheetDate(dateRaw);
                         const releaseDateRaw = getColumnValue(row, ['Release Date', 'ReleaseDate']);
                         const parsedReleaseDate = parseSheetDate(releaseDateRaw);
-                        processedDataRows.push({ ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate });
+                        processedGoogleSheetData.push({ ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate });
                     });
 
-                    // Sort processedDataRows by Activation Date (parsedDate)
-                    processedDataRows.sort((a, b) => {
+                    // Sort processedGoogleSheetData by Activation Date (parsedDate)
+                    processedGoogleSheetData.sort((a, b) => {
                         if (!a.parsedDate && !b.parsedDate) return 0;
                         if (!a.parsedDate) return 1; // Null dates go to the end
                         if (!b.parsedDate) return -1; // Null dates go to the end
@@ -1894,7 +1899,7 @@
 
                     // Log the first 10 sorted rows to verify data and dates
                     console.log("loadGoogleSheetData: Sorted and processed data rows (first 10):");
-                    processedDataRows.slice(0, 10).forEach(row => {
+                    processedGoogleSheetData.slice(0, 10).forEach(row => {
                         const activationDate = row.parsedDate ? row.parsedDate.toLocaleDateString('en-JM') : 'N/A';
                         const releaseDate = row.parsedReleaseDate ? row.parsedReleaseDate.toLocaleDateString('en-JM') : 'N/A';
                         const cashback = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Owed']));
@@ -1902,9 +1907,9 @@
                     });
 
 
-                    if (processedDataRows.length > 0) {
+                    if (processedGoogleSheetData.length > 0) {
                         // Determine Simulation Start Date from the first sorted entry
-                        const firstTopUpDateRaw = getColumnValue(processedDataRows[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
+                        const firstTopUpDateRaw = getColumnValue(processedGoogleSheetData[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         let parsedStartDate = parseSheetDate(firstTopUpDateRaw);
 
                         // If parsing fails, default to today's date
@@ -1920,7 +1925,7 @@
 
                         // Determine # Of Months
                         const uniqueMonths = new Set();
-                        processedDataRows.forEach(row => { // Use sorted data
+                        processedGoogleSheetData.forEach(row => { // Use sorted data
                             const dateObj = row.parsedDate;
                             if (dateObj) {
                                 uniqueMonths.add(`${dateObj.getFullYear()}-${dateObj.getMonth()}`);
@@ -1935,7 +1940,7 @@
                         console.log("loadGoogleSheetData: Membership Tier inference removed as per user request.");
 
                         // Update Max Win (%), Max Loss (%), Win Rate (%) inputs from the first row
-                        const firstRow = processedDataRows[0]; // Use the first row of the sorted data
+                        const firstRow = processedGoogleSheetData[0]; // Use the first row of the sorted data
                         const maxWin = cleanAndParseFloat(getColumnValue(firstRow, ['Max Win (%)', 'Max Win %', 'MaxWin']));
                         if (!isNaN(maxWin)) {
                             avgWeeklyWinInput.value = maxWin;
@@ -1954,7 +1959,7 @@
 
 
                         // Populate the daily maps using the sorted data
-                        processedDataRows.forEach(row => {
+                        processedGoogleSheetData.forEach(row => {
                             const parsedActivationDate = row.parsedDate; // Already parsed and attached
                             const parsedReleaseDate = row.parsedReleaseDate; // Already parsed and attached
                             if (parsedActivationDate) {
@@ -1975,10 +1980,13 @@
                                 dailyPaidCashbackMap.set(activationDateKey, (dailyPaidCashbackMap.get(activationDateKey) || 0) + paidCashback); // Store Paid Cashback
 
                                 // Calculate payout month-end for this row and aggregate paid cashback
-                                const payoutDateForThisRow = addDays(parsedActivationDate, PAYOUT_DELAY_DAYS);
-                                const payoutMonthEndForThisRow = getEndOfMonthLocal(payoutDateForThisRow);
-                                const payoutMonthEndKey = payoutMonthEndForThisRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                                monthlyPaidCashbackByPayoutMonthEndMap.set(payoutMonthEndKey, (monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0) + paidCashback);
+                                // FIX: Use parsedReleaseDate for the key for monthlyPaidCashbackByPayoutMonthEndMap
+                                if (parsedReleaseDate) {
+                                    const payoutMonthEndForThisRow = getEndOfMonthLocal(parsedReleaseDate); // Use Release Date for payout month end
+                                    const payoutMonthEndKey = payoutMonthEndForThisRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                                    monthlyPaidCashbackByPayoutMonthEndMap.set(payoutMonthEndKey, (monthlyPaidCashbackByPayoutMonthEndMap.get(payoutMonthEndKey) || 0) + paidCashback);
+                                }
+
 
                                 // NEW: Aggregate Cashback by Release Date's Month-End for the new column
                                 if (parsedReleaseDate && cashbackOwed > 0) { // Use cashbackOwed for this, as it's the 'Cashback' value
@@ -2005,7 +2013,7 @@
 
 
                         // Render Google Sheet data with collapsible years
-                        createCollapsibleYearlyTable(gsDataTableContainer, processedDataRows, (row) => { // Pass gsDataTableContainer
+                        createCollapsibleYearlyTable(gsDataTableContainer, processedGoogleSheetData, (row) => { // Pass gsDataTableContainer
                             const dateObj = row.parsedDate;
                             const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
