@@ -1094,6 +1094,9 @@
             console.log("updateCombinedPayoutTable: Updating combined payout table with results:", results);
             combinedPayoutTableBody.innerHTML = '';
 
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date to local midnight for consistent comparison
+
             results.forEach(data => {
                 let fundBalanceDisplay;
                 let fundBalanceClass;
@@ -1134,13 +1137,24 @@
                 let payoutMetDisplay;
                 let payoutMetClass;
 
-                if (data.actualPayoutMetStatus !== null) {
-                    payoutMetDisplay = data.actualPayoutMetStatus ? 'Met' : 'Shortfall';
-                    payoutMetClass = data.actualPayoutMetStatus ? 'text-green-600' : 'text-red-600';
-                } else {
-                    // If daily simulation didn't process this month's payout yet (e.g., month is in the future)
-                    payoutMetDisplay = 'N/A';
+                // NEW LOGIC: Combine "Payout Met" with "Payout Deducted" AND check if payout date has passed
+                if (data.payoutMonthEnd.getTime() > today.getTime()) {
+                    payoutMetDisplay = 'N/A'; // Payout date is in the future
                     payoutMetClass = 'text-orange-600';
+                } else if (data.totalCashbackByReleaseDate === 0) {
+                    payoutMetDisplay = 'N/A'; // No cashback owed for this period
+                    payoutMetClass = 'text-orange-600';
+                } else if (data.actualPayoutMetStatus) { // Fund could cover owed amount
+                    if (data.totalPayoutDeducted > 0) { // And an actual payout was recorded
+                        payoutMetDisplay = 'Met & Paid';
+                        payoutMetClass = 'text-green-600';
+                    } else { // Fund could cover, but no payout recorded (e.g., owed > 0 but paid = 0)
+                        payoutMetDisplay = 'Met (Unpaid)';
+                        payoutMetClass = 'text-orange-600'; 
+                    }
+                } else { // Fund had a shortfall
+                    payoutMetDisplay = 'Shortfall';
+                    payoutMetClass = 'text-red-600';
                 }
 
 
@@ -1892,10 +1906,10 @@
                 dailyLiabilityAdditionsMap.clear();
                 dailyTopUpAmountsMap.clear();
                 dailyPaidCashbackMap.clear(); // Clear new map for Paid Cashback
-                // monthlyPaidCashbackByPayoutMonthEndMap.clear(); // Removed
+                // const monthlyPaidCashbackByPayoutMonthEndMap.clear(); // Removed
                 dailyFirstPurchaseDateMap.clear(); // Clear new map
                 monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
-                // monthlyCashbackByReleaseMonthEndMap.clear(); // Removed
+                // const monthlyCashbackByReleaseMonthEndMap.clear(); // Removed
                 sheetDataAggregatedBySimulatedPayoutMonthEnd.clear(); // Corrected variable name
 
 
