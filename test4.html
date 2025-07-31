@@ -280,7 +280,7 @@
         const dailyCashbackFundAdditionsMap = new Map();
         const dailyReserveFundAdditionsMap = new Map();
         const dailyLiabilityAdditionsMap = new Map();
-        const dailyPaidCashbackFromSheetMap = new Map(); // New map for actual paid amounts
+        const monthlyPaidCashbackMap = new Map(); // NEW: Map to hold aggregated monthly payouts
         
         // Headers for the tables
         const GS_HEADERS = `
@@ -448,7 +448,19 @@
          * @returns {Date} A new Date object for the last day of that month.
          */
         const getEndOfMonthLocal = (date) => {
-            return new Date(date.getFullYear(), date.getMonth() + 1, 0, 0, 0, 0, 0);
+            const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            return new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate(), 0, 0, 0, 0);
+        };
+        
+        /**
+         * Checks if a date is the last day of its month.
+         * @param {Date} date The date object to check.
+         * @returns {boolean} True if it's the last day of the month, false otherwise.
+         */
+        const isLastDayOfMonth = (date) => {
+            const nextDay = new Date(date);
+            nextDay.setDate(date.getDate() + 1);
+            return nextDay.getMonth() !== date.getMonth();
         };
 
         /**
@@ -584,7 +596,7 @@
          * The main simulation function that runs the cumulative daily simulation.
          */
         const runSimulation = () => {
-            console.log("runSimulation: Starting simulation with payouts from sheet data.");
+            console.log("runSimulation: Starting simulation with payouts at month end.");
 
             // Reset logs
             dailySimulationLog = [];
@@ -624,6 +636,7 @@
             for (let date = new Date(simStartDate); date <= simEndDate; date.setDate(date.getDate() + 1)) {
                 dayCounter++;
                 const dateKey = date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
 
                 // --- Simulation Fund Update Part ---
                 const tradingFundStartOfDay = tradingFund;
@@ -663,9 +676,9 @@
                     tradingFund += tradeChange;
                 }
                 
-                // --- NEW PAYOUT LOGIC: Use actual payouts from Google Sheet ---
-                if (dailyPaidCashbackFromSheetMap.has(dateKey)) {
-                    const payoutAmount = dailyPaidCashbackFromSheetMap.get(dateKey);
+                // --- MODIFIED PAYOUT LOGIC: Payout all due cashback at the end of the month ---
+                if (isLastDayOfMonth(date) && monthlyPaidCashbackMap.has(monthKey)) {
+                    const payoutAmount = monthlyPaidCashbackMap.get(monthKey);
                     
                     if (payoutAmount > 0) {
                          // Pay from reserve first
@@ -809,7 +822,7 @@
                 dailyReserveFundAdditionsMap.clear();
                 dailyLiabilityAdditionsMap.clear();
                 dailyTopUpAmountsMap.clear();
-                dailyPaidCashbackFromSheetMap.clear(); // Clear the new map
+                monthlyPaidCashbackMap.clear(); // Clear the new map
                 
                 let totalCashbackPaidFromSheet = 0; // New variable to hold the total
 
@@ -896,6 +909,8 @@
                         // Populate the daily maps for fund additions and the new monthly payout map
                         processedGoogleSheetData.forEach(row => {
                             const parsedActivationDate = row.parsedDate;
+                            const parsedReleaseDate = row.parsedReleaseDate;
+
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
@@ -913,15 +928,22 @@
                                 }
                                 
                                 const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
-                                const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback (J$)', 'Paid Cashback', 'PaidCashback']));
-                                const topUpAmount = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
+                                const paidCashback = row.paidCashback;
+                                const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
 
                                 dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
                                 dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
                                 dailyLiabilityAdditionsMap.set(activationDateKey, (dailyLiabilityAdditionsMap.get(activationDateKey) || 0) + cashbackOwed);
-                                dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUpAmount);
-                                dailyPaidCashbackFromSheetMap.set(activationDateKey, (dailyPaidCashbackFromSheetMap.get(activationDateKey) || 0) + paidCashback);
+                                dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUp); // Fixed: changed topUpAmount to topUp
                             }
+
+                            // Populate the new monthly payouts map
+                            if (parsedReleaseDate) {
+                                const monthKey = `${parsedReleaseDate.getFullYear()}-${parsedReleaseDate.getMonth()}`;
+                                const paidCashback = row.paidCashback;
+                                monthlyPaidCashbackMap.set(monthKey, (monthlyPaidCashbackMap.get(monthKey) || 0) + paidCashback);
+                            }
+
                         });
                         console.log("loadGoogleSheetData: Google Sheet data table populated.");
 
