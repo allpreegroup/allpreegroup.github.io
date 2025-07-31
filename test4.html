@@ -138,15 +138,20 @@
                     <p class="text-lg text-gray-500">Final Reserve Fund</p>
                     <p id="currentReserveFundDisplay" class="text-3xl font-bold text-gray-800 mt-1">J$0.00</p>
                 </div>
-                <!-- Total Cashback Owed -->
+                <!-- Total Cashback Owed (Simulated) -->
                 <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-purple-500">
                     <p class="text-lg text-gray-500">Total Cashback Owed</p>
                     <p id="totalCashbackOwedDisplay" class="text-3xl font-bold text-gray-800 mt-1">J$0.00</p>
                 </div>
-                <!-- Total Cashback Paid Out -->
+                <!-- Total Cashback Paid Out (Simulated) -->
                 <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-orange-500">
-                    <p class="text-lg text-gray-500">Total Cashback Paid Out</p>
+                    <p class="text-lg text-gray-500">Simulated Paid Out</p>
                     <p id="totalCashbackPaidOutDisplay" class="text-3xl font-bold text-gray-800 mt-1">J$0.00</p>
+                </div>
+                <!-- Total Cashback Paid Out (From Sheet) -->
+                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-yellow-500">
+                    <p class="text-lg text-gray-500">Sheet Paid Out</p>
+                    <p id="totalCashbackPaidFromSheetDisplay" class="text-3xl font-bold text-gray-800 mt-1">J$0.00</p>
                 </div>
             </div>
         </section>
@@ -243,6 +248,7 @@
         const currentReserveFundDisplay = document.getElementById('currentReserveFundDisplay');
         const totalCashbackOwedDisplay = document.getElementById('totalCashbackOwedDisplay');
         const totalCashbackPaidOutDisplay = document.getElementById('totalCashbackPaidOutDisplay');
+        const totalCashbackPaidFromSheetDisplay = document.getElementById('totalCashbackPaidFromSheetDisplay'); // New element for sheet data
 
         // Get DOM elements for tables
         const dailyLogTableBodyWrapper = document.getElementById('dailyLogTableBodyWrapper');
@@ -274,8 +280,8 @@
         const dailyCashbackFundAdditionsMap = new Map();
         const dailyReserveFundAdditionsMap = new Map();
         const dailyLiabilityAdditionsMap = new Map();
-        const monthlyCashbackOwedMap = new Map(); // New map for monthly payouts
-
+        const dailyPaidCashbackFromSheetMap = new Map(); // New map for actual paid amounts
+        
         // Headers for the tables
         const GS_HEADERS = `
             <thead>
@@ -283,7 +289,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top-Up Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top-Up</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Markup (J$)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Cashback Owed</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Release Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Cashback (J$)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cashback Value (J$)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cashback Fund (J$)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reserve Fund (J$)</th>
@@ -298,7 +305,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trading Fund (Start)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Additions (J$)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trade Result (J$)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payouts (J$)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Cashback (J$)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trading Fund (End)</th>
                 </tr>
             </thead>
@@ -341,7 +348,7 @@
                 sign = amount > 0 ? '+' : (amount < 0 ? '-' : '');
             }
             const absAmount = Math.abs(amount);
-            return `J$${sign}${absAmount.toLocaleString('en-JM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            return `J$${absAmount.toLocaleString('en-JM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         };
 
         /**
@@ -577,7 +584,7 @@
          * The main simulation function that runs the cumulative daily simulation.
          */
         const runSimulation = () => {
-            console.log("runSimulation: Starting simulation with updated monthly payout logic.");
+            console.log("runSimulation: Starting simulation with payouts from sheet data.");
 
             // Reset logs
             dailySimulationLog = [];
@@ -656,59 +663,24 @@
                     tradingFund += tradeChange;
                 }
                 
-                // --- NEW PAYOUT LOGIC: 121 days after month-end ---
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                const lastDayOfPreviousMonth = new Date(date.getFullYear(), date.getMonth(), 0);
-                const payoutDateForPreviousMonth = addDays(lastDayOfPreviousMonth, PAYOUT_DELAY_DAYS);
-                const previousMonthKey = `${lastDayOfPreviousMonth.getFullYear()}-${String(lastDayOfPreviousMonth.getMonth() + 1).padStart(2, '0')}`;
-                
-                // Check if today is a scheduled payout date for a previous month
-                if (date.getTime() === payoutDateForPreviousMonth.getTime() && monthlyCashbackOwedMap.has(previousMonthKey)) {
-                    const payoutAmount = monthlyCashbackOwedMap.get(previousMonthKey);
-                    let paidCashbackToday = 0;
-
-                    if (stressTestMode) {
-                        // In stress test, pay as much as possible from available funds
-                        const totalFunds = tradingFund + reserveFund;
-                        const amountToPay = Math.min(totalFunds, payoutAmount);
+                // --- NEW PAYOUT LOGIC: Use actual payouts from Google Sheet ---
+                if (dailyPaidCashbackFromSheetMap.has(dateKey)) {
+                    const payoutAmount = dailyPaidCashbackFromSheetMap.get(dateKey);
+                    
+                    if (payoutAmount > 0) {
+                         // Pay from reserve first
+                        const paidFromReserve = Math.min(reserveFund, payoutAmount);
+                        reserveFund -= paidFromReserve;
                         
-                        if (amountToPay > 0) {
-                            // Pay from reserve first
-                            const paidFromReserve = Math.min(reserveFund, amountToPay);
-                            reserveFund -= paidFromReserve;
-                            
-                            // Pay the rest from trading fund
-                            const remainingPayout = amountToPay - paidFromReserve;
-                            tradingFund -= remainingPayout;
-                            
-                            payouts = amountToPay;
-                            paidCashbackToday = amountToPay;
-                        }
-
-                    } else {
-                        // In normal mode, pay from funds if available
-                        const totalFunds = tradingFund + reserveFund;
-                        if (totalFunds >= payoutAmount) {
-                            // Pay from reserve first
-                            const paidFromReserve = Math.min(reserveFund, payoutAmount);
-                            reserveFund -= paidFromReserve;
-                            
-                            // Pay the rest from trading fund
-                            const remainingPayout = payoutAmount - paidFromReserve;
-                            tradingFund -= remainingPayout;
-
-                            payouts = payoutAmount;
-                            paidCashbackToday = payoutAmount;
-                        } else {
-                            // Funds are insufficient, nothing is paid out
-                            payouts = 0;
-                            paidCashbackToday = 0;
-                        }
+                        // Pay the rest from trading fund
+                        const remainingPayout = payoutAmount - paidFromReserve;
+                        tradingFund -= remainingPayout;
+                        
+                        payouts = payoutAmount;
                     }
-
-                    totalCashbackPaidOut += paidCashbackToday;
-                    console.log(`Payout for ${previousMonthKey} on ${dateKey}: Owed J$${payoutAmount.toFixed(2)}, Paid J$${paidCashbackToday.toFixed(2)}`);
                 }
+                
+                totalCashbackPaidOut += payouts;
                 
                 // Log daily results
                 dailySimulationLog.push({
@@ -837,8 +809,10 @@
                 dailyReserveFundAdditionsMap.clear();
                 dailyLiabilityAdditionsMap.clear();
                 dailyTopUpAmountsMap.clear();
-                monthlyCashbackOwedMap.clear();
+                dailyPaidCashbackFromSheetMap.clear(); // Clear the new map
                 
+                let totalCashbackPaidFromSheet = 0; // New variable to hold the total
+
                 if (data && Array.isArray(data) && data.length > 0) {
                     console.log("loadGoogleSheetData: Processing valid data rows.");
                     processedGoogleSheetData = []; // Reset the global variable
@@ -852,7 +826,14 @@
                     validDataRowsUnsorted.forEach(row => {
                         const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         const parsedActivationDate = parseSheetDate(dateRaw);
-                        processedGoogleSheetData.push({ ...row, parsedDate: parsedActivationDate });
+                        const releaseDateRaw = getColumnValue(row, ['Release Date', 'ReleaseDate']);
+                        const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback (J$)', 'Paid Cashback', 'PaidCashback']));
+                        
+                        const parsedReleaseDate = parseSheetDate(releaseDateRaw);
+                        
+                        totalCashbackPaidFromSheet += paidCashback; // Aggregate the value
+
+                        processedGoogleSheetData.push({ ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate, paidCashback: paidCashback });
                     });
 
                     // Sort processedGoogleSheetData by Activation Date (parsedDate)
@@ -862,6 +843,9 @@
                         if (!b.parsedDate) return -1; // Null dates go to the end
                         return a.parsedDate.getTime() - b.parsedDate.getTime();
                     });
+
+                    // Update the new display card with the total from the sheet
+                    totalCashbackPaidFromSheetDisplay.textContent = formatCurrency(totalCashbackPaidFromSheet);
 
                     if (processedGoogleSheetData.length > 0) {
                         // Determine Simulation Start Date from the first sorted entry
@@ -914,7 +898,6 @@
                             const parsedActivationDate = row.parsedDate;
                             if (parsedActivationDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                                const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
 
                                 // Attempt to get Markup value first
                                 let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup']));
@@ -930,15 +913,14 @@
                                 }
                                 
                                 const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
+                                const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback (J$)', 'Paid Cashback', 'PaidCashback']));
                                 const topUpAmount = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
 
                                 dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
                                 dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
                                 dailyLiabilityAdditionsMap.set(activationDateKey, (dailyLiabilityAdditionsMap.get(activationDateKey) || 0) + cashbackOwed);
                                 dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUpAmount);
-                                
-                                // Aggregate cashback owed by month
-                                monthlyCashbackOwedMap.set(activationMonthKey, (monthlyCashbackOwedMap.get(activationMonthKey) || 0) + cashbackOwed);
+                                dailyPaidCashbackFromSheetMap.set(activationDateKey, (dailyPaidCashbackFromSheetMap.get(activationDateKey) || 0) + paidCashback);
                             }
                         });
                         console.log("loadGoogleSheetData: Google Sheet data table populated.");
@@ -949,17 +931,20 @@
                             const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
                             const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup']));
-                            const cashbackOwedPercent = getColumnValue(row, ['% Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
+                            const releaseDateObj = row.parsedReleaseDate;
+                            const releaseDateDisplay = releaseDateObj ? releaseDateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
                             const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                             const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
                             const reserveFund = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
+                            const paidCashback = row.paidCashback;
 
                             return `
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">${topUpDateDisplay}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(topUp)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${markup !== null ? formatCurrency(markup) : 'N/A'}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">${formatPercentage(cashbackOwedPercent)}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${releaseDateDisplay}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(paidCashback)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackValue)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackFund)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(reserveFund)}</td>
