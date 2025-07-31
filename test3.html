@@ -460,38 +460,6 @@
             <div class="reserve-flow-input-grid">
                 <!-- This grid will now be empty or contain other future inputs -->
             </div>
-
-            <div class="reserve-flow-table-container">
-                <h3>Monthly Financials (Calculated)</h3>
-                <div class="overflow-x-auto">
-                    <table id="rfMonthlyFinancialsTable" class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr id="rfMonthlyFinancialsHeader">
-                                <th class="px-6 py-3">Financial Metric</th>
-                                <!-- Month headers will be generated here -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr id="rfTotalGrossMarkupRow">
-                                <td class="px-6 py-4 whitespace-nowrap">Gross Markup from Sales (J$)</td>
-                                <!-- Calculated values for months will be generated here -->
-                            </tr>
-                            <tr id="rfAllocatedMarkupAddedRow">
-                                <td class="px-6 py-4 whitespace-nowrap">Allocated Markup Added to Reserve (J$)</td>
-                                <!-- Calculated values for months will be generated here -->
-                            </tr>
-                            <tr id="rfTotalCashbackOwedRow">
-                                <td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>
-                                <!-- Calculated values for months will be generated here -->
-                            </tr>
-                            <tr id="rfActualCashbackPaidOutRow">
-                                <td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>
-                                <!-- Calculated values for months will be generated here -->
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         
             <div class="reserve-flow-table-container">
                 <h3>Reserve Flow (Daily)</h3>
@@ -1656,48 +1624,17 @@
         const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83; // 1 - 0.17 from Google Script (Markup allocated to reserve)
 
         // DOM Elements for Reserve Flow Calculator
-        const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader');
-        const rfTotalGrossMarkupRow = document.getElementById('rfTotalGrossMarkupRow'); // New row for gross markup
-        const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow'); // Renamed
-        const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow');
-        const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
+        // const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader'); // REMOVED
+        // const rfTotalGrossMarkupRow = document.getElementById('rfTotalGrossMarkupRow'); // REMOVED
+        // const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow'); // REMOVED
+        // const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow'); // REMOVED
+        // const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow'); // REMOVED
 
         /**
          * Function to generate month headers and display cells dynamically for Reserve Flow Sales Input
+         * This function is no longer needed as the monthly financials table has been removed.
          */
-        const initializeReserveFlowInputs = () => {
-            console.log("initializeReserveFlowInputs: Initializing reserve flow inputs.");
-            const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
-            const totalMonthsForRfDisplay = Math.min(60, numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS); // Cap at 60 months for display
-
-            // Clear existing headers and rows for Monthly Financials Table
-            const rfMonthlyFinancialsHeader = document.getElementById('rfMonthlyFinancialsHeader');
-            const rfTotalGrossMarkupRow = document.getElementById('rfTotalGrossMarkupRow');
-            const rfAllocatedMarkupAddedRow = document.getElementById('rfAllocatedMarkupAddedRow');
-            const rfTotalCashbackOwedRow = document.getElementById('rfTotalCashbackOwedRow'); 
-            const rfActualCashbackPaidOutRow = document.getElementById('rfActualCashbackPaidOutRow');
-
-            if (rfMonthlyFinancialsHeader) rfMonthlyFinancialsHeader.innerHTML = '<th class="px-6 py-3">Financial Metric</th>';
-            if (rfTotalGrossMarkupRow) rfTotalGrossMarkupRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Gross Markup from Sales (J$)</td>';
-            if (rfAllocatedMarkupAddedRow) rfAllocatedMarkupAddedRow.innerHTML = '<td class="px-6 py-4 whitespace-nowrap">Allocated Markup Added to Reserve (J$)</td>';
-            if (rfTotalCashbackOwedRow) rfTotalCashbackOwedRow.insertAdjacentHTML('beforeend', '<td class="px-6 py-4 whitespace-nowrap">Total Cashback Owed (J$) (Liability Incurred)</td>'); 
-            if (rfActualCashbackPaidOutRow) rfActualCashbackPaidOutRow.insertAdjacentHTML('beforeend', '<td class="px-6 py-4 whitespace-nowrap">Actual Cashback Paid Out (J$) (121-day delay)</td>');
-
-
-            for (let i = 0; i < totalMonthsForRfDisplay; i++) {
-                const monthName = `Month ${i + 1}`;
-                // Add month headers
-                if (rfMonthlyFinancialsHeader) rfMonthlyFinancialsHeader.insertAdjacentHTML('beforeend', `<th class="px-6 py-3">${monthName}</th>`);
-
-                // Add empty cells for financial rows, to be filled by runReserveFlowSimulation
-                if (rfTotalGrossMarkupRow) rfTotalGrossMarkupRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-gross-markup-month-${i}"></td>`);
-                if (rfAllocatedMarkupAddedRow) rfAllocatedMarkupAddedRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-allocated-markup-month-${i}"></td>`);
-                if (rfTotalCashbackOwedRow) rfTotalCashbackOwedRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-cashback-owed-month-${i}"></td>`);
-                if (rfActualCashbackPaidOutRow) rfActualCashbackPaidOutRow.insertAdjacentHTML('beforeend', `<td class="px-6 py-4 whitespace-nowrap" id="rf-cashback-paid-month-${i}"></td>`);
-            }
-
-            console.log("initializeReserveFlowInputs: Reserve flow inputs initialized.");
-        };
+        // const initializeReserveFlowInputs = () => { /* REMOVED LOGIC */ };
 
         /**
          * Runs the Reserve Flow simulation.
@@ -1710,7 +1647,7 @@
             const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
             const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS;
 
-            // Monthly Financials arrays (populated from daily maps)
+            // Monthly Financials arrays (populated from daily maps) - These are now internal to the simulation if needed
             const totalGrossMarkupMonthly = Array(totalMonthsForRfCalculation).fill(0);
             const allocatedMarkupAddedMonthly = Array(totalMonthsForRfCalculation).fill(0);
             const totalCashbackOwedMonthly = Array(totalMonthsForRfCalculation).fill(0);
@@ -1723,7 +1660,7 @@
             }
             simStartDate.setHours(0, 0, 0, 0);
 
-            // Aggregate data from daily maps into monthly arrays
+            // Aggregate data from daily maps into monthly arrays (still needed for internal calculations if any)
             dailyTopUpAmountsMap.forEach((amount, dateKey) => {
                 const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
                 if (!date) return;
@@ -1731,9 +1668,6 @@
                 const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
                                  (date.getMonth() - simStartDate.getMonth());
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    // This is a simplification. If Top-Up represents total sales,
-                    // we need to infer voucher quantities or have them in the sheet.
-                    // For now, we'll calculate a 'gross markup' based on the Top-Up amount.
                     totalGrossMarkupMonthly[monthDiff] += amount * (parseFloat(markupRateInput.value) / 100);
                 }
             });
@@ -1767,27 +1701,24 @@
                                  (date.getMonth() - simStartDate.getMonth());
 
                 if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    // FIX: Use cashbackPaidSheet from dailyReserveFlowLog, which is the actual Paid Cashback
                     actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.paidCashback;
                 }
             });
 
 
-            // Populate Monthly Financials Table
-            const totalMonthsForRfDisplay = Math.min(60, totalMonthsForRfCalculation);
-            for (let i = 0; i < totalMonthsForRfDisplay; i++) {
-                const grossMarkupCell = document.getElementById(`rf-gross-markup-month-${i}`);
-                if (grossMarkupCell) grossMarkupCell.textContent = formatCurrency(totalGrossMarkupMonthly[i]);
+            // Populate Monthly Financials Table - REMOVED THIS SECTION
+            // const totalMonthsForRfDisplay = Math.min(60, totalMonthsForRfCalculation);
+            // for (let i = 0; i < totalMonthsForRfDisplay; i++) {
+            //     const grossMarkupCell = document.getElementById(`rf-gross-markup-month-${i}`);
+            //     if (grossMarkupCell) grossMarkupCell.textContent = formatCurrency(totalGrossMarkupMonthly[i]);
+            //     const allocatedMarkupCell = document.getElementById(`rf-allocated-markup-month-${i}`);
+            //     if (allocatedMarkupCell) allocatedMarkupCell.textContent = formatCurrency(allocatedMarkupAddedMonthly[i]);
+            //     const cashbackOwedCell = document.getElementById(`rf-cashback-owed-month-${i}`);
+            //     if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
+            //     const cashbackPaidCell = document.getElementById(`rf-cashback-paid-month-${i}`);
+            //     if (cashbackPaidCell) cashbackPaidCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
+            // }
 
-                const allocatedMarkupCell = document.getElementById(`rf-allocated-markup-month-${i}`);
-                if (allocatedMarkupCell) allocatedMarkupCell.textContent = formatCurrency(allocatedMarkupAddedMonthly[i]);
-
-                const cashbackOwedCell = document.getElementById(`rf-cashback-owed-month-${i}`);
-                if (cashbackOwedCell) cashbackOwedCell.textContent = formatCurrency(totalCashbackOwedMonthly[i]);
-
-                const cashbackPaidCell = document.getElementById(`rf-cashback-paid-month-${i}`);
-                if (cashbackPaidCell) cashbackPaidCell.textContent = formatCurrency(actualCashbackPaidOutMonthly[i]);
-            }
             console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
             // Populate Reserve Flow Table (Daily) using collapsible years
             createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
@@ -2111,7 +2042,7 @@
                         // --- END NEW LOGIC ---
 
                         // After setting all inputs from sheet data, re-run simulations
-                        initializeReserveFlowInputs(); // Re-initialize reserve flow inputs
+                        // initializeReserveFlowInputs(); // REMOVED
                         runSimulation();
                         runReserveFlowSimulation();
                         updateCurrentFundBalancesDisplay(); // Call this to update the new span
@@ -2133,7 +2064,7 @@
                         if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
                         if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
                         if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                        initializeReserveFlowInputs();
+                        // initializeReserveFlowInputs(); // REMOVED
                         runSimulation(); // Run with default/reset values
                         runReserveFlowSimulation(); // Run with default/reset values
                         updateCurrentFundBalancesDisplay(); // Call this to update the new span
@@ -2155,7 +2086,7 @@
                     if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
                     if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
                     if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                    initializeReserveFlowInputs();
+                    // initializeReserveFlowInputs(); // REMOVED
                     runSimulation(); // Run with default/reset values
                     runReserveFlowSimulation(); // Run with default/reset values
                     updateCurrentFundBalancesDisplay(); // Call this to update the new span
@@ -2178,7 +2109,7 @@
                 if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
                 if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
                 if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                initializeReserveFlowInputs();
+                // initializeReserveFlowInputs(); // REMOVED
                 runSimulation(); // Run with default/reset values
                 runReserveFlowSimulation(); // Run with default/reset values
                 updateCurrentFundBalancesDisplay(); // Call this to update the new span
