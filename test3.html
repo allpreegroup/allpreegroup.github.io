@@ -1314,7 +1314,8 @@
                     currentDailyCapital += cashbackFundAddition;
                     dailyNetChange += cashbackFundAddition;
                     eventOccurred = true;
-                    eventType = 'Trading Fund Add (Sheet)';
+                    // Modified eventType here
+                    eventType = 'Add Trading Fund'; 
                     console.log(`    Trading Fund: Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
                     
                     // Aggregate to the correct monthly object in monthlyPurchaseDataMap
@@ -1328,7 +1329,9 @@
                 if (reserveFundAddition > 0) {
                     currentDailyReserve += reserveFundAddition;
                     dailyMarkupAdded += reserveFundAddition; // This is the daily markup added
-                    if (eventType === 'No Event') eventType = 'Reserve Fund Add (Sheet)';
+                    // If eventType was already set to "Add Trading Fund", just append " & Reserve Fund Add (Sheet)"
+                    if (eventType === 'Add Trading Fund') eventType += ' & Reserve Fund Add (Sheet)';
+                    else if (eventType === 'No Event') eventType = 'Reserve Fund Add (Sheet)';
                     else eventType += ' & Reserve Fund Add (Sheet)';
                     console.log(`    Reserve Fund: Added ${formatCurrency(reserveFundAddition)} from Reserve Fund. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
                 }
