@@ -636,6 +636,8 @@
             for (let date = new Date(simStartDate); date <= simEndDate; date.setDate(date.getDate() + 1)) {
                 dayCounter++;
                 const dateKey = date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                
+                // Use a different key for payouts which are monthly
                 const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
 
                 // --- Simulation Fund Update Part ---
@@ -735,7 +737,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.tradingFundStart, false)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${data.fundAdditions > 0 ? 'text-green-600' : 'text-gray-500'}">${data.fundAdditions > 0 ? formatCurrency(data.fundAdditions, true) : 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${tradeResultClass}">${data.tradeResult !== 0 ? formatCurrency(data.tradeResult, true) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${data.payouts > 0 ? 'text-red-600' : 'text-gray-500'}">${data.payouts > 0 ? formatCurrency(data.payouts, true) : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${data.payouts > 0 ? 'text-red-600' : 'text-gray-500'}">${data.payouts > 0 ? formatCurrency(data.payouts, false) : 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.tradingFundEnd, false)}</td>
                     </tr>
                 `;
@@ -777,10 +779,10 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, false)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.markupAddedToReserve > 0 ? formatCurrency(data.markupAddedToReserve, true) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${data.paidCashback > 0 ? formatCurrency(data.paidCashback, true) : 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveEnd, true)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.paidCashback > 0 ? formatCurrency(data.paidCashback, false) : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveEnd, false)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td>
                     </tr>
                 `;
@@ -934,7 +936,7 @@
                                 dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
                                 dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
                                 dailyLiabilityAdditionsMap.set(activationDateKey, (dailyLiabilityAdditionsMap.get(activationDateKey) || 0) + cashbackOwed);
-                                dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUp); // Fixed: changed topUpAmount to topUp
+                                dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUp);
                             }
 
                             // Populate the new monthly payouts map
