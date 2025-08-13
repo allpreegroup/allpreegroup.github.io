@@ -520,7 +520,7 @@
 
     </div>
 
-  <script>
+ <script>
         // --- Global Constants ---
         const PAYOUT_DELAY_DAYS = 121; // 121-day delay for cashback payouts
         const EXTRA_MONTHS_FOR_PAYOUTS = 5; // Additional months to simulate beyond purchase months to cover all payouts
@@ -618,8 +618,12 @@
         let monthlyPurchaseDataMap = new Map(); 
         let dailyReserveFlowLog = []; // New: Stores daily reserve flow entries
         
-        // --- NEW: Global state for toggles ---
-        let excludedDeposits = new Set(); // Stores date strings (YYYY-MM-DD) of deposits to exclude
+        // --- NEW: Global state for toggles with localStorage persistence ---
+        const INCLUDED_DEPOSITS_STORAGE_KEY = 'financialSim_includedDeposits';
+        const savedInclusions = localStorage.getItem(INCLUDED_DEPOSITS_STORAGE_KEY);
+        // By default, all deposits are excluded. This set will store the ones the user explicitly includes.
+        let includedDeposits = new Set(savedInclusions ? JSON.parse(savedInclusions) : []);
+
 
         // NEW: Global variables to hold the balances from the last payout found in the sheet
         let lastKnownTradingFundAfterPayout = null;
@@ -634,6 +638,7 @@
         const dailyTopUpAmountsMap = new Map(); // For cumulative voucher purchases
         const dailyCashbackValueOwedMap = new Map(); // NEW: For Cashback Value (keyed by Release Date)
         const dailyPaidCashbackMap = new Map(); // NEW: For Paid Cashback from sheet (keyed by Release Date)
+        const monthlyAggregatedDepositsMap = new Map(); // NEW: Key: YYYY-MM, Value: total deposit for that month
         const dailyFirstPurchaseDateMap = new Map(); // New: To store the earliest purchase date for each month
         const monthlyPayoutObligationsByPayoutDateMap = new Map(); // Map<dateKey (payoutMonthEnd), Array<monthData>>
 
@@ -962,107 +967,71 @@
             const actualPurchaseMonths = numberOfPurchaseMonths; // Use the input value
             const currentTotalSimulationMonths = actualPurchaseMonths + EXTRA_MONTHS_FOR_PAYOUTS;
 
-            // --- Monthly Simulation Loop (Extended to cover all payouts) ---
-            // This loop now primarily sets up the structure for monthlyPurchaseDataMap
-            // and manages the overall simulation timeline. The actual fund movements
-            // and liability accruals are handled in the daily simulation.
+            // This loop is now less critical for payout logic but still sets up a timeline.
             for (let monthIndex = 0; monthIndex < currentTotalSimulationMonths; monthIndex++) {
-                // Determine the start date of the current calendar month for this iteration
                 const currentCalendarMonthStart = new Date(initialDate.getFullYear(), initialDate.getMonth() + monthIndex, 1);
-                currentCalendarMonthStart.setHours(0, 0, 0, 0); // Normalize to local midnight
-
-                // Generate a key for the map based on YYYY-MM
+                currentCalendarMonthStart.setHours(0, 0, 0, 0);
                 const monthKey = `${currentCalendarMonthStart.getFullYear()}-${String(currentCalendarMonthStart.getMonth() + 1).padStart(2, '0')}`;
-
-                // Initialize monthData for this calendar month if it doesn't exist
                 if (!monthlyPurchaseDataMap.has(monthKey)) {
                     monthlyPurchaseDataMap.set(monthKey, {
-                        month: monthIndex + 1, // This 'month' is just an ordinal number for display
-                        purchaseDate: null, // Will be updated with earliest actual purchase date later
-                        // Cashback Due Date and Payout Month-End are now strictly derived from 121-day delay
-                        cashbackDueDate: addDays(currentCalendarMonthStart, PAYOUT_DELAY_DAYS),
+                        month: monthIndex + 1,
                         payoutMonthEnd: getEndOfMonthLocal(addDays(currentCalendarMonthStart, PAYOUT_DELAY_DAYS)),
-                        totalCashbackOwed: 0,
-                        cashbackAccruedThisMonth: 0,
-                        accruedNetPayoutObligation: 0,
-                        monthlyFundContribution: 0,
-                        fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
-                        payoutDeductedInThisMonth: 0,
-                        actualPayoutMetStatus: null
                     });
                 }
-                // Push a reference to the map's object into monthlySimulationResults for overall tracking
-                monthlySimulationResults.push(monthlyPurchaseDataMap.get(monthKey));
             }
 
-            const { finalTradingFund, finalReserveFund } = runCumulativeDailySimulation(); // Capture both returned values
+            const { finalTradingFund, finalReserveFund } = runCumulativeDailySimulation(); 
 
-            // --- Aggregate sheetDataAggregatedBySimulatedPayoutMonthEnd for display ---
+            // Create a map of daily reserve start values for efficient lookup
+            const dailyReserveStartMap = new Map();
+            dailyReserveFlowLog.forEach(log => {
+                const dateKey = log.date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                dailyReserveStartMap.set(dateKey, log.reserveStart);
+            });
+
+            // --- Aggregate data for the Combined Payout Table ---
             console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
-            const aggregatedPayoutArray = []; // Will be an array of objects for display
+            const aggregatedPayoutArray = []; 
 
-            // Iterate directly over sheetDataAggregatedBySimulatedPayoutMonthEnd
             sheetDataAggregatedBySimulatedPayoutMonthEnd.forEach((sheetAggregatedData, payoutMonthEndKey) => {
-                const payoutMonthEnd = parseSheetDate(payoutMonthEndKey); // Re-parse the date string key
-
-                // Ensure payoutMonthEnd is valid
+                const payoutMonthEnd = parseSheetDate(payoutMonthEndKey); 
                 if (!payoutMonthEnd) {
                     console.warn(`runSimulation: Skipping invalid payoutMonthEndKey: ${payoutMonthEndKey}`);
                     return;
                 }
 
-                // Find the corresponding fundBalanceBeforePayout from monthlyPurchaseDataMap
-                // This will take the fund balance before the first payout for that specific date.
-                let fundBalanceBeforePayoutForDisplay = null;
-                let foundMonthDataForBeforePayout = false;
-                monthlyPurchaseDataMap.forEach(monthData => {
-                    const monthDataPayoutMonthEndKey = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                    if (monthDataPayoutMonthEndKey === payoutMonthEndKey && monthData.fundBalanceBeforePayoutForThisMonth !== null && !foundMonthDataForBeforePayout) {
-                        fundBalanceBeforePayoutForDisplay = monthData.fundBalanceBeforePayoutForThisMonth;
-                        foundMonthDataForBeforePayout = true; 
-                    }
-                });
+                // *** INTEGRATION LOGIC: Get the reserve fund balance for the payout date ***
+                const reserveFundForPayoutDay = dailyReserveStartMap.get(payoutMonthEndKey) || 0;
+                const totalCashbackOwedForPeriod = cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed);
+                
+                // Determine if the payout was met based on the reserve fund at the start of that day.
+                const payoutMet = reserveFundForPayoutDay >= totalCashbackOwedForPeriod;
 
                 aggregatedPayoutArray.push({
                     payoutMonthEnd: payoutMonthEnd,
-                    totalCashbackByReleaseDate: cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed),
+                    totalCashbackByReleaseDate: totalCashbackOwedForPeriod,
                     totalPayoutDeducted: cleanAndParseFloat(sheetAggregatedData.totalPaidCashback),
-                    fundBalanceBeforePayout: fundBalanceBeforePayoutForDisplay, 
-                    fundBalanceAfterPayout: sheetAggregatedData.fundBalanceAfterPayout, 
-                    actualPayoutMetStatus: sheetAggregatedData.overallPayoutMet 
+                    // The fund balance to check against is the Reserve Fund at the start of the payout day.
+                    fundBalanceBeforePayout: reserveFundForPayoutDay, 
+                    actualPayoutMetStatus: payoutMet
                 });
             });
 
             // Sort the array by payoutMonthEnd
             aggregatedPayoutArray.sort((a, b) => a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime());
 
-            // Aggregate results from daily simulation for summary
-            cumulativeVoucherPurchases = 0; // Will be summed from dailyTopUpAmountsMap
-            totalCashbackOwedAccrued = 0; // Will be summed from dailyLiabilityAdditionsMap
-            
-            // Sum total cashback paid directly from the dailyPaidCashbackMap
+            // Aggregate final results for summary cards
             totalCashbackPaid = 0;
-            dailyPaidCashbackMap.forEach(amount => {
-                totalCashbackPaid += amount;
-            });
-            console.log("runSimulation: Calculated totalCashbackPaid before updateSummary:", totalCashbackPaid); // Added debug log
+            dailyPaidCashbackMap.forEach(amount => totalCashbackPaid += amount);
 
-            let overallPayoutSuccess = true;
+            let overallPayoutSuccess = aggregatedPayoutArray.every(data => data.actualPayoutMetStatus !== false);
 
-            // Now iterate through the aggregatedPayoutArray for overall payout status
-            aggregatedPayoutArray.forEach(data => {
-                // The overallPayoutSuccess should still be based on the actualPayoutMetStatus from the simulation
-                if (data.actualPayoutMetStatus === false) { 
-                    overallPayoutSuccess = false;
-                }
-            });
-
-            // Sum cumulative voucher purchases and total cashback owed from the daily data
+            cumulativeVoucherPurchases = 0;
             dailyTopUpAmountsMap.forEach(amount => cumulativeVoucherPurchases += amount);
+            totalCashbackOwedAccrued = 0;
             dailyLiabilityAdditionsMap.forEach(amount => totalCashbackOwedAccrued += amount);
 
-
-            updateCombinedPayoutTable(aggregatedPayoutArray); // Pass the aggregated array
+            updateCombinedPayoutTable(aggregatedPayoutArray); 
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalTradingFund, finalReserveFund, overallPayoutSuccess);
             console.log("runSimulation: Simulation finished.");
         };
@@ -1076,9 +1045,8 @@
             combinedPayoutTableBody.innerHTML = '';
 
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Normalize today's date to local midnight for consistent comparison
+            today.setHours(0, 0, 0, 0); // Normalize today's date for consistent comparison
 
-            // Initialize projection with the value from the "Total Markup" card
             let runningMarkupProjection = globalCurrentTotalMarkupForProjection; 
 
             results.forEach(data => {
@@ -1089,20 +1057,13 @@
                 let markupProjectionDisplay;
                 let markupProjectionClass;
 
-                // Determine fundBalanceDisplay based on whether the payout date is in the future
-                if (data.payoutMonthEnd.getTime() > today.getTime()) {
-                    fundBalanceDisplay = 'Pending';
-                    fundBalanceClass = 'text-orange-600';
-                } else {
-                    // For past dates, always show the calculated fundBalanceAfterPayout
-                    fundBalanceDisplay = formatCurrency(data.fundBalanceAfterPayout);
-                    fundBalanceClass = data.fundBalanceAfterPayout >= 0 ? 'text-green-600' : 'text-red-600';
-                }
+                // The fund balance to display is the reserve fund at the start of the payout day
+                fundBalanceDisplay = formatCurrency(data.fundBalanceBeforePayout);
+                fundBalanceClass = data.fundBalanceBeforePayout >= 0 ? 'text-green-600' : 'text-red-600';
 
-                // Use the totalPayoutDeducted which is now sourced from sheet's Paid Cashback
+                // Use the totalPayoutDeducted which is sourced from sheet's Paid Cashback
                 if (data.totalPayoutDeducted !== undefined) {
                     payoutDeductedDisplay = formatCurrency(data.totalPayoutDeducted);
-                    // Color based on whether a deduction occurred (red if > 0, gray if 0)
                     payoutDeductedClass = data.totalPayoutDeducted > 0 ? 'text-red-600' : 'text-gray-600';
                 } else {
                     payoutDeductedDisplay = 'N/A';
@@ -1111,35 +1072,33 @@
                 
                 // --- Logic for Markup Projection column ---
                 if (data.payoutMonthEnd.getTime() > today.getTime()) {
-                    // This is a future month, so calculate the projection
                     runningMarkupProjection -= data.totalCashbackByReleaseDate;
                     markupProjectionDisplay = formatCurrency(runningMarkupProjection);
                     markupProjectionClass = runningMarkupProjection >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
-                    // This is a past or current month, projection is not applicable
-                    markupProjectionDisplay = 'PAID-OUT';
+                    markupProjectionDisplay = 'Paid Out';
                     markupProjectionClass = 'text-green-600';
                 }
 
                 let payoutMetDisplay;
                 let payoutMetClass;
 
-                // NEW LOGIC: Combine "Payout Met" with "Payout Deducted" AND check if payout date has passed
+                // Logic for "Payout Met?" column
                 if (data.payoutMonthEnd.getTime() > today.getTime()) {
-                    payoutMetDisplay = 'N/A'; // Payout date is in the future
+                    payoutMetDisplay = 'Pending'; 
                     payoutMetClass = 'text-orange-600';
                 } else if (data.totalCashbackByReleaseDate === 0) {
-                    payoutMetDisplay = 'N/A'; // No cashback owed for this period
+                    payoutMetDisplay = 'N/A'; 
                     payoutMetClass = 'text-orange-600';
-                } else if (data.actualPayoutMetStatus) { // Fund could cover owed amount
-                    if (data.totalPayoutDeducted > 0) { // And an actual payout was recorded
+                } else if (data.actualPayoutMetStatus) { // Payout was met based on reserve fund
+                    if (data.totalPayoutDeducted > 0) {
                         payoutMetDisplay = 'Met & Paid';
                         payoutMetClass = 'text-green-600';
-                    } else { // Fund could cover, but no payout recorded (e.g., owed > 0 but paid = 0)
+                    } else { 
                         payoutMetDisplay = 'Met (Unpaid)';
                         payoutMetClass = 'text-orange-600'; 
                     }
-                } else { // Fund had a shortfall
+                } else { // Reserve fund had a shortfall
                     payoutMetDisplay = 'Shortfall';
                     payoutMetClass = 'text-red-600';
                 }
@@ -1195,55 +1154,43 @@
         };
 
         /**
-         * Runs the cumulative daily simulation for the entire period, enforcing max 2 trades per week.
-         * This function also updates the `actualPayoutSurplusDeficit` and `actualPayoutMetStatus`
-         * for each relevant monthly purchase data object based on the daily fund balance.
-         * It also calculates the daily Reserve Flow.
+         * Runs the cumulative daily simulation for the entire period.
          * @returns {object} An object containing the final trading fund and reserve fund.
          */
         const runCumulativeDailySimulation = () => {
             console.log("runCumulativeDailySimulation: Starting daily simulation.");
-            // Clear previous daily log by clearing the wrapper
             dailyLogTableBodyWrapper.innerHTML = ''; 
-            dailyReserveFlowLog = []; // Clear previous daily reserve log
-
-            const actualPurchaseMonths = parseInt(numberOfPurchaseMonthsInput.value);
-            const validPurchaseMonths = isNaN(actualPurchaseMonths) || actualPurchaseMonths < 1 ? 1 : actualPurchaseMonths;
+            dailyReserveFlowLog = []; 
 
             const simulationStartDateString = simulationStartDateInput.value;
-            const startDate = parseSheetDate(simulationStartDateString); // Use parseSheetDate here
+            const startDate = parseSheetDate(simulationStartDateString);
             if (!startDate) {
                 console.error("runCumulativeDailySimulation: Start date could not be parsed. Aborting simulation.");
-                return { finalTradingFund: 0, finalReserveFund: 0 }; // Abort or handle error
+                return { finalTradingFund: 0, finalReserveFund: 0 };
             }
-            startDate.setHours(0, 0, 0, 0); // Ensure start date is local midnight
+            startDate.setHours(0, 0, 0, 0);
 
-            // Determine the true end date for the daily log
-            let simulationEndDate = new Date(); // Default to today's date
-            simulationEndDate.setHours(0,0,0,0); // Normalize to local midnight
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let simulationEndDate = new Date(today);
 
-            // Find the maximum release date from the processed Google Sheet data
-            let maxSheetReleaseDate = new Date(0); // Initialize with a very old date
+            let maxSheetReleaseDate = new Date(0);
             processedGoogleSheetData.forEach(row => {
                 if (row.parsedReleaseDate && row.parsedReleaseDate.getTime() > maxSheetReleaseDate.getTime()) {
                     maxSheetReleaseDate = row.parsedReleaseDate;
                 }
             });
 
-            // If the latest release date from the sheet is in the future, use that as the end date
-            // Otherwise, stick with today's date.
             if (maxSheetReleaseDate.getTime() > simulationEndDate.getTime()) {
                 simulationEndDate = maxSheetReleaseDate;
             }
             
-            // FIX: Ensure simulationEndDate is the last day of the month
-            const endDate = getEndOfMonthLocal(simulationEndDate); // Apply getEndOfMonthLocal here
+            const endDate = getEndOfMonthLocal(simulationEndDate);
             console.log(`Daily simulation period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`);
 
-
             let currentDailyCapital = parseFloat(initialTradingFundInput.value);
-            let currentDailyReserve = 0; // Start at 0 as per user request
-            let cumulativeAccruedCashbackLiability = 0; // Start at 0 as per user request
+            let currentDailyReserve = 0; 
+            let cumulativeAccruedCashbackLiability = 0;
 
             const avgWeeklyWin = parseFloat(avgWeeklyWinInput.value) / 100;
             const maxWeeklyLoss = parseFloat(maxWeeklyLossInput.value) / 100;
@@ -1253,293 +1200,101 @@
             const dailyRng = new SeededRandom(isNaN(seedValue) || simulationSeedInput.value === '' ? Date.now() : seedValue);
             
             let dayCounter = 1;
-            let currentDate = new Date(startDate); // Initialize currentDate directly from startDate
-
+            let currentDate = new Date(startDate);
             let tradesThisWeek = 0;
-
-            // Variables to store fund balances as of today (these are now internal if not displayed)
-            let tradingFundBalanceAsOfToday = currentDailyCapital;
-            let reserveFundBalanceAsOfToday = currentDailyReserve; // Corrected declaration location
-
-            // Declare reserveStartOfDay outside the loop
             let reserveStartOfDay; 
 
-            // Populate monthlyPurchaseDataMap and monthlyPayoutObligationsByPayoutDateMap
-            monthlyPurchaseDataMap.clear(); 
-            monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
-            for (let i = 0; i < validPurchaseMonths + EXTRA_MONTHS_FOR_PAYOUTS; i++) { // Include extra months for payouts
-                const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-                monthStart.setHours(0, 0, 0, 0);
-                const monthKey = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, '0')}`;
-                
-                const monthData = {
-                    month: i + 1, // Ordinal month number
-                    purchaseDate: null, // Will be updated with earliest actual purchase date later
-                    cashbackDueDate: addDays(monthStart, PAYOUT_DELAY_DAYS), // Always 121 days from month start
-                    payoutMonthEnd: getEndOfMonthLocal(addDays(monthStart, PAYOUT_DELAY_DAYS)), // Always end of month after 121 days
-                    totalCashbackOwed: 0,
-                    cashbackAccruedThisMonth: 0,
-                    accruedNetPayoutObligation: 0,
-                    monthlyFundContribution: 0,
-                    fundBalanceBeforePayoutForThisMonth: null, // NEW: To store fund balance before payout
-                    payoutDeductedInThisMonth: 0,
-                    actualPayoutMetStatus: null
-                };
-                monthlyPurchaseDataMap.set(monthKey, monthData);
+            const dailyLogEntries = [];
+            let monthlyCashbackPayoutTotal = new Map();
 
-                // Add to monthlyPayoutObligationsByPayoutDateMap
-                const payoutDateString = monthData.payoutMonthEnd.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                if (!monthlyPayoutObligationsByPayoutDateMap.has(payoutDateString)) {
-                    monthlyPayoutObligationsByPayoutDateMap.set(payoutDateString, []);
-                }
-                monthlyPayoutObligationsByPayoutDateMap.get(payoutDateString).push(monthData);
-            }
-
-            // Log the initial state of monthlyPayoutObligationsByPayoutDateMap
-            console.log("runCumulativeDailySimulation: Initial monthlyPayoutObligationsByPayoutDateMap content:");
-            monthlyPayoutObligationsByPayoutDateMap.forEach((obligations, dateKey) => {
-                console.log(`     Payout Date: ${dateKey}, Obligations Count: ${obligations.length}`);
-                obligations.forEach(o => console.log(`       - Month: ${o.month}, Purchase Date: ${o.purchaseDate ? o.purchaseDate.toLocaleDateString() : 'N/A'}, Accrued: ${formatCurrency(o.accruedNetPayoutObligation)}`));
-            });
-
-
-            const dailyLogEntries = []; // Collect all daily log entries here
-
-            console.log(`runCumulativeDailySimulation: Initial capital: ${formatCurrency(currentDailyCapital)}`);
-
-            // New variables for accumulating monthly values for display in RF table
-            let currentMonthAggregatedDeposit = 0;
-            let currentMonthAggregatedPaidCashback = 0;
-            let lastProcessedMonth = -1; // To track month changes (0-11)
-            let lastProcessedYear = -1;  // To track year changes
-
-            // New maps for accumulating daily and monthly net changes for the Daily Log table
-            let monthlyTradingFundNetChange = new Map(); // Accumulates non-payout changes for the month
-            let monthlyCashbackPayoutTotal = new Map(); // Accumulates payout deductions for the month
-
-            // Iterate through days
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                const dayOfWeek = currentDate.getDay();
 
-                // Determine if this is a new month or the first day of simulation
-                const currentMonth = currentDate.getMonth();
-                const currentYear = currentDate.getFullYear();
                 const monthEndDateForCurrentDay = getEndOfMonthLocal(currentDate);
                 const isMonthEnd = currentDate.getTime() === monthEndDateForCurrentDay.getTime();
 
-                // Reset aggregators at the start of a new month
-                if (currentMonth !== lastProcessedMonth || currentYear !== lastProcessedYear) {
-                    currentMonthAggregatedDeposit = 0;
-                    currentMonthAggregatedPaidCashback = 0;
-                    // Ensure monthly net change accumulators are initialized for the new month
-                    monthlyTradingFundNetChange.set(currentMonthKey, 0);
-                    monthlyCashbackPayoutTotal.set(currentMonthKey, 0);
-                    lastProcessedMonth = currentMonth;
-                    lastProcessedYear = currentYear;
-                }
-
-                if (dayOfWeek === 1 || dayCounter === 1) { // Reset trades for the week on Monday or first day
+                if (dayOfWeek === 1 || dayCounter === 1) {
                     tradesThisWeek = 0;
                 }
 
-                let capitalBeforeEvent = currentDailyCapital; // Capture capital at the start of the day
-                reserveStartOfDay = currentDailyReserve; // Assign value here for each day
+                let capitalBeforeEvent = currentDailyCapital;
+                reserveStartOfDay = currentDailyReserve;
 
-                let dailyMarkupAdded = 0; // This is the value for "Markup Added to Reserve (J$)" in RF table
-                let monthlyBulkPayout = 0; // This is the value for "Paid Cashback (J$)" in RF table
-                let monthlyDepositLumpSumForThisDay = 0; // For the "Deposit (J$)" column
-                let reserveEndOfDay = currentDailyReserve; // Initialize for calculation
+                let dailyMarkupAdded = 0;
 
-                console.log(`     Reserve Start of Day: ${formatCurrency(reserveStartOfDay, true)}`);
-
-                // --- Apply daily additions from Google Sheet data ---
-                // Add to Trading Fund from 'Cashback Fund' column
-                const cashbackFundAddition = cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0);
-                if (cashbackFundAddition > 0) {
-                    currentDailyCapital += cashbackFundAddition;
-                    console.log(`     Trading Fund: Added ${formatCurrency(cashbackFundAddition)} from Cashback Fund. Capital now: ${formatCurrency(currentDailyCapital)}`);
+                if (currentDate <= today) {
+                    const cashbackFundAddition = cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0);
+                    if (cashbackFundAddition > 0) currentDailyCapital += cashbackFundAddition;
                     
-                    // Aggregate to the correct monthly object in monthlyPurchaseDataMap
-                    const monthDataForAggregation = monthlyPurchaseDataMap.get(currentMonthKey);
-                    if (monthDataForAggregation) {
-                        monthDataForAggregation.monthlyFundContribution += cashbackFundAddition;
+                    const reserveFundAddition = cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0);
+                    if (reserveFundAddition > 0) {
+                        currentDailyReserve += reserveFundAddition;
+                        dailyMarkupAdded += reserveFundAddition;
                     }
-                }
-                // Add to Reserve Fund from 'Reserve Fund' column
-                const reserveFundAddition = cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0);
-                if (reserveFundAddition > 0) {
-                    currentDailyReserve += reserveFundAddition;
-                    dailyMarkupAdded += reserveFundAddition; // This is the daily markup added
-                    console.log(`     Reserve Fund: Added ${formatCurrency(reserveFundAddition)} from Reserve Fund. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
-                }
 
-                // Apply new Liability accrual from 'Cashback' column (does not affect dailyNetChangeForCurrentDay)
-                const liabilityToAdd = cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0);
-                if (liabilityToAdd > 0) {
-                    cumulativeAccruedCashbackLiability += liabilityToAdd;
-                    
-                    // Aggregate to the correct monthly object in monthlyPurchaseDataMap
-                    const monthDataForAggregation = monthlyPurchaseDataMap.get(currentMonthKey);
-                    if (monthDataForAggregation) {
-                        monthDataForAggregation.totalCashbackOwed += liabilityToAdd;
-                        monthDataForAggregation.accruedNetPayoutObligation += liabilityToAdd;
-                        console.log(`     Liability: Added ${formatCurrency(liabilityToAdd)}. Month ${currentMonthKey} accruedNetPayoutObligation now: ${formatCurrency(monthDataForAggregation.accruedNetPayoutObligation)}`);
-                        // Also update the purchaseDate if this is the earliest for the month
-                        const currentParsedDate = parseSheetDate(currentDateString);
-                        if (currentParsedDate && (!monthDataForAggregation.purchaseDate || currentParsedDate < dailyFirstPurchaseDateMap.get(currentMonthKey))) {
-                            monthDataForAggregation.purchaseDate = currentParsedDate;
-                        }
-                    }
+                    const liabilityToAdd = cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0);
+                    if (liabilityToAdd > 0) cumulativeAccruedCashbackLiability += liabilityToAdd;
                 }
-                // --- End daily additions from Google Sheet data ---
-
-                // Payouts Due Today (driven by Release Date) - Accumulation Only
+                
                 const paidCashbackForToday = dailyPaidCashbackMap.get(currentDateString) || 0;
-                let isPayoutDay = false;
                 if (paidCashbackForToday > 0) {
-                    isPayoutDay = true;
-                    
-                    // Accumulate for RF table month-end display
-                    currentMonthAggregatedPaidCashback += paidCashbackForToday; 
-
-                    // Accumulate payout for month-end deduction
                     monthlyCashbackPayoutTotal.set(currentMonthKey, (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) + paidCashbackForToday);
-                    
-                    console.log(`     Payout Day (Accumulated): ${formatCurrency(paidCashbackForToday)}. Will be deducted at month-end.`);
                 }
                 
-                // Calculate and apply the lump-sum deposit for the "Deposit (J$)" column (Cashback Value owed on Release Date)
-                monthlyDepositLumpSumForThisDay = dailyCashbackValueOwedMap.get(currentDateString) || 0; 
-                
-                // --- NEW: Check if this deposit is excluded by the user ---
-                if (excludedDeposits.has(currentDateString)) {
-                    console.log(`     Deposit on ${currentDateString} is excluded by user toggle.`);
-                    monthlyDepositLumpSumForThisDay = 0; // Set to 0 if excluded
-                }
-                // --- END NEW ---
-                
-                if (monthlyDepositLumpSumForThisDay > 0) {
-                    currentDailyReserve += monthlyDepositLumpSumForThisDay; // Always add to reserve fund
-                    currentMonthAggregatedDeposit += monthlyDepositLumpSumForThisDay; // Accumulate for RF table month-end display
-                    console.log(`     Cashback Value Deposit: Added ${formatCurrency(monthlyDepositLumpSumForThisDay)}. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
-                }
-                
-                // Ensure cumulativeAccruedCashbackLiability doesn't go below zero
-                cumulativeAccruedCashbackLiability = Math.max(0, cumulativeAccruedCashbackLiability);
-
                 let isTradingDayForDisplay = false;
-                let tradeOutcomeIsWin = null; // Store trade outcome for event type display
+                let tradeOutcomeIsWin = null;
 
-                // Trading only on weekdays, if no other major event (contribution/payout/deposit),
-                // trades left for the week, fund is positive, AND NOT month-end
-                const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5); // Corrected to <= 5 for Friday
-                const canTradeOnThisDay = isWeekday && !(cashbackFundAddition > 0) && !(reserveFundAddition > 0) && !isPayoutDay && !(monthlyDepositLumpSumForThisDay > 0) && tradesThisWeek < MAX_TRADES_PER_WEEK && currentDailyCapital > 0 && !isMonthEnd;
+                const isWeekday = (dayOfWeek >= 1 && dayOfWeek <= 5);
+                const canTradeOnThisDay = isWeekday && tradesThisWeek < MAX_TRADES_PER_WEEK && currentDailyCapital > 0 && !isMonthEnd && currentDate <= today;
 
                 if (canTradeOnThisDay) { 
-                    // Directly determine win/loss for each trade using random number
                     tradeOutcomeIsWin = dailyRng.next() * 100 < winRate; 
                     const capitalForTradeCalculation = currentDailyCapital;
-
-                    let tradeGainLossAmount;
-                    if (tradeOutcomeIsWin) {
-                        tradeGainLossAmount = capitalForTradeCalculation * avgWeeklyWin;
-                    } else {
-                        tradeGainLossAmount = -capitalForTradeCalculation * maxWeeklyLoss;
-                    }
+                    let tradeGainLossAmount = tradeOutcomeIsWin ? capitalForTradeCalculation * avgWeeklyWin : -capitalForTradeCalculation * maxWeeklyLoss;
                     currentDailyCapital += tradeGainLossAmount;
                     tradesThisWeek++;
                     isTradingDayForDisplay = true;
-                    console.log(`     Trade: Occurred (${tradeOutcomeIsWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}.`);
                 }
 
-                // --- Month-End Specific Events ---
                 let eventsForDailyLog = [];
-                let eventOccurredForDailyLog = false; // Initialize to false
-
-                if (cashbackFundAddition > 0) eventsForDailyLog.push('Add Trading Fund');
-                if (reserveFundAddition > 0) eventsForDailyLog.push('Reserve Fund Add (Sheet)');
                 if (isTradingDayForDisplay) eventsForDailyLog.push(tradeOutcomeIsWin ? 'Trade (Win)' : 'Trade (Loss)');
                 
-                if (isMonthEnd) {
-                    const totalPayoutsThisMonth = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
+                let aggregatedDepositForMonthEnd = 0;
 
-                    // NEW: Deduct the accumulated payout for the month from capital and reserve at month-end
+                if (isMonthEnd && currentDate <= today) {
+                    const monthlyDeposit = monthlyAggregatedDepositsMap.get(currentMonthKey) || 0;
+                    if (monthlyDeposit > 0 && includedDeposits.has(currentMonthKey)) {
+                        currentDailyReserve += monthlyDeposit;
+                    }
+                    aggregatedDepositForMonthEnd = monthlyDeposit;
+
+                    const totalPayoutsThisMonth = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
                     if (totalPayoutsThisMonth > 0) {
                         currentDailyCapital -= totalPayoutsThisMonth;
                         currentDailyReserve -= totalPayoutsThisMonth;
-                        console.log(`     Month-End Payout Deduction: Deducted ${formatCurrency(totalPayoutsThisMonth)}. Capital now: ${formatCurrency(currentDailyCapital)}. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
-                    }
-
-                    const aggregatedSheetDataForMonthEnd = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
-                    const totalCashbackOwedForMonthEnd = aggregatedSheetDataForMonthEnd ? aggregatedSheetDataForMonthEnd.totalCashbackOwed : 0;
-
-                    if (totalPayoutsThisMonth > 0) {
                         eventsForDailyLog.push('Cashback Payout');
-                    } else if (totalCashbackOwedForMonthEnd > 0) {
-                        // If no cash was paid but there was an obligation, mark it as 'Cashback Payout (Unpaid)'
-                        eventsForDailyLog.push('Cashback Payout (Unpaid)');
-                    }
-
-                    if (monthlyDepositLumpSumForThisDay > 0) {
-                        eventsForDailyLog.push('Month-End Deposit');
-                    }
-
-                    // Ensure fundBalanceAfterPayout is always set for month-end in aggregated sheet data
-                    if (sheetDataAggregatedBySimulatedPayoutMonthEnd.has(currentDateString)) {
-                        const aggregatedDataForToday = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
-                        aggregatedDataForToday.fundBalanceAfterPayout = currentDailyCapital;
-                        
-                        const actualCashbackOwedForThisMonthEnd = aggregatedDataForToday.totalCashbackOwed;
-                        const actualCashbackPaidForThisMonthEnd = aggregatedDataForToday.totalPaidCashback;
-
-                        if (actualCashbackOwedForThisMonthEnd > 0) {
-                            aggregatedDataForToday.overallPayoutMet = (currentDailyCapital + actualCashbackPaidForThisMonthEnd) >= actualCashbackOwedForThisMonthEnd;
-                        } else {
-                            aggregatedDataForToday.overallPayoutMet = true; 
-                        }
                     }
                 }
                 
-                eventOccurredForDailyLog = eventsForDailyLog.length > 0;
+                let eventOccurredForDailyLog = eventsForDailyLog.length > 0;
                 let eventTypeForDailyLog = eventOccurredForDailyLog ? eventsForDailyLog.join(' & ') : 'No Event';
-
-                // Calculate reserveEndOfDay after all daily operations for the current day
-                reserveEndOfDay = currentDailyReserve;
-
-                // Record daily Reserve Flow - conditionally store values for display
-                let displayDepositRF = 0;
-                let displayPaidCashbackRF = 0;
-
-                if (isMonthEnd) {
-                    displayDepositRF = currentMonthAggregatedDeposit;
-                    displayPaidCashbackRF = currentMonthAggregatedPaidCashback;
-                }
 
                 dailyReserveFlowLog.push({
                     day: dayCounter,
                     date: new Date(currentDate),
                     reserveStart: reserveStartOfDay,
-                    calculatedMonthEndDeposit: displayDepositRF,
+                    isMonthEnd: isMonthEnd,
+                    monthKey: currentMonthKey,
+                    aggregatedDepositForMonth: aggregatedDepositForMonthEnd,
                     markupAddedToReserve: dailyMarkupAdded,
-                    paidCashback: displayPaidCashbackRF,
-                    reserveEnd: reserveEndOfDay,
-                    isPayoutDateForDisplay: isPayoutDay,
+                    paidCashback: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
+                    reserveEnd: currentDailyReserve,
                 });
                 
-                // Calculate dailyNetChange for display: difference between capital after all events and capital before any events
                 const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
 
-                // Determine cashback payout for the new column
-                let cashbackPayoutForColumn;
-                if (isMonthEnd) {
-                    cashbackPayoutForColumn = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
-                } else {
-                    cashbackPayoutForColumn = 0; // Show 0 for mid-month days
-                }
-
-                // Collect daily log entry for later rendering
                 dailyLogEntries.push({
                     day: dayCounter,
                     date: new Date(currentDate),
@@ -1548,66 +1303,33 @@
                     eventOccurred: eventOccurredForDailyLog,
                     eventType: eventTypeForDailyLog,
                     dailyNetChange: displayDailyNetChangeValueForLog,
-                    cashbackPayoutForColumn: cashbackPayoutForColumn,
+                    cashbackPayoutForColumn: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
                     capitalBeforeEvent: capitalBeforeEvent,
                     currentDailyCapital: currentDailyCapital,
-                    isMonthEnd: isMonthEnd,
                     sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
                     sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
                     sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
                     sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
                 });
 
-                console.log(`     End of Day Reserve: ${formatCurrency(currentDailyReserve, true)}`);
-                console.log(`     End of Day Trading Capital: ${formatCurrency(currentDailyCapital)}`);
-
-                // Capture balances as of today (these variables are now internal if not displayed)
-                if (currentDate.getTime() === endDate.getTime()) {
-                    tradingFundBalanceAsOfToday = currentDailyCapital;
-                    reserveFundBalanceAsOfToday = currentDailyReserve;
-                }
-
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
             }
-            console.log("dailyReserveFlowLog after daily simulation:", dailyReserveFlowLog); // Debug log
-            console.log("runCumulativeDailySimulation: Daily simulation finished. Final Capital:", currentDailyCapital);
             
-            // Log first and last few daily log entries to confirm data range
-            if (dailyLogEntries.length > 0) {
-                console.log("Daily Log Entries - First 5:", dailyLogEntries.slice(0, 5).map(e => ({ date: e.date.toLocaleDateString(), capitalAfter: formatCurrency(e.currentDailyCapital) })));
-                console.log("Daily Log Entries - Last 5:", dailyLogEntries.slice(-5).map(e => ({ date: e.date.toLocaleDateString(), capitalAfter: formatCurrency(e.currentDailyCapital) })));
-            }
-
-            // Log the final monthlyPurchaseDataMap content for detailed inspection
-            console.log("runCumulativeDailySimulation: Final monthlyPurchaseDataMap content:");
-            monthlyPurchaseDataMap.forEach((data, key) => {
-                console.log(`     Month Key: ${key}, Payout Month End: ${data.payoutMonthEnd.toLocaleDateString()}, Accrued Payout Obligation: ${formatCurrency(data.accruedNetPayoutObligation)}`);
-            });
-
-            // Render daily log with collapsible years
             createCollapsibleYearlyTable(dailyLogTableBodyWrapper, dailyLogEntries, (data) => {
                 const dailyNetChangeClass = data.dailyNetChange >= 0 ? 'text-green-600' : 'text-red-600';
-                const cashbackPayoutClass = data.cashbackPayoutForColumn > 0 ? 'text-red-600' : 'text-gray-500'; // Payouts are deductions, so red if positive value
+                const cashbackPayoutClass = data.cashbackPayoutForColumn > 0 ? 'text-red-600' : 'text-gray-500';
 
                 return `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.dayOfWeek}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${data.isTradingDay ? 'Yes' : 'No'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${data.eventOccurred ? 'Yes' : 'No'}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="${data.eventType.includes('Win') ? 'text-green-600' : (data.eventType.includes('Loss') || data.eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">
-                                ${data.eventType}
-                            </span>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.isTradingDay ? 'Yes' : 'No'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.eventOccurred ? 'Yes' : 'No'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap"><span class="${data.eventType.includes('Win') ? 'text-green-600' : (data.eventType.includes('Loss') || data.eventType.includes('Payout') ? 'text-red-600' : 'text-gray-500')}">${data.eventType}</span></td>
                         <td class="px-6 py-4 whitespace-nowrap ${dailyNetChangeClass}">${formatCurrency(data.dailyNetChange)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${cashbackPayoutClass}">${data.cashbackPayoutForColumn > 0 ? formatCurrency(data.cashbackPayoutForColumn) : 'N/A'}</td> <!-- NEW COLUMN DISPLAY -->
+                        <td class="px-6 py-4 whitespace-nowrap ${cashbackPayoutClass}">${data.cashbackPayoutForColumn > 0 ? formatCurrency(data.cashbackPayoutForColumn) : 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.capitalBeforeEvent)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.currentDailyCapital)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.sheetTopUp > 0 ? formatCurrency(data.sheetTopUp) : 'N/A'}</td>
@@ -1616,7 +1338,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.sheetReserveFund > 0 ? formatCurrency(data.sheetReserveFund) : 'N/A'}</td>
                     </tr>
                 `;
-            }, 'date', 'daily', DAILY_LOG_HEADERS); // Pass headers HTML
+            }, 'date', 'daily', DAILY_LOG_HEADERS);
 
             return { finalTradingFund: currentDailyCapital, finalReserveFund: currentDailyReserve };
         };
@@ -1630,8 +1352,7 @@
         }
 
         /**
-         * NEW: Calculates fund balances and stores the projection value globally.
-         * This function performs calculations but does NOT update the DOM.
+         * Calculates fund balances and stores the projection value globally.
          * @returns {object} An object containing the calculated balances for display.
          */
         const calculateAndStoreCurrentFundBalances = () => {
@@ -1661,7 +1382,6 @@
             const newReserveFundValue = finalTotalMarkupCard * 0.83;
             const newCashbackFundValue = finalTotalMarkupCard * 0.17;
 
-            // Store the "Total Markup" card's value globally for the projection table
             globalCurrentTotalMarkupForProjection = finalTotalMarkupCard;
             console.log(`   Stored globalCurrentTotalMarkupForProjection: ${formatCurrency(globalCurrentTotalMarkupForProjection)}`);
 
@@ -1670,13 +1390,13 @@
                 finalTotalMarkupCard,
                 newReserveFundValue,
                 newCashbackFundValue,
-                lastKnownPayoutDate // Pass this through for the display function
+                lastKnownPayoutDate
             };
         };
 
 
         /**
-         * UPDATED: Updates the display of current fund balances using pre-calculated values.
+         * Updates the display of current fund balances using pre-calculated values.
          * @param {object} balances - An object with the calculated card values.
          */
         const updateCurrentFundBalancesDisplay = (balances) => {
@@ -1687,21 +1407,17 @@
                 return;
             }
 
-            // Update the display elements with the new values
             cashbackValueSinceLastPayoutDisplay.textContent = formatCurrency(balances.finalCashbackValueCard);
             totalMarkupSinceLastPayoutDisplay.textContent = formatCurrency(balances.finalTotalMarkupCard);
             reserveFundSinceLastPayoutDisplay.textContent = formatCurrency(balances.newReserveFundValue);
             cashbackFundSinceLastPayoutDisplay.textContent = formatCurrency(balances.newCashbackFundValue);
 
-
-            // Update text colors based on the final values (positive/negative)
             [cashbackFundSinceLastPayoutDisplay, reserveFundSinceLastPayoutDisplay, cashbackValueSinceLastPayoutDisplay, totalMarkupSinceLastPayoutDisplay].forEach(el => {
                 const value = cleanAndParseFloat(el.textContent.replace(/[^0-9.-]/g, ''));
                 el.classList.toggle('text-green-600', value >= 0);
                 el.classList.toggle('text-red-600', value < 0);
             });
 
-            // Display the last known payout date (this logic is still needed for its card)
             if (balances.lastKnownPayoutDate) {
                 lastPaidPayoutReleaseDateDisplay.textContent = balances.lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
             } else {
@@ -1711,112 +1427,40 @@
         };
 
 
-        // --- NEW SECTION: Reserve Flow Calculator Logic ---
+        // --- Reserve Flow Calculator Logic ---
 
-        // Constants for Reserve Flow Calculator
-        const RF_PAYOUT_DELAY_MONTHS = 4; // Approx 121 days / 30.4375 days/month
-
-        const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83; // 1 - 0.17 from Google Script (Markup allocated to reserve)
+        const RF_MARKUP_ALLOCATION_TO_RESERVE = 0.83;
 
         /**
          * Runs the Reserve Flow simulation.
          */
         const runReserveFlowSimulation = () => {
             console.log("runReserveFlowSimulation: Starting Reserve Flow simulation.");
-            // Clear previous results by clearing the wrapper
             rfReserveFlowTableBodyWrapper.innerHTML = ''; 
 
-            const numMonthsInMainSimulation = parseInt(numberOfPurchaseMonthsInput.value);
-            const totalMonthsForRfCalculation = numMonthsInMainSimulation + EXTRA_MONTHS_FOR_PAYOUTS;
-
-            // Monthly Financials arrays (populated from daily maps) - These are now internal to the simulation if needed
-            const totalGrossMarkupMonthly = Array(totalMonthsForRfCalculation).fill(0);
-            const allocatedMarkupAddedMonthly = Array(totalMonthsForRfCalculation).fill(0);
-            const totalCashbackOwedMonthly = Array(totalMonthsForRfCalculation).fill(0);
-            const actualCashbackPaidOutMonthly = Array(totalMonthsForRfCalculation).fill(0);
-
-            const simStartDate = parseSheetDate(simulationStartDateInput.value); // Use parseSheetDate here
-            if (!simStartDate) {
-                console.error("runReserveFlowSimulation: Simulation start date could not be parsed. Aborting Reserve Flow simulation.");
-                return;
-            }
-            simStartDate.setHours(0, 0, 0, 0);
-
-            // Aggregate data from daily maps into monthly arrays (still needed for internal calculations if any)
-            dailyTopUpAmountsMap.forEach((amount, dateKey) => {
-                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
-                if (!date) return;
-
-                const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
-                                 (date.getMonth() - simStartDate.getMonth());
-                if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    totalGrossMarkupMonthly[monthDiff] += amount * (parseFloat(markupRateInput.value) / 100);
-                }
-            });
-
-            dailyReserveFundAdditionsMap.forEach((amount, dateKey) => {
-                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
-                if (!date) return;
-
-                const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
-                                 (date.getMonth() - simStartDate.getMonth());
-                if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    allocatedMarkupAddedMonthly[monthDiff] += amount;
-                }
-            });
-
-            dailyLiabilityAdditionsMap.forEach((amount, dateKey) => {
-                const date = parseSheetDate(dateKey); // Ensure dateKey is parsed correctly
-                if (!date) return;
-
-                const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
-                                 (date.getMonth() - simStartDate.getMonth());
-                if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    totalCashbackOwedMonthly[monthDiff] += amount;
-                }
-            });
-
-            // Aggregate data from dailyReserveFlowLog for actualCashbackPaidOutMonthly
-            dailyReserveFlowLog.forEach(dailyEntry => {
-                const date = dailyEntry.date; // This is already a Date object from runCumulativeDailySimulation
-                const monthDiff = (date.getFullYear() - simStartDate.getFullYear()) * 12 +
-                                 (date.getMonth() - simStartDate.getMonth());
-
-                if (monthDiff >= 0 && monthDiff < totalMonthsForRfCalculation) {
-                    actualCashbackPaidOutMonthly[monthDiff] += dailyEntry.paidCashback;
-                }
-            });
-
-            console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog); // Debug log
-            // Populate Reserve Flow Table (Daily) using collapsible years
+            console.log("Populating RF Reserve Flow Table with:", dailyReserveFlowLog);
             createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
-                let displayedDeposit;
                 let depositHtml;
                 let displayedPaidCashback;
                 
-                // Get today's date for comparison
                 const today = new Date();
-                today.setHours(0,0,0,0); // Normalize to local midnight
+                today.setHours(0,0,0,0);
 
-                // --- NEW: Logic for Deposit (J$) column with toggle ---
-                if (data.calculatedMonthEndDeposit > 0) {
-                    const dateKey = data.date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                    const isChecked = !excludedDeposits.has(dateKey);
+                if (data.isMonthEnd && data.aggregatedDepositForMonth > 0) {
+                    const monthKey = data.monthKey;
+                    const isChecked = includedDeposits.has(monthKey);
                     
                     depositHtml = `
                         <div class="deposit-toggle-container">
-                            <input type="checkbox" class="deposit-toggle-checkbox" data-date="${dateKey}" ${isChecked ? 'checked' : ''}>
-                            <span class="text-green-600">${formatCurrency(data.calculatedMonthEndDeposit, true)}</span>
+                            <input type="checkbox" class="deposit-toggle-checkbox" data-date="${monthKey}" ${isChecked ? 'checked' : ''}>
+                            <span class="text-green-600">${formatCurrency(data.aggregatedDepositForMonth, true)}</span>
                         </div>
                     `;
                 } else {
                     depositHtml = '<span class="text-gray-500">N/A</span>';
                 }
-                // --- END NEW ---
 
-                // Logic for Paid Cashback (J$) column
-                // This now uses the pre-aggregated monthlyPaidCashbackDeposits
-                if (data.paidCashback > 0 && data.date <= today) { // Check if there's a positive value and date is in past/present
+                if (data.paidCashback > 0 && data.date <= today) {
                     displayedPaidCashback = formatCurrency(data.paidCashback, true);
                 } else {
                     displayedPaidCashback = 'N/A';
@@ -1826,13 +1470,8 @@
                 let statusClass;
                 
                 if (data.reserveEnd !== null) {
-                    if (data.reserveEnd >= 0) {
-                        displayedStatus = 'POSITIVE';
-                        statusClass = 'text-green-600';
-                    } else {
-                        displayedStatus = 'NEGATIVE';
-                        statusClass = 'text-red-600';
-                    }
+                    displayedStatus = data.reserveEnd >= 0 ? 'POSITIVE' : 'NEGATIVE';
+                    statusClass = data.reserveEnd >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
                     displayedStatus = 'N/A';
                     statusClass = 'text-gray-500';
@@ -1849,65 +1488,56 @@
                         <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td>
                     </tr>
                 `;
-            }, 'date', 'rf', RF_HEADERS); // Pass headers HTML
+            }, 'date', 'rf', RF_HEADERS);
 
             console.log("runReserveFlowSimulation: Reserve Flow simulation finished.");
         };
 
 
         // --- Google Sheet Data Viewer Logic ---
-        let processedGoogleSheetData = []; // Global variable to store processed sheet data
+        let processedGoogleSheetData = [];
 
         const loadGoogleSheetData = async () => {
             console.log("loadGoogleSheetData: Starting data load from Google Sheet.");
             const dataUrl = 'https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/sheet8';
             const gsLoadingIndicator = document.getElementById('gs-loading');
             const gsErrorMessage = document.getElementById('gs-error');
-            const gsDataTableContainer = document.getElementById('gs-yearlyDataWrapper'); // Changed ID
+            const gsDataTableContainer = document.getElementById('gs-yearlyDataWrapper');
 
-            // Clear previous data and reset visibility
-            if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
-            if (gsErrorMessage) gsErrorMessage.classList.add('hidden');
-            if (gsDataTableContainer) gsDataTableContainer.classList.add('hidden');
-            if (gsLoadingIndicator) gsLoadingIndicator.classList.remove('hidden');
+            gsDataTableContainer.innerHTML = '';
+            gsErrorMessage.classList.add('hidden');
+            gsDataTableContainer.classList.add('hidden');
+            gsLoadingIndicator.classList.remove('hidden');
             
-            // --- NEW: Reset the excluded deposits set on every data load ---
-            excludedDeposits.clear();
-
             try {
                 console.log("loadGoogleSheetData: Fetching data from:", dataUrl);
                 const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 console.log("loadGoogleSheetData: Data fetched successfully:", data);
 
-                if (gsLoadingIndicator) gsLoadingIndicator.classList.add('hidden'); // Hide loading
-                if (gsDataTableContainer) gsDataTableContainer.classList.remove('hidden'); // Show table container
+                gsLoadingIndicator.classList.add('hidden');
+                gsDataTableContainer.classList.remove('hidden');
 
-                // Clear global maps before populating
                 dailyCashbackFundAdditionsMap.clear();
                 dailyReserveFundAdditionsMap.clear();
                 dailyLiabilityAdditionsMap.clear();
                 dailyTopUpAmountsMap.clear();
-                dailyCashbackValueOwedMap.clear(); // Clear new map for Cashback Value
-                dailyPaidCashbackMap.clear(); // Clear new map for Paid Cashback
-                dailyFirstPurchaseDateMap.clear(); // Clear new map
-                monthlyPayoutObligationsByPayoutDateMap.clear(); // Clear this map too
-                sheetDataAggregatedBySimulatedPayoutMonthEnd.clear(); // Corrected variable name
-
+                dailyCashbackValueOwedMap.clear();
+                dailyPaidCashbackMap.clear();
+                monthlyAggregatedDepositsMap.clear();
+                dailyFirstPurchaseDateMap.clear();
+                monthlyPayoutObligationsByPayoutDateMap.clear();
+                sheetDataAggregatedBySimulatedPayoutMonthEnd.clear();
 
                 if (data && Array.isArray(data) && data.length > 0) {
-                    console.log("loadGoogleSheetData: Processing valid data rows.");
-                    processedGoogleSheetData = []; // Reset the global variable
+                    processedGoogleSheetData = [];
 
                     const validDataRowsUnsorted = data.filter(row => {
                         const topUp = getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']);
                         return topUp !== null && topUp !== '';
                     });
 
-                    // Add parsedDate and parsedReleaseDate to each row for sorting and processing
                     validDataRowsUnsorted.forEach(row => {
                         const dateRaw = getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
                         const parsedActivationDate = parseSheetDate(dateRaw);
@@ -1916,153 +1546,88 @@
                         processedGoogleSheetData.push({ ...row, parsedDate: parsedActivationDate, parsedReleaseDate: parsedReleaseDate });
                     });
 
-                    // Sort processedGoogleSheetData by Activation Date (parsedDate)
                     processedGoogleSheetData.sort((a, b) => {
                         if (!a.parsedDate && !b.parsedDate) return 0;
-                        if (!a.parsedDate) return 1; // Null dates go to the end
-                        if (!b.parsedDate) return -1; // Null dates go to the end
+                        if (!a.parsedDate) return 1;
+                        if (!b.parsedDate) return -1;
                         return a.parsedDate.getTime() - b.parsedDate.getTime();
                     });
 
-                    // Log the first 10 sorted rows to verify data and dates
-                    console.log("loadGoogleSheetData: Sorted and processed data rows (first 10):");
-                    processedGoogleSheetData.slice(0, 10).forEach(row => {
-                        const activationDate = row.parsedDate ? row.parsedDate.toLocaleDateString('en-JM') : 'N/A';
-                        const releaseDate = row.parsedReleaseDate ? row.parsedReleaseDate.toLocaleDateString('en-JM') : 'N/A';
-                        const cashback = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
-                        console.log(`     Activation: ${activationDate}, Release: ${releaseDate}, Cashback: ${cashback}`);
-                    });
-
-
                     if (processedGoogleSheetData.length > 0) {
-                        // Determine Simulation Start Date from the first sorted entry
                         const firstTopUpDateRaw = getColumnValue(processedGoogleSheetData[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
-                        let parsedStartDate = parseSheetDate(firstTopUpDateRaw);
+                        let parsedStartDate = parseSheetDate(firstTopUpDateRaw) || new Date();
+                        if (!parseSheetDate(firstTopUpDateRaw)) console.warn("loadGoogleSheetData: Could not parse simulation start date. Defaulting to today.");
+                        parsedStartDate.setHours(0,0,0,0);
+                        
+                        displaySimulationStartDate.textContent = parsedStartDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
+                        simulationStartDateInput.value = parsedStartDate.toISOString().split('T')[0];
 
-                        // If parsing fails, default to today's date
-                        if (!parsedStartDate) {
-                            parsedStartDate = new Date();
-                            parsedStartDate.setHours(0,0,0,0); // Normalize to local midnight
-                            console.warn("loadGoogleSheetData: Could not parse simulation start date from sheet. Defaulting to today's date.");
-                        }
-
-                        if (displaySimulationStartDate) displaySimulationStartDate.textContent = parsedStartDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
-                        simulationStartDateInput.value = parsedStartDate.toISOString().split('T')[0]; // Set hidden input for simulation
-                        console.log("loadGoogleSheetData: Simulation Start Date set to:", simulationStartDateInput.value);
-
-                        // Determine # Of Months
-                        const uniqueMonths = new Set();
-                        processedGoogleSheetData.forEach(row => { // Use sorted data
-                            const dateObj = row.parsedDate;
-                            if (dateObj) {
-                                uniqueMonths.add(`${dateObj.getFullYear()}-${dateObj.getMonth()}`);
-                            }
-                        });
+                        const uniqueMonths = new Set(processedGoogleSheetData.map(row => row.parsedDate ? `${row.parsedDate.getFullYear()}-${row.parsedDate.getMonth()}` : null).filter(Boolean));
                         const numMonths = uniqueMonths.size;
-                        if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = numMonths; // Corrected to displayNumberOfPurchaseMonths
-                        numberOfPurchaseMonthsInput.value = numMonths; // Set hidden input for simulation
-                        console.log("loadGoogleSheetData: Number of Purchase Months set to:", numMonths);
+                        displayNumberOfPurchaseMonths.textContent = numMonths;
+                        numberOfPurchaseMonthsInput.value = numMonths;
 
-                        console.log("loadGoogleSheetData: Membership Tier inference removed as per user request.");
-
-                        // Update Max Win (%), Max Loss (%), Win Rate (%) inputs from the first row
-                        const firstRow = processedGoogleSheetData[0]; // Use the first row of the sorted data
+                        const firstRow = processedGoogleSheetData[0];
                         const maxWin = cleanAndParseFloat(getColumnValue(firstRow, ['Max Win (%)', 'Max Win %', 'MaxWin']));
-                        if (!isNaN(maxWin)) {
-                            avgWeeklyWinInput.value = maxWin;
-                            console.log("loadGoogleSheetData: Max Win set to:", avgWeeklyWinInput.value);
-                        }
+                        if (!isNaN(maxWin)) avgWeeklyWinInput.value = maxWin;
                         const maxLoss = cleanAndParseFloat(getColumnValue(firstRow, ['Max Loss (%)', 'Max Loss %', 'MaxLoss']));
-                        if (!isNaN(maxLoss)) {
-                            maxWeeklyLossInput.value = maxLoss;
-                            console.log("loadGoogleSheetData: Max Loss set to:", maxLoss);
-                        }
-                        const winRate = cleanAndParseFloat(getColumnValue(firstRow, ['Win Rate (%)', 'Win Rate %', 'WinRate']));
-                        if (!isNaN(winRate)) {
-                            winRateInput.value = winRate;
-                            console.log("loadGoogleSheetData: Win Rate set to:", winRate);
-                        }
+                        if (!isNaN(maxLoss)) maxWeeklyLossInput.value = maxLoss;
+                        const winRateVal = cleanAndParseFloat(getColumnValue(firstRow, ['Win Rate (%)', 'Win Rate %', 'WinRate']));
+                        if (!isNaN(winRateVal)) winRateInput.value = winRateVal;
 
-
-                        // Populate the daily maps using the sorted data
                         processedGoogleSheetData.forEach(row => {
-                            const parsedActivationDate = row.parsedDate; // Already parsed and attached
-                            const parsedReleaseDate = row.parsedReleaseDate; // Already parsed and attached
-                            if (parsedActivationDate && parsedReleaseDate) { // Ensure both dates are valid
+                            const parsedActivationDate = row.parsedDate;
+                            const parsedReleaseDate = row.parsedReleaseDate;
+                            if (parsedActivationDate && parsedReleaseDate) {
                                 const activationDateKey = parsedActivationDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                 const releaseDateKey = parsedReleaseDate.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                                const releaseMonthKey = `${parsedReleaseDate.getFullYear()}-${String(parsedReleaseDate.getMonth() + 1).padStart(2, '0')}`;
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
 
-                                // Attempt to get Markup value first
-                                let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup'])); // Look for 'Markup' or 'markup' or 'Total Markup'
-
-                                let cashbackFundToAdd = 0;
-                                let reserveFundToAdd = 0;
-
-                                if (!isNaN(markupAmount) && markupAmount > 0) {
-                                    // If Markup column exists and has a value, use it for calculation
-                                    cashbackFundToAdd = markupAmount * (1 - RF_MARKUP_ALLOCATION_TO_RESERVE);
-                                    reserveFundToAdd = markupAmount * RF_MARKUP_ALLOCATION_TO_RESERVE;
-                                } else {
-                                    // Fallback to existing 'Cashback Fund' and 'Reserve Fund' columns if Markup is not found or invalid
-                                    cashbackFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
-                                    reserveFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
-                                }
+                                let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup']));
+                                let cashbackFundToAdd = !isNaN(markupAmount) ? markupAmount * (1 - RF_MARKUP_ALLOCATION_TO_RESERVE) : cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
+                                let reserveFundToAdd = !isNaN(markupAmount) ? markupAmount * RF_MARKUP_ALLOCATION_TO_RESERVE : cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
                                 
-                                const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value'])); // Use 'Cashback' column for liability
+                                const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                                 const topUpAmount = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
-                                
-                                // Ensure paidCashback is always a number (0 if not valid)
-                                const paidCashbackRaw = getColumnValue(row, ['Paid Cashback', 'PaidCashback']);
-                                const paidCashback = isNaN(cleanAndParseFloat(paidCashbackRaw)) ? 0 : cleanAndParseFloat(paidCashbackRaw); 
+                                const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback'])) || 0;
 
                                 dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
                                 dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
                                 dailyLiabilityAdditionsMap.set(activationDateKey, (dailyLiabilityAdditionsMap.get(activationDateKey) || 0) + cashbackOwed);
                                 dailyTopUpAmountsMap.set(activationDateKey, (dailyTopUpAmountsMap.get(activationDateKey) || 0) + topUpAmount);
-                                
-                                // Store Cashback Value and Paid Cashback by their exact release date
                                 dailyCashbackValueOwedMap.set(releaseDateKey, (dailyCashbackValueOwedMap.get(releaseDateKey) || 0) + cashbackOwed);
                                 dailyPaidCashbackMap.set(releaseDateKey, (dailyPaidCashbackMap.get(releaseDateKey) || 0) + paidCashback);
+                                monthlyAggregatedDepositsMap.set(releaseMonthKey, (monthlyAggregatedDepositsMap.get(releaseMonthKey) || 0) + cashbackOwed);
 
-
-                                // Aggregate sheet data (cashback owed and paid cashback) by the *simulated* payout month-end
                                 const simulatedPayoutMonthEndForRow = getEndOfMonthLocal(addDays(parsedActivationDate, PAYOUT_DELAY_DAYS));
                                 const simulatedPayoutMonthEndKeyForRow = simulatedPayoutMonthEndForRow.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                                 if (!sheetDataAggregatedBySimulatedPayoutMonthEnd.has(simulatedPayoutMonthEndKeyForRow)) { 
-                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0, fundBalanceAfterPayout: null, overallPayoutMet: true }); 
+                                    sheetDataAggregatedBySimulatedPayoutMonthEnd.set(simulatedPayoutMonthEndKeyForRow, { totalCashbackOwed: 0, totalPaidCashback: 0 }); 
                                 }
                                 const aggregatedSheetData = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(simulatedPayoutMonthEndKeyForRow); 
                                 aggregatedSheetData.totalCashbackOwed += cashbackOwed;
                                 aggregatedSheetData.totalPaidCashback += paidCashback;
-                                
-                                // Store the earliest purchase date for each month
-                                if (!dailyFirstPurchaseDateMap.has(activationMonthKey) || parsedActivationDate < dailyFirstPurchaseDateMap.get(activationMonthKey)) {
-                                    dailyFirstPurchaseDateMap.set(activationMonthKey, parsedActivationDate);
-                                }
                             }
                         });
 
-
-                        // Render Google Sheet data with collapsible years
-                        createCollapsibleYearlyTable(gsDataTableContainer, processedGoogleSheetData, (row) => { // Pass gsDataTableContainer
-                            const dateObj = row.parsedDate;
-                            const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
+                        createCollapsibleYearlyTable(gsDataTableContainer, processedGoogleSheetData, (row) => {
+                            const topUpDateDisplay = row.parsedDate ? row.parsedDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
-                            const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup'])); // Get Markup for display
+                            const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup']));
                             const cashbackOwedPercent = getColumnValue(row, ['% Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
                             const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                             const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
                             const reserveFund = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
                             const releaseDateDisplay = row.parsedReleaseDate ? row.parsedReleaseDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
-                            const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback'])); // Get Paid Cashback for display
+                            const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback']));
 
                             return `
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">${topUpDateDisplay}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(topUp)}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">${markup !== null ? formatCurrency(markup) : 'N/A'}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">${!isNaN(markup) ? formatCurrency(markup) : 'N/A'}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatPercentage(cashbackOwedPercent)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackValue)}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(cashbackFund)}</td>
@@ -2071,103 +1636,46 @@
                                     <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(paidCashback)}</td>
                                 </tr>
                             `;
-                        }, 'parsedDate', 'gs', GS_HEADERS); // Pass headers HTML
+                        }, 'parsedDate', 'gs', GS_HEADERS);
 
-                        // --- NEW LOGIC: Find last payout from Google Sheet data ---
-                        lastKnownTradingFundAfterPayout = null;
-                        lastKnownReserveFundAfterPayout = null;
                         lastKnownPayoutDate = null;
-
-                        // Find the absolute latest payout in the sheet
                         for (let i = processedGoogleSheetData.length - 1; i >= 0; i--) {
                             const row = processedGoogleSheetData[i];
-                            const paidCashback = cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback']));
-                            const releaseDate = row.parsedReleaseDate;
-
-                            if (releaseDate && paidCashback > 0) {
-                                lastKnownTradingFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
-                                lastKnownReserveFundAfterPayout = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
-                                lastKnownPayoutDate = new Date(releaseDate);
-                                console.log(`loadGoogleSheetData: Found latest sheet payout on ${lastKnownPayoutDate.toLocaleDateString()}. Trading Fund: ${lastKnownTradingFundAfterPayout}, Reserve Fund: ${lastKnownReserveFundAfterPayout}`);
-                                break; // Found the latest payout, stop searching
+                            if (row.parsedReleaseDate && cleanAndParseFloat(getColumnValue(row, ['Paid Cashback', 'PaidCashback'])) > 0) {
+                                lastKnownPayoutDate = new Date(row.parsedReleaseDate);
+                                break;
                             }
                         }
-                        // --- END NEW LOGIC ---
 
-                        // --- REFACTORED LOGIC ---
-                        // 1. Calculate balances and store the projection value first.
                         const balances = calculateAndStoreCurrentFundBalances();
-                        
-                        // 2. Run simulations which will use the new global projection value.
                         runSimulation();
                         runReserveFlowSimulation();
-
-                        // 3. Update the DOM with the pre-calculated balances.
                         updateCurrentFundBalancesDisplay(balances); 
                         console.log("loadGoogleSheetData: Simulations and display updates triggered after data load.");
-                        // --- END REFACTORED LOGIC ---
 
                     } else {
-                        console.warn("loadGoogleSheetData: No valid data rows found in the sheet. Running with defaults.");
-                        if (gsErrorMessage) gsErrorMessage.textContent = 'No valid data rows found in the sheet. Running with default parameters.';
-                        if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
-                        // Reset simulation inputs if no valid data
-                        const today = new Date();
-                        today.setHours(0,0,0,0);
-                        if (displaySimulationStartDate) displaySimulationStartDate.textContent = today.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
-                        simulationStartDateInput.value = today.toISOString().split('T')[0];
-                        if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
-                        if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                        // Ensure tables are reset if no valid data
-                        if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                        if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
-                        if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
-                        if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                        runSimulation(); // Run with default/reset values
-                        runReserveFlowSimulation(); // Run with default/reset values
+                        gsErrorMessage.textContent = 'No valid data rows found. Running with defaults.';
+                        gsErrorMessage.classList.remove('hidden');
+                        runSimulation();
+                        runReserveFlowSimulation();
                         updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
                     }
 
                 } else {
-                    console.warn("loadGoogleSheetData: No data found in the sheet or sheet is empty. Running with defaults.");
-                    if (gsErrorMessage) gsErrorMessage.textContent = 'No data found in the sheet or sheet is empty. Running with default parameters.';
-                    if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
-                    // Reset simulation inputs on error
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    if (displaySimulationStartDate) displaySimulationStartDate.textContent = today.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
-                    simulationStartDateInput.value = today.toISOString().split('T')[0];
-                    if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
-                    if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                    // Ensure tables are reset on error
-                    if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                    if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
-                    if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
-                    if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                    runSimulation(); // Run with default/reset values
-                    runReserveFlowSimulation(); // Run with default/reset values
+                    gsErrorMessage.textContent = 'No data found in sheet. Running with defaults.';
+                    gsErrorMessage.classList.remove('hidden');
+                    runSimulation();
+                    runReserveFlowSimulation();
                     updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
                 }
 
             } catch (error) {
                 console.error('loadGoogleSheetData: Error fetching data:', error);
-                if (gsLoadingIndicator) gsLoadingIndicator.classList.add('hidden');
-                if (gsErrorMessage) gsErrorMessage.textContent = `Failed to load data: ${error.message}. Please ensure the Google Sheet is publicly viewable and the URL is correct. Running with default parameters.`;
-                if (gsErrorMessage) gsErrorMessage.classList.remove('hidden');
-                // Reset simulation inputs on error
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                if (displaySimulationStartDate) displaySimulationStartDate.textContent = today.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
-                simulationStartDateInput.value = today.toISOString().split('T')[0];
-                if (numberOfPurchaseMonthsInput) numberOfPurchaseMonthsInput.value = '1'; 
-                if (displayNumberOfPurchaseMonths) displayNumberOfPurchaseMonths.textContent = '1'; 
-                // Ensure tables are reset on error
-                if (combinedPayoutTableBody) combinedPayoutTableBody.innerHTML = '';
-                if (gsDataTableContainer) gsDataTableContainer.innerHTML = ''; // Clear the wrapper div
-                if (dailyLogTableBodyWrapper) dailyLogTableBodyWrapper.innerHTML = '';
-                if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
-                runSimulation(); // Run with default/reset values
-                runReserveFlowSimulation(); // Run with default/reset values
+                gsLoadingIndicator.classList.add('hidden');
+                gsErrorMessage.textContent = `Failed to load data: ${error.message}. Running with defaults.`;
+                gsErrorMessage.classList.remove('hidden');
+                runSimulation();
+                runReserveFlowSimulation();
                 updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
             }
         };
@@ -2176,44 +1684,34 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log("DOMContentLoaded: Event fired.");
             updateInitialTradingFundDefault();
-            loadGoogleSheetData(); // Load Google Sheet data on page load, which then triggers simulations
+            loadGoogleSheetData();
 
-            // --- NEW: Event listener for deposit toggles ---
             rfReserveFlowTableBodyWrapper.addEventListener('change', (event) => {
                 if (event.target.classList.contains('deposit-toggle-checkbox')) {
-                    const dateKey = event.target.dataset.date;
+                    const monthKey = event.target.dataset.date;
                     if (event.target.checked) {
-                        // If checked, remove from the excluded set
-                        excludedDeposits.delete(dateKey);
+                        includedDeposits.add(monthKey);
                     } else {
-                        // If unchecked, add to the excluded set
-                        excludedDeposits.add(dateKey);
+                        includedDeposits.delete(monthKey);
                     }
-                    // Re-run everything to reflect the change
-                    console.log(`Deposit toggle changed for ${dateKey}. Excluded set is now:`, excludedDeposits);
+                    localStorage.setItem(INCLUDED_DEPOSITS_STORAGE_KEY, JSON.stringify(Array.from(includedDeposits)));
+                    console.log(`Deposit toggle changed for month ${monthKey}. Included set:`, includedDeposits);
                     runSimulation();
                     runReserveFlowSimulation();
                 }
             });
         });
 
-        // Event listeners for manual inputs that are still present
-        markupRateInput.addEventListener('input', () => {
-            console.log("markupRateInput: Value changed. Re-running simulations.");
-            runSimulation();
-            runReserveFlowSimulation();
-        });
-        initialTradingFundInput.addEventListener('input', () => {
-            console.log("initialTradingFundInput: Value changed. Re-running simulation.");
-            runSimulation(); // Keep this if it's still a manual input
-        });
-        simulationSeedInput.addEventListener('input', () => {
-            console.log("simulationSeedInput: Value changed. Re-running simulation.");
-            runSimulation();
-        });
-        stressTestModeCheckbox.addEventListener('change', () => {
-            console.log("stressTestModeCheckbox: Value changed. Re-running simulation.");
-            runSimulation();
+        // Event listeners for manual inputs
+        [markupRateInput, initialTradingFundInput, simulationSeedInput, stressTestModeCheckbox].forEach(input => {
+            const eventType = input.type === 'checkbox' ? 'change' : 'input';
+            input.addEventListener(eventType, () => {
+                console.log(`${input.id}: Value changed. Re-running simulations.`);
+                runSimulation();
+                if (input.id !== 'initialTradingFund') { // Reserve flow doesn't depend on initial trading fund
+                    runReserveFlowSimulation();
+                }
+            });
         });
     </script>
 </body>
