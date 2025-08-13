@@ -520,7 +520,7 @@
 
     </div>
 
-   <script>
+  <script>
         // --- Global Constants ---
         const PAYOUT_DELAY_DAYS = 121; // 121-day delay for cashback payouts
         const EXTRA_MONTHS_FOR_PAYOUTS = 5; // Additional months to simulate beyond purchase months to cover all payouts
@@ -1117,7 +1117,7 @@
                     markupProjectionClass = runningMarkupProjection >= 0 ? 'text-green-600' : 'text-red-600';
                 } else {
                     // This is a past or current month, projection is not applicable
-                    markupProjectionDisplay = 'Paid';
+                    markupProjectionDisplay = 'PAID-OUT';
                     markupProjectionClass = 'text-green-600';
                 }
 
@@ -1395,25 +1395,21 @@
                 }
                 // --- End daily additions from Google Sheet data ---
 
-                // Payouts Due Today (driven by Release Date)
+                // Payouts Due Today (driven by Release Date) - Accumulation Only
                 const paidCashbackForToday = dailyPaidCashbackMap.get(currentDateString) || 0;
                 let isPayoutDay = false;
                 if (paidCashbackForToday > 0) {
                     isPayoutDay = true;
-                    monthlyBulkPayout = paidCashbackForToday; // This is the actual amount to be deducted
-
-                    // Deduct from trading fund and reserve fund immediately (actual cash movement)
-                    currentDailyCapital -= monthlyBulkPayout;
-                    currentDailyReserve -= monthlyBulkPayout;
                     
-                    currentMonthAggregatedPaidCashback += paidCashbackForToday; // Accumulate for RF table month-end display
+                    // Accumulate for RF table month-end display
+                    currentMonthAggregatedPaidCashback += paidCashbackForToday; 
 
-                    // Accumulate payout for month-end Daily Net Change (J$) display
+                    // Accumulate payout for month-end deduction
                     monthlyCashbackPayoutTotal.set(currentMonthKey, (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) + paidCashbackForToday);
                     
-                    console.log(`     Payout Day: Paid ${formatCurrency(monthlyBulkPayout)}. Capital now: ${formatCurrency(currentDailyCapital)}. Payout accumulated for month-end.`);
+                    console.log(`     Payout Day (Accumulated): ${formatCurrency(paidCashbackForToday)}. Will be deducted at month-end.`);
                 }
-
+                
                 // Calculate and apply the lump-sum deposit for the "Deposit (J$)" column (Cashback Value owed on Release Date)
                 monthlyDepositLumpSumForThisDay = dailyCashbackValueOwedMap.get(currentDateString) || 0; 
                 
@@ -1458,8 +1454,59 @@
                     console.log(`     Trade: Occurred (${tradeOutcomeIsWin ? 'Win' : 'Loss'}). Change: ${formatCurrency(tradeGainLossAmount)}. Capital now: ${formatCurrency(currentDailyCapital)}.`);
                 }
 
+                // --- Month-End Specific Events ---
+                let eventsForDailyLog = [];
+                let eventOccurredForDailyLog = false; // Initialize to false
+
+                if (cashbackFundAddition > 0) eventsForDailyLog.push('Add Trading Fund');
+                if (reserveFundAddition > 0) eventsForDailyLog.push('Reserve Fund Add (Sheet)');
+                if (isTradingDayForDisplay) eventsForDailyLog.push(tradeOutcomeIsWin ? 'Trade (Win)' : 'Trade (Loss)');
+                
+                if (isMonthEnd) {
+                    const totalPayoutsThisMonth = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
+
+                    // NEW: Deduct the accumulated payout for the month from capital and reserve at month-end
+                    if (totalPayoutsThisMonth > 0) {
+                        currentDailyCapital -= totalPayoutsThisMonth;
+                        currentDailyReserve -= totalPayoutsThisMonth;
+                        console.log(`     Month-End Payout Deduction: Deducted ${formatCurrency(totalPayoutsThisMonth)}. Capital now: ${formatCurrency(currentDailyCapital)}. Reserve now: ${formatCurrency(currentDailyReserve, true)}`);
+                    }
+
+                    const aggregatedSheetDataForMonthEnd = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
+                    const totalCashbackOwedForMonthEnd = aggregatedSheetDataForMonthEnd ? aggregatedSheetDataForMonthEnd.totalCashbackOwed : 0;
+
+                    if (totalPayoutsThisMonth > 0) {
+                        eventsForDailyLog.push('Cashback Payout');
+                    } else if (totalCashbackOwedForMonthEnd > 0) {
+                        // If no cash was paid but there was an obligation, mark it as 'Cashback Payout (Unpaid)'
+                        eventsForDailyLog.push('Cashback Payout (Unpaid)');
+                    }
+
+                    if (monthlyDepositLumpSumForThisDay > 0) {
+                        eventsForDailyLog.push('Month-End Deposit');
+                    }
+
+                    // Ensure fundBalanceAfterPayout is always set for month-end in aggregated sheet data
+                    if (sheetDataAggregatedBySimulatedPayoutMonthEnd.has(currentDateString)) {
+                        const aggregatedDataForToday = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
+                        aggregatedDataForToday.fundBalanceAfterPayout = currentDailyCapital;
+                        
+                        const actualCashbackOwedForThisMonthEnd = aggregatedDataForToday.totalCashbackOwed;
+                        const actualCashbackPaidForThisMonthEnd = aggregatedDataForToday.totalPaidCashback;
+
+                        if (actualCashbackOwedForThisMonthEnd > 0) {
+                            aggregatedDataForToday.overallPayoutMet = (currentDailyCapital + actualCashbackPaidForThisMonthEnd) >= actualCashbackOwedForThisMonthEnd;
+                        } else {
+                            aggregatedDataForToday.overallPayoutMet = true; 
+                        }
+                    }
+                }
+                
+                eventOccurredForDailyLog = eventsForDailyLog.length > 0;
+                let eventTypeForDailyLog = eventOccurredForDailyLog ? eventsForDailyLog.join(' & ') : 'No Event';
+
                 // Calculate reserveEndOfDay after all daily operations for the current day
-                reserveEndOfDay = currentDailyReserve; // This now correctly reflects all additions/deductions for the day
+                reserveEndOfDay = currentDailyReserve;
 
                 // Record daily Reserve Flow - conditionally store values for display
                 let displayDepositRF = 0;
@@ -1473,80 +1520,14 @@
                 dailyReserveFlowLog.push({
                     day: dayCounter,
                     date: new Date(currentDate),
-                    reserveStart: reserveStartOfDay, // Value from start of the day
-                    calculatedMonthEndDeposit: displayDepositRF, // For "Deposit (J$)" - now only shows on month-end
-                    markupAddedToReserve: dailyMarkupAdded, // This is the daily markup added from sheet
-                    paidCashback: displayPaidCashbackRF, // For "Paid Cashback (J$)" - now only shows on month-end
-                    reserveEnd: reserveEndOfDay, // Final reserve balance at end of day
-                    isPayoutDateForDisplay: isPayoutDay, // Flag for conditional display of paidCashback
+                    reserveStart: reserveStartOfDay,
+                    calculatedMonthEndDeposit: displayDepositRF,
+                    markupAddedToReserve: dailyMarkupAdded,
+                    paidCashback: displayPaidCashbackRF,
+                    reserveEnd: reserveEndOfDay,
+                    isPayoutDateForDisplay: isPayoutDay,
                 });
                 
-                // Construct event type for Daily Log
-                let eventsForDailyLog = [];
-                let eventOccurredForDailyLog = false; // Initialize to false
-
-                if (cashbackFundAddition > 0) {
-                    eventsForDailyLog.push('Add Trading Fund');
-                    eventOccurredForDailyLog = true;
-                }
-                if (reserveFundAddition > 0) {
-                    eventsForDailyLog.push('Reserve Fund Add (Sheet)');
-                    eventOccurredForDailyLog = true;
-                }
-                if (isTradingDayForDisplay) {
-                    eventsForDailyLog.push(tradeOutcomeIsWin ? 'Trade (Win)' : 'Trade (Loss)');
-                    eventOccurredForDailyLog = true;
-                }
-
-                // Handle month-end specific events
-                if (isMonthEnd) {
-                    const totalPayoutsThisMonth = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
-                    const aggregatedSheetDataForMonthEnd = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
-                    const totalCashbackOwedForMonthEnd = aggregatedSheetDataForMonthEnd ? aggregatedSheetDataForMonthEnd.totalCashbackOwed : 0;
-
-                    if (totalPayoutsThisMonth > 0) {
-                        eventsForDailyLog.push('Cashback Payout');
-                        eventOccurredForDailyLog = true;
-                    } else if (totalCashbackOwedForMonthEnd > 0) {
-                        // If no cash was paid but there was an obligation, mark it as 'Cashback Payout (Unpaid)'
-                        eventsForDailyLog.push('Cashback Payout (Unpaid)');
-                        eventOccurredForDailyLog = true;
-                    }
-
-                    if (monthlyDepositLumpSumForThisDay > 0) {
-                        eventsForDailyLog.push('Month-End Deposit');
-                        eventOccurredForDailyLog = true;
-                    }
-
-                    // Ensure fundBalanceAfterPayout is always set for month-end in aggregated sheet data
-                    if (sheetDataAggregatedBySimulatedPayoutMonthEnd.has(currentDateString)) {
-                        const aggregatedDataForToday = sheetDataAggregatedBySimulatedPayoutMonthEnd.get(currentDateString);
-                        // The fundBalanceAfterPayout should be the currentDailyCapital *after* all events for this day,
-                        // including any cashback deductions that just happened.
-                        aggregatedDataForToday.fundBalanceAfterPayout = currentDailyCapital;
-                        
-                        // Recalculate overallPayoutMet based on the actual fund balance vs. owed
-                        // This logic needs to be careful: if no payout was made, but there was an obligation,
-                        // we still need to check if the *fund could have covered it*.
-                        const actualCashbackOwedForThisMonthEnd = aggregatedDataForToday.totalCashbackOwed;
-                        const actualCashbackPaidForThisMonthEnd = aggregatedDataForToday.totalPaidCashback;
-
-                        if (actualCashbackOwedForThisMonthEnd > 0) {
-                            // If there was an obligation, check if the fund was sufficient to cover it.
-                            // The fund balance *before* this specific payout deduction (if any) would be
-                            // currentDailyCapital + actualCashbackPaidForThisMonthEnd.
-                            // If (currentDailyCapital + actualCashbackPaidForThisMonthEnd) >= actualCashbackOwedForThisMonthEnd, then it was 'Met'.
-                            // Otherwise, it was 'Shortfall'.
-                            aggregatedDataForToday.overallPayoutMet = (currentDailyCapital + actualCashbackPaidForThisMonthEnd) >= actualCashbackOwedForThisMonthEnd;
-                        } else {
-                            // If no cashback was owed, then it's effectively 'Met' (or N/A, but 'Met' is fine for this status)
-                            aggregatedDataForToday.overallPayoutMet = true; 
-                        }
-                    }
-                }
-                
-                let eventTypeForDailyLog = eventsForDailyLog.length === 0 ? 'No Event' : eventsForDailyLog.join(' & ');
-
                 // Calculate dailyNetChange for display: difference between capital after all events and capital before any events
                 const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
 
@@ -1566,12 +1547,11 @@
                     isTradingDay: isTradingDayForDisplay,
                     eventOccurred: eventOccurredForDailyLog,
                     eventType: eventTypeForDailyLog,
-                    dailyNetChange: displayDailyNetChangeValueForLog, // This now correctly reflects all changes, including payouts
-                    cashbackPayoutForColumn: cashbackPayoutForColumn, // NEW: Value for the new column
+                    dailyNetChange: displayDailyNetChangeValueForLog,
+                    cashbackPayoutForColumn: cashbackPayoutForColumn,
                     capitalBeforeEvent: capitalBeforeEvent,
-                    currentDailyCapital: currentDailyCapital, // Pass the current capital after all daily operations
-                    isMonthEnd: isMonthEnd, // Pass isMonthEnd for conditional display in rowGenerator
-                    // NEW: Add sheet data directly to daily log entry
+                    currentDailyCapital: currentDailyCapital,
+                    isMonthEnd: isMonthEnd,
                     sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
                     sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
                     sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
@@ -1584,7 +1564,7 @@
                 // Capture balances as of today (these variables are now internal if not displayed)
                 if (currentDate.getTime() === endDate.getTime()) {
                     tradingFundBalanceAsOfToday = currentDailyCapital;
-                    reserveFundBalanceAsOfToday = currentDailyReserve; // Corrected to currentDailyReserve
+                    reserveFundBalanceAsOfToday = currentDailyReserve;
                 }
 
                 currentDate.setDate(currentDate.getDate() + 1);
