@@ -457,6 +457,7 @@
                             <th class="px-6 py-3">Payout Month-End</th>
                             <th class="px-6 py-3">Cashback (J$)</th>
                             <th class="px-6 py-3">Payout Deducted (J$)</th>
+                            <th class="px-6 py-3">Markup Projection (J$)</th>
                             <th class="px-6 py-3">Fund Balance After Payout (J$)</th>
                             <th class="px-6 py-3">Payout Met?</th>
                         </tr>
@@ -519,7 +520,7 @@
 
     </div>
 
-    <script>
+   <script>
         // --- Global Constants ---
         const PAYOUT_DELAY_DAYS = 121; // 121-day delay for cashback payouts
         const EXTRA_MONTHS_FOR_PAYOUTS = 5; // Additional months to simulate beyond purchase months to cover all payouts
@@ -617,10 +618,14 @@
         let monthlyPurchaseDataMap = new Map(); 
         let dailyReserveFlowLog = []; // New: Stores daily reserve flow entries
         
+        // --- NEW: Global state for toggles ---
+        let excludedDeposits = new Set(); // Stores date strings (YYYY-MM-DD) of deposits to exclude
+
         // NEW: Global variables to hold the balances from the last payout found in the sheet
         let lastKnownTradingFundAfterPayout = null;
         let lastKnownReserveFundAfterPayout = null;
         let lastKnownPayoutDate = null;
+        let globalCurrentTotalMarkupForProjection = 0; // NEW: For markup projection, sourced from "Total Markup" card
 
         // Global maps to store daily data from Google Sheet
         const dailyCashbackFundAdditionsMap = new Map(); // For Trading Fund additions
@@ -1059,7 +1064,6 @@
 
             updateCombinedPayoutTable(aggregatedPayoutArray); // Pass the aggregated array
             updateSummary(cumulativeVoucherPurchases, totalCashbackOwedAccrued, totalCashbackPaid, finalTradingFund, finalReserveFund, overallPayoutSuccess);
-            // updateCurrentFundBalancesDisplay(); // No longer needed here as it's called after sheet data load
             console.log("runSimulation: Simulation finished.");
         };
 
@@ -1074,11 +1078,16 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Normalize today's date to local midnight for consistent comparison
 
+            // Initialize projection with the value from the "Total Markup" card
+            let runningMarkupProjection = globalCurrentTotalMarkupForProjection; 
+
             results.forEach(data => {
                 let fundBalanceDisplay;
                 let fundBalanceClass;
                 let payoutDeductedDisplay;
                 let payoutDeductedClass;
+                let markupProjectionDisplay;
+                let markupProjectionClass;
 
                 // Determine fundBalanceDisplay based on whether the payout date is in the future
                 if (data.payoutMonthEnd.getTime() > today.getTime()) {
@@ -1098,6 +1107,18 @@
                 } else {
                     payoutDeductedDisplay = 'N/A';
                     payoutDeductedClass = 'text-gray-500';
+                }
+                
+                // --- Logic for Markup Projection column ---
+                if (data.payoutMonthEnd.getTime() > today.getTime()) {
+                    // This is a future month, so calculate the projection
+                    runningMarkupProjection -= data.totalCashbackByReleaseDate;
+                    markupProjectionDisplay = formatCurrency(runningMarkupProjection);
+                    markupProjectionClass = runningMarkupProjection >= 0 ? 'text-green-600' : 'text-red-600';
+                } else {
+                    // This is a past or current month, projection is not applicable
+                    markupProjectionDisplay = 'N/A';
+                    markupProjectionClass = 'text-gray-500';
                 }
 
                 let payoutMetDisplay;
@@ -1127,6 +1148,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.payoutMonthEnd ? data.payoutMonthEnd.toLocaleDateString('en-JM', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.totalCashbackByReleaseDate)}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${payoutDeductedClass}">${payoutDeductedDisplay}</td>
+                        <td class="px-6 py-4 whitespace-nowrap ${markupProjectionClass}">${markupProjectionDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${fundBalanceClass}">${fundBalanceDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="${payoutMetClass}">
@@ -1395,6 +1417,13 @@
                 // Calculate and apply the lump-sum deposit for the "Deposit (J$)" column (Cashback Value owed on Release Date)
                 monthlyDepositLumpSumForThisDay = dailyCashbackValueOwedMap.get(currentDateString) || 0; 
                 
+                // --- NEW: Check if this deposit is excluded by the user ---
+                if (excludedDeposits.has(currentDateString)) {
+                    console.log(`     Deposit on ${currentDateString} is excluded by user toggle.`);
+                    monthlyDepositLumpSumForThisDay = 0; // Set to 0 if excluded
+                }
+                // --- END NEW ---
+                
                 if (monthlyDepositLumpSumForThisDay > 0) {
                     currentDailyReserve += monthlyDepositLumpSumForThisDay; // Always add to reserve fund
                     currentMonthAggregatedDeposit += monthlyDepositLumpSumForThisDay; // Accumulate for RF table month-end display
@@ -1621,82 +1650,84 @@
         }
 
         /**
-         * Updates the display of current fund balances.
-         * This function now sums the total additions from the Google Sheet data,
-         * considering only entries *after* the last known payout date.
+         * NEW: Calculates fund balances and stores the projection value globally.
+         * This function performs calculations but does NOT update the DOM.
+         * @returns {object} An object containing the calculated balances for display.
          */
-        const updateCurrentFundBalancesDisplay = () => {
-            console.log("updateCurrentFundBalancesDisplay: Starting update.");
-            console.log("updateCurrentFundBalancesDisplay: lastKnownPayoutDate:", lastKnownPayoutDate ? lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A');
+        const calculateAndStoreCurrentFundBalances = () => {
+            console.log("calculateAndStoreCurrentFundBalances: Calculating balances for cards and projection.");
 
-            let totalCashbackValueFromSheet = 0; // NEW variable for Cashback Value
-            let totalMarkupSinceLastPayout = 0; // NEW variable for Total Markup
+            let totalCashbackValue_col = 0;
+            let totalTotalMarkup_col = 0;
+            let totalCashback_col = 0;
+            let totalMarkup_col = 0;
 
-            // Calculate total Cashback Value from Last Paid Payout Release Date to present
             processedGoogleSheetData.forEach(row => {
-                const releaseDate = row.parsedReleaseDate;
-                const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
+                const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback Value']));
+                if (!isNaN(cashbackValue)) totalCashbackValue_col += cashbackValue;
 
-                // Changed from >= to > to exclude the Last Paid Payout Release Date
-                if (releaseDate && lastKnownPayoutDate && releaseDate.getTime() > lastKnownPayoutDate.getTime()) {
-                    totalCashbackValueFromSheet += cashbackValue;
-                    console.log(`   Cashback Value: Including ${formatCurrency(cashbackValue)} from ${releaseDate.toLocaleDateString()} (after payout date). Current sum: ${formatCurrency(totalCashbackValueFromSheet)}`);
-                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-                    totalCashbackValueFromSheet += cashbackValue;
-                    console.log(`   Cashback Value: Including ${formatCurrency(cashbackValue)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (no payout date). Current sum: ${formatCurrency(totalCashbackValueFromSheet)}`);
-                } else {
-                    console.log(`   Cashback Value: Skipping ${formatCurrency(cashbackValue)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (on or before payout date).`);
-                }
+                const totalMarkup = cleanAndParseFloat(getColumnValue(row, ['Total Markup']));
+                if (!isNaN(totalMarkup)) totalTotalMarkup_col += totalMarkup;
+
+                const cashback = cleanAndParseFloat(getColumnValue(row, ['Cashback']));
+                if (!isNaN(cashback)) totalCashback_col += cashback;
+
+                const markup = cleanAndParseFloat(getColumnValue(row, ['Markup']));
+                if (!isNaN(markup)) totalMarkup_col += markup;
             });
 
-            // Iterate through processedGoogleSheetData for Total Markup
-            processedGoogleSheetData.forEach(row => {
-                const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup']));
-                const releaseDate = row.parsedReleaseDate;
+            const finalCashbackValueCard = totalCashback_col - totalCashbackValue_col;
+            const finalTotalMarkupCard = totalMarkup_col - totalTotalMarkup_col;
+            const newReserveFundValue = finalTotalMarkupCard * 0.83;
+            const newCashbackFundValue = finalTotalMarkupCard * 0.17;
 
-                if (releaseDate && lastKnownPayoutDate && releaseDate.getTime() > lastKnownPayoutDate.getTime()) {
-                    if (!isNaN(markup) && markup > 0) { // Only add if it's a valid positive markup
-                        totalMarkupSinceLastPayout += markup;
-                        console.log(`   Markup: Including ${formatCurrency(markup)} from ${releaseDate.toLocaleDateString()} (after payout date). Current sum: ${formatCurrency(totalMarkupSinceLastPayout)}`);
-                    }
-                } else if (!lastKnownPayoutDate) { // If no last payout date found, sum all
-                    if (!isNaN(markup) && markup > 0) {
-                        totalMarkupSinceLastPayout += markup;
-                        console.log(`   Markup: Including ${formatCurrency(markup)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (no payout date). Current sum: ${formatCurrency(totalMarkupSinceLastPayout)}`);
-                    }
-                } else {
-                    console.log(`   Markup: Skipping ${formatCurrency(markup)} from ${releaseDate ? releaseDate.toLocaleDateString() : 'N/A'} (on or before payout date).`);
-                }
+            // Store the "Total Markup" card's value globally for the projection table
+            globalCurrentTotalMarkupForProjection = finalTotalMarkupCard;
+            console.log(`   Stored globalCurrentTotalMarkupForProjection: ${formatCurrency(globalCurrentTotalMarkupForProjection)}`);
+
+            return {
+                finalCashbackValueCard,
+                finalTotalMarkupCard,
+                newReserveFundValue,
+                newCashbackFundValue,
+                lastKnownPayoutDate // Pass this through for the display function
+            };
+        };
+
+
+        /**
+         * UPDATED: Updates the display of current fund balances using pre-calculated values.
+         * @param {object} balances - An object with the calculated card values.
+         */
+        const updateCurrentFundBalancesDisplay = (balances) => {
+            console.log("updateCurrentFundBalancesDisplay: Updating DOM with pre-calculated balances.");
+            
+            if (!balances) {
+                console.error("updateCurrentFundBalancesDisplay: No balances object provided. Aborting DOM update.");
+                return;
+            }
+
+            // Update the display elements with the new values
+            cashbackValueSinceLastPayoutDisplay.textContent = formatCurrency(balances.finalCashbackValueCard);
+            totalMarkupSinceLastPayoutDisplay.textContent = formatCurrency(balances.finalTotalMarkupCard);
+            reserveFundSinceLastPayoutDisplay.textContent = formatCurrency(balances.newReserveFundValue);
+            cashbackFundSinceLastPayoutDisplay.textContent = formatCurrency(balances.newCashbackFundValue);
+
+
+            // Update text colors based on the final values (positive/negative)
+            [cashbackFundSinceLastPayoutDisplay, reserveFundSinceLastPayoutDisplay, cashbackValueSinceLastPayoutDisplay, totalMarkupSinceLastPayoutDisplay].forEach(el => {
+                const value = cleanAndParseFloat(el.textContent.replace(/[^0-9.-]/g, ''));
+                el.classList.toggle('text-green-600', value >= 0);
+                el.classList.toggle('text-red-600', value < 0);
             });
 
-            // Apply the new allocation logic for display
-            const allocatedCashbackFund = totalMarkupSinceLastPayout * 0.17;
-            const allocatedReserveFund = totalMarkupSinceLastPayout * 0.83;
-
-            // Update the new display elements
-            cashbackFundSinceLastPayoutDisplay.classList.toggle('text-green-600', allocatedCashbackFund >= 0);
-            cashbackFundSinceLastPayoutDisplay.classList.toggle('text-red-600', allocatedCashbackFund < 0);
-            cashbackFundSinceLastPayoutDisplay.textContent = formatCurrency(allocatedCashbackFund);
-
-            reserveFundSinceLastPayoutDisplay.classList.toggle('text-green-600', allocatedReserveFund >= 0);
-            reserveFundSinceLastPayoutDisplay.classList.toggle('text-red-600', allocatedReserveFund < 0);
-            reserveFundSinceLastPayoutDisplay.textContent = formatCurrency(allocatedReserveFund);
-
-            cashbackValueSinceLastPayoutDisplay.classList.toggle('text-green-600', totalCashbackValueFromSheet >= 0);
-            cashbackValueSinceLastPayoutDisplay.classList.toggle('text-red-600', totalCashbackValueFromSheet < 0);
-            cashbackValueSinceLastPayoutDisplay.textContent = formatCurrency(totalCashbackValueFromSheet);
-
-            totalMarkupSinceLastPayoutDisplay.classList.toggle('text-green-600', totalMarkupSinceLastPayout >= 0);
-            totalMarkupSinceLastPayoutDisplay.classList.toggle('text-red-600', totalMarkupSinceLastPayout < 0);
-            totalMarkupSinceLastPayoutDisplay.textContent = formatCurrency(totalMarkupSinceLastPayout);
-
-            // Display the last known payout date
-            if (lastKnownPayoutDate) {
-                lastPaidPayoutReleaseDateDisplay.textContent = lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
+            // Display the last known payout date (this logic is still needed for its card)
+            if (balances.lastKnownPayoutDate) {
+                lastPaidPayoutReleaseDateDisplay.textContent = balances.lastKnownPayoutDate.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' });
             } else {
                 lastPaidPayoutReleaseDateDisplay.textContent = 'N/A';
             }
-            console.log("updateCurrentFundBalancesDisplay: Finished update.");
+            console.log("updateCurrentFundBalancesDisplay: Finished DOM update.");
         };
 
 
@@ -1780,21 +1811,28 @@
             // Populate Reserve Flow Table (Daily) using collapsible years
             createCollapsibleYearlyTable(rfReserveFlowTableBodyWrapper, dailyReserveFlowLog, (data) => {
                 let displayedDeposit;
-                let depositClass = 'text-gray-500'; // Default for N/A
+                let depositHtml;
                 let displayedPaidCashback;
                 
                 // Get today's date for comparison
                 const today = new Date();
                 today.setHours(0,0,0,0); // Normalize to local midnight
 
-                // Logic for Deposit (J$) column: now reflects calculatedMonthEndDeposit
+                // --- NEW: Logic for Deposit (J$) column with toggle ---
                 if (data.calculatedMonthEndDeposit > 0) {
-                    displayedDeposit = formatCurrency(data.calculatedMonthEndDeposit, true);
-                    depositClass = 'text-green-600';
+                    const dateKey = data.date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                    const isChecked = !excludedDeposits.has(dateKey);
+                    
+                    depositHtml = `
+                        <div class="deposit-toggle-container">
+                            <input type="checkbox" class="deposit-toggle-checkbox" data-date="${dateKey}" ${isChecked ? 'checked' : ''}>
+                            <span class="text-green-600">${formatCurrency(data.calculatedMonthEndDeposit, true)}</span>
+                        </div>
+                    `;
                 } else {
-                    displayedDeposit = 'N/A';
-                    depositClass = 'text-gray-500';
+                    depositHtml = '<span class="text-gray-500">N/A</span>';
                 }
+                // --- END NEW ---
 
                 // Logic for Paid Cashback (J$) column
                 // This now uses the pre-aggregated monthlyPaidCashbackDeposits
@@ -1825,7 +1863,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${data.day}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${data.date.toLocaleDateString('en-JM', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.reserveStart, true)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap ${depositClass}">${displayedDeposit}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${depositHtml}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(data.markupAddedToReserve, true)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${displayedPaidCashback}</td>
                         <td class="px-6 py-4 whitespace-nowrap ${statusClass}">${displayedStatus}</td>
@@ -1852,6 +1890,9 @@
             if (gsErrorMessage) gsErrorMessage.classList.add('hidden');
             if (gsDataTableContainer) gsDataTableContainer.classList.add('hidden');
             if (gsLoadingIndicator) gsLoadingIndicator.classList.remove('hidden');
+            
+            // --- NEW: Reset the excluded deposits set on every data load ---
+            excludedDeposits.clear();
 
             try {
                 console.log("loadGoogleSheetData: Fetching data from:", dataUrl);
@@ -1973,7 +2014,7 @@
                                 const activationMonthKey = `${parsedActivationDate.getFullYear()}-${String(parsedActivationDate.getMonth() + 1).padStart(2, '0')}`;
 
                                 // Attempt to get Markup value first
-                                let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup'])); // Look for 'Markup' or 'markup'
+                                let markupAmount = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup'])); // Look for 'Markup' or 'markup' or 'Total Markup'
 
                                 let cashbackFundToAdd = 0;
                                 let reserveFundToAdd = 0;
@@ -1982,12 +2023,10 @@
                                     // If Markup column exists and has a value, use it for calculation
                                     cashbackFundToAdd = markupAmount * (1 - RF_MARKUP_ALLOCATION_TO_RESERVE);
                                     reserveFundToAdd = markupAmount * RF_MARKUP_ALLOCATION_TO_RESERVE;
-                                    console.log(`     Using Markup for funding. Markup: ${formatCurrency(markupAmount)}. Cashback Fund Add: ${formatCurrency(cashbackFundToAdd)}. Reserve Fund Add: ${formatCurrency(reserveFundToAdd, true)}`);
                                 } else {
                                     // Fallback to existing 'Cashback Fund' and 'Reserve Fund' columns if Markup is not found or invalid
                                     cashbackFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
                                     reserveFundToAdd = cleanAndParseFloat(getColumnValue(row, ['Reserve Fund', 'ReserveFund']));
-                                    console.log(`     Using direct Sheet columns for funding. Cashback Fund Add: ${formatCurrency(cashbackFundToAdd)}. Reserve Fund Add: ${formatCurrency(reserveFundToAdd, true)}`);
                                 }
                                 
                                 const cashbackOwed = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value'])); // Use 'Cashback' column for liability
@@ -1996,7 +2035,6 @@
                                 // Ensure paidCashback is always a number (0 if not valid)
                                 const paidCashbackRaw = getColumnValue(row, ['Paid Cashback', 'PaidCashback']);
                                 const paidCashback = isNaN(cleanAndParseFloat(paidCashbackRaw)) ? 0 : cleanAndParseFloat(paidCashbackRaw); 
-                                console.log(`     Processing row for ${activationDateKey}: Paid Cashback raw: '${paidCashbackRaw}', parsed: ${paidCashback}`); // Added debug log
 
                                 dailyCashbackFundAdditionsMap.set(activationDateKey, (dailyCashbackFundAdditionsMap.get(activationDateKey) || 0) + cashbackFundToAdd);
                                 dailyReserveFundAdditionsMap.set(activationDateKey, (dailyReserveFundAdditionsMap.get(activationDateKey) || 0) + reserveFundToAdd);
@@ -2025,14 +2063,6 @@
                                 }
                             }
                         });
-                        console.log("loadGoogleSheetData: Google Sheet data table populated.");
-                        console.log("loadGoogleSheetData: dailyCashbackFundAdditionsMap:", Array.from(dailyCashbackFundAdditionsMap.entries()));
-                        console.log("loadGoogleSheetData: dailyReserveFundAdditionsMap:", Array.from(dailyReserveFundAdditionsMap.entries()));
-                        console.log("loadGoogleSheetData: dailyLiabilityAdditionsMap:", Array.from(dailyLiabilityAdditionsMap.entries()));
-                        console.log("loadGoogleSheetData: dailyTopUpAmountsMap:", Array.from(dailyTopUpAmountsMap.entries()));
-                        console.log("loadGoogleSheetData: dailyCashbackValueOwedMap (keyed by Release Date):", Array.from(dailyCashbackValueOwedMap.entries())); 
-                        console.log("loadGoogleSheetData: dailyPaidCashbackMap (keyed by Release Date):", Array.from(dailyPaidCashbackMap.entries())); 
-                        console.log("loadGoogleSheetData: sheetDataAggregatedBySimulatedPayoutMonthEnd:", Array.from(sheetDataAggregatedBySimulatedPayoutMonthEnd.entries())); 
 
 
                         // Render Google Sheet data with collapsible years
@@ -2040,7 +2070,7 @@
                             const dateObj = row.parsedDate;
                             const topUpDateDisplay = dateObj ? dateObj.toLocaleDateString('en-JM', { year: 'numeric', month: 'short', day: 'numeric' }) : (getColumnValue(row, ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']) || 'N/A');
                             const topUp = cleanAndParseFloat(getColumnValue(row, ['Top-Up', 'Top Up', 'Topup']));
-                            const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup'])); // Get Markup for display
+                            const markup = cleanAndParseFloat(getColumnValue(row, ['Markup', 'markup', 'Total Markup'])); // Get Markup for display
                             const cashbackOwedPercent = getColumnValue(row, ['% Cashback Owed', '% Cashback Owed', 'Cashback Owed', 'Cashback % Owed', 'CashbackOwedPercent']);
                             const cashbackValue = cleanAndParseFloat(getColumnValue(row, ['Cashback', 'Cashback Value']));
                             const cashbackFund = cleanAndParseFloat(getColumnValue(row, ['Cashback Fund', 'CashbackFund']));
@@ -2084,11 +2114,18 @@
                         }
                         // --- END NEW LOGIC ---
 
-                        // After setting all inputs from sheet data, re-run simulations
+                        // --- REFACTORED LOGIC ---
+                        // 1. Calculate balances and store the projection value first.
+                        const balances = calculateAndStoreCurrentFundBalances();
+                        
+                        // 2. Run simulations which will use the new global projection value.
                         runSimulation();
                         runReserveFlowSimulation();
-                        updateCurrentFundBalancesDisplay(); // Call this to update the new span
-                        console.log("loadGoogleSheetData: Simulations triggered after data load.");
+
+                        // 3. Update the DOM with the pre-calculated balances.
+                        updateCurrentFundBalancesDisplay(balances); 
+                        console.log("loadGoogleSheetData: Simulations and display updates triggered after data load.");
+                        // --- END REFACTORED LOGIC ---
 
                     } else {
                         console.warn("loadGoogleSheetData: No valid data rows found in the sheet. Running with defaults.");
@@ -2108,7 +2145,7 @@
                         if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                         runSimulation(); // Run with default/reset values
                         runReserveFlowSimulation(); // Run with default/reset values
-                        updateCurrentFundBalancesDisplay(); // Call this to update the new span
+                        updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
                     }
 
                 } else {
@@ -2129,7 +2166,7 @@
                     if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                     runSimulation(); // Run with default/reset values
                     runReserveFlowSimulation(); // Run with default/reset values
-                    updateCurrentFundBalancesDisplay(); // Call this to update the new span
+                    updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
                 }
 
             } catch (error) {
@@ -2151,7 +2188,7 @@
                 if (rfReserveFlowTableBodyWrapper) rfReserveFlowTableBodyWrapper.innerHTML = '';
                 runSimulation(); // Run with default/reset values
                 runReserveFlowSimulation(); // Run with default/reset values
-                updateCurrentFundBalancesDisplay(); // Call this to update the new span
+                updateCurrentFundBalancesDisplay(calculateAndStoreCurrentFundBalances());
             }
         };
 
@@ -2160,6 +2197,24 @@
             console.log("DOMContentLoaded: Event fired.");
             updateInitialTradingFundDefault();
             loadGoogleSheetData(); // Load Google Sheet data on page load, which then triggers simulations
+
+            // --- NEW: Event listener for deposit toggles ---
+            rfReserveFlowTableBodyWrapper.addEventListener('change', (event) => {
+                if (event.target.classList.contains('deposit-toggle-checkbox')) {
+                    const dateKey = event.target.dataset.date;
+                    if (event.target.checked) {
+                        // If checked, remove from the excluded set
+                        excludedDeposits.delete(dateKey);
+                    } else {
+                        // If unchecked, add to the excluded set
+                        excludedDeposits.add(dateKey);
+                    }
+                    // Re-run everything to reflect the change
+                    console.log(`Deposit toggle changed for ${dateKey}. Excluded set is now:`, excludedDeposits);
+                    runSimulation();
+                    runReserveFlowSimulation();
+                }
+            });
         });
 
         // Event listeners for manual inputs that are still present
