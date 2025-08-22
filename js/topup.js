@@ -140,6 +140,13 @@ function init_topup() {
   document.getElementById("idcode").value = localStorage.getItem("savedIdCode") || "";
   document.getElementById("bankused").value = localStorage.getItem("savedBankUsed") || "";
 
+  // ✅ Auto-set today's date (YYYY-MM-DD) if empty
+  const dateInput = document.getElementById("datesent");
+  if (dateInput && !dateInput.value) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.value = today;
+  }
+
   document.getElementById("fullname").addEventListener("input", e => {
     localStorage.setItem("savedFullName", e.target.value.trim());
   });
