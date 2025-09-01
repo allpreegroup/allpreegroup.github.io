@@ -1135,7 +1135,7 @@ ADR:;;${contactDetails.address}`;
         }
 
         // Initialize contact saving section
-       function initContactSaving() {
+      function initContactSaving() {
     const isAndroid = /android/i.test(navigator.userAgent);
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const actionDiv = document.getElementById("action");
@@ -1193,7 +1193,10 @@ ADR:;;${contactDetails.address}`;
             <img src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px;">
         `;
     } else { // Desktop / other devices
-        actionDiv.innerHTML = `<p class="text-gray-600">Use a mobile device to add contact</p>`;
+        actionDiv.innerHTML = `
+            <p class="text-gray-600">Scan this QR code with your phone to save the contact</p><br>
+            <img id="desktopQR" src="${qrUrl}" alt="QR Code" width="200" height="200" style="border:1px solid #ccc; padding:10px;">
+        `;
     }
 }
     </script>
