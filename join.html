@@ -1135,64 +1135,70 @@ ADR:;;${contactDetails.address}`;
         }
 
         // Initialize contact saving section
-        function initContactSaving() {
-            const isAndroid = /android/i.test(navigator.userAgent);
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-            const actionDiv = document.getElementById("action");
-            const qrDiv = document.getElementById("qr");
+       function initContactSaving() {
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const actionDiv = document.getElementById("action");
+    const qrDiv = document.getElementById("qr");
 
-            if (!actionDiv || !qrDiv) {
-                console.error("Contact saving elements not found.");
-                return;
-            }
+    if (!actionDiv || !qrDiv) {
+        console.error("Contact saving elements not found.");
+        return;
+    }
 
-            const vCardContent = buildVCardString(); // Use the global vCard content
+    const vCardContent = buildVCardString(); // your global vCard content
+    const encodedVCardData = encodeURIComponent(vCardContent);
+    const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}&size=200`;
 
-            if (isAndroid) {
-                const contactIntentURL =
-                    "intent://createContact#Intent;" +
-                    "scheme=content;" +
-                    "action=android.intent.action.INSERT;" +
-                    "type=vnd.android.cursor.dir/contact;" +
-                    `S.name=${encodeURIComponent(contactDetails.fullName)};` +
-                    `S.phone=${contactDetails.numbers[0].number};` +
-                    `S.email=${contactDetails.email};` +
-                    `S.organization=${encodeURIComponent(contactDetails.organization)};` +
-                    `S.postal=${encodeURIComponent(contactDetails.address)};` +
-                    "end;";
+    if (isAndroid) {
+        const contactIntentURL =
+            "intent://createContact#Intent;" +
+            "scheme=content;" +
+            "action=android.intent.action.INSERT;" +
+            "type=vnd.android.cursor.dir/contact;" +
+            `S.name=${encodeURIComponent(contactDetails.fullName)};` +
+            `S.phone=${contactDetails.numbers[0].number};` +
+            `S.email=${contactDetails.email};` +
+            `S.organization=${encodeURIComponent(contactDetails.organization)};` +
+            `S.postal=${encodeURIComponent(contactDetails.address)};` +
+            "end;";
 
-                const encodedVCardData = encodeURIComponent(vCardContent);
-                const qrUrl = `https://quickchart.io/qr?text=${encodedVCardData}`;
+        function tryIntentFallback() {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = contactIntentURL;
+            document.body.appendChild(iframe);
 
-                function tryIntentFallback() {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = contactIntentURL;
-                    document.body.appendChild(iframe);
+            actionDiv.innerHTML = `
+                <p class="text-gray-600">Scan the QR or click button to download & import</p><br>
+                <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
+                <br><br> 
+                <button onclick="generateVCF()" class="btn-primary py-2 px-4 text-base shadow-md">D/L & Import</button>
+            `;
 
-                    actionDiv.innerHTML = `
-                        <p class="text-gray-600">Scan the QR or use the button to download and import</p><br>
-                        <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">
-                        <br><br> <button onclick="generateVCF()" class="btn-primary py-2 px-4 text-base shadow-md">D/L & Imp</button>
-                    `;
-
-                    setTimeout(() => {
-                        document.getElementById("fallbackQR").style.opacity = 1;
-                    }, 500);
-                }
-
-                actionDiv.innerHTML = `
-                    <button onclick="tryIntentFallback()" class="btn-primary py-2 px-4 text-base shadow-md">Click & Save</button>
-                `;
-
-                qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
-            } else if (isIOS) {
-                actionDiv.innerHTML = `<button onclick="generateVCF()" class="btn-primary py-2 px-4 text-base shadow-md">Click To Save</button>`;
-            } else {
-                actionDiv.innerHTML = `<p class="text-gray-600">Scan the QR or use the button to download and import</p><br>
-                        <img id="fallbackQR" src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px; opacity:0; transition:opacity 0.6s ease;">`;
-            }
+            setTimeout(() => {
+                document.getElementById("fallbackQR").style.opacity = 1;
+            }, 500);
         }
+
+        actionDiv.innerHTML = `
+            <button onclick="tryIntentFallback()" class="btn-primary py-2 px-4 text-base shadow-md">Click & Save</button>
+        `;
+        qrDiv.innerHTML = `<img src="${qrUrl}" alt="Preload QR" style="display:none;">`;
+
+    } else if (isIOS) {
+        actionDiv.innerHTML = `
+            <button onclick="generateVCF()" class="btn-primary py-2 px-4 text-base shadow-md">Click To Save</button>
+            <p class="text-gray-600 mt-2">Or scan the QR code with another device</p>
+            <img src="${qrUrl}" alt="QR Code" width="170" height="170" style="border:1px solid #ccc; padding:10px;">
+        `;
+    } else { // Desktop / other devices
+        actionDiv.innerHTML = `
+            <p class="text-gray-600">Scan this QR code with your phone to save the contact</p><br>
+            <img id="desktopQR" src="${qrUrl}" alt="QR Code" width="200" height="200" style="border:1px solid #ccc; padding:10px;">
+        `;
+    }
+}
     </script>
 </body>
 </html>
