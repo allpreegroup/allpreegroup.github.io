@@ -331,6 +331,22 @@ height: 60px;
       position: relative;
       cursor: pointer;
     }
+			 
+	.deal-expired::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(200, 200, 200, 0.75); /* Light gray overlay */
+  z-index: 10;
+  border-radius: 10px; /* Match the deal card's border radius */
+}
+
+.deal-expired {
+  pointer-events: none; /* Makes the expired deal unclickable */
+}
 
 	.deal-item {
   opacity: 0;
@@ -4507,6 +4523,11 @@ brandDiv.addEventListener('click', () => {
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal';
+
+			  if (expireDate && new Date() > expireDate) {
+              dealCard.classList.add('deal-expired');
+            }
+			  
             dealCard.innerHTML = `
               <span class="discount-badge">${percentOff}% OFF</span>
               <img src="${row.ImageURL}" alt="${row.ProductName}">
