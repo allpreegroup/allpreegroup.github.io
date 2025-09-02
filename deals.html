@@ -4709,7 +4709,7 @@ for (let i = 1; i <= 5; i++) {
   const expiry = parseInt(localStorage.getItem(`rankedSlot${i}Expiry`), 10);
 
   if (brandName && !isNaN(expiry) && Date.now() < expiry) {
-    const match = allBrandsData.find(b => b.brand === brandName && !b.isFavorite);
+    const match = allBrandsData.find(b => b.brand === brandName && !b.isFavorite && b.brand !== selectedTakeoverBrand);
     if (match && !promotedBrands.includes(match)) {
       const badge = document.createElement('div');
       badge.className = 'top-ranked-badge';
