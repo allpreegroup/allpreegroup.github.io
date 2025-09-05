@@ -5600,6 +5600,9 @@ async function pingDeviceThrottled() {
   const profile = localStorage.getItem('profileLogin');
 
   // Find the buttons by their IDs
+		 
+  const viewAllButton = document.getElementById('viewAllButton');
+  const lockButton = document.getElementById('lockButton');
   const cartButton = document.getElementById('CartButton');
   const savedListsButton = document.getElementById('savedListsButton');
   const marketingButton = document.getElementById('marketing');
@@ -5609,11 +5612,15 @@ async function pingDeviceThrottled() {
 
   if (isLoggedIn) {
     // If logged in, show the buttons by clearing the inline 'display' style
+	  viewAllButton.style.display = '';
+	  lockButton.style.display = '';
     cartButton.style.display = '';
     savedListsButton.style.display = '';
     marketingButton.style.display = '';
   } else {
     // If not logged in, hide the buttons
+	   viewAllButton.style.display = 'none';
+	   lockButton.style.display = 'none';
     cartButton.style.display = 'none';
     savedListsButton.style.display = 'none';
     marketingButton.style.display = 'none';
