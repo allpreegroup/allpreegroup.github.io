@@ -1889,6 +1889,7 @@ webpushr('setup',{'key':'BE2GVRF5mLk7Fp1kzgXE_A5QDGK54HwqN1wEgxczP_fzfugkPREKHeb
         <div id="savedListsButton" class="menu-button" onclick="openSavedListsPopup()"><i class="fa-solid fa-receipt fa-lg"></i></div>
 	<div id="marketing" class="menu-button" data-view="marketing"><i class="fa-solid fa-share-from-square fa-lg"></i></div>	
        <div id="salesletter" class="menu-button" data-view="salesletter">Get <i class="fa-solid fa-magnifying-glass-plus fa-lg"></i></div>
+		<div id="takeover-brand-button" class="menu-button" onclick="openTakeoverBrandPopup("><i class="fa-solid fa-trophy fa-lg"></i></div>
 
 <div id="offlineMessage" class="menu-button" style="
   display: none;
@@ -3049,9 +3050,158 @@ function closeFavoriteBrandPopup() {
   const backdrop = document.getElementById('favorite-brand-backdrop');
   if (backdrop) backdrop.remove();
   document.body.style.overflow = ''; // Re-enable page scroll
+}	
+
+///////  ///////// END
+
+function openTakeoverBrandPopup() {
+  // Prevent duplicate backdrop
+  if (document.getElementById('takeover-brand-backdrop')) return;
+
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.id = 'takeover-brand-backdrop';
+  backdrop.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 68px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  `;
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeTakeoverBrandPopup();
+  });
+
+  // Create popup
+  let popup = document.getElementById('takeover-brand-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'takeover-brand-popup';
+    popup.style = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 90%;
+      max-width: 500px;
+      height: 70%;
+      max-height: 100vh;
+      overflow-y: scroll;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+    `;
+  }
+
+  // Add swipeable brand content dynamically from allBrandsData
+  const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
+  popup.innerHTML = '';
+
+  if (brands.length === 0) {
+    popup.innerHTML = `<div style="text-align:center;">No takeover brands available.</div>`;
+  } else {
+    const brandCarousel = document.createElement('div');
+    brandCarousel.style = 'display: flex; flex-direction: column; gap: 10px; overflow-y: scroll; max-height: 70vh; padding: 10px;';
+
+    // Retrieve selected takeover brand from localStorage
+    const selectedBrand = localStorage.getItem('selectedTakeoverBrand');
+
+    // Add each brand as a card
+    brands.forEach(brand => {
+      const brandCard = document.createElement('div');
+      brandCard.style = `
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: #f8f8f8;
+        transition: all 0.3s;
+      `;
+
+      const brandLogo = document.createElement('img');
+      brandLogo.src = brand.logo;
+      brandLogo.style = 'width: 40px; height: 40px; margin-right: 15px; border-radius: 50%;';
+      
+      const brandName = document.createElement('strong');
+      brandName.innerText = brand.name;
+
+      brandCard.appendChild(brandLogo);
+      brandCard.appendChild(brandName);
+
+      // Highlight if previously selected
+      if (brand.name === selectedBrand) {
+        brandCard.style.border = '2px solid #ff4d4d';
+        brandCard.style.backgroundColor = '#ffe6e6';
+      }
+
+      // Click event
+      brandCard.onclick = () => {
+        selectTakeoverBrand(brand.name, brandCard);
+      };
+
+      // Hover effect
+      brandCard.onmouseover = () => {
+        brandCard.style.transform = 'scale(1.05)';
+        brandCard.style.backgroundColor = '#f0f0f0';
+      };
+      brandCard.onmouseout = () => {
+        brandCard.style.transform = 'scale(1)';
+        brandCard.style.backgroundColor = '#f8f8f8';
+      };
+
+      brandCarousel.appendChild(brandCard);
+    });
+
+    popup.appendChild(brandCarousel);
+  }
+
+  backdrop.appendChild(popup);
+  document.body.appendChild(backdrop);
 }
 
-///////  ///////// END	
+// Select a takeover brand
+function selectTakeoverBrand(brand, brandCard) {
+  console.log(`Selected takeover brand: ${brand}`);
+
+  // Reset previous selections
+  const allBrandCards = document.querySelectorAll('#takeover-brand-popup div');
+  allBrandCards.forEach(card => {
+    card.style.border = '1px solid #ddd';
+    card.style.backgroundColor = '#f8f8f8';
+  });
+
+  // Highlight selected brand
+  brandCard.style.border = '2px solid #ff4d4d';
+  brandCard.style.backgroundColor = '#ffe6e6';
+
+  // Save selection
+  localStorage.setItem('selectedTakeoverBrand', brand);
+  closeTakeoverBrandPopup();
+}
+
+function closeTakeoverBrandPopup() {
+  const backdrop = document.getElementById('takeover-brand-backdrop');
+  if (backdrop) backdrop.remove();
+  document.body.style.overflow = '';
+}
+
+
+///////  ///////// END
+	
 
 /////// ////////// START
 
