@@ -89,6 +89,7 @@ function init_profile() {
     currentSummary = null;
     document.getElementById('login-section').classList.remove('hidden');
     document.getElementById('profile-section').classList.add('hidden');
+    updateUserSpecificButtonsVisibility();
   }
 
   function loginUser(password) {
@@ -123,6 +124,7 @@ function init_profile() {
         hideLoader();
         showProfile(userEntries, summaryRow);
         sortByLatest();
+        updateUserSpecificButtonsVisibility();
       } else {
         hideLoader();
         alert('Invalid password. Please try again.');
