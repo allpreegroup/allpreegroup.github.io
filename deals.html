@@ -4808,20 +4808,6 @@ allBrandsData.sort((a, b) => {
 
 // 3. Clear container and continue
 container.innerHTML = '';
-
-// Create and append the "no deals" message (hidden by default)
-const noDealsMessage = document.createElement('div');
-noDealsMessage.id = 'noDealsMessage';
-noDealsMessage.textContent = '🚫 No deals available right now. Please check back later! <br><br>';
-noDealsMessage.style.textAlign = 'center';
-noDealsMessage.style.fontWeight = 'bold';
-noDealsMessage.style.marginTop = '2rem';
-noDealsMessage.style.display = 'none';
-container.appendChild(noDealsMessage);
-
-if (allDealsFlat.length === 0) {
-  document.getElementById('noDealsMessage').style.display = 'block';
-}
 	
   let likedDealsSection = document.getElementById('likedDealsSection');
   if (!likedDealsSection) {
@@ -4946,6 +4932,19 @@ allBrandsData.forEach(brandData => {
     container.appendChild(brandData.section);
   }
 });
+	// Create and append the "no deals" message (hidden by default)
+const noDealsMessage = document.createElement('div');
+noDealsMessage.id = 'noDealsMessage';
+noDealsMessage.textContent = '🚫 No deals available right now. Please check back later! <br><br>';
+noDealsMessage.style.textAlign = 'center';
+noDealsMessage.style.fontWeight = 'bold';
+noDealsMessage.style.marginTop = '2rem';
+noDealsMessage.style.display = 'none';
+container.appendChild(noDealsMessage);
+
+if (allDealsFlat.length === 0) {
+  document.getElementById('noDealsMessage').style.display = 'block';
+}
 		
   setTimeout(() => {
     cleanUpLikedDeals();
