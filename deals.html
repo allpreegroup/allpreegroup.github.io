@@ -5595,11 +5595,37 @@ async function pingDeviceThrottled() {
   }
 }
 
+	function updateUserSpecificButtonsVisibility() {
+  // Get the profile data from localStorage
+  const profile = localStorage.getItem('profileLogin');
+
+  // Find the buttons by their IDs
+  const cartButton = document.getElementById('CartButton');
+  const savedListsButton = document.getElementById('savedListsButton');
+  const marketingButton = document.getElementById('marketing');
+
+  // Check if profile exists and is not an empty object string like '{}'
+  const isLoggedIn = profile && profile !== '{}' && profile !== 'null';
+
+  if (isLoggedIn) {
+    // If logged in, show the buttons by clearing the inline 'display' style
+    cartButton.style.display = '';
+    savedListsButton.style.display = '';
+    marketingButton.style.display = '';
+  } else {
+    // If not logged in, hide the buttons
+    cartButton.style.display = 'none';
+    savedListsButton.style.display = 'none';
+    marketingButton.style.display = 'none';
+  }
+}
 // On page load:
 document.addEventListener('DOMContentLoaded', () => {
   reportAnonymousInstall().then(() => {
     pingDeviceThrottled();
   });
+	// Call the function to set initial button visibility
+  updateUserSpecificButtonsVisibility();
 });
 
 
