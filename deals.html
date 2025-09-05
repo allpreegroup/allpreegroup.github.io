@@ -3092,7 +3092,7 @@ function openTakeoverBrandPopup() {
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 10px;
-      padding: 10px;
+      padding: 10px 10px;
       width: 90%;
       max-width: 500px;
       height: 70%;
@@ -3108,6 +3108,36 @@ function openTakeoverBrandPopup() {
   // Add swipeable brand content dynamically from allBrandsData
   const brands = allBrandsData.map(brand => ({ name: brand.brand, logo: brand.logo }));
   popup.innerHTML = '';
+
+	// Create and add the Clear button
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear My Choice';
+  clearBtn.style.cssText = `
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  `;
+  clearBtn.onmouseover = () => { clearBtn.style.backgroundColor = '#c0392b'; };
+  clearBtn.onmouseout = () => { clearBtn.style.backgroundColor = '#e74c3c'; };
+
+  clearBtn.onclick = () => {
+    localStorage.removeItem('selectedTakeoverBrand');
+    alert('Your selected brand has been cleared.');
+    closeTakeoverBrandPopup();
+    // You can uncomment the line below if you want the page to refresh automatically
+    // location.reload(); 
+  };
+
+  popup.appendChild(clearBtn);
 
   if (brands.length === 0) {
     popup.innerHTML = `<div style="text-align:center;">No takeover brands available.</div>`;
