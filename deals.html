@@ -2785,6 +2785,10 @@ fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/she
 fetch('https://opensheet.elk.sh/1_DyGLoYi5ndEkiwhPEzJhMc3vciIFNhN2g-H0gbVRds/Sheet5')
   .then(res => res.json())
   .then(data => {
+   if (!data || data.length === 0) {
+    console.log("Takeover Brand sheet is empty, skipping.");
+    return;
+   }
     const last = data[data.length - 1];
     const now = new Date();
     const expiry = new Date(last['Expires At']);
