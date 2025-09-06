@@ -102,6 +102,11 @@ function init_profile() {
         row['Password'] === password
       );
 
+
+      if (summaryRow['Brand']) {
+          localStorage.setItem('selectedTakeoverBrand', summaryRow['Brand']);
+        }
+      
       if (summaryRow) {
         const loginInfo = {
           firstName: summaryRow['First Name'],
@@ -305,6 +310,9 @@ document.addEventListener('click', function (event) {
       .then(res => res.json())
       .then(data => {
         const summaryRow = data.find(row => row['ID CODE'] === loginInfo.idcode);
+        if (summaryRow && summaryRow['Brand']) {
+          localStorage.setItem('selectedTakeoverBrand', summaryRow['Brand']);
+        }
         const userEntries = data.filter(row =>
           row['Code'] === loginInfo.code && row['activation date']
         );
