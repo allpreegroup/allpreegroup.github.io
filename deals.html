@@ -2254,10 +2254,11 @@ function setPanelY(y, animate = true) {
   panelY = y;
 
   // Control panel content scroll
-  if (Math.abs(y - positions.full) < 1) {
+  if (y === positions.full) {
     content.style.overflowY = 'auto';
   } else {
     content.style.overflowY = 'hidden';
+	content.scrollTop = 0;
   }
 
   // Control body scroll
