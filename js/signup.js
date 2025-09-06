@@ -79,6 +79,20 @@ function init_signup() {
     parishSelect.appendChild(option);
   });
 
+  // Create and populate the hidden Brand field from local storage
+  const brandValue = localStorage.getItem("selectedTakeoverBrand");
+  if (brandValue) {
+    let brandField = document.querySelector('[name="entry.691118864"]');
+    if (!brandField) {
+      brandField = document.createElement('input');
+      brandField.type = 'hidden';
+      brandField.name = 'entry.691118864';
+      // Add the hidden field to your form section
+      document.getElementById('signupFormSection').appendChild(brandField);
+    }
+    brandField.value = brandValue;
+  }
+
   const phoneInput = document.getElementById("whatsappNumber");
   phoneInput.addEventListener("input", () => {
     const expectedPrefix = "+1876";
@@ -179,6 +193,7 @@ async function submitSignupForm() {
   formData.append('entry.577240945', document.getElementById('birthYearSelect').value);
   formData.append('entry.1890405601', document.getElementById('countrySelect').value);
   formData.append('entry.341957417', document.getElementById('parishSelect').value);
+  formData.append('entry.691118864', document.querySelector('[name="entry.691118864"]')?.value || '');
 
   try {
     const response = await fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSfw0Sts9wFjaExeOLWxUGAhdrEbfMEE2n6kh430bFqb0xKO2w/formResponse', {
