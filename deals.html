@@ -90,7 +90,7 @@
     #panelContent {
       flex: 1;
       pointer-events: auto;
-      overflow-y: auto;
+      overflow-y: hidden;
       padding: 16px;
     }
 		 
@@ -2247,19 +2247,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const allowedViews = ["add", "generategiftcard", "topup", "signup", "balance", "marketing", "salesletter",  "profile"]; // restrict valid views
 
   // Set panel position with optional animation
- function setPanelY(y, animate = true) {
+	
+function setPanelY(y, animate = true) {
   panel.style.transition = animate ? "transform 0.3s ease" : "none";
   panel.style.transform = `translateY(${y}px)`;
   panelY = y;
 
-  // Toggle body scroll depending on panel state
-  if (y === positions.mid) {
-    document.body.classList.add('noscroll');
-  } else if (y === positions.collapsed) {
+  // Control panel content scroll
+  if (y === positions.full) {
+    content.style.overflowY = 'auto';
+  } else {
+    content.style.overflowY = 'hidden';
+  }
+
+  // Control body scroll
+  if (y === positions.collapsed) {
     document.body.classList.remove('noscroll');
+  } else {
+    document.body.classList.add('noscroll');
   }
 }
-
 
   // Snap to the nearest defined position
   function closestSnap(y) {
