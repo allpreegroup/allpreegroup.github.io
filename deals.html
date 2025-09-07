@@ -4249,7 +4249,8 @@ function showBrandDealsInPopup(brandName) {
   highlightTab('showBrandTabBtn');  // Highlight the "Brand" tab
 	  
   // Filter all deals to get the selected brand's deals
-  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName);
+  const sourceUrl = currentPopupDeal.sourceUrl;
+  const brandDeals = allDealsFlat.filter(d => d.brandName === brandName && d.sourceUrl === sourceUrl);
 
   if (!brandDeals.length) {
     alert("No deals for " + brandName);
