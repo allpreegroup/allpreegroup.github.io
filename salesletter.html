@@ -319,6 +319,81 @@
  .panel   summary::-webkit-details-marker {
       display: none;
     }
+
+	.panel .upgrade-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .panel .upgrade-card h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #0055a5;
+    }
+
+   .panel  .upgrade-card p.subtitle {
+      font-size: 0.95rem;
+      color: #555;
+      margin-top: 0.5rem;
+    }
+
+   .panel  .perk {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      text-align: left;
+    }
+
+    .panel .perk-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .panel .perk h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #004080;
+    }
+
+    .panel .perk p {
+      margin: 0.25rem 0 0;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+   .panel  .cta {
+      margin-top: 2rem;
+    }
+
+   .panel  .cta p {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 0.75rem;
+      color: #222;
+    }
+
+   .panel  .cta button {
+      background: linear-gradient(to right, #facc15, #fde047);
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      transition: background 0.3s;
+    }
+
+   .panel  .cta button:hover {
+      background: linear-gradient(to right, #fde047, #facc15);
+    }
 </style>
 
 
@@ -451,92 +526,40 @@
     </div>
 </div>	 
 	
-	import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Crown, BarChart3 } from "lucide-react";
-import { motion } from "framer-motion";
+	<div class="upgrade-card">
+      <div style="font-size:2rem; color:#facc15;">👑</div>
+      <h1>Premium Cashback Growth Club</h1>
+      <p class="subtitle">Unlock VIP perks, bonus cashback, and exclusive rewards.</p>
 
-export default function ClubUpgradeScreen() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-indigo-800 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md rounded-2xl shadow-xl text-white bg-white/10 backdrop-blur-md border-0">
-        <CardContent className="p-8 space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <Crown className="w-12 h-12 mx-auto text-yellow-300" />
-            <h1 className="text-2xl font-bold mt-4">Premium Cashback Growth Club</h1>
-            <p className="text-sm text-gray-200 mt-2">
-              Unlock VIP perks, bonus cashback, and exclusive rewards.
-            </p>
-          </motion.div>
+      <div class="perk">
+        <div class="perk-icon">✔️</div>
+        <div>
+          <h3>Year-End Fund Bonus</h3>
+          <p>Up to 30% profit share + potential fee rebate. Capped at 100% cashback.</p>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-start space-x-3"
-            >
-              <CheckCircle2 className="w-6 h-6 text-green-400 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold">Year-End Fund Bonus</h3>
-                <p className="text-sm text-gray-200">
-                  Up to 30% profit share + potential fee rebate. Capped at 100% cashback.
-                </p>
-              </div>
-            </motion.div>
+      <div class="perk">
+        <div class="perk-icon">👑</div>
+        <div>
+          <h3>VIP Badge</h3>
+          <p>Stand out in the app with your exclusive VIP status.</p>
+        </div>
+      </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex items-start space-x-3"
-            >
-              <Crown className="w-6 h-6 text-yellow-300 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold">VIP Badge</h3>
-                <p className="text-sm text-gray-200">
-                  Stand out in the app with your exclusive VIP status.
-                </p>
-              </div>
-            </motion.div>
+      <div class="perk">
+        <div class="perk-icon">📊</div>
+        <div>
+          <h3>Monthly Performance Updates</h3>
+          <p>Track how the Club Fund is performing with regular insights.</p>
+        </div>
+      </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex items-start space-x-3"
-            >
-              <BarChart3 className="w-6 h-6 text-blue-300 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold">Monthly Performance Updates</h3>
-                <p className="text-sm text-gray-200">
-                  Track how the Club Fund is performing with regular insights.
-                </p>
-              </div>
-            </motion.div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="pt-4 text-center"
-          >
-            <p className="text-lg font-semibold mb-2">Join today for USD $1,000 / year</p>
-            <Button className="w-full bg-yellow-400 text-black font-bold rounded-xl shadow-lg hover:bg-yellow-300">
-              Upgrade to VIP
-            </Button>
-          </motion.div>
-        </CardContent>
-      </Card>
+      <div class="cta">
+        <p>Join today for USD $1,000 / year</p>
+        <button>Upgrade to VIP</button>
+      </div>
     </div>
-  );
-}
 
 	
 	<div class="section">  
