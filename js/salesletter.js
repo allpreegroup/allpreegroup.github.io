@@ -23,37 +23,56 @@ function init_salesletter() {
     return `JMD ${amount.toLocaleString()}`;
   }
 
- function calculateTotals() {
-    const total = selectedMembership.reduce((sum, val) => sum + val, 0);
-    if (total === 0) {
-      summary.innerHTML = "";
-      nextStepBtn.style.display = "none";
-      return;
+  function updateFundClubState() {
+  const fundClubOption = document.querySelector('.topup-option[data-amount="100000"]');
+  const standardSelected = selectedMembership.includes(3360);
+  const premiumSelected = selectedMembership.includes(6720);
+
+  if (!standardSelected && !premiumSelected) {
+    fundClubOption.classList.add('disabled');
+    // If the fund club is selected but no membership is, deselect it
+    if (selectedMembership.includes(100000)) {
+      selectedMembership = selectedMembership.filter(val => val !== 100000);
+      fundClubOption.classList.remove('selected');
+      localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
+      calculateTotals(); // Recalculate totals after deselecting
     }
-    if (total > 108400) {
-      summary.textContent = "Total cannot exceed JMD 108,400.";
-      nextStepBtn.style.display = "none";
-      return;
-    }
-
-    // Separate the taxable amount from the non-taxable Fund Club amount
-    const fundClubAmount = selectedMembership.includes(100000) ? 100000 : 0;
-    const taxableTotal = total - fundClubAmount;
-
-    const tax = taxableTotal * 0.15;
-    const fee = taxableTotal * 0.10;
-    const grandTotal = Math.round(taxableTotal + tax + fee + fundClubAmount);
-
-    summary.innerHTML = `
-      <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-      <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${total.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
-    `;
-    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
-    nextStepBtn.style.display = "block";
+  } else {
+    fundClubOption.classList.remove('disabled');
   }
+}
+  
+ function calculateTotals() {
+  const total = selectedMembership.reduce((sum, val) => sum + val, 0);
+  if (total === 0) {
+    summary.innerHTML = "";
+    nextStepBtn.style.display = "none";
+    return;
+  }
+  if (total > 108400) { // Increased limit to accommodate 100k + 8400 + tax/fee
+    summary.textContent = "Total cannot exceed allowed limits.";
+    nextStepBtn.style.display = "none";
+    return;
+  }
+
+  // Separate the taxable amount from the non-taxable Fund Club amount
+  const fundClubAmount = selectedMembership.includes(100000) ? 100000 : 0;
+  const taxableTotal = total - fundClubAmount;
+
+  const tax = taxableTotal * 0.15;
+  const fee = taxableTotal * 0.10;
+  const grandTotal = Math.round(taxableTotal + tax + fee + fundClubAmount);
+
+  summary.innerHTML = `
+    <h4 class="text-lg font-semibold mb-2">Summary:</h4>
+    <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${total.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
+  `;
+  document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
+  nextStepBtn.style.display = "block";
+}
 
   function saveStep(step) {
     localStorage.setItem("currentStep", step);
@@ -102,6 +121,7 @@ function init_salesletter() {
   // Load step + topups on DOM load
   restoreStep();
   restoreMembership();
+  updateFundClubState();
 
   // Button Events
   topUpBtn.addEventListener("click", () => {
@@ -111,21 +131,22 @@ function init_salesletter() {
   });
 
   select.addEventListener("click", (e) => {
-    const option = e.target.closest(".topup-option");
-    if (!option) return;
+  const option = e.target.closest(".topup-option");
+  if (!option || option.classList.contains('disabled')) return;
 
-    const amount = parseInt(option.dataset.amount);
-    if (selectedMembership.includes(amount)) {
-      selectedMembership = selectedMembership.filter(val => val !== amount);
-      option.classList.remove("selected");
-    } else {
-      selectedMembership.push(amount);
-      option.classList.add("selected");
-    }
+  const amount = parseInt(option.dataset.amount);
+  if (selectedMembership.includes(amount)) {
+    selectedMembership = selectedMembership.filter(val => val !== amount);
+    option.classList.remove("selected");
+  } else {
+    selectedMembership.push(amount);
+    option.classList.add("selected");
+  }
 
-    localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
-    calculateTotals();
-  });
+  updateFundClubState(); // Check and update the fund club state
+  localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
+  calculateTotals();
+});
 
   nextStepBtn.addEventListener("click", () => {
     membership1.classList.add("hidden");
