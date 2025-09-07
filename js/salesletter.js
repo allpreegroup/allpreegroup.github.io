@@ -171,6 +171,7 @@ function init_salesletter() {
 
     localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
     calculateTotals();
+    updateFundClubState();
   });
 
   nextStepBtn.addEventListener("click", () => {
