@@ -23,7 +23,7 @@ function init_salesletter() {
     return `JMD ${amount.toLocaleString()}`;
   }
 
-  function calculateTotals() {
+ function calculateTotals() {
     const total = selectedMembership.reduce((sum, val) => sum + val, 0);
     if (total === 0) {
       summary.innerHTML = "";
@@ -36,15 +36,19 @@ function init_salesletter() {
       return;
     }
 
-    const tax = total * 0.15;
-    const fee = total * 0.10;
-    const grandTotal = Math.round(total + tax + fee);
+    // Separate the taxable amount from the non-taxable Fund Club amount
+    const fundClubAmount = selectedMembership.includes(100000) ? 100000 : 0;
+    const taxableTotal = total - fundClubAmount;
+
+    const tax = taxableTotal * 0.15;
+    const fee = taxableTotal * 0.10;
+    const grandTotal = Math.round(taxableTotal + tax + fee + fundClubAmount);
 
     summary.innerHTML = `
       <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-      <div style="display: flex; justify-content: space-between;"><span>GCT:</span><span>JMD ${tax.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Fee:</span><span>JMD ${fee.toLocaleString()}</span></div>
-      <div style="display: flex; justify-content: space-between;"><span>Total:</span><span>JMD ${total.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${total.toLocaleString()}</span></div>
       <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
     `;
     document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
