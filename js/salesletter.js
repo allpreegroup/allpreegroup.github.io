@@ -25,10 +25,11 @@ function init_salesletter() {
 
   function updateFundClubState() {
   const fundClubOption = document.querySelector('.topup-option[data-amount="100000"]');
-  const standardSelected = selectedMembership.includes(3360);
+ // const standardSelected = selectedMembership.includes(3360);
   const premiumSelected = selectedMembership.includes(6720);
 
-  if (!standardSelected && !premiumSelected) {
+ // if (!standardSelected && !premiumSelected) {
+    if (!premiumSelected) {
     fundClubOption.classList.add('disabled');
     // If the fund club is selected but no membership is, deselect it
     if (selectedMembership.includes(100000)) {
@@ -130,23 +131,47 @@ function init_salesletter() {
     saveStep("membership1");
   });
 
+  
   select.addEventListener("click", (e) => {
-  const option = e.target.closest(".topup-option");
-  if (!option || option.classList.contains('disabled')) return;
+    const option = e.target.closest(".topup-option");
+    if (!option) return;
 
-  const amount = parseInt(option.dataset.amount);
-  if (selectedMembership.includes(amount)) {
-    selectedMembership = selectedMembership.filter(val => val !== amount);
-    option.classList.remove("selected");
-  } else {
-    selectedMembership.push(amount);
-    option.classList.add("selected");
-  }
+    const amount = parseInt(option.dataset.amount);
+    const standardAmount = 3360;
+    const premiumAmount = 6720;
 
-  updateFundClubState(); // Check and update the fund club state
-  localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
-  calculateTotals();
-});
+    // Handle membership exclusivity: If a membership is clicked, deselect the other.
+    if (amount === standardAmount) {
+      // If premium is selected, remove it from the array and the UI
+      const premiumIndex = selectedMembership.indexOf(premiumAmount);
+      if (premiumIndex > -1) {
+        selectedMembership.splice(premiumIndex, 1);
+        document.querySelector(`.topup-option[data-amount="${premiumAmount}"]`).classList.remove("selected");
+      }
+    } else if (amount === premiumAmount) {
+      // If standard is selected, remove it from the array and the UI
+      const standardIndex = selectedMembership.indexOf(standardAmount);
+      if (standardIndex > -1) {
+        selectedMembership.splice(standardIndex, 1);
+        document.querySelector(`.topup-option[data-amount="${standardAmount}"]`).classList.remove("selected");
+      }
+    }
+
+    // Now, toggle the currently clicked option
+    const currentIndex = selectedMembership.indexOf(amount);
+    if (currentIndex > -1) {
+      // It was already selected, so unselect it
+      selectedMembership.splice(currentIndex, 1);
+      option.classList.remove("selected");
+    } else {
+      // It was not selected, so select it
+      selectedMembership.push(amount);
+      option.classList.add("selected");
+    }
+
+    localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
+    calculateTotals();
+  });
 
   nextStepBtn.addEventListener("click", () => {
     membership1.classList.add("hidden");
