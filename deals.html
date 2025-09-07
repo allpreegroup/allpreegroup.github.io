@@ -4273,17 +4273,39 @@ function showBrandDealsInPopup(brandName) {
 
 
 function goToNextBrandDeal() {
-  if (!brandDealKeys.length) return;
+  if (!brandDealKeys.length || !currentPopupDeal) return;
+  
   brandDealIndex = (brandDealIndex + 1) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal, true);
+  const nextDealName = brandDealKeys[brandDealIndex];
+
+  // Find the next deal specific to the current brand and location
+  const deal = allDealsFlat.find(d =>
+    d.name === nextDealName &&
+    d.brandName === currentPopupDeal.brandName &&
+    d.sourceUrl === currentPopupDeal.sourceUrl
+  );
+  
+  if (deal) {
+    openPopup(deal, true);
+  }
 }
 
 function goToPrevBrandDeal() {
-  if (!brandDealKeys.length) return;
+  if (!brandDealKeys.length || !currentPopupDeal) return;
+
   brandDealIndex = (brandDealIndex - 1 + brandDealKeys.length) % brandDealKeys.length;
-  const deal = allDealsFlat.find(d => d.name === brandDealKeys[brandDealIndex]);
-  openPopup(deal, true);
+  const prevDealName = brandDealKeys[brandDealIndex];
+
+  // Find the previous deal specific to the current brand and location
+  const deal = allDealsFlat.find(d =>
+    d.name === prevDealName &&
+    d.brandName === currentPopupDeal.brandName &&
+    d.sourceUrl === currentPopupDeal.sourceUrl
+  );
+
+  if (deal) {
+    openPopup(deal, true);
+  }
 }
 
 
