@@ -30,8 +30,8 @@ function init_salesletter() {
       nextStepBtn.style.display = "none";
       return;
     }
-    if (total > 10900) {
-      summary.textContent = "Total cannot exceed JMD 10,900.";
+    if (total > 108400) {
+      summary.textContent = "Total cannot exceed JMD 108,400.";
       nextStepBtn.style.display = "none";
       return;
     }
@@ -164,7 +164,7 @@ function init_salesletter() {
     const comboText = selectedMembership.map(v => `JMD ${v.toLocaleString()}`).join(" + ");
     const grandTotalText = document.getElementById("grand-total").textContent.replace(/,/g, "");
 
-    const message = `I'd like to complete my 365days membership.\n\nCombination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nTransaction ID: ${idtran}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\n*Note:* Please find payment attached before sending msg \n\nHere is my payment screenshot.`;
+    const message = `I'd like to complete my 365-days membership.\n\nCombination: ${comboText}\n\nTotal Sent: ${formatCurrency(parseInt(grandTotalText))}\nID Code: ${idCode}\nTransaction ID: ${idtran}\nFull Name: ${fullName}\nBank Used: ${bankUsed}\nTransaction Date: ${dateSent}\n\n*Note:* Please find payment attached before sending msg \n\nHere is my payment screenshot.`;
 
     sendWhatsappBtn.href = `https://api.whatsapp.com/send?phone=18764604563&text=${encodeURIComponent(message)}`;
 
