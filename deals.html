@@ -3974,7 +3974,7 @@ function startPopupCountdown(expireDate, el) {
 }
 	
 	
-function openPopup({ image, name, original, discount, description, brandLogo, brandName }, skipHistory = false) {
+function openPopup({ image, name, original, discount, description, brandLogo, brandName, sourceUrl }, skipHistory = false) {
   const originalPrice = parseFloat(original.replace(/,/g, '')) || 0;
   const discountPrice = parseFloat(discount.replace(/,/g, '')) || 0;
   const percentOff = originalPrice && discountPrice ? Math.round((1 - discountPrice / originalPrice) * 100) : 0;
@@ -3989,7 +3989,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
 
   document.body.classList.add('noscroll');
 
-  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName };
+  currentPopupDeal = { image, name, original, discount, description, brandLogo, brandName, sourceUrl };
 
   document.getElementById('popupImg').src = image;
   document.getElementById('popupTitle').textContent = name;
