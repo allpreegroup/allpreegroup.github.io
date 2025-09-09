@@ -185,9 +185,6 @@ function init_salesletter() {
       selectedMembership.push(amount);
       option.classList.add("selected");
     }
-
-    localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
-    calculateTotals();
     updateAddonState();
   });
 
