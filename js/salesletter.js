@@ -1,6 +1,8 @@
 function init_salesletter() {
   console.log("✅ init_topup() called");
+  
 
+  const addonGrid = document.getElementById("addon-grid");
   const topUpBtn = document.getElementById("topup-btn");
   const select = document.getElementById("topup-grid");
   const summary = document.getElementById("summary");
@@ -23,24 +25,29 @@ function init_salesletter() {
     return `JMD ${amount.toLocaleString()}`;
   }
 
-  function updateFundClubState() {
-  const fundClubOption = document.querySelector('.topup-option[data-amount="100000"]');
- // const standardSelected = selectedMembership.includes(3360);
+  function updateAddonState() {
+  const addonOptions = document.querySelectorAll('.addon-option');
+  // const standardSelected = selectedMembership.includes(3360);
   const premiumSelected = selectedMembership.includes(6720);
 
- // if (!standardSelected && !premiumSelected) {
+  addonOptions.forEach(option => {
+    const amount = parseInt(option.dataset.amount);
+    // if (!standardSelected && !premiumSelected) {
     if (!premiumSelected) {
-    fundClubOption.classList.add('disabled');
-    // If the fund club is selected but no membership is, deselect it
-    if (selectedMembership.includes(100000)) {
-      selectedMembership = selectedMembership.filter(val => val !== 100000);
-      fundClubOption.classList.remove('selected');
-      localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
-      calculateTotals(); // Recalculate totals after deselecting
+      option.classList.add('disabled');
+      // If this addon is selected but premium is not, deselect it
+      if (selectedMembership.includes(amount)) {
+        selectedMembership = selectedMembership.filter(val => val !== amount);
+        option.classList.remove('selected');
+      }
+    } else {
+      option.classList.remove('disabled');
     }
-  } else {
-    fundClubOption.classList.remove('disabled');
-  }
+  });
+
+  // After any potential changes, update totals and save
+  localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
+  calculateTotals();
 }
   
  function calculateTotals() {
@@ -122,7 +129,7 @@ function init_salesletter() {
   // Load step + topups on DOM load
   restoreStep();
   restoreMembership();
-  updateFundClubState();
+  updateAddonState();
 
   // Button Events
   topUpBtn.addEventListener("click", () => {
@@ -171,8 +178,32 @@ function init_salesletter() {
 
     localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
     calculateTotals();
-    updateFundClubState();
+    updateAddonState();
   });
+
+// START: Add this new event listener
+addonGrid.addEventListener("click", (e) => {
+    const option = e.target.closest(".addon-option");
+    // Do nothing if the click is not on an option or if it's disabled
+    if (!option || option.classList.contains('disabled')) return;
+
+    const amount = parseInt(option.dataset.amount);
+
+    // Toggle the selection
+    const currentIndex = selectedMembership.indexOf(amount);
+    if (currentIndex > -1) {
+        selectedMembership.splice(currentIndex, 1);
+        option.classList.remove("selected");
+    } else {
+        selectedMembership.push(amount);
+        option.classList.add("selected");
+    }
+
+    localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
+    calculateTotals();
+});
+// END: New event listener
+
 
   nextStepBtn.addEventListener("click", () => {
     membership1.classList.add("hidden");
