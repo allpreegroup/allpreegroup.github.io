@@ -72,61 +72,64 @@
 }
 
 /* --- Quick Start Report Add-on --- */
-    .panel .addon-option.quick-start-option {
-      border: 2px solid #27ae60; /* Green border from your image */
-      background-color: #f0fdf4; /* Light green background */
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1.25rem;
-      width: 100%; 
-      box-sizing: border-box;
-      cursor: pointer;
-    }
+   /* --- Styling for the unified Add-On --- */
+.addon-option {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Adds space between the text and the price box */
+}
 
-    .panel .addon-option.quick-start-option:hover {
-       border-color: #2ecc71;
-       background-color: #e8f9ec;
-    }
+.addon-price-box {
+  border: 2px solid #27ae60; /* Green border */
+  background-color: #f0fdf4; /* Light green background */
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  width: 100%; 
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+}
+
+.addon-price-box .checkbox-wrapper {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #bdc3c7;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  transition: all 0.2s ease-in-out;
+  flex-shrink: 0;
+}
     
-    .panel .addon-option.quick-start-option .checkbox-wrapper {
-      width: 24px;
-      height: 24px;
-      border: 2px solid #bdc3c7; /* Gray border for the box */
-      border-radius: 4px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 12px;
-      transition: all 0.2s ease-in-out;
-      flex-shrink: 0; /* Prevents the box from shrinking */
-    }
-    
-    .panel .addon-option.quick-start-option .checkmark {
-      display: none; /* The checkmark is hidden by default */
-      width: 16px;
-      height: 16px;
-      color: white; /* The checkmark itself will be white */
-    }
+.addon-price-box .checkmark {
+  display: none; /* Hidden by default */
+  width: 16px;
+  height: 16px;
+  color: white;
+}
 
-    .panel .addon-option.quick-start-option .quick-start-text {
-      font-weight: 600;
-      color: #2c3e50; /* Dark text color */
-    }
+.addon-price-box .price-box-text {
+  font-weight: 600;
+  color: #2c3e50;
+}
 
-    /* --- Selected State Styling --- */
-    .panel .addon-option.quick-start-option.selected {
-      border-color: #27ae60;
-      background-color: #d1f2e1; /* A slightly darker green when selected */
-    }
+/* --- Selected State for the entire component --- */
+.addon-option.selected .addon-price-box {
+  background-color: #d1f2e1; /* Darker green when selected */
+}
 
-    .panel .addon-option.quick-start-option.selected .checkbox-wrapper {
-      background-color: #27ae60; /* Fill the box with green on click */
-      border-color: #27ae60;
-    }
+.addon-option.selected .checkbox-wrapper {
+  background-color: #27ae60; /* Fill the box with green */
+  border-color: #27ae60;
+}
 
-    .panel .addon-option.quick-start-option.selected .checkmark {
-      display: block; /* Show the checkmark when selected! */
-    }	
+/* This rule was inside the deleted block, so we add it back here */
+.addon-option.selected .checkmark {
+  display: block; /* Show the checkmark! */
+}
 	
 
 /* Sections */
@@ -740,25 +743,30 @@
 
 		
     <!-- START: New Add-on Section -->
-    <h3 style="text-align: center; margin-top: 2rem;">Choose Add-On(s)</h3>
-    <div class="topup-grid" id="addon-grid">
-       <!-- Add the new "addon-option" class here -->
-     <div class="addon-option topup-option p-4 border border-gray-300 rounded-lg flex items-start space-x-4 cursor-pointer transition-colors duration-200" data-amount="100000">
-    <h3 class="font-bold text-md">CashBack Bonus</h3>
-    <p class="text-sm text-gray-600 mt-1">Potential to earn up to 100% CashBack on every voucher that get paid out within the year of your 365 days Premium Membership.</p>
- <!-- Add this new div right below the 'CashBack Bonus' addon -->
-      <div class="addon-option quick-start-option" data-amount="100">
-        <div class="checkbox-wrapper">
-          <!-- This is the checkmark icon that appears when selected -->
-          <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        </div>
-        <span class="quick-start-text">Add-On for JMD $100,000</span>
-      </div>
-	 
-	 </div>
+<h3 style="text-align: center; margin-top: 2rem;">Choose Add-On(s)</h3>
+<div class="topup-grid" id="addon-grid">
+  <!-- This is now a single, unified add-on component -->
+  <div class="addon-option topup-option" data-amount="100000">
+    
+    <!-- Main descriptive content -->
+    <div class="addon-main-content">
+      <h3 class="font-bold text-md">CashBack Bonus</h3>
+      <p class="text-sm text-gray-600 mt-1">Potential to earn up to 100% CashBack on every voucher that get paid out within the year of your 365 days Premium Membership.</p>
     </div>
+
+    <!-- Clickable price/checkbox section -->
+    <div class="addon-price-box">
+      <div class="checkbox-wrapper">
+        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      </div>
+      <span class="price-box-text">Add-On for JMD $100,000</span>
+    </div>
+
+  </div>
+</div>
+<!-- END: New Add-on Section -->
 
     <div id="summary" class="topup-summary mt-4 text-sm text-gray-600"></div>
 
