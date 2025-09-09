@@ -151,7 +151,7 @@ function init_salesletter() {
   
   select.addEventListener("click", (e) => {
     const option = e.target.closest(".topup-option");
-    if (!option) return;
+    if (!option || option.classList.contains('addon-option')) return;
 
     const amount = parseInt(option.dataset.amount);
     const standardAmount = 3360;
