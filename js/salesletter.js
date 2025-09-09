@@ -51,31 +51,41 @@ function init_salesletter() {
 }
   
  function calculateTotals() {
-  const total = selectedMembership.reduce((sum, val) => sum + val, 0);
-  if (total === 0) {
+  // Define the amounts for main memberships that are taxable
+  const membershipAmounts = [3360, 6720];
+
+  let taxableTotal = 0;
+  let addOnTotal = 0;
+
+  // Loop through all selected items and sort them into taxable and non-taxable totals
+  selectedMembership.forEach(amount => {
+    if (membershipAmounts.includes(amount)) {
+      taxableTotal += amount;
+    } else {
+      // Any other amount is considered a non-taxable add-on
+      addOnTotal += amount;
+    }
+  });
+
+  const subtotal = taxableTotal + addOnTotal;
+
+  if (subtotal === 0) {
     summary.innerHTML = "";
     nextStepBtn.style.display = "none";
     return;
   }
-  if (total > 108400) { // Increased limit to accommodate 100k + 8400 + tax/fee
-    summary.textContent = "Total cannot exceed allowed limits.";
-    nextStepBtn.style.display = "none";
-    return;
-  }
-
-  // Separate the taxable amount from the non-taxable Fund Club amount
-  const fundClubAmount = selectedMembership.includes(100000) ? 100000 : 0;
-  const taxableTotal = total - fundClubAmount;
+  
+  // The old limit check is removed to allow for multiple add-ons
 
   const tax = taxableTotal * 0.15;
   const fee = taxableTotal * 0.10;
-  const grandTotal = Math.round(taxableTotal + tax + fee + fundClubAmount);
+  const grandTotal = Math.round(taxableTotal + tax + fee + addOnTotal);
 
   summary.innerHTML = `
     <h4 class="text-lg font-semibold mb-2">Summary:</h4>
     <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
     <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
-    <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${total.toLocaleString()}</span></div>
+    <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${subtotal.toLocaleString()}</span></div>
     <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
   `;
   document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
