@@ -13,35 +13,71 @@
   pointer-events: none; /* Prevents clicks on the card itself */
 }
 
-	
+/* 1. Default state for the add-on container */
 .addon-option {
-  border-width: 2px;
-  border-style: solid;
-  border-color: #d1d5db; /* A light gray */
-}	
-.addon-option.selected {
-      border-color: #3b82f6; /* blue-500 */
-      background-color: #eff6ff; /* blue-50 */
-    }
-    
-.addon-option.selected .checkbox-wrapper {
-      background-color: #3b82f6; /* blue-500 */
-      border-color: #3b82f6; /* blue-500 */
-    }
-  
-.checkmark {
-  display: none;
+  background-color: #ffffff; /* White background */
+  border: 2px solid #e5e7eb;  /* Light gray border (tailwind gray-200) */
+  border-radius: 0.75rem;     /* Rounded corners */
+  padding: 1.25rem;           /* More generous padding */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+  transition: all 0.2s ease-in-out; /* Smooth transition for all changes */
 }
 
-.addon-option.selected .checkmark {
-  display: block;
+/* 2. Hover effect for interactivity */
+.addon-option:hover {
+  border-color: #9ca3af; /* Darker gray on hover (tailwind gray-400) */
+  box-shadow: 0 5px 10px rgba(0,0,0,0.07); /* Slightly larger shadow */
+  transform: translateY(-2px); /* Lift effect */
 }
- 
+
+/* 3. Typography for better readability */
+.addon-option h3 {
+  font-weight: 600; /* semibold */
+  font-size: 1.05rem;
+  color: #1f2937; /* Darker text (tailwind gray-800) */
+}
+.addon-option p {
+  color: #4b5563; /* Softer text color (tailwind gray-600) */
+  line-height: 1.6; /* Improved line spacing */
+}
+
+/* 4. Styling for the checkbox container */
+.checkbox-wrapper {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+.checkmark {
+  display: none; /* Hide checkmark by default */
+}
+
+
+/* --- States (Selected & Disabled) --- */
+
+/* 5. The new, polished "selected" state */
+.addon-option.selected {
+  border-color: #2563eb; /* A strong blue (tailwind blue-600) */
+  background-color: #eff6ff; /* A very light blue (tailwind blue-50) */
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); /* Blue shadow */
+}
+.addon-option.selected .checkbox-wrapper {
+  background-color: #2563eb; /* Match the strong blue */
+  border-color: #2563eb;
+}
+.addon-option.selected .checkmark {
+  display: block; /* Show the checkmark when selected */
+}
+
+/* 6. Unchanged "disabled" state */
 .addon-option.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background-color: #f3f4f6; /* gray-100 */
-    }
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f3f4f6; /* gray-100 */
+  transform: none; /* No lift effect when disabled */
+  box-shadow: none; /* No shadow when disabled */
+}
+/* When disabled, ensure its text doesn't change on hover either */
+.addon-option.disabled:hover {
+    border-color: #e5e7eb;
+}
 
 /* Sections */
 .panel .section {
