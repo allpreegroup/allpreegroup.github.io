@@ -276,7 +276,9 @@ addonGrid.addEventListener("click", (e) => {
 
     console.log("✅ WhatsApp link prepared and state reset");
 
-    const dateInput = document.getElementById("datesent");
+  });
+
+   const dateInput = document.getElementById("datesent");
   if (dateInput) {
   const today = new Date();
   // Format the date to YYYY-MM-DD which is required for date inputs
@@ -286,5 +288,4 @@ addonGrid.addEventListener("click", (e) => {
   const formattedDate = `${year}-${month}-${day}`;
   dateInput.value = formattedDate;
 }
-  });
 }
