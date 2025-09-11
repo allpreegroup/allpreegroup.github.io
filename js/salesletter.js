@@ -275,5 +275,16 @@ addonGrid.addEventListener("click", (e) => {
     topUpBtn.classList.remove("hidden");
 
     console.log("✅ WhatsApp link prepared and state reset");
+
+    const dateInput = document.getElementById("datesent");
+  if (dateInput) {
+  const today = new Date();
+  // Format the date to YYYY-MM-DD which is required for date inputs
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // JS months are 0-11
+  const day = String(today.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+  dateInput.value = formattedDate;
+}
   });
 }
