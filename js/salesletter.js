@@ -27,8 +27,8 @@ function init_salesletter() {
 
   function updateAddonState() {
   const addonOptions = document.querySelectorAll('.addon-option');
-  // const standardSelected = selectedMembership.includes(3360);
-  const premiumSelected = selectedMembership.includes(6720);
+  // const standardSelected = selectedMembership.includes(4200);
+  const premiumSelected = selectedMembership.includes(8400);
 
   addonOptions.forEach(option => {
     const amount = parseInt(option.dataset.amount);
@@ -52,7 +52,7 @@ function init_salesletter() {
   
  function calculateTotals() {
   // Define the amounts for main memberships that are taxable
-  const membershipAmounts = [3360, 6720];
+  const membershipAmounts = [4200, 8400];
 
   let taxableTotal = 0;
   let addOnTotal = 0;
@@ -154,8 +154,8 @@ function init_salesletter() {
     if (!option || option.classList.contains('addon-option')) return;
 
     const amount = parseInt(option.dataset.amount);
-    const standardAmount = 3360;
-    const premiumAmount = 6720;
+    const standardAmount = 4200;
+    const premiumAmount = 8400;
 
     // Handle membership exclusivity: If a membership is clicked, deselect the other.
     if (amount === standardAmount) {
