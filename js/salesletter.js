@@ -27,23 +27,40 @@ function init_salesletter() {
 
   function updateAddonState() {
   const addonOptions = document.querySelectorAll('.addon-option');
-  // const standardSelected = selectedMembership.includes(4200);
+  const standardSelected = selectedMembership.includes(4200);
   const premiumSelected = selectedMembership.includes(8400);
 
   addonOptions.forEach(option => {
     const amount = parseInt(option.dataset.amount);
-    // if (!standardSelected && !premiumSelected) {
-    if (!premiumSelected) {
-      option.classList.add('disabled');
-      // If this addon is selected but premium is not, deselect it
-      if (selectedMembership.includes(amount)) {
-        selectedMembership = selectedMembership.filter(val => val !== amount);
-        option.classList.remove('selected');
-      }
-    } else {
-      option.classList.remove('disabled');
+    let isDisabled = true; // Assume it should be disabled by default
+
+    // --- Rule for "Premium Plus" ---
+    if (amount === 25000) {
+        // Only enable it if Premium is selected
+        if (premiumSelected) {
+            isDisabled = false;
+        }
+    } 
+    // --- Rule for "Smart Allpree Card" ---
+    else if (amount === 2500) {
+        // Enable it if Standard OR Premium is selected
+        if (standardSelected || premiumSelected) {
+            isDisabled = false;
+        }
     }
-  });
+
+    // --- Now, apply the decision ---
+    if (isDisabled) {
+        option.classList.add('disabled');
+        // If it's now disabled but was selected, deselect it
+        if (selectedMembership.includes(amount)) {
+            selectedMembership = selectedMembership.filter(val => val !== amount);
+            option.classList.remove('selected');
+        }
+    } else {
+        option.classList.remove('disabled');
+    }
+});
 
   // After any potential changes, update totals and save
   localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
