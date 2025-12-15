@@ -66,48 +66,67 @@ function init_salesletter() {
   localStorage.setItem("selectedMembership", JSON.stringify(selectedMembership));
   calculateTotals();
 }
-  
- function calculateTotals() {
-  // Define the amounts for main memberships that are taxable
-  const membershipAmounts = [4200, 8400];
 
-  let taxableTotal = 0;
-  let addOnTotal = 0;
+function calculateTotals() {
+    // 1. Get the agreement checkbox
+    const agreementCheckbox = document.getElementById("deferred-agreement");
+    const isAgreed = agreementCheckbox && agreementCheckbox.checked;
 
-  // Loop through all selected items and sort them into taxable and non-taxable totals
-  selectedMembership.forEach(amount => {
-    if (membershipAmounts.includes(amount)) {
-      taxableTotal += amount;
-    } else {
-      // Any other amount is considered a non-taxable add-on
-      addOnTotal += amount;
+    // Define the amounts for main memberships that are taxable
+    const membershipAmounts = [4200, 8400];
+
+    let taxableTotal = 0;
+    let addOnTotal = 0;
+
+    // Loop through all selected items
+    selectedMembership.forEach(amount => {
+      if (membershipAmounts.includes(amount)) {
+        taxableTotal += amount;
+      } else {
+        addOnTotal += amount;
+      }
+    });
+
+    // 2. Add the mandatory 25k fee if the box is checked
+    if (isAgreed) {
+      addOnTotal += 25000;
     }
-  });
 
-  const subtotal = taxableTotal + addOnTotal;
+    const subtotal = taxableTotal + addOnTotal;
+    const tax = taxableTotal * 0.15;
+    const fee = taxableTotal * 0.10;
+    const grandTotal = Math.round(taxableTotal + tax + fee + addOnTotal);
 
-  if (subtotal === 0) {
-    summary.innerHTML = "";
-    nextStepBtn.style.display = "none";
-    return;
+    // Update Summary HTML
+    if (subtotal === 0) {
+      summary.innerHTML = "";
+      nextStepBtn.style.display = "none";
+      return;
+    }
+
+    summary.innerHTML = `
+      <h4 class="text-lg font-semibold mb-2">Summary:</h4>
+      <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${subtotal.toLocaleString()}</span></div>
+      <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
+    `;
+    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
+
+    // 3. Logic to Disable/Enable the Next Button based on the checkbox
+    nextStepBtn.style.display = "block"; // Always show button if items selected
+    
+    if (isAgreed) {
+        nextStepBtn.disabled = false;
+        nextStepBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        nextStepBtn.innerHTML = '<i class="fa-solid fa-building-columns fa-lg"></i> > Bank Transfer'; // Restore text
+    } else {
+        nextStepBtn.disabled = true;
+        nextStepBtn.classList.add("opacity-50", "cursor-not-allowed");
+        nextStepBtn.innerHTML = "Please check the agreement above"; // Helpful text
+    }
   }
-  
-  // The old limit check is removed to allow for multiple add-ons
 
-  const tax = taxableTotal * 0.15;
-  const fee = taxableTotal * 0.10;
-  const grandTotal = Math.round(taxableTotal + tax + fee + addOnTotal);
-
-  summary.innerHTML = `
-    <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-    <div style="display: flex; justify-content: space-between;"><span>GCT (on memberships):</span><span>JMD ${tax.toLocaleString()}</span></div>
-    <div style="display: flex; justify-content: space-between;"><span>Fee (on memberships):</span><span>JMD ${fee.toLocaleString()}</span></div>
-    <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>JMD ${subtotal.toLocaleString()}</span></div>
-    <div style="display: flex; justify-content: space-between;"><span><b>Grand Total:</b></span><span>JMD ${grandTotal.toLocaleString()}</span></div>
-  `;
-  document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
-  nextStepBtn.style.display = "block";
-}
 
   function saveStep(step) {
     localStorage.setItem("currentStep", step);
@@ -164,6 +183,12 @@ function init_salesletter() {
     membership1.classList.remove("hidden");
     saveStep("membership1");
   });
+
+  // Listener for the new mandatory checkbox
+  const agreementCheckbox = document.getElementById("deferred-agreement");
+  if (agreementCheckbox) {
+      agreementCheckbox.addEventListener("change", calculateTotals);
+  }
 
   
   select.addEventListener("click", (e) => {
