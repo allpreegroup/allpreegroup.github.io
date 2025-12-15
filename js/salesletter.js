@@ -187,7 +187,18 @@ function calculateTotals() {
   // Listener for the new mandatory checkbox
   const agreementCheckbox = document.getElementById("deferred-agreement");
   if (agreementCheckbox) {
-      agreementCheckbox.addEventListener("change", calculateTotals);
+      agreementCheckbox.addEventListener("change", function() {
+          // 1. Visual: Toggle the 'checked' class on the container
+          const container = document.getElementById("agreement-container");
+          if (this.checked) {
+              container.classList.add("checked");
+          } else {
+              container.classList.remove("checked");
+          }
+
+          // 2. Logic: Recalculate totals
+          calculateTotals();
+      });
   }
 
   
