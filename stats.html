@@ -496,8 +496,9 @@
                 <tr>
                     <th class="px-6 py-3">Month</th>
                     <th class="px-6 py-3">Markup Collected (J$)</th>
-                    <th class="px-6 py-3" title="Shortfall covered by trading">Trading Contribution (J$)</th>
+                    <th class="px-6 py-3">Cashback Owed (J$)</th>
                     <th class="px-6 py-3">Cashback Paid (J$)</th>
+                    <th class="px-6 py-3" title="Shortfall covered by trading">Trading Contribution (J$)</th>
                     <th class="px-6 py-3">Net Account After Payout (J$)</th>
                 </tr>
             </thead>
@@ -1765,6 +1766,7 @@ const updateSolvencyTable = () => {
                 dateObj: new Date(date.getFullYear(), date.getMonth(), 1),
                 markupCollected: 0,
                 cashbackPaid: 0
+                cashbackOwed: 0
             });
         }
         return monthlyDataMap.get(monthKey);
@@ -1785,6 +1787,12 @@ const updateSolvencyTable = () => {
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackPaid += val;
+    });
+
+    // Sum Cashback Owed
+    dailyLiabilityAdditionsMap.forEach((val, dateStr) => {
+        const data = getMonthData(dateStr);
+        data.cashbackOwed += val;
     });
 
     // 2. Sort Months Chronologically
@@ -1811,11 +1819,14 @@ const updateSolvencyTable = () => {
                 <td class="px-6 py-4 whitespace-nowrap text-gray-600">
                     ${formatCurrency(row.markupCollected)}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-semibold ${tradingContribution > 0 ? 'text-blue-600' : 'text-gray-400'}">
-                    ${formatCurrency(tradingContribution)}
+                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                    ${formatCurrency(row.cashbackOwed)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-red-600">
                     ${formatCurrency(row.cashbackPaid)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap font-semibold ${tradingContribution > 0 ? 'text-blue-600' : 'text-gray-400'}">
+                    ${formatCurrency(tradingContribution)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-bold ${netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'}">
                     ${formatCurrency(netAccountAfterPayout)}
