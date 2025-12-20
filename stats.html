@@ -1309,36 +1309,38 @@
                 let eventOccurredForDailyLog = eventsForDailyLog.length > 0;
                 let eventTypeForDailyLog = eventOccurredForDailyLog ? eventsForDailyLog.join(' & ') : 'No Event';
 
-                dailyReserveFlowLog.push({
-                    day: dayCounter,
-                    date: new Date(currentDate),
-                    reserveStart: reserveStartOfDay,
-                    isMonthEnd: isMonthEnd,
-                    monthKey: currentMonthKey,
-                    aggregatedDepositForMonth: aggregatedDepositForMonthEnd,
-                    markupAddedToReserve: dailyMarkupAdded,
-                    paidCashback: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
-                    reserveEnd: currentDailyReserve,
-                });
-                
-                const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
+                if (activeSheetMonths.has(currentMonthKey)) {
+        dailyReserveFlowLog.push({
+            day: dayCounter,
+            date: new Date(currentDate),
+            reserveStart: reserveStartOfDay,
+            isMonthEnd: isMonthEnd,
+            monthKey: currentMonthKey,
+            aggregatedDepositForMonth: aggregatedDepositForMonthEnd,
+            markupAddedToReserve: dailyMarkupAdded,
+            paidCashback: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
+            reserveEnd: currentDailyReserve,
+        });
 
-                dailyLogEntries.push({
-                    day: dayCounter,
-                    date: new Date(currentDate),
-                    dayOfWeek: currentDate.toLocaleDateString('en-JM', { weekday: 'short' }),
-                    isTradingDay: isTradingDayForDisplay,
-                    eventOccurred: eventOccurredForDailyLog,
-                    eventType: eventTypeForDailyLog,
-                    dailyNetChange: displayDailyNetChangeValueForLog,
-                    cashbackPayoutForColumn: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
-                    capitalBeforeEvent: capitalBeforeEvent,
-                    currentDailyCapital: currentDailyCapital,
-                    sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
-                    sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
-                    sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
-                    sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
-                });
+        const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
+
+        dailyLogEntries.push({
+            day: dayCounter,
+            date: new Date(currentDate),
+            dayOfWeek: currentDate.toLocaleDateString('en-JM', { weekday: 'short' }),
+            isTradingDay: isTradingDayForDisplay,
+            eventOccurred: eventOccurredForDailyLog,
+            eventType: eventTypeForDailyLog,
+            dailyNetChange: displayDailyNetChangeValueForLog,
+            cashbackPayoutForColumn: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
+            capitalBeforeEvent: capitalBeforeEvent,
+            currentDailyCapital: currentDailyCapital,
+            sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
+            sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
+            sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
+            sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
+        });
+    }
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
@@ -1524,6 +1526,7 @@
 
         // --- Google Sheet Data Viewer Logic ---
         let processedGoogleSheetData = [];
+        let activeSheetMonths = new Set(); // Stores specific "YYYY-MM" keys found in the Sheet
 
         const loadGoogleSheetData = async () => {
             console.log("loadGoogleSheetData: Starting data load from Google Sheet.");
@@ -1580,6 +1583,17 @@
                         if (!b.parsedDate) return -1;
                         return a.parsedDate.getTime() - b.parsedDate.getTime();
                     });
+
+                    // --- NEW CODE START ---
+activeSheetMonths.clear(); // Clear old data
+processedGoogleSheetData.forEach(row => {
+    if (row.parsedDate) {
+        // Create a key like "2024-01" for January 2024
+        const monthKey = `${row.parsedDate.getFullYear()}-${String(row.parsedDate.getMonth() + 1).padStart(2, '0')}`;
+        activeSheetMonths.add(monthKey);
+    }
+});
+// --- NEW CODE END ---
 
                     if (processedGoogleSheetData.length > 0) {
                         const firstTopUpDateRaw = getColumnValue(processedGoogleSheetData[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
