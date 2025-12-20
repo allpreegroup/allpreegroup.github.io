@@ -35,7 +35,7 @@ function init_salesletter() {
     let isDisabled = true; // Assume it should be disabled by default
 
     // --- Rule for "Premium Plus" ---
-    if (amount === 25000) {
+    if (amount === 5000) {
         // Only enable it if Premium is selected
         if (premiumSelected) {
             isDisabled = false;
@@ -43,8 +43,8 @@ function init_salesletter() {
     } 
     // --- Rule for "Smart Allpree Card" ---
     else if (amount === 2500) {
-        // Enable it if Standard OR Premium is selected
-        if (standardSelected || premiumSelected) {
+        // Enable it if Standard is selected
+        if (standardSelected) {
             isDisabled = false;
         }
     }
