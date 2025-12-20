@@ -1789,9 +1789,23 @@ const updateSolvencyTable = () => {
         data.cashbackPaid += val;
     });
 
-    // Sum Cashback Owed
+    // Sum Cashback Owed (Adjusted for Payout Timing: 121 Days + Month End)
     dailyLiabilityAdditionsMap.forEach((val, dateStr) => {
-        const data = getMonthData(dateStr);
+        // 1. Get the original purchase date
+        const originDate = new Date(dateStr);
+
+        // 2. Calculate when it matures (Purchase Date + 121 Days)
+        const maturityDate = addDays(originDate, PAYOUT_DELAY_DAYS);
+
+        // 3. Move to the end of that month (The actual Payout Release Date)
+        const payoutDate = getEndOfMonthLocal(maturityDate);
+
+        // 4. Convert to string to find/create the correct month bucket
+        // (Using 'en-CA' gives YYYY-MM-DD which matches getMonthData expectations)
+        const payoutDateStr = payoutDate.toLocaleDateString('en-CA');
+
+        // 5. Add the value to the future month bucket
+        const data = getMonthData(payoutDateStr);
         data.cashbackOwed += val;
     });
 
