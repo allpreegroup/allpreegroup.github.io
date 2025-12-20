@@ -1309,38 +1309,36 @@
                 let eventOccurredForDailyLog = eventsForDailyLog.length > 0;
                 let eventTypeForDailyLog = eventOccurredForDailyLog ? eventsForDailyLog.join(' & ') : 'No Event';
 
-                if (activeSheetMonths.has(currentMonthKey)) {
-        dailyReserveFlowLog.push({
-            day: dayCounter,
-            date: new Date(currentDate),
-            reserveStart: reserveStartOfDay,
-            isMonthEnd: isMonthEnd,
-            monthKey: currentMonthKey,
-            aggregatedDepositForMonth: aggregatedDepositForMonthEnd,
-            markupAddedToReserve: dailyMarkupAdded,
-            paidCashback: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
-            reserveEnd: currentDailyReserve,
-        });
+                dailyReserveFlowLog.push({
+                    day: dayCounter,
+                    date: new Date(currentDate),
+                    reserveStart: reserveStartOfDay,
+                    isMonthEnd: isMonthEnd,
+                    monthKey: currentMonthKey,
+                    aggregatedDepositForMonth: aggregatedDepositForMonthEnd,
+                    markupAddedToReserve: dailyMarkupAdded,
+                    paidCashback: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
+                    reserveEnd: currentDailyReserve,
+                });
+                
+                const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
 
-        const displayDailyNetChangeValueForLog = currentDailyCapital - capitalBeforeEvent;
-
-        dailyLogEntries.push({
-            day: dayCounter,
-            date: new Date(currentDate),
-            dayOfWeek: currentDate.toLocaleDateString('en-JM', { weekday: 'short' }),
-            isTradingDay: isTradingDayForDisplay,
-            eventOccurred: eventOccurredForDailyLog,
-            eventType: eventTypeForDailyLog,
-            dailyNetChange: displayDailyNetChangeValueForLog,
-            cashbackPayoutForColumn: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
-            capitalBeforeEvent: capitalBeforeEvent,
-            currentDailyCapital: currentDailyCapital,
-            sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
-            sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
-            sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
-            sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
-        });
-    }
+                dailyLogEntries.push({
+                    day: dayCounter,
+                    date: new Date(currentDate),
+                    dayOfWeek: currentDate.toLocaleDateString('en-JM', { weekday: 'short' }),
+                    isTradingDay: isTradingDayForDisplay,
+                    eventOccurred: eventOccurredForDailyLog,
+                    eventType: eventTypeForDailyLog,
+                    dailyNetChange: displayDailyNetChangeValueForLog,
+                    cashbackPayoutForColumn: isMonthEnd ? (monthlyCashbackPayoutTotal.get(currentMonthKey) || 0) : 0,
+                    capitalBeforeEvent: capitalBeforeEvent,
+                    currentDailyCapital: currentDailyCapital,
+                    sheetTopUp: cleanAndParseFloat(dailyTopUpAmountsMap.get(currentDateString) || 0),
+                    sheetCashbackOwed: cleanAndParseFloat(dailyLiabilityAdditionsMap.get(currentDateString) || 0),
+                    sheetCashbackFund: cleanAndParseFloat(dailyCashbackFundAdditionsMap.get(currentDateString) || 0),
+                    sheetReserveFund: cleanAndParseFloat(dailyReserveFundAdditionsMap.get(currentDateString) || 0)
+                });
 
                 currentDate.setDate(currentDate.getDate() + 1);
                 dayCounter++;
@@ -1526,7 +1524,6 @@
 
         // --- Google Sheet Data Viewer Logic ---
         let processedGoogleSheetData = [];
-        let activeSheetMonths = new Set(); // Stores specific "YYYY-MM" keys found in the Sheet
 
         const loadGoogleSheetData = async () => {
             console.log("loadGoogleSheetData: Starting data load from Google Sheet.");
@@ -1583,17 +1580,6 @@
                         if (!b.parsedDate) return -1;
                         return a.parsedDate.getTime() - b.parsedDate.getTime();
                     });
-
-                    // --- NEW CODE START ---
-activeSheetMonths.clear(); // Clear old data
-processedGoogleSheetData.forEach(row => {
-    if (row.parsedDate) {
-        // Create a key like "2024-01" for January 2024
-        const monthKey = `${row.parsedDate.getFullYear()}-${String(row.parsedDate.getMonth() + 1).padStart(2, '0')}`;
-        activeSheetMonths.add(monthKey);
-    }
-});
-// --- NEW CODE END ---
 
                     if (processedGoogleSheetData.length > 0) {
                         const firstTopUpDateRaw = getColumnValue(processedGoogleSheetData[0], ['Top-Up Date', 'Top Up Date', 'Top-up Date', 'Top up Date', 'TopUp Date', 'Activation Date', 'activation date']);
@@ -1803,26 +1789,12 @@ const updateSolvencyTable = () => {
         data.cashbackPaid += val;
     });
 
-    // Sum Cashback Owed (Adjusted for Payout Timing: 121 Days + Month End)
-    dailyLiabilityAdditionsMap.forEach((val, dateStr) => {
-        // 1. Get the original purchase date
-        const originDate = new Date(dateStr);
-
-        // 2. Calculate when it matures (Purchase Date + 121 Days)
-        const maturityDate = addDays(originDate, PAYOUT_DELAY_DAYS);
-
-        // 3. Move to the end of that month (The actual Payout Release Date)
-        const payoutDate = getEndOfMonthLocal(maturityDate);
-
-        // 4. Convert to string to find/create the correct month bucket
-        // (Using 'en-CA' gives YYYY-MM-DD which matches getMonthData expectations)
-        const payoutDateStr = payoutDate.toLocaleDateString('en-CA');
-
-        // 5. Add the value to the future month bucket
-        const data = getMonthData(payoutDateStr);
+    // Sum Cashback Owed (Strictly using Release Dates found in the Sheet)
+    dailyCashbackValueOwedMap.forEach((val, dateStr) => {
+        const data = getMonthData(dateStr);
         data.cashbackOwed += val;
     });
-
+    
     // 2. Sort Months Chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
