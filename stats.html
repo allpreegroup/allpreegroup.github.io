@@ -1743,7 +1743,7 @@
             });
         });
 
-        /**
+ /**
  * Calculates and renders the Trading Requirement Analysis table
  * based on specific user formulas.
  */
@@ -1758,7 +1758,6 @@ const updateSolvencyTable = () => {
     const getMonthData = (dateStr) => {
         // Convert "YYYY-MM-DD" to "YYYY-MM" key
         const date = new Date(dateStr); 
-        // Handle timezone/parsing safety if needed, assuming map keys are "YYYY-MM-DD"
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         
         if (!monthlyDataMap.has(monthKey)) {
@@ -1772,8 +1771,7 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // Sum Markup (Reserve Fund Allocation + Cashback Fund Allocation)
-    // We use the existing maps populated by loadGoogleSheetData
+    // Populate data from existing maps
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
@@ -1782,14 +1780,11 @@ const updateSolvencyTable = () => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
     });
-
-    // Sum Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackPaid += val;
     });
-
-    // Sum Cashback Owed (Strictly using Release Dates found in the Sheet)
+    // Sum Cashback Owed (Using Release Dates)
     dailyCashbackValueOwedMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackOwed += val;
@@ -1799,16 +1794,36 @@ const updateSolvencyTable = () => {
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
+    // --- NEW PRE-CALCULATION FOR AMORTIZATION ---
+    // Calculate the total lifetime owed across the entire dataset
+    const totalLifetimeCashbackOwed = sortedMonths.reduce((sum, row) => sum + row.cashbackOwed, 0);
+    
+    // Track cumulative payments made as we iterate
+    let cumulativePaidSoFar = 0; 
+
     // 3. Perform Sequential Calculations
-    let previousNetAccount = 0; // Starts at 0 for the first month
+    let previousNetAccount = 0; 
 
-    sortedMonths.forEach(row => {
-        // Formula: Trading Contribution = MAX(0, Cashback Paid - (Markup Collected + Previous Net Account))
-        const requiredForShortfall = row.cashbackPaid - (row.markupCollected + previousNetAccount);
-        const tradingContribution = Math.max(0, requiredForShortfall);
+    sortedMonths.forEach((row, index) => {
+        // Update cumulative paid with this month's payments
+        cumulativePaidSoFar += row.cashbackPaid;
 
-        // Formula: Net Account After Payout = Previous Net Account + Markup Collected + Trading Contribution - Cashback Paid
-        const netAccountAfterPayout = previousNetAccount + row.markupCollected - row.cashbackPaid;
+        // --- NEW TRADING CONTRIBUTION FORMULA ---
+        // 1. Calculate how much is left to pay in total (Total Owed - Amount Paid To Date)
+        const remainingLiability = Math.max(0, totalLifetimeCashbackOwed - cumulativePaidSoFar);
+        
+        // 2. Calculate remaining months including current one
+        // (e.g., if length is 12 and index is 0, months remaining is 12)
+        const monthsRemaining = sortedMonths.length - index;
+
+        // 3. Amortize: Divide remaining debt by remaining months
+        let tradingContribution = 0;
+        if (monthsRemaining > 0) {
+            tradingContribution = remainingLiability / monthsRemaining;
+        }
+
+        // Original Net Account Formula using the new tradingContribution
+        const netAccountAfterPayout = previousNetAccount + row.markupCollected + tradingContribution - row.cashbackPaid;
 
         // Render Row
         const tr = `
