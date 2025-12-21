@@ -1807,7 +1807,10 @@ const updateSolvencyTable = () => {
         const sliceAmount = shortfall / SLICE_DURATION;
         for (let i = SLICE_DURATION; i >= 0; i--) {
             const month = subtractMonths(releaseDate, i);
-            const monthData = getMonthData(month);
+            const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+if (!monthlyDataMap.has(monthKey)) return;
+const monthData = monthlyDataMap.get(monthKey);
+            
             monthData.tradingContribution += sliceAmount;
         }
     });
