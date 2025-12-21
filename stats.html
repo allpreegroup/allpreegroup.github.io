@@ -1746,19 +1746,25 @@
 /**
  * Calculates and renders the Trading Requirement Analysis table
  * using a "Liability Slice" model (4-Month Fixed Release Window),
- * where each cashbackOwed contributes to Trading Contribution for 4 months.
+ * where Trading Contribution starts immediately and slices last 4 months.
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
+    // Helper: shift date string back by N months
+    const subtractMonths = (dateStr, months) => {
+        const d = new Date(dateStr);
+        d.setMonth(d.getMonth() - months);
+        return d;
+    };
+
     // 1. Aggregate Data by Month
     const monthlyDataMap = new Map();
 
     const getMonthData = (dateObj) => {
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-
         if (!monthlyDataMap.has(monthKey)) {
             monthlyDataMap.set(monthKey, {
                 dateObj: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1),
@@ -1770,7 +1776,7 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // --- Populate Markup ---
+    // Populate Markup
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
@@ -1778,12 +1784,12 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // --- Populate Cashback Paid ---
+    // Populate Cashback Paid (real payout month)
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // --- Populate Cashback Owed (only for display in due month) ---
+    // Populate Cashback Owed (only in release/payout month for display)
     dailyCashbackValueOwedMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackOwed += val;
     });
@@ -1797,26 +1803,31 @@ const updateSolvencyTable = () => {
     let activeSlices = []; // { monthlyAmount, monthsRemaining }
     const SLICE_DURATION = 4;
 
-    sortedMonths.forEach(row => {
-        // A. Add new slice for this month's cashbackOwed
-        if (row.cashbackOwed > 0) {
+    // --- Create slices for Trading Contribution starting in earn month ---
+    dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
+        if (val > 0) {
+            const earnDate = subtractMonths(releaseDateStr, SLICE_DURATION); // shift back to earn month
+            const monthData = getMonthData(earnDate); // ensures month exists
             activeSlices.push({
-                monthlyAmount: row.cashbackOwed / SLICE_DURATION,
+                monthlyAmount: val / SLICE_DURATION,
                 monthsRemaining: SLICE_DURATION
             });
         }
+    });
 
-        // B. Calculate Trading Contribution as sum of all active slices
+    // --- Iterate months and render table ---
+    sortedMonths.forEach(row => {
+        // Calculate Trading Contribution = sum of all active slices
         let tradingContribution = activeSlices.reduce((sum, slice) => sum + slice.monthlyAmount, 0);
 
-        // C. Net Account Calculation
+        // Net Account
         const netAccountAfterPayout =
             previousNetAccount +
             row.markupCollected +
             tradingContribution -
             row.cashbackPaid;
 
-        // D. Render Row
+        // Render Row
         const tr = `
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
@@ -1843,7 +1854,7 @@ const updateSolvencyTable = () => {
         `;
         tableBody.insertAdjacentHTML('beforeend', tr);
 
-        // E. Advance slices: decrement monthsRemaining
+        // Advance slices
         activeSlices = activeSlices.map(slice => ({
             ...slice,
             monthsRemaining: slice.monthsRemaining - 1
@@ -1852,6 +1863,7 @@ const updateSolvencyTable = () => {
         previousNetAccount = netAccountAfterPayout;
     });
 };
+
 
     </script>
 </body>
