@@ -1816,9 +1816,13 @@ const updateSolvencyTable = () => {
     const sortedMonths = Array.from(monthlyDataMap.values()) 
         .sort((a, b) => a.dateObj - b.dateObj); 
 
-    const visibleStartDate = new Date(
-    Math.min(...Array.from(dailyPaidCashbackMap.keys()).map(d => new Date(d)))
-);
+   // Visible start = first markup collected month
+const markupDates = [
+    ...dailyReserveFundAdditionsMap.keys(),
+    ...dailyCashbackFundAdditionsMap.keys()
+].map(d => new Date(d));
+
+const visibleStartDate = new Date(Math.min(...markupDates));
 visibleStartDate.setDate(1);
     
     // 4. Calculate Net Account dynamically and render 
