@@ -1794,36 +1794,51 @@ const updateSolvencyTable = () => {
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // --- NEW PRE-CALCULATION FOR AMORTIZATION ---
-    // Calculate the total lifetime owed across the entire dataset
-    const totalLifetimeCashbackOwed = sortedMonths.reduce((sum, row) => sum + row.cashbackOwed, 0);
-    
-    // Track cumulative payments made as we iterate
-    let cumulativePaidSoFar = 0; 
+    // --- NEW LOGIC: FLAT AMORTIZATION AFTER LAST PAYOUT ---
 
-    // 3. Perform Sequential Calculations
+    // A. Calculate Global Totals
+    const totalLifetimeCashbackOwed = sortedMonths.reduce((sum, row) => sum + row.cashbackOwed, 0);
+    const totalLifetimeCashbackPaid = sortedMonths.reduce((sum, row) => sum + row.cashbackPaid, 0);
+    // This is the total "Gap" that needs to be covered by trading contributions
+    const totalRemainingLiability = Math.max(0, totalLifetimeCashbackOwed - totalLifetimeCashbackPaid);
+
+    // B. Determine the Cutoff Date (The Last Payout Date)
+    // We use the global 'lastKnownPayoutDate' if available, or default to epoch if no payments exist
+    const cutoffDate = lastKnownPayoutDate || new Date(0);
+
+    // C. Count how many months exist strictly AFTER the cutoff date
+    // (We do not contribute during the start months or the month of the last payout itself)
+    let futureMonthsCount = 0;
+    sortedMonths.forEach(row => {
+        if (row.dateObj > cutoffDate) {
+            futureMonthsCount++;
+        }
+    });
+
+    // D. Calculate the Flat Monthly Contribution
+    let flatMonthlyContribution = 0;
+    if (futureMonthsCount > 0) {
+        flatMonthlyContribution = totalRemainingLiability / futureMonthsCount;
+    }
+
+    // 3. Render Rows
     let previousNetAccount = 0; 
 
-    sortedMonths.forEach((row, index) => {
-        // Update cumulative paid with this month's payments
-        cumulativePaidSoFar += row.cashbackPaid;
-
-        // --- NEW TRADING CONTRIBUTION FORMULA ---
-        // 1. Calculate how much is left to pay in total (Total Owed - Amount Paid To Date)
-        const remainingLiability = Math.max(0, totalLifetimeCashbackOwed - cumulativePaidSoFar);
+    sortedMonths.forEach((row) => {
         
-        // 2. Calculate remaining months including current one
-        // (e.g., if length is 12 and index is 0, months remaining is 12)
-        const monthsRemaining = sortedMonths.length - index;
-
-        // 3. Amortize: Divide remaining debt by remaining months
+        // Determine if this month gets a contribution
         let tradingContribution = 0;
-        if (monthsRemaining > 0) {
-            tradingContribution = remainingLiability / monthsRemaining;
+        
+        // Only apply the calculated flat contribution if this month is AFTER the last payout
+        if (row.dateObj > cutoffDate) {
+            tradingContribution = flatMonthlyContribution;
+        } else {
+            // Explicitly 0 for start month up to last payout month
+            tradingContribution = 0;
         }
 
-        // Original Net Account Formula using the new tradingContribution
-        const netAccountAfterPayout = previousNetAccount + row.markupCollected - row.cashbackPaid;
+        // Original Net Account Formula
+        const netAccountAfterPayout = previousNetAccount + row.markupCollected + tradingContribution - row.cashbackPaid;
 
         // Render Row
         const tr = `
