@@ -1746,20 +1746,12 @@
 /**
  * Calculates and renders the Trading Requirement Analysis table
  * using a "Liability Slice" model (4-Month Fixed Release Window),
- * with Trading Contribution starting in the earn month and Cashback Owed
- * showing in the actual release month.
+ * where each cashbackOwed contributes to Trading Contribution for 4 months.
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
     if (!tableBody) return;
     tableBody.innerHTML = '';
-
-    // Helper: shift a date string back by N months
-    const subtractMonths = (dateStr, months) => {
-        const d = new Date(dateStr);
-        d.setMonth(d.getMonth() - months);
-        return d;
-    };
 
     // 1. Aggregate Data by Month
     const monthlyDataMap = new Map();
@@ -1778,66 +1770,53 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // --- Populate aggregations ---
-
-    // Markup inflows (unchanged)
+    // --- Populate Markup ---
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
-
     dailyCashbackFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Actual cashback paid (real payout month)
+    // --- Populate Cashback Paid ---
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // Cashback Owed for display (release month)
-    dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
-        getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
+    // --- Populate Cashback Owed (only for display in due month) ---
+    dailyCashbackValueOwedMap.forEach((val, dateStr) => {
+        getMonthData(new Date(dateStr)).cashbackOwed += val;
     });
 
     // 2. Sort Months Chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 3. Sequential Calculation using Liability Slices
+    // 3. Liability Slice Model
     let previousNetAccount = 0;
-
-    // Active liability slices for Trading Contribution (earn month)
-    let activeLiabilitySlices = [];
+    let activeSlices = []; // { monthlyAmount, monthsRemaining }
     const SLICE_DURATION = 4;
 
-    // --- Prepare liability slices from earn month ---
-    dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
-        const earnDate = subtractMonths(releaseDateStr, SLICE_DURATION);
-        if (val > 0) {
-            activeLiabilitySlices.push({
-                monthlyAmount: val / SLICE_DURATION,
-                monthsRemaining: SLICE_DURATION,
-                startMonth: earnDate // optional, for debugging
+    sortedMonths.forEach(row => {
+        // A. Add new slice for this month's cashbackOwed
+        if (row.cashbackOwed > 0) {
+            activeSlices.push({
+                monthlyAmount: row.cashbackOwed / SLICE_DURATION,
+                monthsRemaining: SLICE_DURATION
             });
         }
-    });
 
-    // --- Iterate months and render table ---
-    sortedMonths.forEach(row => {
-        // B. Trading Contribution = sum of all active slices for this month
-        let tradingContribution = 0;
-        activeLiabilitySlices.forEach(slice => {
-            tradingContribution += slice.monthlyAmount;
-        });
+        // B. Calculate Trading Contribution as sum of all active slices
+        let tradingContribution = activeSlices.reduce((sum, slice) => sum + slice.monthlyAmount, 0);
 
-        // C. Net Account calculation
+        // C. Net Account Calculation
         const netAccountAfterPayout =
             previousNetAccount +
             row.markupCollected +
             tradingContribution -
             row.cashbackPaid;
 
-        // D. Render row
+        // D. Render Row
         const tr = `
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
@@ -1864,21 +1843,15 @@ const updateSolvencyTable = () => {
         `;
         tableBody.insertAdjacentHTML('beforeend', tr);
 
-        // E. Advance slices for next month
-        activeLiabilitySlices.forEach(slice => {
-            slice.monthsRemaining -= 1;
-        });
+        // E. Advance slices: decrement monthsRemaining
+        activeSlices = activeSlices.map(slice => ({
+            ...slice,
+            monthsRemaining: slice.monthsRemaining - 1
+        })).filter(slice => slice.monthsRemaining > 0);
 
-        // Remove completed slices
-        activeLiabilitySlices = activeLiabilitySlices.filter(
-            slice => slice.monthsRemaining > 0
-        );
-
-        // Update previous net account
         previousNetAccount = netAccountAfterPayout;
     });
 };
-
 
     </script>
 </body>
