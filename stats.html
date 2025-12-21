@@ -1805,12 +1805,9 @@ const updateSolvencyTable = () => {
         const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
 
         const sliceAmount = shortfall / SLICE_DURATION;
-        for (let i = SLICE_DURATION; i >= 0; i--) {
+        for (let i = SLICE_DURATION; i >= 1; i--) {
             const month = subtractMonths(releaseDate, i);
-            const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
-if (!monthlyDataMap.has(monthKey)) return;
-const monthData = monthlyDataMap.get(monthKey);
-            
+            const monthData = getMonthData(month);;
             monthData.tradingContribution += sliceAmount;
         }
     });
@@ -1818,11 +1815,18 @@ const monthData = monthlyDataMap.get(monthKey);
     // 3. Sort months chronologically 
     const sortedMonths = Array.from(monthlyDataMap.values()) 
         .sort((a, b) => a.dateObj - b.dateObj); 
+
+    const visibleStartDate = new Date(
+    Math.min(...Array.from(dailyPaidCashbackMap.keys()).map(d => new Date(d)))
+);
+visibleStartDate.setDate(1);
     
     // 4. Calculate Net Account dynamically and render 
     let previousNetAccount = 0; 
     
-    sortedMonths.forEach(row => { 
+    sortedMonths
+    .filter(row => row.dateObj >= visibleStartDate)
+    .forEach(row => {
         const netAccountAfterPayout = 
             previousNetAccount + 
             row.markupCollected -
