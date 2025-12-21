@@ -1745,8 +1745,8 @@
 
 /**
  * Calculates and renders the Trading Requirement Analysis table
- * using a backward-looking "Liability Slice" model (4 months prior to release).
- * Each cashbackOwed amount is split into 4 equal portions over the past 4 months.
+ * using a backward-looking "Liability Slice" model (4 months prior to release),
+ * excluding the release month itself. Net Account now calculates correctly.
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
@@ -1771,7 +1771,7 @@ const updateSolvencyTable = () => {
                 markupCollected: 0,
                 cashbackPaid: 0,
                 cashbackOwed: 0,
-                tradingContribution: 0 // initialize to 0
+                tradingContribution: 0 // initialize
             });
         }
         return monthlyDataMap.get(monthKey);
@@ -1785,29 +1785,35 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Populate Cashback Paid (real payout month)
+    // Populate Cashback Paid (release month)
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // Populate Cashback Owed (release/payout month only)
+    // 2. Backward split for Trading Contribution (4 months prior, excluding release month)
+    const SLICE_DURATION = 4;
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
-        getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
+        if (val <= 0) return;
 
-        // --- Backward split for Trading Contribution ---
-        const sliceAmount = val / 4; // 4-month contribution
-        for (let i = 3; i >= 0; i--) {
-            const month = subtractMonths(new Date(releaseDateStr), i);
+        const releaseDate = new Date(releaseDateStr);
+
+        // Add Cashback Owed only in release month
+        getMonthData(releaseDate).cashbackOwed += val;
+
+        // Split Trading Contribution over the 4 months prior to release
+        const sliceAmount = val / SLICE_DURATION;
+        for (let i = SLICE_DURATION; i >= 1; i--) {
+            const month = subtractMonths(releaseDate, i); // strictly before release month
             const monthData = getMonthData(month);
             monthData.tradingContribution += sliceAmount;
         }
     });
 
-    // 2. Sort Months Chronologically
+    // 3. Sort months chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 3. Calculate Net Account and render table
+    // 4. Calculate Net Account and render
     let previousNetAccount = 0;
 
     sortedMonths.forEach(row => {
