@@ -1743,10 +1743,11 @@
             });
         });
 
-/**
+/** 
  * Calculates and renders the Trading Requirement Analysis table
- * using a backward-looking "Liability Slice" model (4 months prior to release),
- * excluding the release month itself. Net Account now calculates correctly.
+ * using a proactive "shortfall smoothing" model.
+ * Trading Contribution is built in advance over prior months (SLICE_DURATION)
+ * so funds are ready before the cashback payout.
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
@@ -1771,7 +1772,8 @@ const updateSolvencyTable = () => {
                 markupCollected: 0,
                 cashbackPaid: 0,
                 cashbackOwed: 0,
-                tradingContribution: 0 // initialize
+                tradingContribution: 0,
+                netAccountAfterPayout: 0 // initialize
             });
         }
         return monthlyDataMap.get(monthKey);
@@ -1790,8 +1792,8 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // 2. Backward split for Trading Contribution (4 months prior, excluding release month)
-    const SLICE_DURATION = 4;
+    // 2. Proactive Trading Contribution (shortfall smoothing)
+    const SLICE_DURATION = 4; // months to build up shortfall
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
 
@@ -1800,10 +1802,17 @@ const updateSolvencyTable = () => {
         // Add Cashback Owed only in release month
         getMonthData(releaseDate).cashbackOwed += val;
 
-        // Split Trading Contribution over the 4 months prior to release
-        const sliceAmount = val / SLICE_DURATION;
+        // Calculate shortfall based on markup + previous net account
+        const prevMonth = getMonthData(subtractMonths(releaseDate, 1));
+        const prevNet = prevMonth ? prevMonth.netAccountAfterPayout : 0;
+
+        const currentMonthMarkup = getMonthData(releaseDate).markupCollected;
+        const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
+
+        // Spread shortfall evenly over prior SLICE_DURATION months
+        const sliceAmount = shortfall / SLICE_DURATION;
         for (let i = SLICE_DURATION; i >= 1; i--) {
-            const month = subtractMonths(releaseDate, i); // strictly before release month
+            const month = subtractMonths(releaseDate, i);
             const monthData = getMonthData(month);
             monthData.tradingContribution += sliceAmount;
         }
@@ -1813,7 +1822,7 @@ const updateSolvencyTable = () => {
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 4. Calculate Net Account and render
+    // 4. Calculate Net Account dynamically and render
     let previousNetAccount = 0;
 
     sortedMonths.forEach(row => {
@@ -1822,6 +1831,8 @@ const updateSolvencyTable = () => {
             row.markupCollected +
             row.tradingContribution -
             row.cashbackPaid;
+
+        row.netAccountAfterPayout = netAccountAfterPayout;
 
         const tr = `
             <tr>
