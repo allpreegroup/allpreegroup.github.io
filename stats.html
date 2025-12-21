@@ -1754,14 +1754,12 @@ const updateSolvencyTable = () => {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    // Helper: subtract months from a date
     const subtractMonths = (dateObj, months) => {
         const d = new Date(dateObj);
         d.setMonth(d.getMonth() - months);
         return d;
     };
 
-    // 1. Aggregate Data by Month
     const monthlyDataMap = new Map();
 
     const getMonthData = (dateObj) => {
@@ -1773,7 +1771,8 @@ const updateSolvencyTable = () => {
                 cashbackPaid: 0,
                 cashbackOwed: 0,
                 tradingContribution: 0,
-                netAccountAfterPayout: 0 // initialize
+                netAccountAfterPayout: 0,
+                preFunded: false
             });
         }
         return monthlyDataMap.get(monthKey);
@@ -1787,29 +1786,24 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Populate Cashback Paid (release month)
+    // Populate Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // 2. Proactive Trading Contribution (shortfall smoothing)
-    const SLICE_DURATION = 4; // months to build up shortfall
+    // Proactive Trading Contribution (shortfall smoothing)
+    const SLICE_DURATION = 4;
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
-
         const releaseDate = new Date(releaseDateStr);
-
-        // Add Cashback Owed only in release month
         getMonthData(releaseDate).cashbackOwed += val;
 
-        // Calculate shortfall based on markup + previous net account
         const prevMonth = getMonthData(subtractMonths(releaseDate, 1));
         const prevNet = prevMonth ? prevMonth.netAccountAfterPayout : 0;
 
         const currentMonthMarkup = getMonthData(releaseDate).markupCollected;
         const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
 
-        // Spread shortfall evenly over prior SLICE_DURATION months
         const sliceAmount = shortfall / SLICE_DURATION;
         for (let i = SLICE_DURATION; i >= 1; i--) {
             const month = subtractMonths(releaseDate, i);
@@ -1818,21 +1812,37 @@ const updateSolvencyTable = () => {
         }
     });
 
-    // 3. Sort months chronologically
+    // Sort months chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 4. Calculate Net Account dynamically and render
     let previousNetAccount = 0;
+    let firstMonth = true;
 
     sortedMonths.forEach(row => {
-        const netAccountAfterPayout =
-            previousNetAccount +
-            row.markupCollected +
-            row.tradingContribution -
-            row.cashbackPaid;
+        let netAccountAfterPayout;
+
+        if (firstMonth) {
+            // For the first month, show cumulative paid from first month up to this point
+            const totalMarkup = sortedMonths.reduce((sum, r) => sum + r.markupCollected, 0);
+            const totalTrading = sortedMonths.reduce((sum, r) => sum + r.tradingContribution, 0);
+            const totalPaid = sortedMonths.reduce((sum, r) => sum + r.cashbackPaid, 0);
+
+            netAccountAfterPayout = totalMarkup + totalTrading - totalPaid;
+            firstMonth = false;
+        } else {
+            // Month-by-month calculation
+            netAccountAfterPayout =
+                previousNetAccount +
+                row.markupCollected +
+                row.tradingContribution -
+                row.cashbackPaid;
+        }
 
         row.netAccountAfterPayout = netAccountAfterPayout;
+
+        // Determine if month is pre-funded
+        row.preFunded = (row.markupCollected + previousNetAccount + row.tradingContribution) >= row.cashbackPaid;
 
         const tr = `
             <tr>
@@ -1856,6 +1866,11 @@ const updateSolvencyTable = () => {
                 }">
                     ${formatCurrency(netAccountAfterPayout)}
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap font-medium ${
+                    row.preFunded ? 'text-green-600' : 'text-red-600'
+                }">
+                    ${row.preFunded ? 'Yes' : 'No'}
+                </td>
             </tr>
         `;
         tableBody.insertAdjacentHTML('beforeend', tr);
@@ -1863,6 +1878,7 @@ const updateSolvencyTable = () => {
         previousNetAccount = netAccountAfterPayout;
     });
 };
+
 
     </script>
 </body>
