@@ -1743,7 +1743,7 @@
             });
         });
 
- /**
+   /**
  * Calculates and renders the Trading Requirement Analysis table
  * based on specific user formulas.
  */
@@ -1758,6 +1758,7 @@ const updateSolvencyTable = () => {
     const getMonthData = (dateStr) => {
         // Convert "YYYY-MM-DD" to "YYYY-MM" key
         const date = new Date(dateStr); 
+        // Handle timezone/parsing safety if needed, assuming map keys are "YYYY-MM-DD"
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         
         if (!monthlyDataMap.has(monthKey)) {
@@ -1771,7 +1772,8 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // Populate data from existing maps
+    // Sum Markup (Reserve Fund Allocation + Cashback Fund Allocation)
+    // We use the existing maps populated by loadGoogleSheetData
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
@@ -1780,11 +1782,14 @@ const updateSolvencyTable = () => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
     });
+
+    // Sum Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackPaid += val;
     });
-    // Sum Cashback Owed (Using Release Dates)
+
+    // Sum Cashback Owed (Strictly using Release Dates found in the Sheet)
     dailyCashbackValueOwedMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackOwed += val;
@@ -1794,50 +1799,15 @@ const updateSolvencyTable = () => {
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // --- NEW LOGIC: FLAT AMORTIZATION AFTER LAST PAYOUT ---
+    // 3. Perform Sequential Calculations
+    let previousNetAccount = 0; // Starts at 0 for the first month
 
-    // A. Calculate Global Totals
-    const totalLifetimeCashbackOwed = sortedMonths.reduce((sum, row) => sum + row.cashbackOwed, 0);
-    const totalLifetimeCashbackPaid = sortedMonths.reduce((sum, row) => sum + row.cashbackPaid, 0);
-    // This is the total "Gap" that needs to be covered by trading contributions
-    const totalRemainingLiability = Math.max(0, totalLifetimeCashbackOwed - totalLifetimeCashbackPaid);
-
-    // B. Determine the Cutoff Date (The Last Payout Date)
-    // We use the global 'lastKnownPayoutDate' if available, or default to epoch if no payments exist
-    const cutoffDate = lastKnownPayoutDate || new Date(0);
-
-    // C. Count how many months exist strictly AFTER the cutoff date
-    // (We do not contribute during the start months or the month of the last payout itself)
-    let futureMonthsCount = 0;
     sortedMonths.forEach(row => {
-        if (row.dateObj > cutoffDate) {
-            futureMonthsCount++;
-        }
-    });
+        // Formula: Trading Contribution = MAX(0, Cashback Paid - (Markup Collected + Previous Net Account))
+        const requiredForShortfall = row.cashbackPaid - (row.markupCollected + previousNetAccount);
+        const tradingContribution = Math.max(0, requiredForShortfall);
 
-    // D. Calculate the Flat Monthly Contribution
-    let flatMonthlyContribution = 0;
-    if (futureMonthsCount > 0) {
-        flatMonthlyContribution = totalRemainingLiability / futureMonthsCount;
-    }
-
-    // 3. Render Rows
-    let previousNetAccount = 0; 
-
-    sortedMonths.forEach((row) => {
-        
-        // Determine if this month gets a contribution
-        let tradingContribution = 0;
-        
-        // Only apply the calculated flat contribution if this month is AFTER the last payout
-        if (row.dateObj > cutoffDate) {
-            tradingContribution = flatMonthlyContribution;
-        } else {
-            // Explicitly 0 for start month up to last payout month
-            tradingContribution = 0;
-        }
-
-        // Original Net Account Formula
+        // Formula: Net Account After Payout = Previous Net Account + Markup Collected + Trading Contribution - Cashback Paid
         const netAccountAfterPayout = previousNetAccount + row.markupCollected - row.cashbackPaid;
 
         // Render Row
