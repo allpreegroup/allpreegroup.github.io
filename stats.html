@@ -1792,7 +1792,7 @@ const updateSolvencyTable = () => {
     });
 
     // Proactive Trading Contribution (shortfall smoothing)
-    const SLICE_DURATION = 4;
+    const SLICE_DURATION = 0;
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
         const releaseDate = new Date(releaseDateStr);
@@ -1812,33 +1812,18 @@ const updateSolvencyTable = () => {
         }
     });
 
-    // Sort months chronologically
-    const sortedMonths = Array.from(monthlyDataMap.values())
-        .sort((a, b) => a.dateObj - b.dateObj);
-
-    let previousNetAccount = 0;
-    let firstMonth = true;
-
-    sortedMonths.forEach(row => {
-        let netAccountAfterPayout;
-
-        if (firstMonth) {
-            // For the first month, show cumulative paid from first month up to this point
-            const totalMarkup = sortedMonths.reduce((sum, r) => sum + r.markupCollected, 0);
-            const totalTrading = sortedMonths.reduce((sum, r) => sum + r.tradingContribution, 0);
-            const totalPaid = sortedMonths.reduce((sum, r) => sum + r.cashbackPaid, 0);
-
-            netAccountAfterPayout = totalMarkup + totalTrading - totalPaid;
-            firstMonth = false;
-        } else {
-            // Month-by-month calculation
-            netAccountAfterPayout =
-                previousNetAccount +
-                row.markupCollected +
-                row.tradingContribution -
-                row.cashbackPaid;
-        }
-
+    // 3. Sort months chronologically 
+    const sortedMonths = Array.from(monthlyDataMap.values()) 
+        .sort((a, b) => a.dateObj - b.dateObj); 
+    
+    // 4. Calculate Net Account dynamically and render 
+    let previousNetAccount = 0; 
+    
+    sortedMonths.forEach(row => { 
+        const netAccountAfterPayout = 
+            previousNetAccount + 
+            row.markupCollected; 
+        
         row.netAccountAfterPayout = netAccountAfterPayout;
 
         // Determine if month is pre-funded
