@@ -1775,18 +1775,24 @@ const updateSolvencyTable = () => {
     // Sum Markup (Reserve Fund Allocation + Cashback Fund Allocation)
     // We use the existing maps populated by loadGoogleSheetData
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
+        if (val > 0) {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
+        }
     });
     dailyCashbackFundAdditionsMap.forEach((val, dateStr) => {
+        if (val > 0) {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
+        }
     });
 
     // Sum Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
+        if (val > 0) {
         const data = getMonthData(dateStr);
         data.cashbackPaid += val;
+        }
     });
 
     // Sum Cashback Owed (Strictly using Release Dates found in the Sheet)
@@ -1794,7 +1800,7 @@ const updateSolvencyTable = () => {
         const data = getMonthData(dateStr);
         data.cashbackOwed += val;
     });
-    
+
     // 2. Sort Months Chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
