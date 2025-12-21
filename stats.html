@@ -1743,9 +1743,9 @@
             });
         });
 
-   /**
+/**
  * Calculates and renders the Trading Requirement Analysis table
- * based on specific user formulas.
+ * using a forward-looking, state-based amortization model.
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable').querySelector('tbody');
@@ -1753,12 +1753,11 @@ const updateSolvencyTable = () => {
     tableBody.innerHTML = '';
 
     // 1. Aggregate Data by Month
+    // (This aggregation logic remains the same to gather your raw data)
     const monthlyDataMap = new Map(); // Key: "YYYY-MM"
 
     const getMonthData = (dateStr) => {
-        // Convert "YYYY-MM-DD" to "YYYY-MM" key
         const date = new Date(dateStr); 
-        // Handle timezone/parsing safety if needed, assuming map keys are "YYYY-MM-DD"
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         
         if (!monthlyDataMap.has(monthKey)) {
@@ -1772,8 +1771,7 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // Sum Markup (Reserve Fund Allocation + Cashback Fund Allocation)
-    // We use the existing maps populated by loadGoogleSheetData
+    // Populate aggregations
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
@@ -1782,14 +1780,10 @@ const updateSolvencyTable = () => {
         const data = getMonthData(dateStr);
         data.markupCollected += val;
     });
-
-    // Sum Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackPaid += val;
     });
-
-    // Sum Cashback Owed (Strictly using Release Dates found in the Sheet)
     dailyCashbackValueOwedMap.forEach((val, dateStr) => {
         const data = getMonthData(dateStr);
         data.cashbackOwed += val;
@@ -1800,14 +1794,34 @@ const updateSolvencyTable = () => {
         .sort((a, b) => a.dateObj - b.dateObj);
 
     // 3. Perform Sequential Calculations
-    let previousNetAccount = 0; // Starts at 0 for the first month
+    // Initialize running state variables
+    let previousNetAccount = 0;
+    let outstandingLiability = 0; // Tracks total cashback owed but not yet paid
+    const AMORTIZATION_MONTHS = 4; // Policy: Spread the burden of any liability over ~4 months
 
     sortedMonths.forEach(row => {
-        // Formula: Trading Contribution = MAX(0, Cashback Paid - (Markup Collected + Previous Net Account))
-        const requiredForShortfall = row.cashbackPaid - (row.markupCollected + previousNetAccount);
-        const tradingContribution = Math.max(0, requiredForShortfall);
+        // A. Update Liability State
+        // Add new obligations that appeared this month to the running total
+        outstandingLiability += row.cashbackOwed;
 
-        // Formula: Net Account After Payout = Previous Net Account + Markup Collected + Trading Contribution - Cashback Paid
+        // B. Calculate Trading Contribution (Amortization Policy)
+        // Instead of paying only what is due today, we contribute a smoothed portion 
+        // of the TOTAL outstanding liability. This prepares funds in advance.
+        // We calculate this BEFORE deducting current payments to ensure we fund current maturities.
+        let tradingContribution = 0;
+        if (AMORTIZATION_MONTHS > 0) {
+            tradingContribution = outstandingLiability / AMORTIZATION_MONTHS;
+        }
+
+        // C. Apply Payments (State Update)
+        // Deduct the cash actually paid out this month from the liability pile
+        outstandingLiability -= row.cashbackPaid;
+        
+        // Safety: Liability shouldn't logically be negative, but handle data imperfections
+        if (outstandingLiability < 0) outstandingLiability = 0;
+
+        // D. Calculate Net Account (Liquidity)
+        // Net = Previous Balance + Inflows (Markup + Trade) - Outflows (Paid)
         const netAccountAfterPayout = previousNetAccount + row.markupCollected + tradingContribution - row.cashbackPaid;
 
         // Render Row
@@ -1825,7 +1839,7 @@ const updateSolvencyTable = () => {
                 <td class="px-6 py-4 whitespace-nowrap text-red-600">
                     ${formatCurrency(row.cashbackPaid)}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-semibold ${tradingContribution > 0 ? 'text-blue-600' : 'text-gray-400'}">
+                <td class="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
                     ${formatCurrency(tradingContribution)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-bold ${netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'}">
@@ -1835,7 +1849,7 @@ const updateSolvencyTable = () => {
         `;
         tableBody.insertAdjacentHTML('beforeend', tr);
 
-        // Update Previous Net Account for the next iteration
+        // Update Previous Net Account for the next month's iteration
         previousNetAccount = netAccountAfterPayout;
     });
 };
