@@ -1755,10 +1755,12 @@ const updateSolvencyTable = () => {
     tableBody.innerHTML = '';
 
     const subtractMonths = (dateObj, months) => {
-        const d = new Date(dateObj);
+        const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
         d.setMonth(d.getMonth() - months);
         return d;
     };
+
+    const getMonthStart = (dateObj) => new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
 
     const monthlyDataMap = new Map();
 
@@ -1766,7 +1768,7 @@ const updateSolvencyTable = () => {
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
         if (!monthlyDataMap.has(monthKey)) {
             monthlyDataMap.set(monthKey, {
-                dateObj: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1),
+                dateObj: getMonthStart(dateObj),
                 markupCollected: 0,
                 cashbackPaid: 0,
                 cashbackOwed: 0,
@@ -1793,15 +1795,15 @@ const updateSolvencyTable = () => {
 
     // Determine last Cashback Paid month for locking
     const paidDates = Array.from(dailyPaidCashbackMap.keys()).map(d => new Date(d));
-    const lastPaidDate = paidDates.length ? new Date(Math.max(...paidDates)) : new Date();
-    const LOCKED_UP_TO = new Date(lastPaidDate.getFullYear(), lastPaidDate.getMonth() + 1, 1);
+    const lastPaidDate = paidDates.length ? new Date(Math.max(...paidDates)) : null;
+    const LOCKED_UP_TO = lastPaidDate ? getMonthStart(lastPaidDate) : null;
 
     // Proactive Trading Contribution (shortfall smoothing)
     const SLICE_DURATION = 13;
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
 
-        const releaseDate = new Date(releaseDateStr);
+        const releaseDate = getMonthStart(new Date(releaseDateStr));
         getMonthData(releaseDate).cashbackOwed += val;
 
         const prevMonth = getMonthData(subtractMonths(releaseDate, 1));
@@ -1809,14 +1811,17 @@ const updateSolvencyTable = () => {
 
         const currentMonthMarkup = getMonthData(releaseDate).markupCollected;
         const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
-
         const sliceAmount = shortfall / SLICE_DURATION;
 
         for (let i = SLICE_DURATION; i >= 1; i--) {
             const month = subtractMonths(releaseDate, i);
 
-            // Skip locked months
-            if (month < LOCKED_UP_TO) continue;
+            // Skip months before locked date
+            if (LOCKED_UP_TO &&
+                (month.getFullYear() < LOCKED_UP_TO.getFullYear() ||
+                 (month.getFullYear() === LOCKED_UP_TO.getFullYear() && month.getMonth() <= LOCKED_UP_TO.getMonth()))) {
+                continue;
+            }
 
             const monthData = getMonthData(month);
             monthData.tradingContribution += sliceAmount;
