@@ -1791,10 +1791,16 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
+    // Determine last Cashback Paid month for locking
+    const paidDates = Array.from(dailyPaidCashbackMap.keys()).map(d => new Date(d));
+    const lastPaidDate = paidDates.length ? new Date(Math.max(...paidDates)) : new Date();
+    const LOCKED_UP_TO = new Date(lastPaidDate.getFullYear(), lastPaidDate.getMonth() + 1, 1);
+
     // Proactive Trading Contribution (shortfall smoothing)
     const SLICE_DURATION = 13;
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
+
         const releaseDate = new Date(releaseDateStr);
         getMonthData(releaseDate).cashbackOwed += val;
 
@@ -1805,78 +1811,77 @@ const updateSolvencyTable = () => {
         const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
 
         const sliceAmount = shortfall / SLICE_DURATION;
+
         for (let i = SLICE_DURATION; i >= 1; i--) {
             const month = subtractMonths(releaseDate, i);
-            const monthData = getMonthData(month);;
+
+            // Skip locked months
+            if (month < LOCKED_UP_TO) continue;
+
+            const monthData = getMonthData(month);
             monthData.tradingContribution += sliceAmount;
         }
     });
 
-    // 3. Sort months chronologically 
-    const sortedMonths = Array.from(monthlyDataMap.values()) 
-        .sort((a, b) => a.dateObj - b.dateObj); 
+    // Sort months chronologically
+    const sortedMonths = Array.from(monthlyDataMap.values()).sort((a, b) => a.dateObj - b.dateObj);
 
- // Visible start = first month with markup collected
-const visibleStartMonth = sortedMonths.find(
-    row => row.markupCollected > 0
-);
+    // Visible start = first month with markup collected
+    const visibleStartMonth = sortedMonths.find(row => row.markupCollected > 0);
+    if (!visibleStartMonth) return;
+    const visibleStartDate = visibleStartMonth.dateObj;
 
-if (!visibleStartMonth) return;
+    // Calculate Net Account dynamically and render
+    let previousNetAccount = 0;
 
-const visibleStartDate = visibleStartMonth.dateObj;
-    
-    // 4. Calculate Net Account dynamically and render 
-    let previousNetAccount = 0; 
-    
     sortedMonths
-    .filter(row => row.dateObj >= visibleStartDate)
-    .forEach(row => {
-        const netAccountAfterPayout = 
-            previousNetAccount + 
-            row.markupCollected -
-            row.cashbackPaid +
-            row.tradingContribution; 
-        
-        row.netAccountAfterPayout = netAccountAfterPayout;
+        .filter(row => row.dateObj >= visibleStartDate)
+        .forEach(row => {
+            const netAccountAfterPayout =
+                previousNetAccount +
+                row.markupCollected -
+                row.cashbackPaid +
+                row.tradingContribution;
 
-        // Determine if month is pre-funded
-        row.preFunded = (row.markupCollected + previousNetAccount + row.tradingContribution) >= row.cashbackPaid;
+            row.netAccountAfterPayout = netAccountAfterPayout;
 
-        const tr = `
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                    ${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
-                    ${formatCurrency(row.markupCollected)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
-                    ${formatCurrency(row.cashbackOwed)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-red-600">
-                    ${formatCurrency(row.cashbackPaid)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
-                    ${formatCurrency(row.tradingContribution)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-bold ${
-                    netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
-                }">
-                    ${formatCurrency(netAccountAfterPayout)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium ${
-                    row.preFunded ? 'text-green-600' : 'text-red-600'
-                }">
-                    ${row.preFunded ? 'Yes' : 'No'}
-                </td>
-            </tr>
-        `;
-        tableBody.insertAdjacentHTML('beforeend', tr);
+            // Determine if month is pre-funded
+            row.preFunded = (row.markupCollected + previousNetAccount + row.tradingContribution) >= row.cashbackPaid;
 
-        previousNetAccount = netAccountAfterPayout;
-    });
+            const tr = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                        ${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                        ${formatCurrency(row.markupCollected)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                        ${formatCurrency(row.cashbackOwed)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-red-600">
+                        ${formatCurrency(row.cashbackPaid)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
+                        ${formatCurrency(row.tradingContribution)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-bold ${
+                        netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
+                    }">
+                        ${formatCurrency(netAccountAfterPayout)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-medium ${
+                        row.preFunded ? 'text-green-600' : 'text-red-600'
+                    }">
+                        ${row.preFunded ? 'Yes' : 'No'}
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', tr);
+
+            previousNetAccount = netAccountAfterPayout;
+        });
 };
-
 
     </script>
 </body>
