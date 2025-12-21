@@ -1749,7 +1749,7 @@
  * Trading Contribution is built in advance over prior months (SLICE_DURATION)
  * so funds are ready before the cashback payout.
  */
-const updateSolvencyTable = () => { 
+const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
     if (!tableBody) return;
     tableBody.innerHTML = '';
@@ -1763,7 +1763,7 @@ const updateSolvencyTable = () => {
     const monthlyDataMap = new Map();
 
     const getMonthData = (dateObj) => {
-        const monthKey = ${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')};
+        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
         if (!monthlyDataMap.has(monthKey)) {
             monthlyDataMap.set(monthKey, {
                 dateObj: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1),
@@ -1842,7 +1842,7 @@ const visibleStartDate = visibleStartMonth.dateObj;
         // Determine if month is pre-funded
         row.preFunded = (row.markupCollected + previousNetAccount + row.tradingContribution) >= row.cashbackPaid;
 
-        const tr = 
+        const tr = `
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     ${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}
@@ -1870,12 +1870,13 @@ const visibleStartDate = visibleStartMonth.dateObj;
                     ${row.preFunded ? 'Yes' : 'No'}
                 </td>
             </tr>
-        ;
+        `;
         tableBody.insertAdjacentHTML('beforeend', tr);
 
         previousNetAccount = netAccountAfterPayout;
     });
 };
+
     </script>
 </body>
 </html>
