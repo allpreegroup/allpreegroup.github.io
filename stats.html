@@ -1745,16 +1745,15 @@
 
 /**
  * Calculates and renders the Trading Requirement Analysis table
- * using a forward-looking, state-based amortization model.
+ * using a "Liability Slice" model (4-Month Fixed Release Window).
  */
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable').querySelector('tbody');
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    // 1. Aggregate Data by Month
-    // (This aggregation logic remains the same to gather your raw data)
-    const monthlyDataMap = new Map(); // Key: "YYYY-MM"
+    // 1. Aggregate Data by Month (Standard Aggregation - Unchanged)
+    const monthlyDataMap = new Map();
 
     const getMonthData = (dateStr) => {
         const date = new Date(dateStr); 
@@ -1771,60 +1770,52 @@ const updateSolvencyTable = () => {
         return monthlyDataMap.get(monthKey);
     };
 
-    // Populate aggregations
-    dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
-        const data = getMonthData(dateStr);
-        data.markupCollected += val;
-    });
-    dailyCashbackFundAdditionsMap.forEach((val, dateStr) => {
-        const data = getMonthData(dateStr);
-        data.markupCollected += val;
-    });
-    dailyPaidCashbackMap.forEach((val, dateStr) => {
-        const data = getMonthData(dateStr);
-        data.cashbackPaid += val;
-    });
-    dailyCashbackValueOwedMap.forEach((val, dateStr) => {
-        const data = getMonthData(dateStr);
-        data.cashbackOwed += val;
-    });
+    // Populate aggregations from global maps
+    dailyReserveFundAdditionsMap.forEach((val, dateStr) => getMonthData(dateStr).markupCollected += val);
+    dailyCashbackFundAdditionsMap.forEach((val, dateStr) => getMonthData(dateStr).markupCollected += val);
+    dailyPaidCashbackMap.forEach((val, dateStr) => getMonthData(dateStr).cashbackPaid += val);
+    dailyCashbackValueOwedMap.forEach((val, dateStr) => getMonthData(dateStr).cashbackOwed += val);
 
     // 2. Sort Months Chronologically
     const sortedMonths = Array.from(monthlyDataMap.values())
         .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 3. Perform Sequential Calculations
-    // Initialize running state variables
+    // 3. Sequential Calculation using Active Liability Slices
     let previousNetAccount = 0;
-    let outstandingLiability = 0; // Tracks total cashback owed but not yet paid
-    const AMORTIZATION_MONTHS = 4; // Policy: Spread the burden of any liability over ~4 months
+    
+    // State: Active Liability Slices
+    // Each slice represents a past obligation that is currently being funded.
+    // Structure: { monthlyAmount: number, monthsRemaining: number }
+    let activeLiabilitySlices = []; 
+    const SLICE_DURATION = 4; // Policy: Fixed 4-month release window
 
     sortedMonths.forEach(row => {
-        // A. Update Liability State
-        // Add new obligations that appeared this month to the running total
-        outstandingLiability += row.cashbackOwed;
-
-        // B. Calculate Trading Contribution (Amortization Policy)
-        // Instead of paying only what is due today, we contribute a smoothed portion 
-        // of the TOTAL outstanding liability. This prepares funds in advance.
-        // We calculate this BEFORE deducting current payments to ensure we fund current maturities.
-        let tradingContribution = 0;
-        if (AMORTIZATION_MONTHS > 0) {
-            tradingContribution = outstandingLiability / AMORTIZATION_MONTHS;
+        // A. Create New Slice from Current Month's Cashback Owed
+        // If we owe cashback this month, we split that specific obligation into 4 equal future payments.
+        // This effectively locks the trading requirement for this specific debt to the next 4 months only.
+        if (row.cashbackOwed > 0) {
+            activeLiabilitySlices.push({
+                monthlyAmount: row.cashbackOwed / SLICE_DURATION,
+                monthsRemaining: SLICE_DURATION
+            });
         }
 
-        // C. Apply Payments (State Update)
-        // Deduct the cash actually paid out this month from the liability pile
-        outstandingLiability -= row.cashbackPaid;
-        
-        // Safety: Liability shouldn't logically be negative, but handle data imperfections
-        if (outstandingLiability < 0) outstandingLiability = 0;
+        // B. Calculate Total Trading Contribution for This Month
+        // We simply sum the daily bread/monthly portion of ALL currently active slices.
+        // This ensures we never "overtrade" - we only trade exactly what is needed for the active windows.
+        let tradingContribution = 0;
+        activeLiabilitySlices.forEach(slice => {
+            // Only add contribution if the slice is still active
+            if (slice.monthsRemaining > 0) {
+                tradingContribution += slice.monthlyAmount;
+            }
+        });
 
-        // D. Calculate Net Account (Liquidity)
-        // Net = Previous Balance + Inflows (Markup + Trade) - Outflows (Paid)
+        // C. Net Account Calculation
+        // Net = Previous Balance + Inflows (Markup + Trading Contribution) - Outflows (Actual Paid)
         const netAccountAfterPayout = previousNetAccount + row.markupCollected + tradingContribution - row.cashbackPaid;
 
-        // Render Row
+        // D. Render Row
         const tr = `
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
@@ -1849,7 +1840,14 @@ const updateSolvencyTable = () => {
         `;
         tableBody.insertAdjacentHTML('beforeend', tr);
 
-        // Update Previous Net Account for the next month's iteration
+        // E. Advance State: Decrement Months Remaining for next iteration
+        // We reduce the counter on all slices.
+        // If a slice hits 0 months remaining, it is filtered out and stops affecting future calculations.
+        activeLiabilitySlices = activeLiabilitySlices
+            .map(slice => ({ ...slice, monthsRemaining: slice.monthsRemaining - 1 }))
+            .filter(slice => slice.monthsRemaining > 0);
+
+        // Update Previous Net Account for the next loop
         previousNetAccount = netAccountAfterPayout;
     });
 };
