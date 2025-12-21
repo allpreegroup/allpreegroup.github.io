@@ -1805,7 +1805,7 @@ const updateSolvencyTable = () => {
         const shortfall = Math.max(0, val - (currentMonthMarkup + prevNet));
 
         const sliceAmount = shortfall / SLICE_DURATION;
-        for (let i = SLICE_DURATION; i >= 1; i--) {
+        for (let i = SLICE_DURATION; i >= 0; i--) {
             const month = subtractMonths(releaseDate, i);
             const monthData = getMonthData(month);
             monthData.tradingContribution += sliceAmount;
