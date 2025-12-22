@@ -1755,12 +1755,6 @@ const updateSolvencyTable = () => {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    const subtractMonths = (dateObj, months) => {
-        const d = new Date(dateObj);
-        d.setMonth(d.getMonth() - months);
-        return d;
-    };
-
     const monthlyDataMap = new Map();
 
     const getMonthData = (dateObj) => {
@@ -1773,14 +1767,14 @@ const updateSolvencyTable = () => {
                 cashbackOwed: 0,
                 tradingContribution: 0,
                 netAccountAfterPayout: 0,
-                futureCashbackObligation: 0, // ✅ NEW
+                futureCashbackObligation: 0, // ✅ NEW (forecast only)
                 preFunded: false
             });
         }
         return monthlyDataMap.get(monthKey);
     };
 
-    // Populate Markup collected
+    // --- Populate markup collected ---
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
@@ -1788,29 +1782,27 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Populate Cashback Paid
+    // --- Populate cashback paid ---
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // Populate Cashback Owed
+    // --- Populate cashback owed (future release dates) ---
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
-        const releaseDate = new Date(releaseDateStr);
-        getMonthData(releaseDate).cashbackOwed += val;
+        getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
     });
 
-    // Sort months chronologically
-    const sortedMonths = Array.from(monthlyDataMap.values()).sort(
-        (a, b) => a.dateObj - b.dateObj
-    );
+    // --- Sort months chronologically ---
+    const sortedMonths = Array.from(monthlyDataMap.values())
+        .sort((a, b) => a.dateObj - b.dateObj);
 
-    // Find first visible month
+    // --- Determine visible start ---
     const visibleStartMonth = sortedMonths.find(row => row.markupCollected > 0);
     if (!visibleStartMonth) return;
     const visibleStartDate = visibleStartMonth.dateObj;
 
-    // 🔮 Calculate Future Cashback Obligation (reverse pass)
+    // 🔮 FUTURE CASHBACK OBLIGATION (reverse pass – forecast only)
     let runningFutureObligation = 0;
     [...sortedMonths].reverse().forEach(row => {
         runningFutureObligation += row.cashbackOwed;
@@ -1818,7 +1810,7 @@ const updateSolvencyTable = () => {
         row.futureCashbackObligation = Math.max(0, runningFutureObligation);
     });
 
-    // Net Account + Trading logic (UNCHANGED)
+    // --- Net account + trading logic (UNCHANGED) ---
     let previousNetAccount = 0;
 
     sortedMonths
@@ -1827,6 +1819,7 @@ const updateSolvencyTable = () => {
             const totalAvailable = previousNetAccount + row.markupCollected;
             const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
+            // Trading only fills real shortfalls
             row.tradingContribution = shortfall;
 
             row.netAccountAfterPayout =
@@ -1871,6 +1864,7 @@ const updateSolvencyTable = () => {
             previousNetAccount = row.netAccountAfterPayout;
         });
 };
+
 
 
     </script>
