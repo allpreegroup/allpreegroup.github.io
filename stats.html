@@ -1838,10 +1838,12 @@ const updateSolvencyTable = () => {
             row.tradingContribution = shortfall;
 
             // Net Account after payout
-            row.netAccountAfterPayout =
-                totalAvailable +
-                row.tradingContribution -
-                row.cashbackPaid;
+           row.netAccountAfterPayout =
+    (row.markupCollected === 0 &&
+     row.cashbackPaid === 0 &&
+     row.tradingContribution === 0)
+        ? previousNetAccount
+        : totalAvailable + row.tradingContribution - row.cashbackPaid;
 
             // Pre-funded check
             row.preFunded = totalAvailable >= row.cashbackPaid;
