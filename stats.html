@@ -1750,6 +1750,8 @@
  * Trading Contribution is built in advance over prior months (SLICE_DURATION)
  * so funds are ready before the cashback payout.
  */
+const FUTURE_MONTHS_TO_SHOW = 6; // change to 12 if needed
+
 const updateSolvencyTable = () => {
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
     if (!tableBody) return;
@@ -1767,14 +1769,14 @@ const updateSolvencyTable = () => {
                 cashbackOwed: 0,
                 tradingContribution: 0,
                 netAccountAfterPayout: 0,
-                futureCashbackObligation: 0,
+                forecastTradingRequirement: 0,
                 preFunded: false
             });
         }
         return monthlyDataMap.get(monthKey);
     };
 
-    /* -------- Populate data (UNCHANGED) -------- */
+    /* ---------------- Populate data (UNCHANGED) ---------------- */
 
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
@@ -1793,102 +1795,83 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
     });
 
-    /* -------- Sort existing months -------- */
+    /* ---------------- Sort months ---------------- */
 
-    let sortedMonths = Array.from(monthlyDataMap.values()).sort(
-        (a, b) => a.dateObj - b.dateObj
-    );
+    let sortedMonths = Array.from(monthlyDataMap.values()).sort((a, b) => a.dateObj - b.dateObj);
 
-    if (!sortedMonths.length) return;
+    const lastKnownMonth = sortedMonths[sortedMonths.length - 1];
+    const lastCashbackOwed = lastKnownMonth?.cashbackOwed || 0;
 
-    /* -------- Find last cashback owed month -------- */
+    /* ---------------- Extend future months ---------------- */
 
-    const lastOwedMonth = [...sortedMonths]
-        .reverse()
-        .find(row => row.cashbackOwed > 0);
-
-    if (!lastOwedMonth) return;
-
-    let projectionDate = new Date(lastOwedMonth.dateObj);
-    let projectedObligation = lastOwedMonth.cashbackOwed;
-
-    /* -------- Extend future months UNTIL obligation clears -------- */
-
-    while (projectedObligation > 0) {
-        projectionDate = new Date(
-            projectionDate.getFullYear(),
-            projectionDate.getMonth() + 1,
+    for (let i = 1; i <= FUTURE_MONTHS_TO_SHOW; i++) {
+        const futureDate = new Date(
+            lastKnownMonth.dateObj.getFullYear(),
+            lastKnownMonth.dateObj.getMonth() + i,
             1
         );
-
-        const row = getMonthData(projectionDate);
-
-        // carry obligation forward
-        row.cashbackOwed = projectedObligation;
-
-        // estimate payoff using existing behavior (paid when available)
-        projectedObligation -= row.cashbackPaid;
-        projectedObligation = Math.max(0, projectedObligation);
+        const row = getMonthData(futureDate);
+        row.cashbackOwed = lastCashbackOwed; // carry obligation forward
     }
 
-    /* -------- Re-sort with future months -------- */
+    sortedMonths = Array.from(monthlyDataMap.values()).sort((a, b) => a.dateObj - b.dateObj);
 
-    sortedMonths = Array.from(monthlyDataMap.values()).sort(
-        (a, b) => a.dateObj - b.dateObj
-    );
-
-    /* -------- Find first visible month -------- */
-
-    const visibleStartMonth = sortedMonths.find(row => row.markupCollected > 0);
-    if (!visibleStartMonth) return;
-    const visibleStartDate = visibleStartMonth.dateObj;
-
-    /* -------- Future Cashback Obligation (reverse pass) -------- */
-
-    let runningFutureObligation = 0;
-    [...sortedMonths].reverse().forEach(row => {
-        runningFutureObligation += row.cashbackOwed;
-        runningFutureObligation -= row.cashbackPaid;
-        row.futureCashbackObligation = Math.max(0, runningFutureObligation);
-    });
-
-    /* -------- Net Account + Trading logic (UNCHANGED) -------- */
+    /* ---------------- Calculations (ORIGINAL BEHAVIOR) ---------------- */
 
     let previousNetAccount = 0;
 
-    sortedMonths
-        .filter(row => row.dateObj >= visibleStartDate)
-        .forEach(row => {
-            const totalAvailable = previousNetAccount + row.markupCollected;
-            const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
+    sortedMonths.forEach((row, index) => {
+        const totalAvailable = previousNetAccount + row.markupCollected;
+        const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
-            row.tradingContribution = shortfall;
+        // ORIGINAL logic
+        row.tradingContribution = shortfall;
+        row.netAccountAfterPayout = totalAvailable + row.tradingContribution - row.cashbackPaid;
+        row.preFunded = totalAvailable >= row.cashbackPaid;
 
-            row.netAccountAfterPayout =
-                totalAvailable + row.tradingContribution - row.cashbackPaid;
+        /* -------- NEW: Forecast Trading Requirement -------- */
 
-            row.preFunded = totalAvailable >= row.cashbackPaid;
+        const futureMonthsLeft = Math.max(
+            1,
+            sortedMonths.length - index - 1
+        );
 
-            const tr = `
-                <tr>
-                    <td>${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}</td>
-                    <td>${formatCurrency(row.markupCollected)}</td>
-                    <td>${formatCurrency(row.cashbackOwed)}</td>
-                    <td>${formatCurrency(row.cashbackPaid)}</td>
-                    <td>${formatCurrency(row.futureCashbackObligation)}</td>
-                    <td>${formatCurrency(row.tradingContribution)}</td>
-                    <td>${formatCurrency(row.netAccountAfterPayout)}</td>
-                    <td>${row.preFunded ? 'Yes' : 'No'}</td>
-                </tr>
-            `;
+        const projectedGap = Math.max(
+            0,
+            row.cashbackOwed - row.netAccountAfterPayout
+        );
 
-            tableBody.insertAdjacentHTML('beforeend', tr);
-            previousNetAccount = row.netAccountAfterPayout;
-        });
+        row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
+
+        /* ---------------- Render ---------------- */
+
+        const tr = `
+            <tr>
+                <td class="px-6 py-4 font-medium">
+                    ${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}
+                </td>
+                <td class="px-6 py-4">${formatCurrency(row.markupCollected)}</td>
+                <td class="px-6 py-4">${formatCurrency(row.cashbackOwed)}</td>
+                <td class="px-6 py-4 text-red-600">${formatCurrency(row.cashbackPaid)}</td>
+                <td class="px-6 py-4 text-blue-600 font-semibold">
+                    ${formatCurrency(row.tradingContribution)}
+                </td>
+                <td class="px-6 py-4 font-bold ${row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    ${formatCurrency(row.netAccountAfterPayout)}
+                </td>
+                <td class="px-6 py-4 text-purple-600 font-semibold">
+                    ${formatCurrency(row.forecastTradingRequirement)}
+                </td>
+                <td class="px-6 py-4 ${row.preFunded ? 'text-green-600' : 'text-red-600'}">
+                    ${row.preFunded ? 'Yes' : 'No'}
+                </td>
+            </tr>
+        `;
+        tableBody.insertAdjacentHTML('beforeend', tr);
+
+        previousNetAccount = row.netAccountAfterPayout;
+    });
 };
-
-
-
 
     </script>
 </body>
