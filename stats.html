@@ -501,6 +501,7 @@
                     <th class="px-6 py-3">Cashback Obligation (J$)</th>
                     <th class="px-6 py-3">Trading Forecast (J$)</th> 
                     <th class="px-6 py-3" title="Shortfall covered by trading">Trading Contribution (J$)</th>
+                     <th class="px-6 py-3">Capital Carryover (J$)</th> 
                     <th class="px-6 py-3">Net Account After Payout (J$)</th>
                 </tr>
             </thead>
@@ -1769,8 +1770,9 @@ const updateSolvencyTable = () => {
                 tradingContribution: 0,
                 netAccountAfterPayout: 0,
                 futureCashbackObligation: 0,
-                forecastTradingRequirement: 0, // ✅ NEW
-                preFunded: false
+                forecastTradingRequirement: 0,
+                preFunded: false,
+                carryoverCapital: 0 // ✅ NEW
             });
         }
         return monthlyDataMap.get(monthKey);
@@ -1805,7 +1807,7 @@ const updateSolvencyTable = () => {
     if (!visibleStartMonth) return;
     const visibleStartDate = visibleStartMonth.dateObj;
 
-    // 🔮 Future Cashback Obligation (unchanged)
+    // Future Cashback Obligation
     let runningFutureObligation = 0;
     [...sortedMonths].reverse().forEach(row => {
         runningFutureObligation += row.cashbackOwed;
@@ -1813,12 +1815,13 @@ const updateSolvencyTable = () => {
         row.futureCashbackObligation = Math.max(0, runningFutureObligation);
     });
 
-    // =====================================================
-    // 🔮 Forecast Trading Requirement (YOUR LOGIC – ADDED)
-    // =====================================================
+    // Forecast Trading Requirement
     let previousNetAccount = 0;
 
     sortedMonths.forEach((row, index) => {
+        // Save carryover capital from last month BEFORE trading contribution
+        row.carryoverCapital = previousNetAccount;
+
         const totalAvailable = previousNetAccount + row.markupCollected;
         const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
@@ -1827,21 +1830,13 @@ const updateSolvencyTable = () => {
             totalAvailable + row.tradingContribution - row.cashbackPaid;
 
         const futureMonthsLeft = Math.max(1, sortedMonths.length - index - 1);
-
-        const projectedGap = Math.max(
-            0,
-            row.cashbackOwed - row.netAccountAfterPayout
-        );
-
-        row.forecastTradingRequirement =
-            projectedGap / futureMonthsLeft;
+        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout);
+        row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
 
         previousNetAccount = row.netAccountAfterPayout;
     });
 
-    // =====================
-    // Render table (same)
-    // =====================
+    // Render table
     previousNetAccount = 0;
 
     sortedMonths
@@ -1873,6 +1868,9 @@ const updateSolvencyTable = () => {
                     <td class="px-6 py-4 font-semibold text-blue-600">
                         ${formatCurrency(row.tradingContribution)}
                     </td>
+                    <td class="px-6 py-4 font-semibold text-orange-600">
+                        ${formatCurrency(row.carryoverCapital)}
+                    </td>
                     <td class="px-6 py-4 font-bold ${
                         row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
                     }">
@@ -1890,6 +1888,7 @@ const updateSolvencyTable = () => {
             previousNetAccount = row.netAccountAfterPayout;
         });
 };
+
 
     </script>
 </body>
