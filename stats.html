@@ -1799,14 +1799,33 @@ const updateSolvencyTable = () => {
     });
 
     // Sort months chronologically
-    const sortedMonths = Array.from(monthlyDataMap.values()).sort((a, b) => a.dateObj - b.dateObj);
+    let sortedMonths = Array.from(monthlyDataMap.values())
+        .sort((a, b) => a.dateObj - b.dateObj);
+
+    // 🔹 EXTENSION LOGIC — based on LAST cashback owed month
+    const lastCashbackOwedMonth = [...sortedMonths]
+        .filter(row => row.cashbackOwed > 0)
+        .sort((a, b) => b.dateObj - a.dateObj)[0];
+
+    if (lastCashbackOwedMonth) {
+        let cursor = new Date(sortedMonths[sortedMonths.length - 1].dateObj);
+
+        while (cursor < lastCashbackOwedMonth.dateObj) {
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+            getMonthData(cursor);
+        }
+
+        // Re-sort after adding future months
+        sortedMonths = Array.from(monthlyDataMap.values())
+            .sort((a, b) => a.dateObj - b.dateObj);
+    }
 
     // Find first month with markup collected
     const visibleStartMonth = sortedMonths.find(row => row.markupCollected > 0);
     if (!visibleStartMonth) return;
     const visibleStartDate = visibleStartMonth.dateObj;
 
-    // Dynamic Net Account Calculation with Trading Contribution only when needed
+    // Dynamic Net Account Calculation (unchanged)
     let previousNetAccount = 0;
 
     sortedMonths
@@ -1815,16 +1834,18 @@ const updateSolvencyTable = () => {
             const totalAvailable = previousNetAccount + row.markupCollected;
             const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
-            // Trading contribution is only applied if shortfall exists
+            // Trading contribution only when needed
             row.tradingContribution = shortfall;
 
             // Net Account after payout
-            row.netAccountAfterPayout = totalAvailable + row.tradingContribution - row.cashbackPaid;
+            row.netAccountAfterPayout =
+                totalAvailable +
+                row.tradingContribution -
+                row.cashbackPaid;
 
-            // Pre-funded: if markup + previous net account covers cashback without trading
+            // Pre-funded check
             row.preFunded = totalAvailable >= row.cashbackPaid;
 
-            // Render table
             const tr = `
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
@@ -1842,19 +1863,24 @@ const updateSolvencyTable = () => {
                     <td class="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
                         ${formatCurrency(row.tradingContribution)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap font-bold ${row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    <td class="px-6 py-4 whitespace-nowrap font-bold ${
+                        row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
+                    }">
                         ${formatCurrency(row.netAccountAfterPayout)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap font-medium ${row.preFunded ? 'text-green-600' : 'text-red-600'}">
+                    <td class="px-6 py-4 whitespace-nowrap font-medium ${
+                        row.preFunded ? 'text-green-600' : 'text-red-600'
+                    }">
                         ${row.preFunded ? 'Yes' : 'No'}
                     </td>
                 </tr>
             `;
-            tableBody.insertAdjacentHTML('beforeend', tr);
 
+            tableBody.insertAdjacentHTML('beforeend', tr);
             previousNetAccount = row.netAccountAfterPayout;
         });
 };
+
 
     </script>
 </body>
