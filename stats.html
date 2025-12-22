@@ -1763,9 +1763,9 @@ const updateSolvencyTable = () => {
     const monthlyDataMap = new Map();
 
     const getMonthData = (dateObj) => {
-        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyDataMap.has(monthKey)) {
-            monthlyDataMap.set(monthKey, {
+        const key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyDataMap.has(key)) {
+            monthlyDataMap.set(key, {
                 dateObj: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1),
                 markupCollected: 0,
                 cashbackPaid: 0,
@@ -1775,87 +1775,138 @@ const updateSolvencyTable = () => {
                 preFunded: false
             });
         }
-        return monthlyDataMap.get(monthKey);
+        return monthlyDataMap.get(key);
     };
 
-    // Populate Markup collected
+    /* -------------------------------------------------
+       1. Populate monthly inflows
+    ------------------------------------------------- */
+
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
+
     dailyCashbackFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Populate Cashback Paid
+    /* -------------------------------------------------
+       2. Populate cashback paid + owed
+    ------------------------------------------------- */
+
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // Populate Cashback Owed
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
-        const releaseDate = new Date(releaseDateStr);
-        getMonthData(releaseDate).cashbackOwed += val;
+        getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
     });
 
-    // Sort months chronologically
-    const sortedMonths = Array.from(monthlyDataMap.values()).sort((a, b) => a.dateObj - b.dateObj);
+    /* -------------------------------------------------
+       3. Sort months
+    ------------------------------------------------- */
 
-    // Find first month with markup collected
-    const visibleStartMonth = sortedMonths.find(row => row.markupCollected > 0);
-    if (!visibleStartMonth) return;
-    const visibleStartDate = visibleStartMonth.dateObj;
+    const sortedMonths = Array.from(monthlyDataMap.values())
+        .sort((a, b) => a.dateObj - b.dateObj);
 
-    // Dynamic Net Account Calculation with Trading Contribution only when needed
-    let previousNetAccount = 0;
+    const visibleStart = sortedMonths.find(m => m.markupCollected > 0);
+    if (!visibleStart) return;
+
+    const startDate = visibleStart.dateObj;
+
+    /* -------------------------------------------------
+       4. First pass — normal cashflow
+    ------------------------------------------------- */
+
+    let runningNet = 0;
 
     sortedMonths
-        .filter(row => row.dateObj >= visibleStartDate)
+        .filter(m => m.dateObj >= startDate)
+        .forEach(m => {
+            runningNet += m.markupCollected;
+            runningNet -= m.cashbackPaid;
+            m.netAccountAfterPayout = runningNet;
+        });
+
+    /* -------------------------------------------------
+       5. Forecast future reserve stress (KEY FIX)
+    ------------------------------------------------- */
+
+    sortedMonths
+        .filter(m => m.dateObj >= startDate)
+        .forEach((currentMonth, index) => {
+            let simulatedReserve = currentMonth.netAccountAfterPayout;
+
+            for (let i = index + 1; i < sortedMonths.length; i++) {
+                const future = sortedMonths[i];
+
+                simulatedReserve += future.markupCollected;
+                simulatedReserve -= future.cashbackPaid;
+
+                if (simulatedReserve < 0) {
+                    const requiredInjection = Math.abs(simulatedReserve);
+                    currentMonth.tradingContribution += requiredInjection;
+                    simulatedReserve = 0;
+                    break;
+                }
+            }
+        });
+
+    /* -------------------------------------------------
+       6. Final pass — apply trading contribution properly
+    ------------------------------------------------- */
+
+    runningNet = 0;
+
+    sortedMonths
+        .filter(m => m.dateObj >= startDate)
         .forEach(row => {
-            const totalAvailable = previousNetAccount + row.markupCollected;
-            const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
+            const reserveBeforePayout =
+                runningNet +
+                row.markupCollected +
+                row.tradingContribution;
 
-            // Trading contribution is only applied if shortfall exists
-            row.tradingContribution = shortfall;
+            row.preFunded = reserveBeforePayout >= row.cashbackPaid;
 
-            // Net Account after payout
-            row.netAccountAfterPayout = totalAvailable + row.tradingContribution - row.cashbackPaid;
+            runningNet =
+                reserveBeforePayout -
+                row.cashbackPaid;
 
-            // Pre-funded: if markup + previous net account covers cashback without trading
-            row.preFunded = totalAvailable >= row.cashbackPaid;
+            row.netAccountAfterPayout = runningNet;
 
-            // Render table
             const tr = `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                    <td class="px-6 py-4 font-medium">
                         ${row.dateObj.toLocaleDateString('en-JM', { month: 'long', year: 'numeric' })}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                    <td class="px-6 py-4">
                         ${formatCurrency(row.markupCollected)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                    <td class="px-6 py-4">
                         ${formatCurrency(row.cashbackOwed)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-red-600">
+                    <td class="px-6 py-4 text-red-600">
                         ${formatCurrency(row.cashbackPaid)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
+                    <td class="px-6 py-4 font-semibold text-blue-600">
                         ${formatCurrency(row.tradingContribution)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap font-bold ${row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    <td class="px-6 py-4 font-bold ${
+                        row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
+                    }">
                         ${formatCurrency(row.netAccountAfterPayout)}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap font-medium ${row.preFunded ? 'text-green-600' : 'text-red-600'}">
+                    <td class="px-6 py-4 font-medium ${
+                        row.preFunded ? 'text-green-600' : 'text-red-600'
+                    }">
                         ${row.preFunded ? 'Yes' : 'No'}
                     </td>
                 </tr>
             `;
             tableBody.insertAdjacentHTML('beforeend', tr);
-
-            previousNetAccount = row.netAccountAfterPayout;
         });
 };
-
 
     </script>
 </body>
