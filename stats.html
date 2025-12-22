@@ -501,8 +501,8 @@
                     <th class="px-6 py-3">Cashback Obligation (J$)</th>
                     <th class="px-6 py-3">Trading Forecast (J$)</th> 
                     <th class="px-6 py-3" title="Shortfall covered by trading">Trading Contribution (J$)</th>
-                     <th class="px-6 py-3">Capital Carryover (J$)</th> 
                     <th class="px-6 py-3">Net Account After Payout (J$)</th>
+                    <th class="px-6 py-3">Reserve Balance (J$)</th> 
                 </tr>
             </thead>
             <tbody>
@@ -1817,6 +1817,7 @@ const updateSolvencyTable = () => {
 
     // Forecast Trading Requirement
     let previousNetAccount = 0;
+    let reserveRunningBalance = 0;
 
     sortedMonths.forEach((row, index) => {
         // Save carryover capital from last month BEFORE trading contribution
@@ -1832,6 +1833,14 @@ const updateSolvencyTable = () => {
         const futureMonthsLeft = Math.max(1, sortedMonths.length - index - 1);
         const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout);
         row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
+
+        reserveRunningBalance =
+        reserveRunningBalance +
+        row.markupCollected +
+        row.tradingContribution -
+        row.cashbackPaid;
+
+    row.reserveRunningBalance = reserveRunningBalance;
 
         previousNetAccount = row.netAccountAfterPayout;
     });
@@ -1868,14 +1877,17 @@ const updateSolvencyTable = () => {
                     <td class="px-6 py-4 font-semibold text-blue-600">
                         ${formatCurrency(row.tradingContribution)}
                     </td>
-                    <td class="px-6 py-4 font-semibold text-orange-600">
-                        ${formatCurrency(row.carryoverCapital)}
-                    </td>
+                   
                     <td class="px-6 py-4 font-bold ${
                         row.netAccountAfterPayout >= 0 ? 'text-green-600' : 'text-red-600'
                     }">
                         ${formatCurrency(row.netAccountAfterPayout)}
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-bold ${
+    row.reserveRunningBalance >= 0 ? 'text-green-600' : 'text-red-600'
+}">
+    ${formatCurrency(row.reserveRunningBalance)}
+</td>
                     <td class="px-6 py-4 font-medium ${
                         row.preFunded ? 'text-green-600' : 'text-red-600'
                     }">
