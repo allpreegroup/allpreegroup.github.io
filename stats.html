@@ -1861,22 +1861,22 @@ const updateSolvencyTable = () => {
         row.netAccountAfterPayout =
             totalAvailable + row.tradingContribution - row.cashbackPaid;
 
-        // Update reserve
-        reserveRunningBalance =
-            reserveRunningBalance +
-            row.markupCollected +
-            row.tradingContribution +
-            row.forecastTradingRequirement -
-            row.cashbackPaid;
-
-        row.reserveRunningBalance = reserveRunningBalance;
-
         // Forecast Trading Requirement
-        if (index > lastPayoutIndex && index <= lastOwedIndex) {
-            row.forecastTradingRequirement = perMonthForecast;
-        } else {
-            row.forecastTradingRequirement = 0;
-        }
+if (index > lastPayoutIndex && index <= lastOwedIndex) {
+    row.forecastTradingRequirement = perMonthForecast;
+} else {
+    row.forecastTradingRequirement = 0;
+}
+
+// Now update reserve including forecast
+reserveRunningBalance =
+    reserveRunningBalance +
+    row.markupCollected +
+    row.tradingContribution +
+    row.forecastTradingRequirement -
+    row.cashbackPaid;
+
+row.reserveRunningBalance = reserveRunningBalance;
 
         previousNetAccount = row.netAccountAfterPayout;
     });
