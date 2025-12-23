@@ -1771,14 +1771,13 @@ const updateSolvencyTable = () => {
                 futureCashbackObligation: 0,
                 forecastTradingRequirement: 0,
                 preFunded: false,
-                carryoverCapital: 0,
-                reserveRunningBalance: 0
+                carryoverCapital: 0
             });
         }
         return monthlyDataMap.get(monthKey);
     };
 
-    // Populate markup collected
+    // Populate Markup collected
     dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
@@ -1786,26 +1785,24 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
 
-    // Populate cashback paid
+    // Populate Cashback Paid
     dailyPaidCashbackMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).cashbackPaid += val;
     });
 
-    // Populate cashback owed
+    // Populate Cashback Owed
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
         if (val <= 0) return;
         getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
     });
 
-    // Force-create gap months
+    // 🔹 FORCE-CREATE GAP MONTHS
     const allDates = Array.from(monthlyDataMap.values()).map(r => r.dateObj);
     if (allDates.length > 0) {
         const minDate = new Date(Math.min(...allDates));
         const maxDate = new Date(Math.max(...allDates));
-
         let cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
         const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
-
         while (cursor <= end) {
             getMonthData(cursor);
             cursor.setMonth(cursor.getMonth() + 1);
@@ -1817,12 +1814,12 @@ const updateSolvencyTable = () => {
         (a, b) => a.dateObj - b.dateObj
     );
 
-    // Visible start month
+    // Find first visible month
     const visibleStartMonth = sortedMonths.find(r => r.markupCollected > 0);
     if (!visibleStartMonth) return;
     const visibleStartDate = visibleStartMonth.dateObj;
 
-    // Future cashback obligation (reverse walk)
+    // Future Cashback Obligation
     let runningFutureObligation = 0;
     [...sortedMonths].reverse().forEach(row => {
         runningFutureObligation += row.cashbackOwed;
@@ -1830,21 +1827,30 @@ const updateSolvencyTable = () => {
         row.futureCashbackObligation = Math.max(0, runningFutureObligation);
     });
 
-    // Identify last payout + last owed month
-    const lastPayoutIndex = sortedMonths
-        .map(m => m.cashbackPaid)
-        .lastIndexOf(Math.max(...sortedMonths.map(m => m.cashbackPaid)));
-
-    const lastOwedIndex = sortedMonths
-        .map(m => m.cashbackOwed)
-        .lastIndexOf(Math.max(...sortedMonths.map(m => m.cashbackOwed)));
-
+    // Forecast Trading Requirement (with gap spreading)
     let previousNetAccount = 0;
     let reserveRunningBalance = 0;
-    let reserveAtLastPayout = 0;
 
-    // Main calculation loop
+    // Identify last payout and last owed indices
+    const lastPayoutIndex = sortedMonths.map(r => r.cashbackPaid).lastIndexOf(Math.max(...sortedMonths.map(r => r.cashbackPaid)));
+    const lastOwedIndex = sortedMonths.map(r => r.cashbackOwed).lastIndexOf(Math.max(...sortedMonths.map(r => r.cashbackOwed)));
+
+    // Compute remaining owed after last payout
+    const reserveAtLastPayout = lastPayoutIndex >= 0 ? 
+        sortedMonths[lastPayoutIndex].reserveRunningBalance || 0 
+        : 0;
+
+    const remainingCashbackOwed = sortedMonths
+        .slice(lastPayoutIndex + 1, lastOwedIndex + 1)
+        .reduce((sum, r) => sum + r.cashbackOwed, 0);
+
+    const monthsForForecast = lastOwedIndex - lastPayoutIndex;
+    const perMonthForecast = monthsForForecast > 0
+        ? Math.max(0, remainingCashbackOwed - reserveAtLastPayout) / monthsForForecast
+        : 0;
+
     sortedMonths.forEach((row, index) => {
+        // Carryover from last month
         row.carryoverCapital = previousNetAccount;
 
         const totalAvailable = previousNetAccount + row.markupCollected;
@@ -1855,45 +1861,21 @@ const updateSolvencyTable = () => {
         row.netAccountAfterPayout =
             totalAvailable + row.tradingContribution - row.cashbackPaid;
 
-        // Update reserve (real money only)
+        // Update reserve
         reserveRunningBalance =
             reserveRunningBalance +
             row.markupCollected +
-            row.forecastTradingRequirement +
             row.tradingContribution -
             row.cashbackPaid;
 
         row.reserveRunningBalance = reserveRunningBalance;
 
-        // Capture reserve at last payout
-        if (index === lastPayoutIndex) {
-            reserveAtLastPayout = reserveRunningBalance;
+        // Forecast Trading Requirement
+        if (index > lastPayoutIndex && index <= lastOwedIndex) {
+            row.forecastTradingRequirement = perMonthForecast;
+        } else {
+            row.forecastTradingRequirement = 0;
         }
-
-        // Remaining months until final obligation
-        const monthsRemaining = Math.max(1, lastOwedIndex - index);
-
-        // Base forecast gap
-        let projectedGap = Math.max(
-            0,
-            row.futureCashbackObligation - row.reserveRunningBalance / monthsRemaining
-        );
-
-        // After last payout → include remaining owed vs reserve
-        if (index >= lastPayoutIndex) {
-            const remainingCashbackOwed = sortedMonths
-                .slice(lastPayoutIndex + 1)
-                .reduce((sum, r) => sum + r.cashbackOwed, 0);
-
-            const reserveShortfall = Math.max(
-                0,
-                remainingCashbackOwed - reserveAtLastPayout
-            );
-
-            projectedGap = Math.max(projectedGap, reserveShortfall);
-        }
-
-        row.forecastTradingRequirement = projectedGap / monthsRemaining;
 
         previousNetAccount = row.netAccountAfterPayout;
     });
@@ -1949,6 +1931,7 @@ const updateSolvencyTable = () => {
             previousNetAccount = row.netAccountAfterPayout;
         });
 };
+
 
     </script>
 </body>
