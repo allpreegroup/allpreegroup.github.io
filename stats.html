@@ -1832,8 +1832,14 @@ const updateSolvencyTable = () => {
     let reserveRunningBalance = 0;
 
     // Identify last payout and last owed indices
-    const lastPayoutIndex = sortedMonths.map(r => r.cashbackPaid).lastIndexOf(Math.max(...sortedMonths.map(r => r.cashbackPaid)));
-    const lastOwedIndex = sortedMonths.map(r => r.cashbackOwed).lastIndexOf(Math.max(...sortedMonths.map(r => r.cashbackOwed)));
+    const lastPayoutIndex = [...sortedMonths]
+  .map(r => r.cashbackPaid)
+  .reduce((idx, val, i) => val > 0 ? i : idx, -1);
+
+   const lastOwedIndex = [...sortedMonths]
+  .map(r => r.cashbackOwed)
+  .reduce((idx, val, i) => val > 0 ? i : idx, -1);
+
 
     // Compute remaining owed after last payout
     const reserveAtLastPayout = lastPayoutIndex >= 0 ? 
@@ -1841,7 +1847,7 @@ const updateSolvencyTable = () => {
         : 0;
 
     const remainingCashbackOwed = sortedMonths
-        .slice(lastPayoutIndex + 1, lastOwedIndex + 2)
+        .slice(lastPayoutIndex + 1, lastOwedIndex + 1)
         .reduce((sum, r) => sum + r.cashbackOwed, 0);
 
     const monthsForForecast = lastOwedIndex - lastPayoutIndex;
