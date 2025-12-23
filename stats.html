@@ -1796,6 +1796,22 @@ const updateSolvencyTable = () => {
         getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
     });
 
+    // 🔹 FORCE-CREATE GAP MONTHS (between first activity and last obligation)
+const allDates = Array.from(monthlyDataMap.values()).map(r => r.dateObj);
+if (allDates.length > 0) {
+    const minDate = new Date(Math.min(...allDates));
+    const maxDate = new Date(Math.max(...allDates));
+
+    let cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+
+    while (cursor <= end) {
+        getMonthData(cursor); // creates empty months if missing
+        cursor.setMonth(cursor.getMonth() + 1);
+    }
+}
+
+
     // Sort months
     const sortedMonths = Array.from(monthlyDataMap.values()).sort(
         (a, b) => a.dateObj - b.dateObj
