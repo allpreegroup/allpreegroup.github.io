@@ -1831,12 +1831,13 @@ const updateSolvencyTable = () => {
             totalAvailable + row.tradingContribution - row.cashbackPaid;
 
         const futureMonthsLeft = Math.max(1, sortedMonths.length - index - 1);
-        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout + row.tradingContribution);
+        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout);
         row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
 
         reserveRunningBalance =
         reserveRunningBalance +
         row.markupCollected +
+        row.tradingContribution +
         row.forecastTradingRequirement -
         row.cashbackPaid;
 
