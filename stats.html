@@ -1818,32 +1818,44 @@ const updateSolvencyTable = () => {
     let previousNetAccount = 0;
     let reserveRunningBalance = 0;
 
-    sortedMonths.forEach((row, index) => {
-        // Save carryover capital from last month BEFORE trading contribution
-        row.carryoverCapital = previousNetAccount;
+   sortedMonths.forEach((row, index) => {
+    // Carryover from last month
+    row.carryoverCapital = previousNetAccount;
 
-        const totalAvailable = previousNetAccount + row.markupCollected;
-        const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
+    const totalAvailable = previousNetAccount + row.markupCollected;
+    const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
-        row.tradingContribution = shortfall;
-        row.netAccountAfterPayout =
-            totalAvailable + row.tradingContribution - row.cashbackPaid;
+    row.tradingContribution = shortfall;
 
-        const futureMonthsLeft = Math.max(1, sortedMonths.length - index - 1);
-        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout);
-        row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
+    row.netAccountAfterPayout =
+        totalAvailable + row.tradingContribution - row.cashbackPaid;
 
-        reserveRunningBalance =
+    // 🔹 STEP 1: Update reserve FIRST (real money only)
+    reserveRunningBalance =
         reserveRunningBalance +
         row.markupCollected +
-        row.tradingContribution +
-        row.forecastTradingRequirement -
+        row.tradingContribution -
         row.cashbackPaid;
 
     row.reserveRunningBalance = reserveRunningBalance;
 
-        previousNetAccount = row.netAccountAfterPayout;
-    });
+    // 🔹 STEP 2: NOW calculate forecast gap
+    const monthsUntilLastPayout = sortedMonths
+        .slice(index + 1)
+        .filter(m => m.cashbackPaid > 0 || m.cashbackOwed > 0)
+        .length;
+
+    const projectedGap = Math.max(
+        0,
+        row.futureCashbackObligation - row.reserveRunningBalance
+    );
+
+    row.forecastTradingRequirement =
+        projectedGap / Math.max(1, monthsUntilLastPayout);
+
+    previousNetAccount = row.netAccountAfterPayout;
+});
+
 
     // Render table
     previousNetAccount = 0;
