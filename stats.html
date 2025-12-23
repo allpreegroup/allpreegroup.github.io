@@ -1831,7 +1831,7 @@ const updateSolvencyTable = () => {
             totalAvailable + row.tradingContribution - row.cashbackPaid;
 
         const futureMonthsLeft = Math.max(1, sortedMonths.length - index - 1);
-        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout);
+        const projectedGap = Math.max(0, row.cashbackOwed - row.netAccountAfterPayout + row.tradingContribution);
         row.forecastTradingRequirement = projectedGap / futureMonthsLeft;
 
         reserveRunningBalance =
