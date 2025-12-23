@@ -1786,15 +1786,17 @@ const updateSolvencyTable = () => {
     });
 
     // Populate Cashback Paid
-    dailyPaidCashbackMap.forEach((val, dateStr) => {
-        getMonthData(new Date(dateStr)).cashbackPaid += val;
-    });
+   dailyPaidCashbackMap.forEach((val, dateStr) => {
+    const payoutMonthEnd = toMonthEnd(dateStr);
+    getMonthData(payoutMonthEnd).cashbackPaid += val;
+});
 
     // Populate Cashback Owed
     dailyCashbackValueOwedMap.forEach((val, releaseDateStr) => {
-        if (val <= 0) return;
-        getMonthData(new Date(releaseDateStr)).cashbackOwed += val;
-    });
+    if (val <= 0) return;
+    const releaseMonthEnd = toMonthEnd(releaseDateStr);
+    getMonthData(releaseMonthEnd).cashbackOwed += val;
+});
 
     // 🔹 FORCE-CREATE GAP MONTHS
     const allDates = Array.from(monthlyDataMap.values()).map(r => r.dateObj);
