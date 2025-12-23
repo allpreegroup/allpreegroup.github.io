@@ -1752,6 +1752,15 @@
  * so funds are ready before the cashback payout.
  */
 const updateSolvencyTable = () => {
+
+    const toMonthEnd = (dateStr) => {
+        // Split the string manually to ensure we stay in Local Time (avoids timezone shifts)
+        const [year, month, day] = dateStr.split('-').map(Number);
+        // Create date using local constructor: year, month-1 (0-indexed), day
+        const dateObj = new Date(year, month - 1, day);
+        return getEndOfMonthLocal(dateObj); 
+    };
+    
     const tableBody = document.getElementById('solvencyTable')?.querySelector('tbody');
     if (!tableBody) return;
     tableBody.innerHTML = '';
