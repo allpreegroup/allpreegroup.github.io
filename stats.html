@@ -1789,9 +1789,13 @@ const updateSolvencyTable = () => {
     };
 
     // Populate Markup collected
-    dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
-        getMonthData(new Date(dateStr)).markupCollected += val;
-    });
+  dailyReserveFundAdditionsMap.forEach((val, dateStr) => {
+    // FIX: Parse YYYY-MM-DD manually to prevent timezone shifts (e.g., Feb 1st becoming Jan 31st)
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day); // month - 1 because Months are 0-indexed in JS
+    
+    getMonthData(localDate).markupCollected += val;
+});
  /*   dailyCashbackFundAdditionsMap.forEach((val, dateStr) => {
         getMonthData(new Date(dateStr)).markupCollected += val;
     });
