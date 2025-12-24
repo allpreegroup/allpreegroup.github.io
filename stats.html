@@ -646,6 +646,7 @@
         // monthlyPurchaseData will now be a Map for better aggregation
         let monthlyPurchaseDataMap = new Map(); 
         let dailyReserveFlowLog = []; // New: Stores daily reserve flow entries
+        let monthlyTradingContributions = new Map(); // Global store for solvency contributions
         
         // --- NEW: Global state for toggles with localStorage persistence ---
         const INCLUDED_DEPOSITS_STORAGE_KEY = 'financialSim_includedDeposits';
@@ -1298,11 +1299,13 @@
                 let aggregatedDepositForMonthEnd = 0;
 
                 if (isMonthEnd && currentDate <= today) {
-                    const monthlyDeposit = monthlyAggregatedDepositsMap.get(currentMonthKey) || 0;
-                    if (monthlyDeposit > 0 && includedDeposits.has(currentMonthKey)) {
-                        currentDailyReserve += monthlyDeposit;
+                   const contributionAmount = monthlyTradingContributions.get(currentMonthKey) || 0;
+                    
+                    if (contributionAmount > 0) {
+                        currentDailyReserve += contributionAmount;
+                        // We treat this contribution as the 'Deposit' for the log
+                        aggregatedDepositForMonthEnd = contributionAmount;
                     }
-                    aggregatedDepositForMonthEnd = monthlyDeposit;
 
                     const totalPayoutsThisMonth = monthlyCashbackPayoutTotal.get(currentMonthKey) || 0;
                     if (totalPayoutsThisMonth > 0) {
@@ -1481,15 +1484,8 @@
                 today.setHours(0,0,0,0);
 
                 if (data.isMonthEnd && data.aggregatedDepositForMonth > 0) {
-                    const monthKey = data.monthKey;
-                    const isChecked = includedDeposits.has(monthKey);
-                    
-                    depositHtml = `
-                        <div class="deposit-toggle-container">
-                            <input type="checkbox" class="deposit-toggle-checkbox" data-date="${monthKey}" ${isChecked ? 'checked' : ''}>
-                            <span class="text-green-600">${formatCurrency(data.aggregatedDepositForMonth, true)}</span>
-                        </div>
-                    `;
+                    // Simple display, no checkbox needed
+                    depositHtml = `<span class="text-blue-600 font-bold">${formatCurrency(data.aggregatedDepositForMonth, true)}</span>`;
                 } else {
                     depositHtml = '<span class="text-gray-500">N/A</span>';
                 }
@@ -1682,10 +1678,11 @@
                         }
 
                         const balances = calculateAndStoreCurrentFundBalances();
+                        updateSolvencyTable();
                         runSimulation();
                         runReserveFlowSimulation();
                         updateCurrentFundBalancesDisplay(balances); 
-                        updateSolvencyTable();
+                        
                         console.log("loadGoogleSheetData: Simulations and display updates triggered after data load.");
 
                     } else {
@@ -1742,6 +1739,7 @@
             const eventType = input.type === 'checkbox' ? 'change' : 'input';
             input.addEventListener(eventType, () => {
                 console.log(`${input.id}: Value changed. Re-running simulations.`);
+               updateSolvencyTable();
                 runSimulation();
                 if (input.id !== 'initialTradingFund') { // Reserve flow doesn't depend on initial trading fund
                     runReserveFlowSimulation();
@@ -1878,6 +1876,10 @@ const updateSolvencyTable = () => {
         const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
         row.tradingContribution = shortfall;
+        
+        // Save this contribution to the global map so the Reserve Flow table can see it
+            const monthKey = `${row.dateObj.getFullYear()}-${String(row.dateObj.getMonth() + 1).padStart(2, '0')}`;
+            monthlyTradingContributions.set(monthKey, row.tradingContribution);
 
         row.netAccountAfterPayout =
             totalAvailable + row.tradingContribution - row.cashbackPaid;
