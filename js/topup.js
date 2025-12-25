@@ -119,12 +119,16 @@ function init_topup() {
       // 4. Find the user in the sheet (Assumes Column Name is 'ID Code')
       const user = data.find(row => String(row['ID Code']).trim() === String(userId).trim());
       
-      // 5. Check Level. If user missing, default to 'Join Now'
-      const userLevel = user ? user['Level'] : 'Join Now'; 
+      // 5. Check Level. 
+      // We convert it to string, trim spaces, and make it lowercase to ensure it matches perfectly.
+      // If the 'Level' column is empty or user is missing, we default to 'join now'.
+      const rawLevel = user && user['Level'] ? String(user['Level']) : 'join now';
+      const userLevel = rawLevel.trim().toLowerCase(); 
       
-      // 6. BLOCK if: User not found OR Level says "Join Now" OR "Renew Now"
-      if (!user || userLevel.includes('Join Now') || userLevel.includes('Renew Now')) {
-        
+      // 6. BLOCK if: User not found OR Level contains "join now" or "renew now"
+      // We now check against the lowercase versions
+      if (!user || userLevel.includes('join now') || userLevel.includes('renew now')) {
+         
         // --- BLOCKED: Show Info Popup ---
         
         // Remove existing alert if it's already there (cleanup)
