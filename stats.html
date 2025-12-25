@@ -1012,11 +1012,44 @@
 
             const { finalTradingFund, finalReserveFund } = runCumulativeDailySimulation(); 
 
-            // Create a map of daily reserve start values for efficient lookup
+            // Create maps for efficient lookup of Start AND End balances
             const dailyReserveStartMap = new Map();
+            const dailyReserveEndMap = new Map(); // <--- NEW MAP
+            
             dailyReserveFlowLog.forEach(log => {
                 const dateKey = log.date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 dailyReserveStartMap.set(dateKey, log.reserveStart);
+                dailyReserveEndMap.set(dateKey, log.reserveEnd); // <--- STORE END BALANCE
+            });
+
+            // --- Aggregate data for the Combined Payout Table ---
+            console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
+            const aggregatedPayoutArray = []; 
+
+            sheetDataAggregatedBySimulatedPayoutMonthEnd.forEach((sheetAggregatedData, payoutMonthEndKey) => {
+                const payoutMonthEnd = parseSheetDate(payoutMonthEndKey); 
+                if (!payoutMonthEnd) {
+                    console.warn(`runSimulation: Skipping invalid payoutMonthEndKey: ${payoutMonthEndKey}`);
+                    return;
+                }
+
+                // *** INTEGRATION LOGIC ***
+                const reserveFundForPayoutDay = dailyReserveStartMap.get(payoutMonthEndKey) || 0;
+                const reserveFundAfterPayout = dailyReserveEndMap.get(payoutMonthEndKey) || 0; // <--- GET END BALANCE
+
+                const totalCashbackOwedForPeriod = cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed);
+                
+                // Determine if payout was met (using Start Balance is correct for this check)
+                const payoutMet = reserveFundForPayoutDay >= totalCashbackOwedForPeriod;
+
+                aggregatedPayoutArray.push({
+                    payoutMonthEnd: payoutMonthEnd,
+                    totalCashbackByReleaseDate: totalCashbackOwedForPeriod,
+                    totalPayoutDeducted: cleanAndParseFloat(sheetAggregatedData.totalPaidCashback),
+                    fundBalanceBeforePayout: reserveFundForPayoutDay, 
+                    fundBalanceAfterPayout: reserveFundAfterPayout, // <--- SEND TO TABLE
+                    actualPayoutMetStatus: payoutMet
+                });
             });
 
             // --- Aggregate data for the Combined Payout Table ---
@@ -1087,9 +1120,9 @@
                 let markupProjectionDisplay;
                 let markupProjectionClass;
 
-                // The fund balance to display is the reserve fund at the start of the payout day
-                fundBalanceDisplay = formatCurrency(data.fundBalanceBeforePayout);
-                fundBalanceClass = data.fundBalanceBeforePayout >= 0 ? 'text-green-600' : 'text-red-600';
+                // USE THE END BALANCE HERE
+                fundBalanceDisplay = formatCurrency(data.fundBalanceAfterPayout); 
+                fundBalanceClass = data.fundBalanceAfterPayout >= 0 ? 'text-green-600' : 'text-red-600';
 
                 // Use the totalPayoutDeducted which is sourced from sheet's Paid Cashback
                 if (data.totalPayoutDeducted !== undefined) {
