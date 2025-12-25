@@ -72,8 +72,27 @@ function calculateTotals() {
     const agreementCheckbox = document.getElementById("deferred-agreement");
     const isAgreed = agreementCheckbox && agreementCheckbox.checked;
 
-    // Define the amounts for main memberships that are taxable
-    const membershipAmounts = [4200, 8400];
+    // --- NEW LOGIC START ---
+    // Determine the Assurance Fee based on membership tier
+    let assuranceFee = 25000; // Default (Basic)
+
+    if (selectedMembership.includes(8400)) {
+        assuranceFee = 10000; // Premium
+    } else if (selectedMembership.includes(4200)) {
+        assuranceFee = 18000; // Standard
+    } else if (selectedMembership.includes(0)) {
+        assuranceFee = 25000; // Basic
+    }
+
+    // Update the text in the HTML to show the correct fee
+    const feeDisplayElement = document.getElementById("assurance-fee-display");
+    if (feeDisplayElement) {
+        feeDisplayElement.textContent = assuranceFee.toLocaleString();
+    }
+    // --- NEW LOGIC END ---
+
+    // Define the amounts for main memberships (Include 0 here!)
+    const membershipAmounts = [0, 4200, 8400];
 
     let taxableTotal = 0;
     let addOnTotal = 0;
@@ -87,9 +106,9 @@ function calculateTotals() {
       }
     });
 
-    // 2. Add the mandatory 25k fee if the box is checked
+    // 2. Add the DYNAMIC fee variable (not the hardcoded 25000)
     if (isAgreed) {
-      addOnTotal += 25000;
+      addOnTotal += assuranceFee;
     }
 
     const subtotal = taxableTotal + addOnTotal;
@@ -98,7 +117,7 @@ function calculateTotals() {
     const grandTotal = Math.round(taxableTotal + tax + fee + addOnTotal);
 
     // Update Summary HTML
-    if (subtotal === 0) {
+    if (selectedMembership.length === 0) {
       summary.innerHTML = "";
       nextStepBtn.style.display = "none";
       return;
@@ -113,19 +132,19 @@ function calculateTotals() {
     `;
     document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
 
-    // 3. Logic to Disable/Enable the Next Button based on the checkbox
-    nextStepBtn.style.display = "block"; // Always show button if items selected
+    // 3. Logic to Disable/Enable the Next Button
+    nextStepBtn.style.display = "block"; 
     
     if (isAgreed) {
         nextStepBtn.disabled = false;
         nextStepBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        nextStepBtn.innerHTML = '<i class="fa-solid fa-building-columns fa-lg"></i> > Bank Transfer'; // Restore text
+        nextStepBtn.innerHTML = '<i class="fa-solid fa-building-columns fa-lg"></i> > Bank Transfer'; 
     } else {
         nextStepBtn.disabled = true;
         nextStepBtn.classList.add("opacity-50", "cursor-not-allowed");
-        nextStepBtn.innerHTML = "Please check the agreement above"; // Helpful text
+        nextStepBtn.innerHTML = "Please check the agreement above"; 
     }
-  }
+}
 
 
   function saveStep(step) {
