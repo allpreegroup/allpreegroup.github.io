@@ -223,40 +223,45 @@ function calculateTotals() {
   
   select.addEventListener("click", (e) => {
     const option = e.target.closest(".topup-option");
+    // Ignore clicks that aren't on options or are on addon-options
     if (!option || option.classList.contains('addon-option')) return;
 
     const amount = parseInt(option.dataset.amount);
+
+    // 1. Define all mutually exclusive membership tiers
+    const basicAmount = 0;
     const standardAmount = 4200;
     const premiumAmount = 8400;
+    const membershipTiers = [basicAmount, standardAmount, premiumAmount];
 
-    // Handle membership exclusivity: If a membership is clicked, deselect the other.
-    if (amount === standardAmount) {
-      // If premium is selected, remove it from the array and the UI
-      const premiumIndex = selectedMembership.indexOf(premiumAmount);
-      if (premiumIndex > -1) {
-        selectedMembership.splice(premiumIndex, 1);
-        document.querySelector(`.topup-option[data-amount="${premiumAmount}"]`).classList.remove("selected");
-      }
-    } else if (amount === premiumAmount) {
-      // If standard is selected, remove it from the array and the UI
-      const standardIndex = selectedMembership.indexOf(standardAmount);
-      if (standardIndex > -1) {
-        selectedMembership.splice(standardIndex, 1);
-        document.querySelector(`.topup-option[data-amount="${standardAmount}"]`).classList.remove("selected");
-      }
+    // 2. Exclusivity Logic: If a main membership is clicked, remove the others
+    if (membershipTiers.includes(amount)) {
+      membershipTiers.forEach(tier => {
+        // If this tier is NOT the one currently clicked...
+        if (tier !== amount) {
+          // ...check if it is in the selected list
+          const idx = selectedMembership.indexOf(tier);
+          if (idx > -1) {
+            // Remove it from the data array
+            selectedMembership.splice(idx, 1);
+            // Remove the visual 'selected' class from the HTML element
+            const el = document.querySelector(`.topup-option[data-amount="${tier}"]`);
+            if (el) el.classList.remove("selected");
+          }
+        }
+      });
     }
 
-    // Now, toggle the currently clicked option
+    // 3. Toggle the currently clicked option (Standard behavior)
     const currentIndex = selectedMembership.indexOf(amount);
     if (currentIndex > -1) {
-      // It was already selected, so unselect it
       selectedMembership.splice(currentIndex, 1);
       option.classList.remove("selected");
     } else {
-      // It was not selected, so select it
       selectedMembership.push(amount);
       option.classList.add("selected");
     }
+    
     updateAddonState();
   });
 
