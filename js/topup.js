@@ -100,10 +100,103 @@ function init_topup() {
   restoreTopups();
 
   // Button Events
-  topUpBtn.addEventListener("click", () => {
-    topUpBtn.classList.add("hidden");
-    step1.classList.remove("hidden");
-    saveStep("step1");
+  // --- NEW LOGIC: Check Membership Before Top Up ---
+  topUpBtn.addEventListener("click", async () => {
+    
+    // 1. Get the current User ID stored in the browser
+    const userId = localStorage.getItem("savedIdCode") || "";
+    
+    // 2. Show loading state on the button so user knows something is happening
+    const originalText = topUpBtn.textContent;
+    topUpBtn.textContent = "Checking Membership...";
+    topUpBtn.disabled = true;
+
+    try {
+      // 3. Fetch the App Data (OpenSheet)
+      const response = await fetch('https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata');
+      const data = await response.json();
+
+      // 4. Find the user in the sheet (Assumes Column Name is 'ID Code')
+      const user = data.find(row => String(row['ID Code']).trim() === String(userId).trim());
+      
+      // 5. Check Level. If user missing, default to 'Join Now'
+      const userLevel = user ? user['Level'] : 'Join Now'; 
+      
+      // 6. BLOCK if: User not found OR Level says "Join Now" OR "Renew Now"
+      if (!user || userLevel.includes('Join Now') || userLevel.includes('Renew Now')) {
+        
+        // --- BLOCKED: Show Info Popup ---
+        
+        // Remove existing alert if it's already there (cleanup)
+        const existingAlert = document.getElementById('membership-alert');
+        if(existingAlert) existingAlert.remove();
+
+        // Create the popup box elements
+        const alertBox = document.createElement('div');
+        alertBox.id = 'membership-alert';
+        
+        // Style the popup (centered, white box, shadow)
+        alertBox.style.cssText = `
+          position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          background: white; padding: 25px; border-radius: 10px; 
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 9999;
+          text-align: center; max-width: 320px; width: 90%; border: 1px solid #ccc;
+          font-family: inherit;
+        `;
+        
+        // Add content to the popup
+        alertBox.innerHTML = `
+          <h3 style="margin-top:0; color:#d32f2f; font-size: 1.25rem; font-weight:bold;">Access Denied</h3>
+          <p style="margin:15px 0; color:#555; font-size: 0.95rem;">
+            You need an active membership to purchase vouchers. Please join or renew to continue.
+          </p>
+          <button id="popup-see-how" style="
+            background-color: #2563eb; color: white; border: none; padding: 10px 20px; 
+            border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem;">
+            👉 See How It Works
+          </button>
+          <button id="popup-close" style="
+            background: transparent; border: none; color: #777; 
+            margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem;">
+            Close
+          </button>
+        `;
+
+        document.body.appendChild(alertBox);
+
+        // Action: When they click "See How It Works"
+        document.getElementById('popup-see-how').addEventListener('click', () => {
+           // Finds the REAL sales letter button in your menu (ignoring this popup button)
+           const realButton = document.querySelector('.menu-button[data-view="salesletter"]');
+           if (realButton) {
+             alertBox.remove();
+             realButton.click(); // Simulates a click on the menu button
+           } else {
+             console.error("Sales letter menu button not found.");
+             alert("Could not find the sales letter page.");
+           }
+        });
+
+        // Action: Close popup button
+        document.getElementById('popup-close').addEventListener('click', () => {
+          alertBox.remove();
+        });
+
+      } else {
+        // --- ALLOWED: Proceed to Top Up Form (Original Logic) ---
+        topUpBtn.classList.add("hidden");
+        step1.classList.remove("hidden");
+        saveStep("step1");
+      }
+
+    } catch (error) {
+      console.error("Error verifying membership:", error);
+      alert("Unable to verify membership status. Please check your internet connection.");
+    } finally {
+      // Always restore the main button text/state when done
+      topUpBtn.textContent = originalText;
+      topUpBtn.disabled = false;
+    }
   });
 
   select.addEventListener("click", (e) => {
