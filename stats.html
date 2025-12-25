@@ -1052,34 +1052,6 @@
                 });
             });
 
-            // --- Aggregate data for the Combined Payout Table ---
-            console.log("runSimulation: Starting aggregation for Payout Obligation & Fund Performance table.");
-            const aggregatedPayoutArray = []; 
-
-            sheetDataAggregatedBySimulatedPayoutMonthEnd.forEach((sheetAggregatedData, payoutMonthEndKey) => {
-                const payoutMonthEnd = parseSheetDate(payoutMonthEndKey); 
-                if (!payoutMonthEnd) {
-                    console.warn(`runSimulation: Skipping invalid payoutMonthEndKey: ${payoutMonthEndKey}`);
-                    return;
-                }
-
-                // *** INTEGRATION LOGIC: Get the reserve fund balance for the payout date ***
-                const reserveFundForPayoutDay = dailyReserveStartMap.get(payoutMonthEndKey) || 0;
-                const totalCashbackOwedForPeriod = cleanAndParseFloat(sheetAggregatedData.totalCashbackOwed);
-                
-                // Determine if the payout was met based on the reserve fund at the start of that day.
-                const payoutMet = reserveFundForPayoutDay >= totalCashbackOwedForPeriod;
-
-                aggregatedPayoutArray.push({
-                    payoutMonthEnd: payoutMonthEnd,
-                    totalCashbackByReleaseDate: totalCashbackOwedForPeriod,
-                    totalPayoutDeducted: cleanAndParseFloat(sheetAggregatedData.totalPaidCashback),
-                    // The fund balance to check against is the Reserve Fund at the start of the payout day.
-                    fundBalanceBeforePayout: reserveFundForPayoutDay, 
-                    actualPayoutMetStatus: payoutMet
-                });
-            });
-
             // Sort the array by payoutMonthEnd
             aggregatedPayoutArray.sort((a, b) => a.payoutMonthEnd.getTime() - b.payoutMonthEnd.getTime());
 
