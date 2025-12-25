@@ -113,7 +113,7 @@ function init_topup() {
 
     try {
       // 3. Fetch the App Data (OpenSheet)
-      const response = await fetch('https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata');
+      const response = await fetch('https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata?t=' + new Date().getTime());
       const data = await response.json();
 
       // 4. Find the user in the sheet (Assumes Column Name is 'ID Code')
