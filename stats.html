@@ -1882,9 +1882,13 @@ const updateSolvencyTable = () => {
         row.carryoverCapital = previousNetAccount;
 
         const totalAvailable = previousNetAccount + row.markupCollected;
-        const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
+const shortfall = Math.max(0, row.cashbackPaid - totalAvailable);
 
-        row.tradingContribution = shortfall;
+// --- NEW: Adjustable Buffer ---
+const BUFFER_PERCENT = 0.10; // Change this to 0.20 for 20%, 0.05 for 5%, etc.
+
+// Apply the buffer to the shortfall (only if there is a shortfall)
+row.tradingContribution = shortfall > 0 ? shortfall * (1 + BUFFER_PERCENT) : 0;
         
         // Save this contribution to the global map so the Reserve Flow table can see it
             const monthKey = `${row.dateObj.getFullYear()}-${String(row.dateObj.getMonth() + 1).padStart(2, '0')}`;
