@@ -146,6 +146,7 @@ function init_profile() {
 
   function renderProfile(rows, summary) {
     const loginInfo = JSON.parse(localStorage.getItem('profileLogin'));
+    localStorage.setItem("userMembershipLevel", summary["Level"] || "");
 
     document.getElementById('user-profile-header').innerHTML = `
       <h2>${loginInfo.firstName} ${loginInfo.lastName}</h2>
