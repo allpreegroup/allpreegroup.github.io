@@ -119,7 +119,7 @@ function init_topup() {
           <button id="popup-see-how" style="
             background-color: #2563eb; color: white; border: none; padding: 10px 20px; 
             border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem;">
-            <i class="fa-solid fa-hand-holding-dollar fa-lg"></i>Join Or Renew Membership
+            Join Or Renew Membership
           </button>
           <button id="popup-close" style="
             background: transparent; border: none; color: #777; 
