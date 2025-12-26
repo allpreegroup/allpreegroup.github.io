@@ -121,14 +121,15 @@ function init_topup() {
       
       // 5. Check Level. 
       // We convert it to string, trim spaces, and make it lowercase to ensure it matches perfectly.
-      // If the 'Level' column is empty or user is missing, we default to 'join now'.
-      const rawLevel = user && user['Level'] ? String(user['Level']) : 'join now';
+      const rawLevel = user && user['Level'] ? String(user['Level']) : '';
       const userLevel = rawLevel.trim().toLowerCase(); 
       
-      // 6. BLOCK if: User not found OR Level contains "join now" or "renew now"
-      // We now check against the lowercase versions
-      if (!user || userLevel.includes('join now') || userLevel.includes('renew now')) {
-         
+      // CHECK: Does the level contain one of the valid keywords?
+      const isValidMember = userLevel.includes('basic') || userLevel.includes('standard') || userLevel.includes('premium');
+
+      // 6. BLOCK if: User not found OR they are NOT a valid member
+      if (!user || !isValidMember) {
+        
         // --- BLOCKED: Show Info Popup ---
         
         // Remove existing alert if it's already there (cleanup)
