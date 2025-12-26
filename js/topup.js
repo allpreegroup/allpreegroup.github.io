@@ -94,53 +94,15 @@ function init_topup() {
       calculateTotals();
     }
   }
-
-  // Load step + topups on DOM load
-  restoreStep();
-  restoreTopups();
-
-  // Button Events
-  // --- NEW LOGIC: Check Membership Before Top Up ---
-  topUpBtn.addEventListener("click", async () => {
-    
-    // 1. Get the current User ID stored in the browser
-    const userId = localStorage.getItem("savedIdCode") || "";
-    
-    // 2. Show loading state on the button so user knows something is happening
-    const originalText = topUpBtn.textContent;
-    topUpBtn.textContent = "Checking Membership...";
-    topUpBtn.disabled = true;
-
-    try {
-      // 3. Fetch the App Data (OpenSheet)
-      const response = await fetch('https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata');
-      const data = await response.json();
-
-      // 4. Find the user in the sheet (Assumes Column Name is 'ID Code')
-      const user = data.find(row => String(row['ID Code']).trim() === String(userId).trim());
-      
-      // 5. Check Level. 
-      // We convert it to string, trim spaces, and make it lowercase to ensure it matches perfectly.
-      const rawLevel = user && user['Level'] ? String(user['Level']) : '';
-      const userLevel = rawLevel.trim().toLowerCase(); 
-      
-      // CHECK: Does the level contain one of the valid keywords?
-      const isValidMember = userLevel.includes('basic') || userLevel.includes('standard') || userLevel.includes('premium');
-
-      // 6. BLOCK if: User not found OR they are NOT a valid member
-      if (!user || !isValidMember) {
-        
-        // --- BLOCKED: Show Info Popup ---
-        
+  
+  // Helper to show the Access Denied Popup
+  function showDeniedPopup() {
         // Remove existing alert if it's already there (cleanup)
         const existingAlert = document.getElementById('membership-alert');
         if(existingAlert) existingAlert.remove();
 
-        // Create the popup box elements
         const alertBox = document.createElement('div');
         alertBox.id = 'membership-alert';
-        
-        // Style the popup (centered, white box, shadow)
         alertBox.style.cssText = `
           position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
           background: white; padding: 25px; border-radius: 10px; 
@@ -149,7 +111,6 @@ function init_topup() {
           font-family: inherit;
         `;
         
-        // Add content to the popup
         alertBox.innerHTML = `
           <h3 style="margin-top:0; color:#d32f2f; font-size: 1.25rem; font-weight:bold;">Access Denied</h3>
           <p style="margin:15px 0; color:#555; font-size: 0.95rem;">
@@ -169,36 +130,88 @@ function init_topup() {
 
         document.body.appendChild(alertBox);
 
-        // Action: When they click "See How It Works"
         document.getElementById('popup-see-how').addEventListener('click', () => {
-           // Finds the REAL sales letter button in your menu (ignoring this popup button)
            const realButton = document.querySelector('.menu-button[data-view="salesletter"]');
            if (realButton) {
              alertBox.remove();
-             realButton.click(); // Simulates a click on the menu button
+             realButton.click();
            } else {
              console.error("Sales letter menu button not found.");
              alert("Could not find the sales letter page.");
            }
         });
 
-        // Action: Close popup button
         document.getElementById('popup-close').addEventListener('click', () => {
           alertBox.remove();
         });
+  }
 
-      } else {
-        // --- ALLOWED: Proceed to Top Up Form (Original Logic) ---
+  // Load step + topups on DOM load
+  restoreStep();
+  restoreTopups();
+
+  // Button Events
+  // --- NEW LOGIC: Hybrid Check (LocalStorage FAST -> Fetch Fallback) ---
+  topUpBtn.addEventListener("click", async () => {
+    
+    // 1. Try to get the level from LocalStorage (Instant)
+    const storedLevel = localStorage.getItem("userMembershipLevel");
+    const userId = localStorage.getItem("savedIdCode") || "";
+    
+    // Helper function to validate level string
+    const isMember = (lvl) => {
+        if(!lvl) return false;
+        const s = String(lvl).toLowerCase().trim();
+        return s.includes('basic') || s.includes('standard') || s.includes('premium');
+    };
+
+    // --- PATH A: FAST (Cached) ---
+    if (storedLevel && storedLevel !== "undefined" && storedLevel !== "") {
+        console.log("Checking cached membership level:", storedLevel);
+        
+        if (isMember(storedLevel)) {
+            // Success: Instant transition
+            topUpBtn.classList.add("hidden");
+            step1.classList.remove("hidden");
+            saveStep("step1");
+            return; // Exit function, we are done!
+        } else {
+            // Fail: Instant Popup
+            showDeniedPopup();
+            return; // Exit function
+        }
+    }
+
+    // --- PATH B: SLOW (Fallback - only if storage is empty) ---
+    // If we are here, localStorage was empty. We must fetch.
+    console.log("Cached level not found, fetching from Sheet...");
+    
+    const originalText = topUpBtn.textContent;
+    topUpBtn.textContent = "Verifying...";
+    topUpBtn.disabled = true;
+
+    try {
+      const response = await fetch('https://opensheet.elk.sh/169KgT37g1HPVkzH-NLmANR4wAByHtLy03y5bnjQA21o/appdata');
+      const data = await response.json();
+      const user = data.find(row => String(row['ID Code']).trim() === String(userId).trim());
+      
+      const rawLevel = user && user['Level'] ? String(user['Level']) : '';
+      
+      // Save for next time!
+      if(rawLevel) localStorage.setItem("userMembershipLevel", rawLevel);
+
+      if (user && isMember(rawLevel)) {
         topUpBtn.classList.add("hidden");
         step1.classList.remove("hidden");
         saveStep("step1");
+      } else {
+        showDeniedPopup();
       }
 
     } catch (error) {
       console.error("Error verifying membership:", error);
       alert("Unable to verify membership status. Please check your internet connection.");
     } finally {
-      // Always restore the main button text/state when done
       topUpBtn.textContent = originalText;
       topUpBtn.disabled = false;
     }
