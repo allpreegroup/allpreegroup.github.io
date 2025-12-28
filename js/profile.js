@@ -159,11 +159,11 @@ function init_profile() {
       <h3>Summary</h3>
       <p><strong>Total Top-Up:</strong> J$${Number(summary["Total Top"]?.replace('+', '') || 0).toLocaleString()}</p>
       <p><strong>Total Spend:</strong> J$${Number(summary["Total Spend"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p style="color: #34d399;"><strong>Total Cashback: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
-      <p><strong>Confirm Cashback:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Received Cashback:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Pending Cashback:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
-      <p><strong>Available To Cash Out:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p style="color: #34d399;"><strong>Total Savings: J$${Number(summary["Total CashBack"]?.replace('+', '') || 0).toLocaleString()} </strong></p>
+      <p><strong>Confirm Savings:</strong> J$${Number(summary["Confirm CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Received Savings:</strong> J$${Number(summary["Receive CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Pending Savings:</strong> J$${Number(summary["Pending CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
+      <p><strong>Available Savings:</strong> J$${Number(summary["Available CashBack"]?.replace('+', '') || 0).toLocaleString()}</p>
     `;
 
     const entriesHTML = rows.map(user => `
@@ -175,7 +175,7 @@ function init_profile() {
             <p class="amount">J$${user["Top-Up"]}</p>
           </div>
           <div class="entry-col">
-            <p><strong>CashBack</strong></p>
+            <p><strong>Savings</strong></p>
             <p class="subtext">Activated On<br>${user["activation date"]}</p>
             <p class="amount" style="color: #34d399;">J$${Number(user["Cashback"]?.replace('+', '') || 0).toLocaleString()}</p>
           </div>
