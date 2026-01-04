@@ -243,7 +243,7 @@
             // Conditional rendering for cashback text on the brand info card
             let cashbackTextHtml = '';
             if (cashbackStatus && String(cashbackStatus).toLowerCase() === 'yes') {
-                cashbackTextHtml = `<p class="cashback-brand-text">30 - 49% CashBack ¹²¹</p>`;
+                cashbackTextHtml = `<p class="cashback-brand-text">Accept Allpree GiftCard</p>`;
             }
 
             brandInfoCard.innerHTML = `
