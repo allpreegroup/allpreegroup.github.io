@@ -239,31 +239,33 @@ function handleSuccessfulSignup() {
   animation: pop 0.6s ease-in-out;
 ">${firstName} 🎉 Congratulations On Signing Up! 🎉</h3>
       <center> <h2><strong>BE SMART.<br> SHOP CLEVER.<br> GET PAID.</strong></h2>
-      <h3>It’s Time To Make Money While Shopping In Jamaica!</h3><br> </center>
+      <h3>It’s Time To Save Money While Shopping In Jamaica!</h3><br> </center>
 
       <p><strong>${firstName}</strong>, I know you are a savvy shopper<br><br>
      
-Tired of going shopping and walking away with just your receipts and <strong>no real discounts</strong> from big or small retailers?<br><br>
+Tired of going shopping and walking away with  nothing but receipts, <strong>no real value, no rewards, on long-term benefit</strong><br><br>
 
-What if you could stop worrying about discounts and start <strong>earning cash back</strong> instead? 💸 With our system, you can get back <strong>up to 49%</strong> of what you spend, sent straight to your <strong>bank account</strong>. All it takes is <strong>121 days</strong> to settle. No stress, no strings.<br><br>
+What if your everyday shopping could quietly turn into <strong>real money returned to you</strong> without changing where or how you shop? <br><br>
 
-Sounds too good to miss, right?<br>
+With Allpree, your purchases can generate <strong>up to 49% in structured savings</strong> released to you after 121 days, sent straight to your <strong>bank account</strong>. <br><br>
+
+No stress. No chasing points. No gimmicks.<br><br>
+
+Sounds smart already, right?<br>
 </p>
 
 <p>
-It all starts with our <strong>➕ Deal Plus⁺ Program</strong>, giving you exclusive access to over <strong>300+ merchants</strong> across Jamaica.<br><br>
+It all starts with our <strong>Shopping Savings Club</strong>, giving you access to exclusive eals and voucher-powered shopping at <strong>400+ local merchants</strong> across Jamaica.<br><br>
 
-But here’s the real magic: <strong>You don’t need to wait for any special deals.</strong> Deal Plus⁺ works on <strong>every purchase</strong>, from <strong>any merchant</strong>, automatically turning your everyday spending into real money back.<br><br>
+Here's the real difference, You're not just chasing discounts. When you buy vouchers and shop in-store, Allpree works quietly behind the scenes, turning your everyday spending into structured savings that grow over time<br><br>
 
-So far, our members have saved <strong id='savedAmount'>loading...</strong>, that’s real cash returned from a total spend of <strong id='spentAmount'>loading...</strong>! <strong>${firstName}</strong>, imagine what you could be saving just by shopping like you already do.<br><br>
+So far, our members have saved <strong id='savedAmount'>loading...</strong>, from a total spend of <strong id='spentAmount'>loading...</strong>. <br><br>
 
-And yes, we work quietly behind the scenes to turn your everyday shopping into smart shopping that <strong>pays you back</strong>. Join the movement and make every dollar count.
+<strong>${firstName}</strong>, imagine what you could be saving just by shopping the way you already do.<br><br>
+
+Join the movement and make every dollar count.
 </p>
-      <h4><center>Plus Unlock Lifetime Income</center></h4>
-      <p>By <strong>inviting</strong> your <strong>friends</strong>, <strong>family</strong>, or even your <strong>enemy</strong>, You can start earning <strong>recurring commissions for life</strong>, on every thing they purchase, for as long as they are using the ➕ Deal Plus⁺ Program.</p>
-
-      <p>No gimmicks, just real money sent <strong>straight to your bank account</strong> with the right opportunity to earn a little extra.</p><br>
-
+    
 <center>
      <button id="seeHowItWorks" class="menu-button" data-view="salesletter-dummy">
   👉 See How It Works
