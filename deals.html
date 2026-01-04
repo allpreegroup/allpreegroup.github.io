@@ -4008,7 +4008,7 @@ function openPopup({ image, name, original, discount, description, brandLogo, br
   const finalPrice = discountPrice - cashbackAmount;
 
   const cashbackEl = document.getElementById('popupCashback');
-  cashbackEl.innerHTML = `Savings: upto J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Club Price: downto J$${finalPrice.toLocaleString()} — Over ¹²¹ Days </span>`;
+  cashbackEl.innerHTML = `Club Savings: upto J$${cashbackAmount.toLocaleString()} (${cashbackPercent}%) <br> <span class="final-price">Club Price: downto J$${finalPrice.toLocaleString()} — Over ¹²¹ Days </span> <br><br>New to Allpree? <a href="#" id="account">Create Account & Join The Club</a>`;
 
   document.body.classList.add('noscroll');
 
@@ -5225,6 +5225,27 @@ popup.addEventListener('touchend', (e) => {
 
 // Call this after your popup is ready
 addPopupSwipeListeners();
+
+
+	document.addEventListener('click', function (event) {
+    // Check if the click was on the #account link
+    const accountLink = event.target.closest('#account');
+    
+    if (accountLink) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      
+      // 1. Close the Popup first
+      closePopup();
+      
+      // 2. Find and click the hidden Sign Up button to change the view
+      const realButton = document.querySelector('.menu-button[data-view="signup"]');
+      if (realButton) {
+        realButton.click();
+      } else {
+        console.error('Target action button not found.');
+      }
+    }
+});
 	
 </script>
 </div>
