@@ -4634,7 +4634,8 @@ if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             // 📍 Add location badge
           const locationBadge = document.createElement('div');
           locationBadge.className = 'location-badge';
-          locationBadge.textContent = `📍`;
+		  const townName = row.Town || row['Town'] || ''; 
+          locationBadge.textContent = townName ? `📍 ${townName}` : `📍`;
           locationBadge.addEventListener('click', (event) => {
           event.stopPropagation(); // Prevents grid from toggling
           openBrandLocation(currentBrand);
