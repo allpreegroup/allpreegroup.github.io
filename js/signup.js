@@ -255,7 +255,7 @@ Sounds smart already, right?<br>
 </p>
 
 <p>
-It all starts with our <strong>Shopping Savings Club</strong>, giving you access to exclusive eals and voucher-powered shopping at <strong>400+ local merchants</strong> across Jamaica.<br><br>
+It all starts with our <strong>Shopping Savings Club</strong>, giving you access to exclusive deals and voucher-powered shopping at <strong>400+ local merchants</strong> across Jamaica.<br><br>
 
 Here's the real difference, You're not just chasing discounts. When you buy vouchers and shop in-store, Allpree works quietly behind the scenes, turning your everyday spending into structured savings that grow over time<br><br>
 
