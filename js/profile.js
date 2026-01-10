@@ -278,7 +278,7 @@ document.addEventListener('click', function (event) {
   // Forgot password WhatsApp link
   document.getElementById('forgot-password')?.addEventListener('click', (e) => {
     e.preventDefault();
-    const waNumber = '18762042107'; // Replace with your number
+    const waNumber = '18764604563'; // Replace with your number
     const message = encodeURIComponent("Hi, I forgot my cashback login password. Can you help me retrieve it?");
     window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
   });
