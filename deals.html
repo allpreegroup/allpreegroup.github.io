@@ -3291,13 +3291,15 @@ function addToCart(deal) {
   } else {
     // Add item
     const price = parseFloat(deal.discount?.toString().replace(/,/g, '') || '0');
+    const originalPrice = parseFloat(deal.original?.toString().replace(/,/g, '') || '0');
     brandItems.push({
       _id: dealKey,
       brand: deal.brandName,
       brandimg: deal.brandLogo,
       name: deal.name,
       img: deal.img || deal.image || '',
-      price
+      price,
+      originalPrice
     });
     console.log('Added to cart:', deal.name);
   }
