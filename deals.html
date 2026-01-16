@@ -3723,7 +3723,7 @@ const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
 const fullCost = items.reduce((sum, item) => sum + (item.originalPrice || item.price || 0), 0);
 const totalDiscount = fullCost - subtotal;
 
-const tax = subtotal * 0.15;
+const tax = subtotal * 0;
 const grandTotal = subtotal + tax;
 
 // Format numbers as currency
@@ -3740,8 +3740,9 @@ totalsDiv.innerHTML = `
   <div style="display: flex; justify-content: space-between; color: red; margin-bottom: 5px;"><span>Discount:</span><strong>-${formatCurrency(totalDiscount)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
   <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><strong>${formatCurrency(subtotal)}</strong></div>
-  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div>
+<!--  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div> -->
   <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>Total:</span><strong style="color: green;">${formatCurrency(grandTotal)}</strong></div>
+  <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
   <div style="display: flex; justify-content: space-between; color: #28a745; margin-top: 5px;"><span>Club Saving:- Over ¹²¹ Days</span><strong>upto ${formatCurrency(clubSavings)}</strong></div>
 `;
 brandSection.appendChild(totalsDiv);
@@ -3752,8 +3753,8 @@ const actionRow = document.createElement('div');
 actionRow.style = 'display: flex; justify-content: space-between; margin-top: 8px; gap: 2px;'; 
 actionRow.innerHTML = `
   <button onclick="clearBrandCart('${brand}')" style="background: red; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Clear</button>
-  <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Save</button>
-  <button onclick="closeCartPopup(); closePopup(); document.querySelector('.menu-button[data-view=\\'salesletter\\']').click();" style="background: #28a745; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Join</button>
+  <button onclick="saveShoppingList('${brand}')" style="background: #007bff; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Save List</button>
+  <button onclick="closeCartPopup(); closePopup(); document.querySelector('.menu-button[data-view=\\'salesletter\\']').click();" style="background: #28a745; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Join Club</button>
   <button onclick="closeCartPopup(); closePopup(); document.querySelector('.menu-button[data-view=\\'topup\\']').click();" style="background: #28a745; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Topup</button>
   <button onclick="openBrandLocation('${brand}')" style="background: #555; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 11px;">Location</button>
 `;
