@@ -3723,7 +3723,7 @@ const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
 const fullCost = items.reduce((sum, item) => sum + (item.originalPrice || item.price || 0), 0);
 const totalDiscount = fullCost - subtotal;
 
-const tax = subtotal * 0;
+const tax = subtotal * 0.15;
 const grandTotal = subtotal + tax;
 
 // Format numbers as currency
@@ -3741,7 +3741,7 @@ totalsDiv.innerHTML = `
   <div style="display: flex; justify-content: space-between; color: red; margin-bottom: 5px;"><span>Discount:</span><strong>-${formatCurrency(totalDiscount)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
   <div style="display: flex; justify-content: space-between;"><span>SubTotal:</span><strong>${formatCurrency(subtotal)}</strong></div>
-<!--  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div> -->
+  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div> 
   <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>TotalPaid:</span><strong style="color: green;">${formatCurrency(grandTotal)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
   <div style="display: flex; justify-content: space-between; color: #28a745; margin-top: 5px;"><span>Club Saving:- Over ¹²¹ Days</span><strong>upto ${formatCurrency(clubSavings)}</strong></div>
