@@ -3724,13 +3724,14 @@ const fullCost = items.reduce((sum, item) => sum + (item.originalPrice || item.p
 const totalDiscount = fullCost - subtotal;
 
 const tax = subtotal * 0;
-const grandTotal = subtotal - clubSavings;
+const grandTotal = subtotal + tax;
 
 // Format numbers as currency
 const formatCurrency = (amount) => `JMD ${amount.toLocaleString('en-JM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Calculate Club Savings (49% of subtotal)
 const clubSavings = Math.round(subtotal * 0.49);
+const clubCost = grandTotal - clubSavings;
 
 // Totals section
 const totalsDiv = document.createElement('div');
@@ -3739,13 +3740,13 @@ totalsDiv.innerHTML = `
   <div style="display: flex; justify-content: space-between; color: #666; font-size: 13px;"><span>Full Cost:</span><span style="text-decoration: line-through;">${formatCurrency(fullCost)}</span></div>
   <div style="display: flex; justify-content: space-between; color: red; margin-bottom: 5px;"><span>Discount:</span><strong>-${formatCurrency(totalDiscount)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
-  <div style="display: flex; justify-content: space-between;"><span>Total Paid:</span><strong>${formatCurrency(subtotal)}</strong></div>
+  <div style="display: flex; justify-content: space-between;"><span>SubTotal:</span><strong>${formatCurrency(subtotal)}</strong></div>
 <!--  <div style="display: flex; justify-content: space-between;"><span>15% Tax:</span><strong>${formatCurrency(tax)}</strong></div> -->
-  
+  <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>GrandTotal:</span><strong style="color: green;">${formatCurrency(grandTotal)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
   <div style="display: flex; justify-content: space-between; color: #28a745; margin-top: 5px;"><span>Club Saving:- Over ¹²¹ Days</span><strong>upto ${formatCurrency(clubSavings)}</strong></div>
   <hr style="border: 0; border-top: 1px dashed #ccc; margin: 5px 0;">
-  <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>Cost After Club:</span><strong style="color: green;">${formatCurrency(grandTotal)}</strong></div>
+  <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;"><span>ClubCost:</span><strong style="color: green;">${formatCurrency(clubCost)}</strong></div>
 `;
 brandSection.appendChild(totalsDiv);
 
