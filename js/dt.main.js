@@ -535,11 +535,11 @@
                         console.log(`[Data Fetch] Successfully processed brand: "${brandName}" (ID: ${brandId}), Category: "${brandCategory}", Parish: "${brandParish}", Town: "${brandTown}", Products: ${tempProducts.length}`);
 
                         // Hide loading overlay as soon as the first brand is successfully loaded and processed
-                        if (!firstBrandLoaded) {
+                      /*  if (!firstBrandLoaded) {
                             hideLoadingOverlay();
                             console.log("[Loading Overlay] Hidden after first brand loaded.");
                             firstBrandLoaded = true;
-                        }
+                        } */
 
                         return brandId;
                     } catch (err) {
@@ -577,6 +577,7 @@
                 console.log("[Data Fetch] All brands processed. Applying filters and rendering...");
                 // Now, explicitly call applyFilters to show all brands by default (since no featured brand is initially selected)
                 applyFilters();
+                hideLoadingOverlay();
 
             } catch (err) {
                 console.error('[Data Fetch] Failed to load master sheet:', err);
