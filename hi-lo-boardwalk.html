@@ -532,14 +532,15 @@
                     categoryBrandLogo.alt = `${featuredBrandData.BrandName || 'Featured'} Brand Logo`;
                     categoryBrandNameText.textContent = featuredBrandData.BrandName || 'Featured Brand';
                     
-                    const brandColor = featuredBrandData.BrandColor; 
-            const secondaryColor = featuredBrandData.SecondaryColor; 
+                    const primaryColor = featuredBrandData.PrimaryColor;
+                    const secondaryColor = featuredBrandData.SecondaryColor;
+
             let backgroundStyle = '';
 
-            if (brandColor && secondaryColor) { // If both primary and secondary colors are present
-                backgroundStyle = `background: linear-gradient(to right, ${brandColor}, ${secondaryColor});`;
-            } else if (brandColor) { // Fallback to solid primary color
-                backgroundStyle = `background-color: ${brandColor};`;
+            if (primaryColor && secondaryColor) { // If both primary and secondary colors are present
+                backgroundStyle = `background: linear-gradient(to right, ${primaryColor}, ${secondaryColor});`;
+            } else if (primaryColor) { // Fallback to solid primary color
+                backgroundStyle = `background-color: ${primaryColor};`;
             }
             
             // Apply the style if a color was found
