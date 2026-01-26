@@ -428,7 +428,7 @@
             const discount = parseFloat(String(row.DiscountPrice).replace(/,/g, '')) || 0;
             const percentOff = original && discount ? Math.round((1 - discount / original) * 100) : 0;
 
-            const shortName = row.ProductName.length > 25 ? row.ProductName.slice(0, 22) + '...' : row.ProductName;
+            const shortName = row.ProductName.length > 18 ? row.ProductName.slice(0, 17) + '...' : row.ProductName;
 
             const dealCard = document.createElement('div');
             dealCard.className = 'deal-card';
@@ -437,12 +437,12 @@
                 <img src="${row.ImageURL}" alt="${row.ProductName}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/e0e0e0/555555?text=Product';">
                 <div class="deal-content">
                     <!-- Product-specific brand name (text only) -->
-                    <div class="product-brand-text">${row.BrandName || 'Unknown Brand'}</div>
+                    <div class="product-brand-text">${row.BrandName || ''}</div>
                     <div class="deal-title">${shortName}</div>
                     <div class="price-section">
                         <div class="price-info">
-                            <div class="discount-price">J${discount.toLocaleString()}</div>
-                            <div class="original-price">J${original.toLocaleString()}</div>
+                            <div class="discount-price">JMD $${discount.toLocaleString()}</div>
+                            <div class="original-price">JMD $${original.toLocaleString()}</div>
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
