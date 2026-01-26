@@ -79,7 +79,7 @@
         .deal-card img {
             width: 100%;
             height: 150px; /* Fixed height for consistency */
-            object-fit: cover; /* Cover ensures image fills space */
+            object-fit: contain; /* Cover ensures image fills space */
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
         }
@@ -180,8 +180,8 @@
             text-align: center;
         }
         .category-icon-card .category-brand-logo { /* Specific style for the brand logo in this card */
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 100px;
             object-fit: contain;
             margin-bottom: 1rem;
             border-radius: 50%; /* Make it circular */
@@ -189,11 +189,11 @@
             padding: 5px;
         }
         .category-icon-card .card-text {
-            font-size: 1.25rem;
+            font-size: 1rem;
             font-weight: 600;
         }
         .category-icon-card .countdown-text {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 500;
             margin-top: 0.5rem;
             color: #e0e0e0;
@@ -378,7 +378,7 @@
 
     <script>
         const sheetUrl = 'https://opensheet.elk.sh/1OhyHW9MPbk8RtQvuPaY_KaV3OKcYs0h26ed958zXuhA/deals';
-        const productsPerPage = 9; // Number of products to show initially (excluding the category card)
+        const productsPerPage = 4; // Number of products to show initially (excluding the category card)
         let allProducts = [];
         let currentProductIndex = 0;
         let featuredBrandData = null; // To store the identified featured brand row
@@ -391,8 +391,8 @@
             document.getElementById('popupImg').src = image;
             document.getElementById('popupTitle').textContent = name;
             document.getElementById('popupBrand').textContent = brandName ? `${brandName}` : ''; // Set brand name in popup
-            document.getElementById('popupPrice').textContent = `Original Price: R${original}`;
-            document.getElementById('popupDiscount').textContent = `Now: R${discount}`;
+            document.getElementById('popupPrice').textContent = `Original Price: J${original}`;
+            document.getElementById('popupDiscount').textContent = `Now: J${discount}`;
             document.getElementById('popupDesc').textContent = description || '';
             document.getElementById('popupBadge').textContent = `${percentOff}% OFF`;
             document.getElementById('popup').style.display = 'flex';
@@ -441,8 +441,8 @@
                     <div class="deal-title">${shortName}</div>
                     <div class="price-section">
                         <div class="price-info">
-                            <div class="discount-price">R${discount.toLocaleString()}</div>
-                            <div class="original-price">R${original.toLocaleString()}</div>
+                            <div class="discount-price">J${discount.toLocaleString()}</div>
+                            <div class="original-price">J${original.toLocaleString()}</div>
                         </div>
                         <button class="add-to-cart-button">+</button>
                     </div>
