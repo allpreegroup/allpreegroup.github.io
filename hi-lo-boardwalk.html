@@ -525,7 +525,7 @@
                 const categoryBrandLogo = document.getElementById('category-brand-logo');
                 const categoryBrandNameText = document.getElementById('category-brand-name-text');
                 const categoryBrandCountdown = document.getElementById('category-brand-countdown');
-                const categoryBrandCard = document.getElementById('category-icon-card');
+                const categoryBrandCard = document.getElementById('category-brand-card');
 
                 if (featuredBrandData) {
                     categoryBrandLogo.src = featuredBrandData.BrandLogo || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
@@ -543,9 +543,9 @@
             }
             
             // Apply the style if a color was found
-            if (backgroundStyle) {
-               categoryBrandCard.style.cssText = backgroundStyle;
-            }
+if (backgroundStyle) {
+    categoryBrandCard.style.cssText = backgroundStyle; // <--- Use .cssText
+}
                     
                     if (featuredBrandData.ExpiryDate) {
                         startBrandCountdown(featuredBrandData.ExpiryDate, 'category-brand-countdown');
@@ -617,7 +617,7 @@
                     }
                     timeString += `${hrs}:${mins}:${secs}`;
 
-                    el.textContent = `Ends in: ${timeString}`;
+                    el.textContent = `Deal Ends in: ${timeString}`;
                 }
             }
 
