@@ -275,6 +275,19 @@
                     countdownElement.classList.add('error'); // Add error class
                 }
             }
+
+            // 1. Clean the brand name for the URL (lowercase and replace spaces/special chars with hyphens)
+    const brandUrlSlug = brandName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    
+    // 2. Add the click event to open the brand webapp
+    brandInfoCard.addEventListener('click', () => {
+        const brandWebappUrl = `https://www.allpree.com/${brandUrlSlug}`; // Adjust the domain to your actual webapp domain
+        window.open(brandWebappUrl, '_blank');
+    });
+
+    // 3. Add a pointer cursor so users know it's clickable
+    brandInfoCard.style.cursor = 'pointer';
+
             return brandInfoCard;
         }
 
