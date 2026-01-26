@@ -525,11 +525,28 @@
                 const categoryBrandLogo = document.getElementById('category-brand-logo');
                 const categoryBrandNameText = document.getElementById('category-brand-name-text');
                 const categoryBrandCountdown = document.getElementById('category-brand-countdown');
+                const categoryBrandCard = document.getElementById('category-brand-card');
 
                 if (featuredBrandData) {
                     categoryBrandLogo.src = featuredBrandData.BrandLogo || 'https://placehold.co/80x80/ffffff/2C3E50?text=Brand+Logo';
                     categoryBrandLogo.alt = `${featuredBrandData.BrandName || 'Featured'} Brand Logo`;
                     categoryBrandNameText.textContent = featuredBrandData.BrandName || 'Featured Brand';
+                    
+                    const brandColor = featuredBrandData.BrandColor; 
+            const secondaryColor = featuredBrandData.SecondaryColor; 
+            let backgroundStyle = '';
+
+            if (brandColor && secondaryColor) { // If both primary and secondary colors are present
+                backgroundStyle = `background: linear-gradient(to right, ${brandColor}, ${secondaryColor});`;
+            } else if (brandColor) { // Fallback to solid primary color
+                backgroundStyle = `background-color: ${brandColor};`;
+            }
+            
+            // Apply the style if a color was found
+            if (backgroundStyle) {
+                categoryBrandCard.style = backgroundStyle;
+            }
+                    
                     if (featuredBrandData.ExpiryDate) {
                         startBrandCountdown(featuredBrandData.ExpiryDate, 'category-brand-countdown');
                     } else {
